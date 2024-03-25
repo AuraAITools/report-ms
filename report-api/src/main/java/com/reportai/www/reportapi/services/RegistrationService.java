@@ -70,7 +70,6 @@ public class RegistrationService {
 
     @Transactional
     public Parent registerParentWithInstitution(Parent entity, User user , UUID institutionId) {
-        log.info("gerer"+institutionId.toString());
         Optional<Institution> institution = institutionRepository.findById(institutionId);
         if (institution.isEmpty()) {
             throw new NotFoundException("institution not found");
@@ -115,4 +114,66 @@ public class RegistrationService {
         entity.setInstitution(institution.get());
         return subjectRepository.save(entity);
     }
+
+    @Transactional
+    public Parent linkStudentToParent(UUID student_id, UUID parent_id) {
+        Optional<Student> foundStudent = studentRepository.findById(student_id);
+        Optional<Parent> foundParent = parentRepository.findById(parent_id);
+
+        if (foundStudent.isEmpty() || foundParent.isEmpty()) {
+            throw new NotFoundException("Student or Parent not found");
+        }
+
+        Student student = foundStudent.get();
+        Parent parent = foundParent.get();
+
+        student.getParents().add(parent);
+        parent.getStudents().add(student);
+
+
+        studentRepository.save(student);
+        return parentRepository.save(parent);
+    };
+
+    @Transactional
+    public Educator linkEducatorToClass(UUID educator_id, UUID class_id){
+        Optional<Educator> foundEducator = educatorRepository.findById(educator_id);
+        Optional<Class> foundClass = classRepository.findById(class_id);
+
+        if (foundEducator.isEmpty() || foundClass.isEmpty()) {
+            throw new NotFoundException("Educator or Class not found");
+        }
+
+        Educator educator = foundEducator.get();
+        Class aClass = foundClass.get();
+
+        educator.getClasses().add(aClass);
+        aClass.getEducators().add(educator);
+
+        classRepository.save(aClass);
+        return educatorRepository.save(educator);
+    };
+
+    @Transactional
+    public Student linkStudentToClass(UUID student_id, UUID class_id) {
+        Optional<Student> foundStudent = studentRepository.findById(student_id);
+        Optional<Class> foundClass = classRepository.findById(class_id);
+
+        if (foundStudent.isEmpty() || foundClass.isEmpty()) {
+            throw new NotFoundException("Student or Class not found");
+        }
+
+        Student student = foundStudent.get();
+        Class aClass = foundClass.get();
+
+        student.getClasses().add(aClass);
+        aClass.getStudents().add(student);
+
+        classRepository.save(aClass);
+        return studentRepository.save(student);
+    }
+
+
+
+
 }
