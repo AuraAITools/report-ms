@@ -8,12 +8,17 @@ import com.reportai.www.reportapi.dtos.requests.CreateInstitutionRequestBody;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
+import com.reportai.www.reportapi.entities.Test;
+import com.reportai.www.reportapi.entities.TestGroup;
 import com.reportai.www.reportapi.services.CRUDService;
 import com.reportai.www.reportapi.services.InstitutionService;
 import com.reportai.www.reportapi.services.RegistrationService;
+import com.reportai.www.reportapi.services.TestGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +33,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InstitutionController extends SimpleCRUDController<Institution, UUID> {
 
-    public InstitutionController(InstitutionService service) {
+
+    public InstitutionController(CRUDService<Institution, UUID> service, TestGroupService testGroupService) {
         super(service);
     }
 
@@ -101,4 +107,16 @@ public class InstitutionController extends SimpleCRUDController<Institution, UUI
                 .getFirst();
         return new ResponseEntity<>(createdClass,HttpStatus.CREATED);
     }
+
+    @PostMapping("/{id}/test-groups")
+    public ResponseEntity<TestGroup> createTestGroupInInstitution(@PathVariable UUID id, @RequestBody TestGroup testGroup) {
+        Institution institution = service.findById(id);
+        institution.getTestGroups().add(testGroup);
+        service.update(institution);
+
+        return new ResponseEntity<>(testGroup,HttpStatus.CREATED);
+    }
+
+
+
 }
