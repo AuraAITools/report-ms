@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,13 +50,15 @@ public class Student {
     private User user;
 
     @ManyToMany
-    @JsonBackReference
+    @JsonIgnore
     private List<Parent> parents;
 
     @ManyToMany
+    @JsonIgnore
     private List<Institution> institutions;
 
     @ManyToMany
+    @JsonIgnore
     private List<Class> classes;
 
     @PrePersist

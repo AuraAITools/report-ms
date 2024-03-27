@@ -1,9 +1,11 @@
 package com.reportai.www.reportapi.api.v1;
 
+import com.reportai.www.reportapi.api.commons.SimpleCRUDController;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.dtos.requests.CreateStudentRequestBody;
 import com.reportai.www.reportapi.repositories.StudentRepository;
+import com.reportai.www.reportapi.services.CRUDService;
 import com.reportai.www.reportapi.services.RegistrationService;
 import com.reportai.www.reportapi.services.StudentService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,38 +23,14 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/student")
+@RequestMapping("/api/v1/students")
 @Slf4j
-public class StudentController {
+public class StudentController extends SimpleCRUDController<Student,UUID> {
     private final RegistrationService registrationService;
-    private final StudentService studentService;
 
-    public StudentController(RegistrationService registrationService, StudentService studentService) {
+    public StudentController(CRUDService<Student, UUID> service, RegistrationService registrationService) {
+        super(service);
         this.registrationService = registrationService;
-        this.studentService = studentService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody CreateStudentRequestBody createStudentRequestBody) {
-        Student student = registrationService.registerStudentWithInstitution(
-                Student.builder().build(),
-                createStudentRequestBody.getUser().toEntity(),
-                createStudentRequestBody.getInstitutionId()
-        );
-
-        return new ResponseEntity<>(student, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("id") UUID id) {
-        Student student = studentService.getStudentById(id);
-        return new ResponseEntity<>(student, HttpStatus.OK);
-    }
-
-    @GetMapping("/")
-    public ResponseEntity<List<Student>> getStudents() {
-        List<Student> students = studentService.getStudents();
-        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @PostMapping("/{student_id}/class/{class_id}")

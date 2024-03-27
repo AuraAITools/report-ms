@@ -1,8 +1,11 @@
 package com.reportai.www.reportapi.api.v1;
 
+import com.reportai.www.reportapi.api.commons.CRUDController;
+import com.reportai.www.reportapi.api.commons.SimpleCRUDController;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.dtos.requests.CreateStudentRequestBody;
 import com.reportai.www.reportapi.entities.Student;
+import com.reportai.www.reportapi.services.CRUDService;
 import com.reportai.www.reportapi.services.RegistrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,24 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/educator")
+@RequestMapping("/api/v1/educators")
 @Slf4j
-public class EducatorController {
+public class EducatorController extends SimpleCRUDController<Educator,UUID> {
 
     private final RegistrationService registrationService;
-    public EducatorController(RegistrationService registrationService) {
-        this.registrationService = registrationService;
-    }
 
-    @PostMapping
-    public ResponseEntity<Educator> createEducatorWithInstitution(@RequestBody CreateStudentRequestBody createStudentRequestBody) {
-        Educator createdEducator = registrationService.registerEducatorWithInstitution(
-                Educator
-                    .builder()
-                    .build(),
-                createStudentRequestBody.getUser().toEntity(),
-                createStudentRequestBody.getInstitutionId());
-        return new ResponseEntity<>(createdEducator, HttpStatus.CREATED);
+    public EducatorController(CRUDService<Educator, UUID> service, RegistrationService registrationService) {
+        super(service);
+        this.registrationService = registrationService;
     }
 
     @PostMapping("/{educator_id}/class/{class_id}")

@@ -1,12 +1,19 @@
 package com.reportai.www.reportapi.dtos.requests;
 
+import com.reportai.www.reportapi.dtos.DTO;
+import com.reportai.www.reportapi.dtos.DTOSupport;
 import com.reportai.www.reportapi.entities.User;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.modelmapper.ModelMapper;
+import org.springframework.core.ParameterizedTypeReference;
 
-@Data
-@NoArgsConstructor
-public class CreateUserRequestBody implements DTOSupport<User> {
+@Getter
+@Setter
+public class CreateUserRequestBody extends DTOSupport<User> {
 
     private String email;
 
@@ -14,9 +21,11 @@ public class CreateUserRequestBody implements DTOSupport<User> {
 
     private String name;
 
-    @Override
-    public DTOSupport<User> toDTO(User entity) {
-        return null;
+    public CreateUserRequestBody(ModelMapper modelMapper, String email, String role, String name) {
+        super(modelMapper);
+        this.email = email;
+        this.role = role;
+        this.name = name;
     }
 
     @Override

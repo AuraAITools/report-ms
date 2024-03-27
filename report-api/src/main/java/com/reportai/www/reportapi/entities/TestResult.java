@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,12 +39,15 @@ public class TestResult {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonIgnore
     private Test test;
 
     @OneToOne
+    @JsonIgnore
     private Student student;
 
     @OneToOne
+    @JsonIgnore
     private Subject subject;
     @PrePersist
     private void onCreate() {

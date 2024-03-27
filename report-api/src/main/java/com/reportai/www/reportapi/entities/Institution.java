@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,24 +46,31 @@ public class Institution {
     private User user;
 
     @ManyToMany
+    @JsonIgnore
     private List<Student> students;
 
     @ManyToMany
+    @JsonIgnore
     private List<Parent> parents;
 
     @ManyToMany
+    @JsonIgnore
     private List<Educator> educators;
 
     @OneToMany
+    @JsonIgnore
     private List<Class> classes;
 
     @OneToMany
+    @JsonIgnore
     private List<Subject> subjects;
 
     @OneToMany
+    @JsonIgnore
     private List<Invoice> invoices;
 
     @OneToMany
+    @JsonIgnore
     private List<TestGroup> testGroups;
 
     @PrePersist

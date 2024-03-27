@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,9 +46,11 @@ public class Educator {
     @OneToOne
     private User user;
 
+    @JsonIgnore
     @ManyToMany
     private List<Institution> institutions;
 
+    @JsonIgnore
     @ManyToMany
     private List<Class> classes;
 

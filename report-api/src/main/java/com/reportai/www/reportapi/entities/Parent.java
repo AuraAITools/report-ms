@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +13,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,10 +44,11 @@ public class Parent {
     private User user;
 
     @ManyToMany
-    @JsonManagedReference
+    @JsonIgnore
     private List<Student> students;
 
     @ManyToMany
+    @JsonIgnore
     private List<Institution> institutions;
 
     @PrePersist
