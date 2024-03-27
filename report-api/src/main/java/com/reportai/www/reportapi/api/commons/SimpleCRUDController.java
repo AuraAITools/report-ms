@@ -5,12 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.UUID;
 
 public class SimpleCRUDController<T,U> implements CRUDController<T,U>{
     protected final CRUDService<T,U> service;
@@ -66,5 +69,20 @@ public class SimpleCRUDController<T,U> implements CRUDController<T,U>{
     public ResponseEntity<Void> deleteByIds(@RequestParam(name = "ids") List<U> ids) {
         service.bulkDeleteById(ids);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    @Override
+    public ResponseEntity<T> update(@PathVariable U id, @RequestBody T resource) {
+        T result = service.findById(id);
+        T updatedResource = service.update(resource);
+        return new ResponseEntity<>(updatedResource,HttpStatus.OK);
+    }
+
+    @PatchMapping("/bulk")
+    @Override
+    public ResponseEntity<List<T>> bulkUpdate(@RequestBody List<T> resource) {
+        List<T> updatedResources = service.bulkUpdate(resource);
+        return new ResponseEntity<>(updatedResources, HttpStatus.OK);
     }
 }

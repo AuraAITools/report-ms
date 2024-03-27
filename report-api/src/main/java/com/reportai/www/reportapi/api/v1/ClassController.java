@@ -11,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -23,7 +25,28 @@ import java.util.UUID;
 @Slf4j
 public class ClassController extends SimpleCRUDController<Class, UUID> {
 
-    public ClassController(CRUDService<Class, UUID> service) {
+    private final RegistrationService registrationService;
+
+    public ClassController(CRUDService<Class, UUID> service, RegistrationService registrationService) {
         super(service);
+        this.registrationService = registrationService;
+    }
+
+    @PatchMapping("/{class_id}/students/{student_id}/register")
+    public ResponseEntity<Void> registerStudentToClass(@RequestParam(name = "class_id") UUID classId, @RequestParam(name = "student_id") UUID studentId) {
+        registrationService.linkStudentToClass(studentId,classId);
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/{class_id}/educators/{educator_id}/register")
+    public ResponseEntity<Void> registerEducatorToClass(@RequestParam(name = "class_id") UUID classId, @RequestParam(name = "educator_id") UUID educatorId) {
+        registrationService.linkEducatorToClass(educatorId,classId);
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/{class_id}/subjects/{subject_id}/register")
+    public ResponseEntity<Void> registerSubjectToClass(@RequestParam(name = "class_id") UUID classId, @RequestParam(name = "subject_id") UUID educatorId) {
+        registrationService.linkSubjectToClass(educatorId,classId);
+        return ResponseEntity.ok(null);
     }
 }

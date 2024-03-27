@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.services;
 
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
+import jakarta.persistence.Entity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -53,5 +54,15 @@ public class CRUDServiceSupport<T,U> implements CRUDService<T,U>{
     @Override
     public void bulkDeleteById(List<U> ids) {
         repository.deleteAllByIdInBatch(ids);
+    }
+
+    @Override
+    public T update(T entity) {
+        return repository.save(entity);
+    }
+
+    @Override
+    public List<T> bulkUpdate(List<T> entities) {
+        return repository.saveAll(entities);
     }
 }

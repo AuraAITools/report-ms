@@ -173,6 +173,24 @@ public class RegistrationService {
         return studentRepository.save(student);
     }
 
+    @Transactional
+    public Subject linkSubjectToClass(UUID subject_id, UUID class_id) {
+        Optional<Subject> foundSubject = subjectRepository.findById(subject_id);
+        Optional<Class> foundClass = classRepository.findById(class_id);
+
+        if (foundSubject.isEmpty() || foundClass.isEmpty()) {
+            throw new NotFoundException("Subject or Class not found");
+        }
+
+        Subject subject = foundSubject.get();
+        Class aClass = foundClass.get();
+
+        aClass.getSubjects().add(subject);
+
+        classRepository.save(aClass);
+        return subject;
+    }
+
 
 
 

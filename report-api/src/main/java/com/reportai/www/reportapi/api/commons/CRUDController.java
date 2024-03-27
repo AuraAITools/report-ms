@@ -18,6 +18,9 @@ public interface CRUDController<T,U> {
     ResponseEntity<List<T>> getAll();
 
     //TODO: update implementation
+    ResponseEntity<T> update(U id, T resource);
+
+    ResponseEntity<List<T>> bulkUpdate(List<T> resource);
     ResponseEntity<Void> deleteById(U id);
 
     ResponseEntity<Void> deleteByIds(List<U> ids);

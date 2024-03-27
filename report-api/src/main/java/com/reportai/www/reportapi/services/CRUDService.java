@@ -14,6 +14,9 @@ public interface CRUDService<T,U> {
     List<T> findAll();
 
     // TODO: update methods
+    T update(T entity);
+
+    List<T> bulkUpdate(List<T> entities);
 
     void deleteById(U id);
 

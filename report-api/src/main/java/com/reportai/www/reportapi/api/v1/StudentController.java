@@ -26,17 +26,10 @@ import java.util.UUID;
 @RequestMapping("/api/v1/students")
 @Slf4j
 public class StudentController extends SimpleCRUDController<Student,UUID> {
-    private final RegistrationService registrationService;
 
     public StudentController(CRUDService<Student, UUID> service, RegistrationService registrationService) {
         super(service);
-        this.registrationService = registrationService;
     }
 
-    @PostMapping("/{student_id}/class/{class_id}")
-    public ResponseEntity<Student> linkStudentToClass(@PathVariable("student_id") UUID studentId, @PathVariable("class_id") UUID classId) {
-        Student student = registrationService.linkStudentToClass(studentId,classId);
-        return new ResponseEntity<>(student, HttpStatus.OK);
-    }
 
 }
