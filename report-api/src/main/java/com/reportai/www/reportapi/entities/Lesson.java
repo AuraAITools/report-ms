@@ -6,13 +6,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,14 +22,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Subjects")
+@Table(name = "lessons")
 @Builder
-@Setter
 @Getter
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
-public class Subject {
-    private String name;
+@AllArgsConstructor
+public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
@@ -44,19 +41,15 @@ public class Subject {
 
     @OneToOne
     @JsonIgnore
-    private Institution institution;
-
-    @OneToOne
-    @JsonIgnore
-    private Class mappedClass;
+    private Subject subject;
 
     @OneToMany
     @JsonIgnore
-    private List<Lesson> lessons;
+    private List<Objective> objectives;
 
-    @ManyToMany
+    @OneToMany
     @JsonIgnore
-    private List<TestGroup> testGroups;
+    private List<StudentReport> studentReports;
 
     @PrePersist
     private void onCreate() {

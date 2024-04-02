@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -43,10 +44,6 @@ public class TestGroup {
     private String name;
 
 
-    @ManyToMany
-    @JsonIgnore
-    private List<Class> classes;
-
     @OneToMany
     @JsonIgnore
     private List<Test> tests;
@@ -54,6 +51,11 @@ public class TestGroup {
     @OneToOne
     @JsonIgnore
     private Institution institution;
+
+    @ManyToMany
+    @JsonIgnore
+    private List<Subject> subjects;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();
