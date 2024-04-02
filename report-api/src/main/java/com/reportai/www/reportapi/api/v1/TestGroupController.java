@@ -3,7 +3,7 @@ package com.reportai.www.reportapi.api.v1;
 import com.reportai.www.reportapi.api.commons.SimpleCRUDController;
 import com.reportai.www.reportapi.entities.Test;
 import com.reportai.www.reportapi.entities.TestGroup;
-import com.reportai.www.reportapi.services.CRUDService;
+import com.reportai.www.reportapi.services.commons.CRUDService;
 import com.reportai.www.reportapi.services.TestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

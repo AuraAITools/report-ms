@@ -1,15 +1,13 @@
-package com.reportai.www.reportapi.services;
+package com.reportai.www.reportapi.services.commons;
 
-import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
-import jakarta.persistence.Entity;
+import com.reportai.www.reportapi.services.commons.CRUDService;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public class CRUDServiceSupport<T,U> implements CRUDService<T,U>{
+public class CRUDServiceSupport<T,U> implements CRUDService<T,U> {
 
     protected JpaRepository<T,U> repository;
 

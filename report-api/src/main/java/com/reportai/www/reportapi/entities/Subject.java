@@ -43,6 +43,10 @@ public class Subject {
     @JsonIgnore
     private Institution institution;
 
+    @OneToOne
+    @JsonIgnore
+    private Class mappedClass;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

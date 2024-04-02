@@ -4,20 +4,15 @@ import com.reportai.www.reportapi.api.commons.SimpleCRUDController;
 import com.reportai.www.reportapi.entities.Class;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
-import com.reportai.www.reportapi.dtos.requests.CreateInstitutionRequestBody;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
-import com.reportai.www.reportapi.entities.Test;
 import com.reportai.www.reportapi.entities.TestGroup;
-import com.reportai.www.reportapi.services.CRUDService;
-import com.reportai.www.reportapi.services.InstitutionService;
-import com.reportai.www.reportapi.services.RegistrationService;
+import com.reportai.www.reportapi.services.commons.CRUDService;
 import com.reportai.www.reportapi.services.TestGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/institutions")

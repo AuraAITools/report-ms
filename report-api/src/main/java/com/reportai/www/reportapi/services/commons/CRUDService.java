@@ -1,4 +1,4 @@
-package com.reportai.www.reportapi.services;
+package com.reportai.www.reportapi.services.commons;
 
 import java.util.List;
 

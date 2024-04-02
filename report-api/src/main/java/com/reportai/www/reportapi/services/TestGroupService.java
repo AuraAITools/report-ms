@@ -4,6 +4,7 @@ import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Test;
 import com.reportai.www.reportapi.entities.TestGroup;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
+import com.reportai.www.reportapi.services.commons.CRUDServiceSupport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
