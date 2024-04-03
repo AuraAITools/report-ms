@@ -74,19 +74,19 @@ public class InstitutionController extends SimpleCRUDController<Institution, UUI
         return new ResponseEntity<>(createdStudent,HttpStatus.CREATED);
     }
 
-    @PostMapping("/{id}/subjects")
-    public ResponseEntity<Subject> createSubjectInInstitution(@RequestParam UUID id, @RequestBody Subject subject) {
-        Institution institution = service.findById(id);
-        institution.getSubjects().add(subject);
-        Institution updatedInstitution = service.update(institution);
-
-        Subject createdSubject = updatedInstitution.getSubjects()
-                .stream()
-                .filter(p -> p.getName().equals(subject.getName()))
-                .toList()
-                .getFirst();
-        return new ResponseEntity<>(createdSubject,HttpStatus.CREATED);
-    }
+//    @PostMapping("/{id}/subjects")
+//    public ResponseEntity<Subject> createSubjectInInstitution(@RequestParam UUID id, @RequestBody Subject subject) {
+//        Institution institution = service.findById(id);
+//        institution.getSubjects().add(subject);
+//        Institution updatedInstitution = service.update(institution);
+//
+//        Subject createdSubject = updatedInstitution.getSubjects()
+//                .stream()
+//                .filter(p -> p.getName().equals(subject.getName()))
+//                .toList()
+//                .getFirst();
+//        return new ResponseEntity<>(createdSubject,HttpStatus.CREATED);
+//    }
 
     @PostMapping("/{id}/classes")
     public ResponseEntity<Class> createClassInInstitution(@RequestParam UUID id, @RequestBody Class newClass) {

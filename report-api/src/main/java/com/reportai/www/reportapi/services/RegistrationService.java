@@ -104,17 +104,6 @@ public class RegistrationService {
         return classRepository.save(entity);
     }
 
-
-    @Transactional
-    public Subject registerSubjectWithInstitution(Subject entity, UUID institutionId) {
-        Optional<Institution> institution = institutionRepository.findById(institutionId);
-        if (institution.isEmpty()) {
-            throw new NotFoundException("institution not found");
-        }
-        entity.setInstitution(institution.get());
-        return subjectRepository.save(entity);
-    }
-
     @Transactional
     public Parent linkStudentToParent(UUID student_id, UUID parent_id) {
         Optional<Student> foundStudent = studentRepository.findById(student_id);
@@ -190,8 +179,4 @@ public class RegistrationService {
         classRepository.save(aClass);
         return subject;
     }
-
-
-
-
 }

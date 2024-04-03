@@ -1,6 +1,8 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,6 +45,7 @@ public class Institution {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonBackReference
     private User user;
 
     @ManyToMany
@@ -57,13 +60,9 @@ public class Institution {
     @JsonIgnore
     private List<Educator> educators;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Class> classes;
-
-    @OneToMany
-    @JsonIgnore
-    private List<Subject> subjects;
 
     @OneToMany
     @JsonIgnore

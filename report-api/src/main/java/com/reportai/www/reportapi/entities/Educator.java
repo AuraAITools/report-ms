@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,6 +45,7 @@ public class Educator {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonBackReference
     private User user;
 
     @JsonIgnore

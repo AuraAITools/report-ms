@@ -47,6 +47,7 @@ public class Student {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonBackReference
     private User user;
 
     @ManyToMany

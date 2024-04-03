@@ -32,7 +32,6 @@ public class CreateUserRequestBody extends DTOSupport<User> {
     public User toEntity() {
         return User.builder()
                 .name(this.getName())
-                .role(this.getRole())
                 .email(this.getEmail())
                 .build();
     }

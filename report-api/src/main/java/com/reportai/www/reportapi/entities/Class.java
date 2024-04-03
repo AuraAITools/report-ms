@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -74,6 +75,6 @@ public class Class {
     private List<TestGroup> testGroups;
 
     @JsonIgnore
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Subject> subjects;
 }
