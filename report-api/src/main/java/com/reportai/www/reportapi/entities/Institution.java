@@ -40,6 +40,8 @@ public class Institution {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    private String name;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

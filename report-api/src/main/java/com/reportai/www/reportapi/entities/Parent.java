@@ -2,8 +2,8 @@ package com.reportai.www.reportapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,6 +35,8 @@ public class Parent {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    private String name;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -42,9 +44,9 @@ public class Parent {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonManagedReference
     @JsonBackReference
     private User user;
-
 
     @ManyToMany
     @JsonIgnore
