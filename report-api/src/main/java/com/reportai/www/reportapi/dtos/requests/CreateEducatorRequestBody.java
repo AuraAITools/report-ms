@@ -1,32 +1,35 @@
 package com.reportai.www.reportapi.dtos.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.reportai.www.reportapi.dtos.DTOSupport;
+import com.reportai.www.reportapi.dtos.DTO;
 import com.reportai.www.reportapi.entities.Educator;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
-
-import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateEducatorRequestBody extends DTOSupport<Educator> {
-    @JsonProperty("institution_id")
-    private UUID institutionId;
+@AllArgsConstructor
+public class CreateEducatorRequestBody implements DTO<Educator> {
+
+    private String name;
+
+    @JsonProperty("user")
+    @NotNull(message = "user may not be null")
     private CreateUserRequestBody user;
 
-    public CreateEducatorRequestBody(ModelMapper modelMapper, UUID institutionId, CreateUserRequestBody user) {
-        super(modelMapper);
-        this.institutionId = institutionId;
-        this.user = user;
-    }
-
-    // TODO: implement
     @Override
     public Educator toEntity() {
+        return Educator.builder()
+                .name(name)
+                .user(user.toEntity())
+                .build();
+    }
+
+    @Override
+    public <R extends DTO<Educator>> R of(Educator entity) {
         return null;
     }
+
 }

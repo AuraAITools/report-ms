@@ -1,38 +1,40 @@
 package com.reportai.www.reportapi.dtos.requests;
 
+
 import com.reportai.www.reportapi.dtos.DTO;
-import com.reportai.www.reportapi.dtos.DTOSupport;
 import com.reportai.www.reportapi.entities.User;
+import jakarta.transaction.NotSupportedException;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
-import org.springframework.core.ParameterizedTypeReference;
+
+import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateUserRequestBody extends DTOSupport<User> {
+@AllArgsConstructor
+public class CreateUserRequestBody implements DTO<User> {
 
+    @NotEmpty(message = "email is a mandatory field")
     private String email;
 
-    private String role;
-
+    @NotEmpty(message = "name is a mandatory field")
     private String name;
-
-    public CreateUserRequestBody(ModelMapper modelMapper, String email, String role, String name) {
-        super(modelMapper);
-        this.email = email;
-        this.role = role;
-        this.name = name;
-    }
 
     @Override
     public User toEntity() {
         return User.builder()
-                .name(this.getName())
-                .email(this.getEmail())
+                .email(email)
+                .name(name)
                 .build();
+    }
+
+    // FIXME: currently this method does not need to be supported
+    @Override
+    public <R extends DTO<User>> R of(User entity) {
+        return null;
     }
 }

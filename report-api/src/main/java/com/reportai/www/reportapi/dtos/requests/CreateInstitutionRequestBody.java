@@ -1,26 +1,31 @@
 package com.reportai.www.reportapi.dtos.requests;
 
-import com.reportai.www.reportapi.dtos.DTOSupport;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.reportai.www.reportapi.dtos.DTO;
 import com.reportai.www.reportapi.entities.Institution;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
 
 @Getter
 @Setter
-public class CreateInstitutionRequestBody extends DTOSupport<Institution> {
+@AllArgsConstructor
+public class CreateInstitutionRequestBody implements DTO<Institution> {
+
+    private String name;
+
+    @JsonProperty("user")
+    @NotNull(message = "user may not be null")
     private CreateUserRequestBody user;
 
-    public CreateInstitutionRequestBody(ModelMapper modelMapper, CreateUserRequestBody user) {
-        super(modelMapper);
-        this.user = user;
-    }
-
-    // TODO: implement
     @Override
     public Institution toEntity() {
+        return Institution.builder().name(name).user(user.toEntity()).build();
+    }
+
+    @Override
+    public <R extends DTO<Institution>> R of(Institution entity) {
         return null;
     }
 }

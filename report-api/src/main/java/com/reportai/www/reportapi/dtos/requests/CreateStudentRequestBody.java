@@ -1,33 +1,34 @@
 package com.reportai.www.reportapi.dtos.requests;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.reportai.www.reportapi.dtos.DTOSupport;
-import com.reportai.www.reportapi.entities.User;
-import lombok.Data;
+import com.reportai.www.reportapi.dtos.DTO;
+import com.reportai.www.reportapi.entities.Student;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.modelmapper.ModelMapper;
-
-import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateStudentRequestBody extends DTOSupport<User> {
+@AllArgsConstructor
+public class CreateStudentRequestBody implements DTO<Student> {
 
-    @JsonProperty("institution_id")
-    private UUID institutionId;
-    private CreateUserRequestBody user;
+    @NotEmpty(message = "name is a mandatory field")
+    public String name;
 
-    public CreateStudentRequestBody(ModelMapper modelMapper, UUID institutionId, CreateUserRequestBody user) {
-        super(modelMapper);
-        this.institutionId = institutionId;
-        this.user = user;
+    @NotNull(message = "user is a mandatory field")
+    public CreateUserRequestBody user;
+
+    @Override
+    public Student toEntity() {
+        return Student.builder()
+                .user(user.toEntity())
+                .name(name)
+                .build();
     }
 
-    //TODO: implement
     @Override
-    public User toEntity() {
+    public <R extends DTO<Student>> R of(Student entity) {
         return null;
     }
 }
