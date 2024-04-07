@@ -30,7 +30,6 @@ public class CreateParentRequestBody extends DTOSupport<Parent> {
     public Parent toEntity() {
         return Parent
                 .builder()
-                .user(user.toEntity())
                 .build();
     }
 }

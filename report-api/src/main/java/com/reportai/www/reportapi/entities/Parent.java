@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,13 +25,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Parents")
-@Builder
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Parent {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
@@ -41,7 +42,9 @@ public class Parent {
     private LocalDateTime modifiedAt;
 
     @OneToOne
+    @JsonBackReference
     private User user;
+
 
     @ManyToMany
     @JsonIgnore
