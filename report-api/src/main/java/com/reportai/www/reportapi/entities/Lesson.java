@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -51,6 +52,11 @@ public class Lesson {
     @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private List<StudentReport> studentReports;
+
+
+    @ManyToMany
+    @JsonIgnore
+    private List<Material> materials;
 
     @PrePersist
     private void onCreate() {
