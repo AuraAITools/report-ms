@@ -80,6 +80,10 @@ public class Institution {
     @JsonIgnore
     private List<Material> materials;
 
+    @OneToMany
+    @JsonIgnore
+    private List<Topic> topics;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();
