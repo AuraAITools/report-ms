@@ -32,15 +32,15 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    @OneToOne
+    @JsonIgnore
+    private Institution institution;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
-
-    @OneToOne
-    @JsonIgnore
-    private Institution institution;
 
     @PrePersist
     private void onCreate() {

@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,12 +42,6 @@ public class Institution {
     private UUID Id;
 
     private String name;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
 
     @OneToOne
     @JsonBackReference
@@ -70,6 +65,10 @@ public class Institution {
 
     @OneToMany
     @JsonIgnore
+    private List<Topic> topics;
+
+    @OneToMany
+    @JsonIgnore
     private List<Invoice> invoices;
 
     @OneToMany
@@ -79,6 +78,15 @@ public class Institution {
     @OneToMany
     @JsonIgnore
     private List<Material> materials;
+
+    @OneToMany
+    private List<Timeline> timelines;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @PrePersist
     private void onCreate() {

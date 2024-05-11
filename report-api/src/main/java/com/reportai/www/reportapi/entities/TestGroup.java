@@ -32,17 +32,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TestGroup {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-    private String name;
-
+    @OneToOne
+    private Timeline timeline;
 
     @OneToMany
     @JsonIgnore
@@ -56,6 +52,12 @@ public class TestGroup {
     @JsonIgnore
     private List<Subject> subjects;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
+    private String name;
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

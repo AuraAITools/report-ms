@@ -31,13 +31,6 @@ public class StudentReport {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
-
     @OneToOne
     @JsonIgnore
     private Lesson lesson;
@@ -45,6 +38,13 @@ public class StudentReport {
     @OneToOne
     @JsonIgnore
     private Student student;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
+
 
     @PrePersist
     private void onCreate() {

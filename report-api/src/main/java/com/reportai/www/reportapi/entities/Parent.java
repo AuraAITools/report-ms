@@ -37,12 +37,6 @@ public class Parent {
 
     private String name;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     @OneToOne
     @JsonManagedReference
     @JsonBackReference
@@ -56,6 +50,11 @@ public class Parent {
     @JsonIgnore
     private List<Institution> institutions;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

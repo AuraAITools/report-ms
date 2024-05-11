@@ -42,12 +42,6 @@ public class Educator {
 
     private String name;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     @OneToOne
     @JsonBackReference
     private User user;
@@ -60,6 +54,12 @@ public class Educator {
     @ManyToMany
     private List<Class> classes;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
+    
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

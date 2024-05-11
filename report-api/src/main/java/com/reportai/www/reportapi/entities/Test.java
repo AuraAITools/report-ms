@@ -34,12 +34,6 @@ public class Test {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     private String name;
 
     @OneToOne
@@ -58,6 +52,11 @@ public class Test {
     @JsonIgnore
     private List<TestResult> testResults;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

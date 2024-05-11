@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Table(name = "Objectives")
@@ -31,15 +33,18 @@ public class Objective {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    @OneToOne
+    @JsonIgnore
+    private Lesson lesson;
+
+    @ManyToMany
+    private List<Topic> topics;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
-
-    @OneToOne
-    @JsonIgnore
-    private Lesson lesson;
 
     @PrePersist
     private void onCreate() {

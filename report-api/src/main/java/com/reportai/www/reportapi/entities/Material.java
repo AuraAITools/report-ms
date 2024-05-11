@@ -36,15 +36,12 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     private String name;
 
     private String fileUrl;
+
+    @ManyToMany
+    private List<Topic> topics;
 
     @ManyToMany
     @JsonIgnore
@@ -53,6 +50,12 @@ public class Material {
     @OneToOne
     @JsonIgnore
     private Institution institution;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @PrePersist
     private void onCreate() {

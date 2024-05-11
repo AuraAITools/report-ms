@@ -37,6 +37,9 @@ public class Class {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    @OneToOne
+    private Timeline timeline;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
