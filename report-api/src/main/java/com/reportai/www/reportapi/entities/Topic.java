@@ -34,6 +34,8 @@ public class Topic {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    private String name;
+
     @OneToOne
     private Institution institution;
 

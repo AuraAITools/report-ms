@@ -40,6 +40,16 @@ public class Class {
     @OneToOne
     private Timeline timeline;
 
+    private String name;
+
+    @JsonIgnore
+    @OneToOne
+    private Institution institution;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Subject> subjects;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -58,26 +68,4 @@ public class Class {
         this.modifiedAt = LocalDateTime.now();
     }
 
-    private String name;
-
-
-    @JsonIgnore
-    @OneToOne
-    private Institution institution;
-
-    @JsonIgnore
-    @ManyToMany
-    private List<Student> students;
-
-    @JsonIgnore
-    @ManyToMany
-    private List<Educator> educators;
-
-    @JsonIgnore
-    @ManyToMany
-    private List<TestGroup> testGroups;
-
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Subject> subjects;
 }
