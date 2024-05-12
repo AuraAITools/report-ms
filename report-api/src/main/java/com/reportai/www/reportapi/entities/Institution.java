@@ -79,7 +79,7 @@ public class Institution {
     @JsonIgnore
     private List<Material> materials;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.MERGE)
     private List<Timeline> timelines;
 
     @Column(name = "created_at", nullable = false, updatable = false)
