@@ -38,7 +38,6 @@ public class Parent {
     private String name;
 
     @OneToOne
-    @JsonManagedReference
     @JsonBackReference
     private User user;
 

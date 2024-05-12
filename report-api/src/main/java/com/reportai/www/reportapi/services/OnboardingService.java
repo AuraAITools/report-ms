@@ -41,61 +41,8 @@ public class OnboardingService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Onboard Parent to platform, if parent has an existing user, just create and link them together
-     *
-     * @param parent
-     * @return parent that was created on linked
-     */
     @Transactional
-    public Parent onboard(Parent parent) {
-        User existingUser = userRepository.findDistinctByEmail(parent.getUser().getEmail());
-
-        if (isNull(existingUser)) {
-            User newUser = userRepository.save(parent.getUser());
-            parent.setUser(newUser);
-            return parentRepository.save(parent);
-        }
-        parent.setUser(existingUser);
-        return parentRepository.save(parent);
-    }
-
-    @Transactional
-    public Student onboard(Student student) {
-        User existingUser = userRepository.findDistinctByEmail(student.getUser().getEmail());
-
-        if (isNull(existingUser)) {
-            User newUser = userRepository.save(student.getUser());
-            student.setUser(newUser);
-            return studentRepository.save(student);
-        }
-        student.setUser(existingUser);
-        return studentRepository.save(student);
-    }
-
-    @Transactional
-    public Educator onboard(Educator educator) {
-        User existingUser = userRepository.findDistinctByEmail(educator.getUser().getEmail());
-
-        if (isNull(existingUser)) {
-            User newUser = userRepository.save(educator.getUser());
-            educator.setUser(newUser);
-            return educatorRepository.save(educator);
-        }
-        educator.setUser(existingUser);
-        return educatorRepository.save(educator);
-    }
-
-    @Transactional
-    public Institution onboard(Institution institution) {
-        User existingUser = userRepository.findDistinctByEmail(institution.getUser().getEmail());
-
-        if (isNull(existingUser)) {
-            User newUser = userRepository.save(institution.getUser());
-            institution.setUser(newUser);
-            return institutionRepository.save(institution);
-        }
-        institution.setUser(existingUser);
-        return institutionRepository.save(institution);
+    public User onboard(User user) {
+        return userRepository.save(user);
     }
 }
