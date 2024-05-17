@@ -22,7 +22,7 @@ public class OnboardingController {
         this.onboardingService = onboardingService;
     }
 
-    @PostMapping("/onboard/user")
+    @PostMapping("/onboard/users")
     public ResponseEntity<User> onboardUser(@RequestBody @Valid CreateUserRequestBody createUserRequestBody) {
         User user = onboardingService.onboard(createUserRequestBody.toEntity());
         return new ResponseEntity<>(user, HttpStatus.CREATED);
