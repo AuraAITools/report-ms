@@ -45,6 +45,15 @@ public class Subject {
     @JsonIgnore
     private List<Lesson> lessons;
 
+
+    @JsonIgnore
+    @ManyToMany
+    private List<Student> students;
+
+    @JsonIgnore
+    @ManyToMany
+    private List<Educator> educators;
+
     @ManyToMany
     @JsonIgnore
     private List<TestGroup> testGroups;

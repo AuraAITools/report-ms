@@ -58,7 +58,7 @@ public class Student {
 
     @ManyToMany
     @JsonIgnore
-    private List<Class> classes;
+    private List<Subject> subjects;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
