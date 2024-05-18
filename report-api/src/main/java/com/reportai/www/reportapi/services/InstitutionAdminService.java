@@ -1,16 +1,15 @@
 package com.reportai.www.reportapi.services;
 
-import com.reportai.www.reportapi.entities.Class;
+import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
-import com.reportai.www.reportapi.repositories.ClassRepository;
+import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.ParentRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
@@ -24,7 +23,7 @@ import java.util.UUID;
 public class InstitutionAdminService {
 
     private final InstitutionRepository institutionRepository;
-    private final ClassRepository classRepository;
+    private final CourseRepository courseRepository;
 
     private final SubjectRepository subjectRepository;
 
@@ -34,9 +33,9 @@ public class InstitutionAdminService {
 
     private final TopicRepository topicRepository;
 
-    public InstitutionAdminService(InstitutionRepository institutionRepository, ClassRepository classRepository, SubjectRepository subjectRepository, EducatorRepository educatorRepository, StudentRepository studentRepository, TopicRepository topicRepository) {
+    public InstitutionAdminService(InstitutionRepository institutionRepository, CourseRepository courseRepository, SubjectRepository subjectRepository, EducatorRepository educatorRepository, StudentRepository studentRepository, TopicRepository topicRepository) {
         this.institutionRepository = institutionRepository;
-        this.classRepository = classRepository;
+        this.courseRepository = courseRepository;
         this.subjectRepository = subjectRepository;
         this.educatorRepository = educatorRepository;
         this.studentRepository = studentRepository;
@@ -44,21 +43,21 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public Class createClassForInstitution(Class newClass, UUID institutionId) {
+    public Course createCourseForInstitution(Course newCourse, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
-        Class savedClass = classRepository.save(newClass);
-        institution.getClasses().add(savedClass);
+        Course savedCourse = courseRepository.save(newCourse);
+        institution.getCourses().add(savedCourse);
         institutionRepository.save(institution);
-        return savedClass;
+        return savedCourse;
     }
 
     @Transactional
-    public List<Class> createClassesForInstitution(List<Class> classes, UUID institutionId) {
+    public List<Course> createCoursesForInstitution(List<Course> courses, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
-        List<Class> savedClasses = classRepository.saveAll(classes);
-        institution.getClasses().addAll(savedClasses);
+        List<Course> savedCourses = courseRepository.saveAll(courses);
+        institution.getCourses().addAll(savedCourses);
         institutionRepository.save(institution);
-        return savedClasses;
+        return savedCourses;
     }
 
     @Transactional
@@ -72,11 +71,11 @@ public class InstitutionAdminService {
 
 
     @Transactional
-    public List<Subject> createSubjectsForClass(List<Subject> subjects, UUID classId) {
-        Class targetClass = classRepository.findById(classId).orElseThrow(()-> new NotFoundException("class not found"));
+    public List<Subject> createSubjectsForCourse(List<Subject> subjects, UUID courseId) {
+        Course targetCourse = courseRepository.findById(courseId).orElseThrow(()-> new NotFoundException("class not found"));
         List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
-        targetClass.getSubjects().addAll(savedSubjects);
-        classRepository.save(targetClass);
+        targetCourse.getSubjects().addAll(savedSubjects);
+        courseRepository.save(targetCourse);
         return savedSubjects;
     }
 
