@@ -55,7 +55,7 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(createdSubjects, HttpStatus.CREATED);
     }
 
-    @PostMapping("/classes/{class_id}/subjects")
+    @GetMapping("/classes/{class_id}/subjects")
     public ResponseEntity<List<Subject>> getSubjectsInClass(@PathVariable(name = "class_id") UUID classId) {
         List<Subject> subjects = institutionAdminService.getSubjectsFromClass(classId);
         return new ResponseEntity<>(subjects, HttpStatus.OK);
