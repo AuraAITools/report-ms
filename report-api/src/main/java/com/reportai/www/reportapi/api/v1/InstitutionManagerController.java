@@ -8,6 +8,8 @@ import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.services.InstitutionAdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,22 +29,23 @@ public class InstitutionManagerController {
         this.institutionAdminService = institutionAdminService;
     }
 
+    //Classes
     @PostMapping("/institutions/{institution_id}/classes")
     public ResponseEntity<Class> createClass(@RequestBody Class newClass, @PathVariable(name = "institution_id") UUID institutionId) {
         Class createdClass = institutionAdminService.createClassForInstitution(newClass, institutionId);
         return new ResponseEntity<>(createdClass, HttpStatus.CREATED);
     }
 
+    @GetMapping("/institutions/{institution_id}/classes")
+    public ResponseEntity<List<Class>> getClasses(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Class> classes = institutionAdminService.getClassesForInstitution(institutionId);
+        return new ResponseEntity<>(classes, HttpStatus.OK);
+    }
+
     @PostMapping("/institutions/{institution_id}/classes/batch")
     public ResponseEntity<List<Class>> createClasses(@RequestBody List<Class> newClasses, @PathVariable(name = "institution_id") UUID institutionId) {
         List<Class> createdClasses = institutionAdminService.createClassesForInstitution(newClasses, institutionId);
         return new ResponseEntity<>(createdClasses, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/institutions/{institution_id}/topics")
-    public ResponseEntity<Topic> createTopicInInstitution(@RequestBody Topic topic, @PathVariable(name = "institution_id") UUID institutionId) {
-        Topic createdTopic = institutionAdminService.createTopicForInstitution(topic,institutionId);
-        return new ResponseEntity<>(createdTopic, HttpStatus.CREATED);
     }
 
     // add subjects to a class
@@ -52,6 +55,14 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(createdSubjects, HttpStatus.CREATED);
     }
 
+    //Topics
+    @PostMapping("/institutions/{institution_id}/topics")
+    public ResponseEntity<Topic> createTopicInInstitution(@RequestBody Topic topic, @PathVariable(name = "institution_id") UUID institutionId) {
+        Topic createdTopic = institutionAdminService.createTopicForInstitution(topic,institutionId);
+        return new ResponseEntity<>(createdTopic, HttpStatus.CREATED);
+    }
+
+    // Subjects
     // add educators to subject
     // only returns educators that are successfully added to the subject
     @PostMapping("/subjects/{subject_id}/educators/batch")

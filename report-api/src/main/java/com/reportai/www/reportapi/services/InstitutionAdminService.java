@@ -43,6 +43,12 @@ public class InstitutionAdminService {
         this.topicRepository = topicRepository;
     }
 
+    // Classes
+    public List<Class> getClassesForInstitution(UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
+        return institution.getClasses();
+    }
+
     @Transactional
     public Class createClassForInstitution(Class newClass, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
@@ -62,16 +68,6 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public Topic createTopicForInstitution(Topic topic, UUID institutionId) {
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("institution does not exist"));
-        Topic savedTopic = topicRepository.save(topic);
-        institution.getTopics().add(savedTopic);
-        institutionRepository.save(institution);
-        return savedTopic;
-    }
-
-
-    @Transactional
     public List<Subject> createSubjectsForClass(List<Subject> subjects, UUID classId) {
         Class targetClass = classRepository.findById(classId).orElseThrow(()-> new NotFoundException("class not found"));
         List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
@@ -80,6 +76,17 @@ public class InstitutionAdminService {
         return savedSubjects;
     }
 
+    // Topics
+    @Transactional
+    public Topic createTopicForInstitution(Topic topic, UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("institution does not exist"));
+        Topic savedTopic = topicRepository.save(topic);
+        institution.getTopics().add(savedTopic);
+        institutionRepository.save(institution);
+        return savedTopic;
+    }
+
+    // Subjects
     @Transactional
     public List<Educator> addEducatorsToSubject(List<UUID> educatorIds, UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
