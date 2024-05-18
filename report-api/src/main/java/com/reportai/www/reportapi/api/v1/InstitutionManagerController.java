@@ -76,9 +76,15 @@ public class InstitutionManagerController {
 
     // Subjects
     @GetMapping("/subjects/{subject_id}/educators")
-    public ResponseEntity<List<Educator>> addEducatorsToSubject(@PathVariable(name = "subject_id") UUID subjectId) {
+    public ResponseEntity<List<Educator>> getEducatorsFromSubject(@PathVariable(name = "subject_id") UUID subjectId) {
         List<Educator> educators = institutionAdminService.getEducatorsFromSubject(subjectId);
         return new ResponseEntity<>(educators, HttpStatus.OK);
+    }
+
+    @GetMapping("/subjects/{subject_id}/students")
+    public ResponseEntity<List<Student>> getStudentsFromSubject(@PathVariable(name = "subject_id") UUID subjectId) {
+        List<Student> students = institutionAdminService.getStudentsFromSubject(subjectId);
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     // add educators to subject

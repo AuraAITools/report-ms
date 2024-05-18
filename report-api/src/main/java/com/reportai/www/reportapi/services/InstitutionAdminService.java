@@ -101,6 +101,11 @@ public class InstitutionAdminService {
         return subject.getEducators();
     }
 
+    public List<Student> getStudentsFromSubject(UUID subjectId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(()->new NotFoundException("Subject not found"));
+        return subject.getStudents();
+    }
+
     @Transactional
     public List<Educator> addEducatorsToSubject(List<UUID> educatorIds, UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
