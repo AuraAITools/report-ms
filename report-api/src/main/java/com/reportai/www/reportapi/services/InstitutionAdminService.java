@@ -113,4 +113,13 @@ public class InstitutionAdminService {
         subjectRepository.save(subject);
         return students;
     }
+
+    @Transactional
+    public Educator removeEducatorFromSubject(UUID subjectId, UUID educatorId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
+        Educator educator = educatorRepository.findById(educatorId).orElseThrow(() -> new NotFoundException("Educator not found"));
+        subject.getEducators().remove(educator);
+        subjectRepository.save(subject);
+        return educator;
+    }
 }

@@ -8,6 +8,7 @@ import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.services.InstitutionAdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,4 +90,9 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(addedStudents,HttpStatus.OK);
     }
 
+    @DeleteMapping("/subjects/{subject_id}/educator/{educator_id}")
+    public ResponseEntity<Educator> removeEducatorFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "educator_id") UUID educatorId) {
+        Educator educator = institutionAdminService.removeEducatorFromSubject(subjectId, educatorId);
+        return new ResponseEntity<>(educator,HttpStatus.OK);
+    }
 }
