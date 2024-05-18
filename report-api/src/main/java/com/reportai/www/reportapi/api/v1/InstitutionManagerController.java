@@ -37,7 +37,7 @@ public class InstitutionManagerController {
 
     @GetMapping("/institutions/{institution_id}/classes")
     public ResponseEntity<List<Class>> getClasses(@PathVariable(name = "institution_id") UUID institutionId) {
-        List<Class> classes = institutionAdminService.getClassesForInstitution(institutionId);
+        List<Class> classes = institutionAdminService.getClassesFromInstitution(institutionId);
         return new ResponseEntity<>(classes, HttpStatus.OK);
     }
 
@@ -54,6 +54,12 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(createdSubjects, HttpStatus.CREATED);
     }
 
+    @PostMapping("/classes/{class_id}/subjects")
+    public ResponseEntity<List<Subject>> getSubjectsInClass(@PathVariable(name = "class_id") UUID classId) {
+        List<Subject> subjects = institutionAdminService.getSubjectsFromClass(classId);
+        return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
     //Topics
     @PostMapping("/institutions/{institution_id}/topics")
     public ResponseEntity<Topic> createTopicInInstitution(@RequestBody Topic topic, @PathVariable(name = "institution_id") UUID institutionId) {
@@ -62,8 +68,8 @@ public class InstitutionManagerController {
     }
 
     @GetMapping("/institutions/{institution_id}/topics")
-    public ResponseEntity<List<Topic> getTopicsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
-        List<Topic> topics = institutionAdminService.getTopicsForInstitution(institutionId);
+    public ResponseEntity<List<Topic>> getTopicsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Topic> topics = institutionAdminService.getTopicsFromInstitution(institutionId);
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 

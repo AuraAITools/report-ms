@@ -10,7 +10,6 @@ import com.reportai.www.reportapi.exceptions.NotFoundException;
 import com.reportai.www.reportapi.repositories.ClassRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.ParentRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
@@ -44,7 +43,7 @@ public class InstitutionAdminService {
     }
 
     // Classes
-    public List<Class> getClassesForInstitution(UUID institutionId) {
+    public List<Class> getClassesFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
         return institution.getClasses();
     }
@@ -77,7 +76,7 @@ public class InstitutionAdminService {
     }
 
     // Topics
-    public List<Topic> getTopicsForInstitution(UUID institutionId) {
+    public List<Topic> getTopicsFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
         return institution.getTopics();
     }
@@ -92,6 +91,11 @@ public class InstitutionAdminService {
     }
 
     // Subjects
+    public List<Subject> getSubjectsFromClass(UUID classId) {
+        Class targetClass = classRepository.findById(classId).orElseThrow(()->new NotFoundException("no institution found"));
+        return targetClass.getSubjects();
+    }
+
     @Transactional
     public List<Educator> addEducatorsToSubject(List<UUID> educatorIds, UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
@@ -109,6 +113,4 @@ public class InstitutionAdminService {
         subjectRepository.save(subject);
         return students;
     }
-
-
 }
