@@ -42,10 +42,10 @@ public class InstitutionAdminService {
         this.topicRepository = topicRepository;
     }
 
-    // Classes
-    public List<Class> getClassesFromInstitution(UUID institutionId) {
+    // Courses
+    public List<Course> getCoursesFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
-        return institution.getClasses();
+        return institution.getCourses();
     }
 
     @Transactional
@@ -67,17 +67,17 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public List<Subject> createSubjectsForClass(List<Subject> subjects, UUID classId) {
-        Class targetClass = classRepository.findById(classId).orElseThrow(()-> new NotFoundException("class not found"));
+    public List<Subject> createSubjectsForCourse(List<Subject> subjects, UUID courseId) {
+        Course targetCourse = courseRepository.findById(courseId).orElseThrow(()-> new NotFoundException("class not found"));
         List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
-        targetClass.getSubjects().addAll(savedSubjects);
-        classRepository.save(targetClass);
+        targetCourse.getSubjects().addAll(savedSubjects);
+        courseRepository.save(targetCourse);
         return savedSubjects;
     }
 
-    public List<Subject> getSubjectsFromClass(UUID classId) {
-        Class targetClass = classRepository.findById(classId).orElseThrow(()->new NotFoundException("class not found"));
-        return targetClass.getSubjects();
+    public List<Subject> getSubjectsFromCourse(UUID courseId) {
+        Course targetCourse = courseRepository.findById(courseId).orElseThrow(()->new NotFoundException("class not found"));
+        return targetCourse.getSubjects();
     }
 
     // Topics
@@ -102,16 +102,9 @@ public class InstitutionAdminService {
     }
 
     public List<Student> getStudentsFromSubject(UUID subjectId) {
-        Subject subject = subjectRepository.findById(subjectId).orElseThrow(()->new NotFoundException("Subject not found"));
+        Subject subject = subjectRepository.findById(subjectId)
+            .orElseThrow(() -> new NotFoundException("Subject not found"));
         return subject.getStudents();
-        
-    @Transactional
-    public List<Subject> createSubjectsForCourse(List<Subject> subjects, UUID courseId) {
-        Course targetCourse = courseRepository.findById(courseId).orElseThrow(()-> new NotFoundException("class not found"));
-        List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
-        targetCourse.getSubjects().addAll(savedSubjects);
-        courseRepository.save(targetCourse);
-        return savedSubjects;
     }
 
     @Transactional

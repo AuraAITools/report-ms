@@ -29,11 +29,11 @@ public class InstitutionManagerController {
         this.institutionAdminService = institutionAdminService;
     }
 
-    //Classes
-    @GetMapping("/institutions/{institution_id}/classes")
-    public ResponseEntity<List<Class>> getClasses(@PathVariable(name = "institution_id") UUID institutionId) {
-        List<Class> classes = institutionAdminService.getClassesFromInstitution(institutionId);
-        return new ResponseEntity<>(classes, HttpStatus.OK);
+    //Courses
+    @GetMapping("/institutions/{institution_id}/courses")
+    public ResponseEntity<List<Course>> getCourses(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Course> courses = institutionAdminService.getCoursesFromInstitution(institutionId);
+        return new ResponseEntity<>(courses, HttpStatus.OK);
     }
     @PostMapping("/institutions/{institution_id}/courses")
     public ResponseEntity<Course> createCourse(@RequestBody Course newCourse, @PathVariable(name = "institution_id") UUID institutionId) {
@@ -48,13 +48,13 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(createdCourses, HttpStatus.CREATED);
     }
 
-    @GetMapping("/classes/{class_id}/subjects")
-    public ResponseEntity<List<Subject>> getSubjectsInClass(@PathVariable(name = "class_id") UUID classId) {
-        List<Subject> subjects = institutionAdminService.getSubjectsFromClass(classId);
+    @GetMapping("/courses/{course_id}/subjects")
+    public ResponseEntity<List<Subject>> getSubjectsInCourse(@PathVariable(name = "course_id") UUID classId) {
+        List<Subject> subjects = institutionAdminService.getSubjectsFromCourse(classId);
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
 
-    // add subjects to a class
+    // add subjects to a course
     @PostMapping("/courses/{course_id}/subjects/batch")
     public ResponseEntity<List<Subject>> createSubjectsInCourse(@RequestBody List<Subject> subjects, @PathVariable(name = "course_id") UUID courseId) {
         List<Subject> createdSubjects = institutionAdminService.createSubjectsForCourse(subjects,courseId);
@@ -85,7 +85,8 @@ public class InstitutionManagerController {
     public ResponseEntity<List<Student>> getStudentsFromSubject(@PathVariable(name = "subject_id") UUID subjectId) {
         List<Student> students = institutionAdminService.getStudentsFromSubject(subjectId);
         return new ResponseEntity<>(students, HttpStatus.OK);
-
+    }
+    
     // add educators to subject
     // only returns educators that are successfully added to the subject
     @PostMapping("/subjects/{subject_id}/educators/batch")
