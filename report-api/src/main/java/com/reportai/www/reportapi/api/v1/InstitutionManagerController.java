@@ -75,6 +75,12 @@ public class InstitutionManagerController {
     }
 
     // Subjects
+    @GetMapping("/subjects/{subject_id}/educators")
+    public ResponseEntity<List<Educator>> addEducatorsToSubject(@PathVariable(name = "subject_id") UUID subjectId) {
+        List<Educator> educators = institutionAdminService.getEducatorsFromSubject(subjectId);
+        return new ResponseEntity<>(educators, HttpStatus.OK);
+    }
+
     // add educators to subject
     // only returns educators that are successfully added to the subject
     @PostMapping("/subjects/{subject_id}/educators/batch")

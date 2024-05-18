@@ -75,6 +75,11 @@ public class InstitutionAdminService {
         return savedSubjects;
     }
 
+    public List<Subject> getSubjectsFromClass(UUID classId) {
+        Class targetClass = classRepository.findById(classId).orElseThrow(()->new NotFoundException("class not found"));
+        return targetClass.getSubjects();
+    }
+
     // Topics
     public List<Topic> getTopicsFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
@@ -91,9 +96,9 @@ public class InstitutionAdminService {
     }
 
     // Subjects
-    public List<Subject> getSubjectsFromClass(UUID classId) {
-        Class targetClass = classRepository.findById(classId).orElseThrow(()->new NotFoundException("no institution found"));
-        return targetClass.getSubjects();
+    public List<Educator> getEducatorsFromSubject(UUID subjectId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(()->new NotFoundException("Subject not found"));
+        return subject.getEducators();
     }
 
     @Transactional
@@ -126,7 +131,7 @@ public class InstitutionAdminService {
     @Transactional
     public Student removeStudentFromSubject(UUID subjectId, UUID studentId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new NotFoundException("Educator not found"));
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new NotFoundException("Student not found"));
         subject.getStudents().remove(student);
         subjectRepository.save(subject);
         return student;
