@@ -7,18 +7,13 @@ import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.User;
-import jakarta.transaction.NotSupportedException;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.engine.UserBuilder;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -51,24 +46,24 @@ public class CreateUserRequestBody implements DTO<User> {
         accounts.forEach(acc -> {
             log.info(acc.toString());
             switch (acc){
-                case accountTypes.parent:
+                case parent:
                     userBuilder.parents(
                             List.of(Parent.builder()
                                             .name(name)
                                             .build()));
                     break;
-                case accountTypes.student:
+                case student:
                     userBuilder.students(
                             List.of(Student.builder()
                                     .name(name)
                                     .build()));
                     break;
-                case accountTypes.educator:
+                case educator:
                     userBuilder.educators(
                             List.of(Educator.builder()
                                     .name(name)
                                     .build()));
-                case accountTypes.institution:
+                case institution:
                     userBuilder.institutions(
                             List.of(Institution.builder()
                                     .name(name)
