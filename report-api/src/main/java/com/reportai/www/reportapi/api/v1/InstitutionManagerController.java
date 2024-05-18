@@ -9,7 +9,6 @@ import com.reportai.www.reportapi.services.InstitutionAdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,6 +59,12 @@ public class InstitutionManagerController {
     public ResponseEntity<Topic> createTopicInInstitution(@RequestBody Topic topic, @PathVariable(name = "institution_id") UUID institutionId) {
         Topic createdTopic = institutionAdminService.createTopicForInstitution(topic,institutionId);
         return new ResponseEntity<>(createdTopic, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/institutions/{institution_id}/topics")
+    public ResponseEntity<List<Topic> getTopicsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Topic> topics = institutionAdminService.getTopicsForInstitution(institutionId);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 
     // Subjects

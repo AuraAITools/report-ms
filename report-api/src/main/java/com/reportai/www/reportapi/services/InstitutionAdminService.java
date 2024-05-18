@@ -77,6 +77,11 @@ public class InstitutionAdminService {
     }
 
     // Topics
+    public List<Topic> getTopicsForInstitution(UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
+        return institution.getTopics();
+    }
+
     @Transactional
     public Topic createTopicForInstitution(Topic topic, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("institution does not exist"));
