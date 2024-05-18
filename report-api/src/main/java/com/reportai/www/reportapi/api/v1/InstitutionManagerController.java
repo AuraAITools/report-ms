@@ -35,6 +35,7 @@ public class InstitutionManagerController {
         List<Course> courses = institutionAdminService.getCoursesFromInstitution(institutionId);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
+
     @PostMapping("/institutions/{institution_id}/courses")
     public ResponseEntity<Course> createCourse(@RequestBody Course newCourse, @PathVariable(name = "institution_id") UUID institutionId) {
         Course createdCourse = institutionAdminService.createCourseForInstitution(newCourse, institutionId);
@@ -92,25 +93,25 @@ public class InstitutionManagerController {
     @PostMapping("/subjects/{subject_id}/educators/batch")
     public ResponseEntity<List<Educator>> addEducatorsToSubject(@RequestBody List<UUID> educatorIds, @PathVariable(name = "subject_id") UUID subjectId) {
         List<Educator> addedEducators = institutionAdminService.addEducatorsToSubject(educatorIds,subjectId);
-        return new ResponseEntity<>(addedEducators,HttpStatus.OK);
+        return new ResponseEntity<>(addedEducators, HttpStatus.OK);
     }
 
     // add students to subject
     @PostMapping("/subjects/{subject_id}/students/batch")
     public ResponseEntity<List<Student>> addStudentsToSubject(@RequestBody List<UUID> studentIds, @PathVariable(name = "subject_id") UUID subjectId) {
         List<Student> addedStudents = institutionAdminService.addStudentsToSubject(studentIds,subjectId);
-        return new ResponseEntity<>(addedStudents,HttpStatus.OK);
+        return new ResponseEntity<>(addedStudents, HttpStatus.OK);
     }
 
     @DeleteMapping("/subjects/{subject_id}/educator/{educator_id}")
     public ResponseEntity<Educator> removeEducatorFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "educator_id") UUID educatorId) {
         Educator educator = institutionAdminService.removeEducatorFromSubject(subjectId, educatorId);
-        return new ResponseEntity<>(educator,HttpStatus.OK);
+        return new ResponseEntity<>(educator, HttpStatus.OK);
     }
 
-    @DeleteMapping("/subjects/{subject_id}/educator/{student_id}")
-    public ResponseEntity<Student> removeStudentFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "student_id") UUID educatorId) {
-        Student student = institutionAdminService.removeStudentFromSubject(subjectId, educatorId);
-        return new ResponseEntity<>(student,HttpStatus.OK);
+    @DeleteMapping("/subjects/{subject_id}/student/{student_id}")
+    public ResponseEntity<Student> removeStudentFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "student_id") UUID studentId) {
+        Student student = institutionAdminService.removeStudentFromSubject(subjectId, studentId);
+        return new ResponseEntity<>(student, HttpStatus.OK);
     }
 }
