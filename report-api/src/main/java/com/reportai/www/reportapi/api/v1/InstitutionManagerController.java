@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.api.v1;
 
-import com.reportai.www.reportapi.entities.Class;
+import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
@@ -30,35 +30,35 @@ public class InstitutionManagerController {
     }
 
     //Classes
-    @PostMapping("/institutions/{institution_id}/classes")
-    public ResponseEntity<Class> createClass(@RequestBody Class newClass, @PathVariable(name = "institution_id") UUID institutionId) {
-        Class createdClass = institutionAdminService.createClassForInstitution(newClass, institutionId);
-        return new ResponseEntity<>(createdClass, HttpStatus.CREATED);
-    }
-
     @GetMapping("/institutions/{institution_id}/classes")
     public ResponseEntity<List<Class>> getClasses(@PathVariable(name = "institution_id") UUID institutionId) {
         List<Class> classes = institutionAdminService.getClassesFromInstitution(institutionId);
         return new ResponseEntity<>(classes, HttpStatus.OK);
     }
-
-    @PostMapping("/institutions/{institution_id}/classes/batch")
-    public ResponseEntity<List<Class>> createClasses(@RequestBody List<Class> newClasses, @PathVariable(name = "institution_id") UUID institutionId) {
-        List<Class> createdClasses = institutionAdminService.createClassesForInstitution(newClasses, institutionId);
-        return new ResponseEntity<>(createdClasses, HttpStatus.CREATED);
+    @PostMapping("/institutions/{institution_id}/courses")
+    public ResponseEntity<Course> createCourse(@RequestBody Course newCourse, @PathVariable(name = "institution_id") UUID institutionId) {
+        Course createdCourse = institutionAdminService.createCourseForInstitution(newCourse, institutionId);
+        return new ResponseEntity<>(createdCourse, HttpStatus.CREATED);
     }
 
-    // add subjects to a class
-    @PostMapping("/classes/{class_id}/subjects/batch")
-    public ResponseEntity<List<Subject>> createSubjectsInClass(@RequestBody List<Subject> subjects, @PathVariable(name = "class_id") UUID classId) {
-        List<Subject> createdSubjects = institutionAdminService.createSubjectsForClass(subjects,classId);
-        return new ResponseEntity<>(createdSubjects, HttpStatus.CREATED);
+    @PostMapping("/institutions/{institution_id}/courses/batch")
+    public ResponseEntity<List<Course>> createCourses(@RequestBody List<Course> newCourses, @PathVariable(name = "institution_id") UUID institutionId) {
+        List<Course> createdCourses = institutionAdminService.createCoursesForInstitution(
+            newCourses, institutionId);
+        return new ResponseEntity<>(createdCourses, HttpStatus.CREATED);
     }
 
     @GetMapping("/classes/{class_id}/subjects")
     public ResponseEntity<List<Subject>> getSubjectsInClass(@PathVariable(name = "class_id") UUID classId) {
         List<Subject> subjects = institutionAdminService.getSubjectsFromClass(classId);
         return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
+    // add subjects to a class
+    @PostMapping("/courses/{course_id}/subjects/batch")
+    public ResponseEntity<List<Subject>> createSubjectsInCourse(@RequestBody List<Subject> subjects, @PathVariable(name = "course_id") UUID courseId) {
+        List<Subject> createdSubjects = institutionAdminService.createSubjectsForCourse(subjects,courseId);
+        return new ResponseEntity<>(createdSubjects, HttpStatus.CREATED);
     }
 
     //Topics
@@ -85,7 +85,6 @@ public class InstitutionManagerController {
     public ResponseEntity<List<Student>> getStudentsFromSubject(@PathVariable(name = "subject_id") UUID subjectId) {
         List<Student> students = institutionAdminService.getStudentsFromSubject(subjectId);
         return new ResponseEntity<>(students, HttpStatus.OK);
-    }
 
     // add educators to subject
     // only returns educators that are successfully added to the subject
