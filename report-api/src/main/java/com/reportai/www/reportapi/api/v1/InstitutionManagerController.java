@@ -95,4 +95,10 @@ public class InstitutionManagerController {
         Educator educator = institutionAdminService.removeEducatorFromSubject(subjectId, educatorId);
         return new ResponseEntity<>(educator,HttpStatus.OK);
     }
+
+    @DeleteMapping("/subjects/{subject_id}/educator/{student_id}")
+    public ResponseEntity<Student> removeStudentFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "student_id") UUID educatorId) {
+        Student student = institutionAdminService.removeStudentFromSubject(subjectId, educatorId);
+        return new ResponseEntity<>(student,HttpStatus.OK);
+    }
 }
