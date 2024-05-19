@@ -38,113 +38,83 @@ public class InstitutionMaterialControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
     private InstitutionMaterialService institutionMaterialService;
 
-    @MockBean
+    @Autowired
     private MaterialRepository materialRepository;
 
-    @MockBean
+    @Autowired
     private TopicRepository topicRepository;
 
-    @InjectMocks
+    @Autowired
     private InstitutionMaterialController institutionMaterialController;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    UUID topicId = UUID.randomUUID();
-    UUID materialId = UUID.randomUUID();
-
     Topic topic;
-    Material material;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-
-        material = new Material();
-        material.setId(materialId);
-        when(materialRepository.findById(any(UUID.class))).thenReturn(Optional.of(material));
-
-        topic = new Topic();
-        topic.setId(topicId);
+        topic = Topic.builder().build();
     }
 
     @Test
     public void should_CreateMaterialForTopic_When_ValidRequest() throws Exception {
-        Material material = new Material();
-        material.setId(materialId);
-        topic.setMaterials(new ArrayList<>(List.of(material)));
-        when(topicRepository.findById(any(UUID.class))).thenReturn(Optional.of(topic));
-
-        when(institutionMaterialService.createMaterialForTopic(any(Material.class), any(UUID.class)))
-            .thenReturn(material);
-        String test = mockMvc.perform(post("/api/v1/institutions/{topic_id}/materials", topicId)
+        Material material = Material.builder().name("test").build();
+        topicRepository.save(topic);
+        mockMvc.perform(post("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(material))).andReturn().getResponse().getContentAsString();
-        System.out.println("aigsdioas");
-//            .andExpect(status().isCreated())
-//            .andExpect(jsonPath("$.id").value(material.getId().toString()))
-//            .andExpect(jsonPath("$.name").value(material.getName()));
+                .content(objectMapper.writeValueAsString(material)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNotEmpty())
+            .andExpect(jsonPath("$.name").value(material.getName()));
     }
 
     @Test
     public void should_BatchCreateMaterialForTopic_When_ValidRequest() throws Exception {
-        Material material1 = new Material();
-        material1.setId(UUID.randomUUID());
-        material1.setName("Test Material 1");
+        Material materialOne = Material.builder().name("test1").build();
+        Material materialTwo = Material.builder().name("test2").build();
+        List<Material> materials = Arrays.asList(materialOne, materialTwo);
+        topicRepository.save(topic);
 
-        Material material2 = new Material();
-        material2.setId(UUID.randomUUID());
-        material2.setName("Test Material 2");
-
-        List<Material> materials = Arrays.asList(material1, material2);
-
-        when(institutionMaterialService.batchCreateMaterialForTopic(any(List.class), any(UUID.class)))
-            .thenReturn(materials);
-
-        mockMvc.perform(post("/api/v1/institutions/{topic_id}/materials/batch", topicId)
+        mockMvc.perform(post("/api/v1/topics/{topic_id}/materials/batch", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(materials)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$[0].id").value(material1.getId().toString()))
-            .andExpect(jsonPath("$[0].name").value(material1.getName()))
-            .andExpect(jsonPath("$[1].id").value(material2.getId().toString()))
-            .andExpect(jsonPath("$[1].name").value(material2.getName()));
+            .andExpect(jsonPath("$[0].id").isNotEmpty())
+            .andExpect(jsonPath("$[0].name").value(materialOne.getName()))
+            .andExpect(jsonPath("$[1].id").isNotEmpty())
+            .andExpect(jsonPath("$[1].name").value(materialTwo.getName()));
     }
 
     @Test
     public void should_GetAllMaterialsFromTopic_When_ValidRequest() throws Exception {
-        Material material1 = new Material();
-        material1.setId(UUID.randomUUID());
-        material1.setName("Test Material 1");
+        Material materialOne = Material.builder().name("test1").build();
+        Material materialTwo = Material.builder().name("test2").build();
+        List<Material> materials = Arrays.asList(materialOne, materialTwo);
+        topic.setMaterials(materials);
+        materialRepository.saveAll(materials);
+        topicRepository.save(topic);
 
-        Material material2 = new Material();
-        material2.setId(UUID.randomUUID());
-        material2.setName("Test Material 2");
-
-        List<Material> materials = Arrays.asList(material1, material2);
-
-        topic.setMaterials(new ArrayList<>(materials));
-        when(topicRepository.findById(any(UUID.class))).thenReturn(Optional.of(topic));
-        when(institutionMaterialService.getAllMaterialsFromTopic(any(UUID.class))).thenReturn(materials);
-
-        mockMvc.perform(get("/api/v1/institutions/{topic_id}/materials", topicId)
+        mockMvc.perform(get("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0].id").value(material1.getId().toString()))
-            .andExpect(jsonPath("$[0].name").value(material1.getName()))
-            .andExpect(jsonPath("$[1].id").value(material2.getId().toString()))
-            .andExpect(jsonPath("$[1].name").value(material2.getName()));
+            .andExpect(jsonPath("$[0].id").isNotEmpty())
+            .andExpect(jsonPath("$[0].name").value(materialOne.getName()))
+            .andExpect(jsonPath("$[1].id").isNotEmpty())
+            .andExpect(jsonPath("$[1].name").value(materialTwo.getName()));
     }
 
     @Test
     public void should_GetMaterialById_When_ValidRequest() throws Exception {
-        when(institutionMaterialService.getMaterialFromTopic(any(UUID.class))).thenReturn(material);
+        Material material = Material.builder().build();
+        materialRepository.save(material);
 
-        mockMvc.perform(get("/api/v1/institutions/materials/{material_id}", materialId)
+        mockMvc.perform(get("/api/v1/topics/materials/{material_id}", material.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(material.getId().toString()))
