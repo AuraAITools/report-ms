@@ -13,7 +13,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +38,7 @@ public class Subject {
 
     @OneToOne
     @JsonIgnore
-    private Class mappedClass;
+    private Course mappedCourse;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore

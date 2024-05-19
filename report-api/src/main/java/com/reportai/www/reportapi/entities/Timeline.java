@@ -9,7 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
@@ -53,7 +52,7 @@ public class Timeline {
     private UUID Id;
 
     @OneToMany
-    private List<Class> classes;
+    private List<Course> courses;
 
     @OneToOne
     private Institution institution;
