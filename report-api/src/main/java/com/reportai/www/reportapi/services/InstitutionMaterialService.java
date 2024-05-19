@@ -5,6 +5,7 @@ import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
 import com.reportai.www.reportapi.repositories.MaterialRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
+import com.reportai.www.reportapi.util.Patcher;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class InstitutionMaterialService {
+
     private final TopicRepository topicRepository;
     private final MaterialRepository materialRepository;
 
@@ -47,5 +49,13 @@ public class InstitutionMaterialService {
     @Transactional
     public Material getMaterialFromTopic(UUID materialId) {
         return materialRepository.findById(materialId).orElseThrow(()->new NotFoundException("no material found"));
+    }
+
+    @Transactional
+    public Material updateMaterialForTopic(UUID materialId, Material newMaterial) throws IllegalAccessException {
+        Material existingMaterial = materialRepository.findById(materialId)
+            .orElseThrow(() -> new NotFoundException("no material found"));
+        Patcher.patch(existingMaterial, newMaterial);
+        return materialRepository.save(existingMaterial);
     }
 }

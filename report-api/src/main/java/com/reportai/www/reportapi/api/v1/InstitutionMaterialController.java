@@ -7,13 +7,14 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("api/v1/topics")
+@RequestMapping("api/v1")
 @RestController
 public class InstitutionMaterialController {
 
@@ -23,7 +24,7 @@ public class InstitutionMaterialController {
         this.institutionMaterialService = institutionMaterialService;
     }
 
-    @PostMapping("/{topic_id}/materials")
+    @PostMapping("/topics/{topic_id}/materials")
     public ResponseEntity<Material> createMaterialForTopic(@RequestBody Material material,
         @PathVariable(name = "topic_id") UUID topicId) {
         Material createdMaterial = institutionMaterialService.createMaterialForTopic(material,
@@ -31,7 +32,7 @@ public class InstitutionMaterialController {
         return new ResponseEntity<>(createdMaterial, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{topic_id}/materials/batch")
+    @PostMapping("/topics/{topic_id}/materials/batch")
     public ResponseEntity<List<Material>> batchCreateMaterialForTopic(@RequestBody List<Material> material,
         @PathVariable(name = "topic_id") UUID topicId) {
         List<Material> createdMaterials = institutionMaterialService.batchCreateMaterialForTopic(
@@ -39,7 +40,7 @@ public class InstitutionMaterialController {
         return new ResponseEntity<>(createdMaterials, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{topic_id}/materials")
+    @GetMapping("/topics/{topic_id}/materials")
     public ResponseEntity<List<Material>> getAllMaterialsFromTopic(@PathVariable(name = "topic_id") UUID topicId) {
         List<Material> materials = institutionMaterialService.getAllMaterialsFromTopic(topicId);
         return new ResponseEntity<>(materials, HttpStatus.OK);
@@ -49,5 +50,12 @@ public class InstitutionMaterialController {
     public ResponseEntity<Material> getMaterialById(@PathVariable(name = "material_id") UUID materialId) {
         Material material = institutionMaterialService.getMaterialFromTopic(materialId);
         return new ResponseEntity<>(material, HttpStatus.OK);
+    }
+
+    @PatchMapping("/materials/{material_id}")
+    public ResponseEntity<Material> patchMaterialById(@RequestBody Material material, @PathVariable(name = "material_id") UUID materialId)
+        throws IllegalAccessException {
+        Material updatedMaterial = institutionMaterialService.updateMaterialForTopic(materialId, material);
+        return new ResponseEntity<>(updatedMaterial, HttpStatus.OK);
     }
 }

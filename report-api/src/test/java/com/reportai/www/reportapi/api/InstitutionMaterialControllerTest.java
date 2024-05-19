@@ -114,7 +114,7 @@ public class InstitutionMaterialControllerTest {
         Material material = Material.builder().build();
         materialRepository.save(material);
 
-        mockMvc.perform(get("/api/v1/topics/materials/{material_id}", material.getId())
+        mockMvc.perform(get("/api/v1/materials/{material_id}", material.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(material.getId().toString()))
