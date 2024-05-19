@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -35,17 +36,17 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     private Timeline timeline;
 
     private String name;
 
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     private Institution institution;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Subject> subjects;
 
     @Column(name = "created_at", nullable = false, updatable = false)

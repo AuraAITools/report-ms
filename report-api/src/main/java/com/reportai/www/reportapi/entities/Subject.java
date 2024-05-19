@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -21,6 +22,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -36,26 +38,29 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
-    private Course mappedCourse;
+    private Course course;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "subject" ,cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Lesson> lessons;
 
 
     @JsonIgnore
     @ManyToMany
-    private List<Student> students;
+    private Set<Student> students;
 
     @JsonIgnore
     @ManyToMany
     private List<Educator> educators;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "subjects")
     @JsonIgnore
     private List<TestGroup> testGroups;
+
+    @OneToMany(mappedBy = "subject")
+    private List<TestResult> testResults;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

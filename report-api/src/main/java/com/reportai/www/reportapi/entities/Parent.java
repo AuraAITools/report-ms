@@ -21,6 +21,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -37,17 +38,17 @@ public class Parent {
 
     private String name;
 
-    @OneToOne
-    @JsonBackReference
-    private User user;
+    private String email;
 
-    @ManyToMany
+    private UUID userId;
+
+    @ManyToMany(mappedBy = "parents")
     @JsonIgnore
     private List<Student> students;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "parents")
     @JsonIgnore
-    private List<Institution> institutions;
+    private Set<Institution> institutions;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

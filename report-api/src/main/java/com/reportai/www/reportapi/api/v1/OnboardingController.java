@@ -1,7 +1,6 @@
 package com.reportai.www.reportapi.api.v1;
 
-import com.reportai.www.reportapi.dtos.requests.CreateUserRequestBody;
-import com.reportai.www.reportapi.entities.User;
+//import com.reportai.www.reportapi.dtos.requests.CreateUserRequestBody;
 import com.reportai.www.reportapi.services.OnboardingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,10 +21,10 @@ public class OnboardingController {
         this.onboardingService = onboardingService;
     }
 
-    @PostMapping("/onboard/users")
-    public ResponseEntity<User> onboardUser(@RequestBody @Valid CreateUserRequestBody createUserRequestBody) {
-        User user = onboardingService.onboard(createUserRequestBody.toEntity());
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
-    }
+//    @PostMapping("/onboard/users")
+//    public ResponseEntity<User> onboardUser(@RequestBody @Valid CreateUserRequestBody createUserRequestBody) {
+//        User user = onboardingService.onboard(createUserRequestBody.toEntity());
+//        return new ResponseEntity<>(user, HttpStatus.CREATED);
+//    }
 
 }

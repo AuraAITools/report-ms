@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
@@ -51,10 +52,10 @@ public class Timeline {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToMany
+    @OneToMany(mappedBy = "timeline")
     private List<Course> courses;
 
-    @OneToOne
+    @ManyToOne
     private Institution institution;
 
     @JsonProperty("start_date")
@@ -69,7 +70,7 @@ public class Timeline {
     @JsonProperty(access = Access.READ_ONLY)
     private TYPE type;
 
-    @OneToMany
+    @OneToMany(mappedBy = "timeline")
     private List<TestGroup> testGroups;
 
     @Column(name = "created_at", nullable = false, updatable = false)

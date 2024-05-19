@@ -22,6 +22,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -41,13 +42,13 @@ public class Material {
     private String fileUrl;
 
     @ManyToMany
-    private List<Topic> topics;
+    private Set<Topic> topics;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "materials")
     @JsonIgnore
-    private List<Lesson> lessons;
+    private Set<Lesson> lessons;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Institution institution;
 
