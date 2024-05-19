@@ -64,7 +64,7 @@ public class InstitutionMaterialControllerTest {
     @Test
     public void should_CreateMaterialForTopic_When_ValidRequest() throws Exception {
         Material material = Material.builder().name("test").build();
-        topicRepository.save(topic);
+        topic = topicRepository.save(topic);
         mockMvc.perform(post("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(material)))
@@ -78,7 +78,7 @@ public class InstitutionMaterialControllerTest {
         Material materialOne = Material.builder().name("test1").build();
         Material materialTwo = Material.builder().name("test2").build();
         List<Material> materials = Arrays.asList(materialOne, materialTwo);
-        topicRepository.save(topic);
+        topic = topicRepository.save(topic);
 
         mockMvc.perform(post("/api/v1/topics/{topic_id}/materials/batch", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class InstitutionMaterialControllerTest {
         List<Material> materials = Arrays.asList(materialOne, materialTwo);
         topic.setMaterials(materials);
         materialRepository.saveAll(materials);
-        topicRepository.save(topic);
+        topic = topicRepository.save(topic);
 
         mockMvc.perform(get("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON))
