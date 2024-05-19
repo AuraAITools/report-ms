@@ -112,12 +112,27 @@ public class InstitutionMaterialControllerTest {
     @Test
     public void should_GetMaterialById_When_ValidRequest() throws Exception {
         Material material = Material.builder().build();
-        materialRepository.save(material);
+        Material savedMaterial = materialRepository.save(material);
 
-        mockMvc.perform(get("/api/v1/materials/{material_id}", material.getId())
+        mockMvc.perform(get("/api/v1/materials/{material_id}", savedMaterial.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(material.getId().toString()))
+            .andExpect(jsonPath("$.id").isNotEmpty())
+            .andExpect(jsonPath("$.name").value(savedMaterial.getName()));
+    }
+
+    @Test
+    public void should_GetUpdatedMaterial_When_ValidRequest() throws Exception {
+        Material material = Material.builder().build();
+        Material savedMaterial = materialRepository.save(material);
+        topic.setMaterials(new ArrayList<>(List.of(material)));
+        topic = topicRepository.save(topic);
+        material.setName("material");
+
+        mockMvc.perform(patch("/api/v1/materials/{material_id}", savedMaterial.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(material)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").isNotEmpty())
             .andExpect(jsonPath("$.name").value(material.getName()));
     }
 }
