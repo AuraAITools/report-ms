@@ -1,23 +1,16 @@
 package com.reportai.www.reportapi.services;
 
-import static com.reportai.www.reportapi.dtos.requests.CreateUserRequestBody.accountTypes.institution;
-
-import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Material;
 import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
-import com.reportai.www.reportapi.repositories.CourseRepository;
-import com.reportai.www.reportapi.repositories.EducatorRepository;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.MaterialRepository;
-import com.reportai.www.reportapi.repositories.StudentRepository;
-import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
+@Service
 public class InstitutionMaterialService {
     private final TopicRepository topicRepository;
     private final MaterialRepository materialRepository;
