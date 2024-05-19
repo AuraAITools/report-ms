@@ -83,7 +83,6 @@ public class InstitutionManagerControllerTest {
         Course courseOne = Course.builder().build();
         Course courseTwo = Course.builder().build();
         List<Course> courses = Arrays.asList(courseOne, courseTwo);
-        courseRepository.saveAll(courses);
         institution.setCourses(courses);
         institution = institutionRepository.save(institution);
 
