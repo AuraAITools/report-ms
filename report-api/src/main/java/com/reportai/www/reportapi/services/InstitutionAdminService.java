@@ -43,7 +43,7 @@ public class InstitutionAdminService {
     }
 
     // Courses
-    public List<Course> getCoursesFromInstitution(UUID institutionId) {
+    public List<Course> getAllCoursesFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
         return institution.getCourses();
     }
@@ -58,7 +58,7 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public List<Course> createCoursesForInstitution(List<Course> courses, UUID institutionId) {
+    public List<Course> batchCreateCoursesForInstitution(List<Course> courses, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
         List<Course> savedCourses = courseRepository.saveAll(courses);
         institution.getCourses().addAll(savedCourses);
@@ -67,7 +67,7 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public List<Subject> createSubjectsForCourse(List<Subject> subjects, UUID courseId) {
+    public List<Subject> batchCreateSubjectsForCourse(List<Subject> subjects, UUID courseId) {
         Course targetCourse = courseRepository.findById(courseId).orElseThrow(()-> new NotFoundException("class not found"));
         List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
         targetCourse.getSubjects().addAll(savedSubjects);
@@ -75,13 +75,13 @@ public class InstitutionAdminService {
         return savedSubjects;
     }
 
-    public List<Subject> getSubjectsFromCourse(UUID courseId) {
+    public List<Subject> getAllSubjectsFromCourse(UUID courseId) {
         Course targetCourse = courseRepository.findById(courseId).orElseThrow(()->new NotFoundException("class not found"));
         return targetCourse.getSubjects();
     }
 
     // Topics
-    public List<Topic> getTopicsFromInstitution(UUID institutionId) {
+    public List<Topic> getAllTopicsFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
         return institution.getTopics();
     }
@@ -96,19 +96,19 @@ public class InstitutionAdminService {
     }
 
     // Subjects
-    public List<Educator> getEducatorsFromSubject(UUID subjectId) {
+    public List<Educator> getAllEducatorsFromSubject(UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()->new NotFoundException("Subject not found"));
         return subject.getEducators();
     }
 
-    public List<Student> getStudentsFromSubject(UUID subjectId) {
+    public List<Student> getAllStudentsFromSubject(UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId)
             .orElseThrow(() -> new NotFoundException("Subject not found"));
         return subject.getStudents();
     }
 
     @Transactional
-    public List<Educator> addEducatorsToSubject(List<UUID> educatorIds, UUID subjectId) {
+    public List<Educator> batchAddEducatorsToSubject(List<UUID> educatorIds, UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
         List<Educator> educators = educatorRepository.findAllById(educatorIds);
         subject.getEducators().addAll(educators);
@@ -117,7 +117,7 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public List<Student> addStudentsToSubject(List<UUID> studentIds, UUID subjectId) {
+    public List<Student> batchAddStudentsToSubject(List<UUID> studentIds, UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()-> new NotFoundException("Subject not found"));
         List<Student> students = studentRepository.findAllById(studentIds);
         subject.getStudents().addAll(students);

@@ -109,7 +109,7 @@ public class InstitutionManagerControllerTest {
         List<Course> courses = Arrays.asList(course1, course2);
         institution.setCourses(courses);
 
-        when(institutionAdminService.getCoursesFromInstitution(any(UUID.class))).thenReturn(courses);
+        when(institutionAdminService.getAllCoursesFromInstitution(any(UUID.class))).thenReturn(courses);
 
         mockMvc.perform(get("/api/v1/institutions/{institution_id}/courses", institutionId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -127,7 +127,7 @@ public class InstitutionManagerControllerTest {
         List<Subject> subjects = Arrays.asList(subject1, subject2);
         course.setSubjects(subjects);
 
-        when(institutionAdminService.getSubjectsFromCourse(any(UUID.class))).thenReturn(subjects);
+        when(institutionAdminService.getAllSubjectsFromCourse(any(UUID.class))).thenReturn(subjects);
 
         mockMvc.perform(get("/api/v1/courses/{course_id}/subjects", courseId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -145,7 +145,7 @@ public class InstitutionManagerControllerTest {
         List<Topic> topics = Arrays.asList(topic1, topic2);
         institution.setTopics(topics);
 
-        when(institutionAdminService.getTopicsFromInstitution(any(UUID.class))).thenReturn(topics);
+        when(institutionAdminService.getAllTopicsFromInstitution(any(UUID.class))).thenReturn(topics);
 
         mockMvc.perform(get("/api/v1/institutions/{institution_id}/topics", institutionId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -163,7 +163,7 @@ public class InstitutionManagerControllerTest {
         List<Educator> educators = Arrays.asList(educator1, educator2);
         subject.setEducators(educators);
 
-        when(institutionAdminService.getEducatorsFromSubject(any(UUID.class))).thenReturn(educators);
+        when(institutionAdminService.getAllEducatorsFromSubject(any(UUID.class))).thenReturn(educators);
 
         mockMvc.perform(get("/api/v1/subjects/{subject_id}/educators", subjectId)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -181,7 +181,7 @@ public class InstitutionManagerControllerTest {
         List<Student> students = Arrays.asList(student1, student2);
         subject.setStudents(students);
 
-        when(institutionAdminService.getStudentsFromSubject(any(UUID.class))).thenReturn(students);
+        when(institutionAdminService.getAllStudentsFromSubject(any(UUID.class))).thenReturn(students);
 
         mockMvc.perform(get("/api/v1/subjects/{subject_id}/students", subjectId)
                 .contentType(MediaType.APPLICATION_JSON))
