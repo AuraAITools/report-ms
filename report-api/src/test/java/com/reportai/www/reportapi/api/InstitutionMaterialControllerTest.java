@@ -125,15 +125,18 @@ public class InstitutionMaterialControllerTest {
     @Test
     public void should_GetUpdatedMaterial_When_ValidRequest() throws Exception {
         Material material = Material.builder().build();
+        material.setTopic(topic);
+        Topic newTopic = Topic.builder().build();
+        topicRepository.saveAll(List.of(topic, newTopic));
         Material savedMaterial = materialRepository.save(material);
-        topic.setMaterials(new HashSet<>(Arrays.asList(material)));
-        topic = topicRepository.save(topic);
         material.setName("material");
+        material.setTopic(newTopic);
 
         mockMvc.perform(patch("/api/v1/materials/{material_id}", savedMaterial.getId())
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(material)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").isNotEmpty())
-            .andExpect(jsonPath("$.name").value(material.getName()));
+            .andExpect(jsonPath("$.name").value(material.getName()))
+            .andExpect(jsonPath("$.topics", hasSize(2)));
     }
 }

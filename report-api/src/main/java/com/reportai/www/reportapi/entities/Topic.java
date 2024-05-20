@@ -13,6 +13,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.util.HashSet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,5 +66,14 @@ public class Topic {
     @PreUpdate
     private void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void setMaterial(Material material) {
+        if (materials == null) {
+            materials = new HashSet<>();
+        }
+        if (material != null) {
+            this.materials.add(material);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.util;
 
+import java.util.Collection;
 import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 
@@ -12,11 +13,27 @@ public class Patcher {
 
         for (Field field : fields) {
             field.setAccessible(true);
-            Object value = field.get(newObject);
-            if (value != null) {
-                field.set(existingObject, value);
+            Object newValue = field.get(newObject);
+            if (newValue != null) {
+                if (Collection.class.isAssignableFrom(field.getType())) {
+                    mergeCollections(field, existingObject, newValue);
+                } else {
+                    field.set(existingObject, newValue);
+                }
             }
             field.setAccessible(false);
         }
     }
+
+    private static <T> void mergeCollections(Field field, T existingObject, Object newValue) throws IllegalAccessException {
+        Collection<Object> existingCollection = (Collection<Object>) field.get(existingObject);
+        Collection<?> newCollection = (Collection<?>) newValue;
+        if (existingCollection != null) {
+            existingCollection.addAll(newCollection);
+        } else {
+            field.set(existingObject, newCollection);
+        }
+    }
 }
+
+
