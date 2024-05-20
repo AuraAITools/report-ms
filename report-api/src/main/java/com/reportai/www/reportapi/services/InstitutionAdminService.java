@@ -104,7 +104,7 @@ public class InstitutionAdminService {
     public List<Student> getAllStudentsFromSubject(UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId)
             .orElseThrow(() -> new NotFoundException("Subject not found"));
-        return subject.getStudents();
+        return subject.getStudents().stream().toList();
     }
 
     @Transactional
