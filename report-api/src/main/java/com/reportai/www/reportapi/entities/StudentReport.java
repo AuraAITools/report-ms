@@ -20,7 +20,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "Student_Reports")
+@Table(name = "StudentReports")
 @Entity
 @Getter
 @Setter

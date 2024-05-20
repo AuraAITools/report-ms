@@ -1,5 +1,9 @@
 package com.reportai.www.reportapi.services;
 
+import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.Parent;
+import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.ParentRepository;
@@ -25,6 +29,24 @@ public class OnboardingService {
         this.educatorRepository = educatorRepository;
         this.parentRepository = parentRepository;
         this.studentRepository = studentRepository;
+    }
+
+    // TODO: add account exist checks
+    public Parent onboard(Parent parent) {
+        return parentRepository.save(parent);
+    }
+
+    public Student onboard(Student student) {
+        return studentRepository.save(student);
+    }
+
+    public Institution onboard(Institution institution) {
+        return institutionRepository.save(institution);
+
+    }
+
+    public Educator onboard(Educator educator) {
+        return educatorRepository.save(educator);
     }
 
 }

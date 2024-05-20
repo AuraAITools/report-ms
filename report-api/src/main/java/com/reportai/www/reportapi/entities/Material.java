@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "materials")
+@Table(name = "Materials")
 @Builder
 @Getter
 @Setter
