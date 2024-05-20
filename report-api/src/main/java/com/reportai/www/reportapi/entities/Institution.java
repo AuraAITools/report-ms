@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +16,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,10 +42,17 @@ public class Institution {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    @NotEmpty(message = "name is a mandatory field")
+    @Column(nullable = false)
     private String name;
 
+    @NotEmpty(message = "email is a mandatory field")
+    @Column(nullable = false)
     private String email;
 
+    @NotNull(message = "user_id is a mandatory field")
+    @JsonProperty("user_id")
+    @Column(nullable = false)
     private UUID userId;
 
     @ManyToMany

@@ -7,4 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ParentRepository extends JpaRepository<Parent, UUID> {
+    boolean existsByUserId(UUID userId);
 }
