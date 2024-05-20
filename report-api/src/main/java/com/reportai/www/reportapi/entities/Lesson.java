@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -21,10 +22,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "lessons")
+@Table(name = "Lessons")
 @Builder
 @Getter
 @Setter
@@ -35,21 +37,21 @@ public class Lesson {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Subject subject;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Objective> objectives;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<StudentReport> studentReports;
 
     @ManyToMany
     @JsonIgnore
-    private List<Material> materials;
+    private Set<Material> materials;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

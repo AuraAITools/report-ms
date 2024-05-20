@@ -37,14 +37,14 @@ public class TestGroup {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     private Timeline timeline;
 
-    @OneToMany
+    @OneToMany(mappedBy = "testGroup")
     @JsonIgnore
     private List<Test> tests;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Institution institution;
 

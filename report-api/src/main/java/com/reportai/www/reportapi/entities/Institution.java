@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +23,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -39,43 +41,43 @@ public class Institution {
 
     private String name;
 
-    @OneToOne
-    @JsonBackReference
-    private User user;
+    private String email;
+
+    private UUID userId;
 
     @ManyToMany
     @JsonIgnore
-    private List<Student> students;
+    private Set<Student> students;
 
     @ManyToMany
     @JsonIgnore
-    private List<Parent> parents;
+    private Set<Parent> parents;
 
     @ManyToMany
     @JsonIgnore
-    private List<Educator> educators;
+    private Set<Educator> educators;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Course> courses;
 
-    @OneToMany
+    @OneToMany(mappedBy = "institution", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Topic> topics;
 
-    @OneToMany
+    @OneToMany(mappedBy = "institution")
     @JsonIgnore
     private List<Invoice> invoices;
 
-    @OneToMany
+    @OneToMany(mappedBy = "institution")
     @JsonIgnore
     private List<TestGroup> testGroups;
 
-    @OneToMany
+    @OneToMany(mappedBy = "institution")
     @JsonIgnore
     private List<Material> materials;
 
-    @OneToMany
+    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL)
     private List<Timeline> timelines;
 
     @Column(name = "created_at", nullable = false, updatable = false)

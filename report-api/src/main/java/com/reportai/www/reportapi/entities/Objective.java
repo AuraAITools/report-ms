@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -33,11 +34,11 @@ public class Objective {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Lesson lesson;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "objectives")
     private List<Topic> topics;
 
     @Column(name = "created_at", nullable = false, updatable = false)

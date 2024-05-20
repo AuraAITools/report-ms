@@ -22,8 +22,10 @@ import com.reportai.www.reportapi.services.InstitutionAdminService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -73,18 +75,17 @@ public class InstitutionManagerControllerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        institution = Institution.builder().build();
-        course = Course.builder().build();
-        subject = Subject.builder().build();
+        institution = institutionRepository.save(Institution.builder().build());
+        course = courseRepository.save(Course.builder().build());
+        subject = subjectRepository.save(Subject.builder().build());
     }
 
     @Test
     public void should_ReturnCourses_When_InstitutionIdIsProvided() throws Exception {
-        Course courseOne = Course.builder().build();
-        Course courseTwo = Course.builder().build();
+        Course courseOne = Course.builder().institution(institution).build();
+        Course courseTwo = Course.builder().institution(institution).build();
         List<Course> courses = Arrays.asList(courseOne, courseTwo);
-        institution.setCourses(courses);
-        institution = institutionRepository.save(institution);
+        courseRepository.saveAll(courses);
 
         mockMvc.perform(get("/api/v1/institutions/{institution_id}/courses", institution.getId())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -96,11 +97,10 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_ReturnSubjects_When_CourseIdIsProvided() throws Exception {
-        Subject subjectOne = Subject.builder().build();
-        Subject subjectTwo = Subject.builder().build();
+        Subject subjectOne = Subject.builder().course(course).build();
+        Subject subjectTwo = Subject.builder().course(course).build();
         List<Subject> subjects = Arrays.asList(subjectOne, subjectTwo);
-        course.setSubjects(subjects);
-        course = courseRepository.save(course);
+        subjectRepository.saveAll(subjects);
 
         mockMvc.perform(get("/api/v1/courses/{course_id}/subjects", course.getId())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -112,12 +112,10 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_ReturnTopics_When_InstitutionIdIsProvided() throws Exception {
-        Topic topicOne = Topic.builder().build();
-        Topic topicTwo = Topic.builder().build();
+        Topic topicOne = Topic.builder().institution(institution).build();
+        Topic topicTwo = Topic.builder().institution(institution).build();
         List<Topic> topics = Arrays.asList(topicOne, topicTwo);
         topicRepository.saveAll(topics);
-        institution.setTopics(topics);
-        institution = institutionRepository.save(institution);
 
         mockMvc.perform(get("/api/v1/institutions/{institution_id}/topics", institution.getId())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -127,6 +125,7 @@ public class InstitutionManagerControllerTest {
             .andExpect(jsonPath("$[1]").exists());
     }
 
+    // TODO: check for referential integrity violations
     @Test
     public void should_ReturnEducators_When_SubjectIdIsProvided() throws Exception {
         Educator educatorOne = Educator.builder().build();
@@ -148,7 +147,7 @@ public class InstitutionManagerControllerTest {
     public void should_ReturnStudents_When_SubjectIdIsProvided() throws Exception {
         Student studentOne = new Student();
         Student studentTwo  = new Student();
-        List<Student> students = Arrays.asList(studentOne, studentTwo);
+        Set<Student> students = Set.of(studentOne, studentTwo);
         studentRepository.saveAll(students);
         subject.setStudents(students);
         subject = subjectRepository.save(subject);
@@ -180,7 +179,7 @@ public class InstitutionManagerControllerTest {
     public void should_RemoveStudent_When_SubjectIdAndStudentIdAreProvided() throws Exception {
         student = Student.builder().name("student").build();
         student = studentRepository.save(student);
-        subject.setStudents(new ArrayList<>(List.of(student)));
+        subject.setStudents(Set.of(student));
         subject = subjectRepository.save(subject);
 
         mockMvc.perform(delete("/api/v1/subjects/{subject_id}/student/{student_id}", subject.getId(), student.getId())

@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -32,15 +33,15 @@ public class TestResult {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Test test;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Student student;
 
-    @OneToOne
+    @ManyToOne
     @JsonIgnore
     private Subject subject;
 
