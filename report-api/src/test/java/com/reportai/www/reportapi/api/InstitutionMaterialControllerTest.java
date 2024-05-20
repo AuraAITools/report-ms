@@ -1,4 +1,6 @@
 package com.reportai.www.reportapi.api;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -12,8 +14,10 @@ import com.reportai.www.reportapi.repositories.TopicRepository;
 import com.reportai.www.reportapi.services.InstitutionMaterialService;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -94,19 +98,16 @@ public class InstitutionMaterialControllerTest {
     public void should_GetAllMaterialsFromTopic_When_ValidRequest() throws Exception {
         Material materialOne = Material.builder().name("test1").build();
         Material materialTwo = Material.builder().name("test2").build();
-        List<Material> materials = Arrays.asList(materialOne, materialTwo);
-        topic.setMaterials(materials);
-        materialRepository.saveAll(materials);
+        Set<Material> materials = new HashSet<>(Arrays.asList(materialOne, materialTwo));
         topic = topicRepository.save(topic);
+        materials.forEach(material -> material.setTopic(topic));
+        materialRepository.saveAll(materials);
 
         mockMvc.perform(get("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0].id").isNotEmpty())
-            .andExpect(jsonPath("$[0].name").value(materialOne.getName()))
-            .andExpect(jsonPath("$[1].id").isNotEmpty())
-            .andExpect(jsonPath("$[1].name").value(materialTwo.getName()));
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].name", containsInAnyOrder(materialOne.getName(), materialTwo.getName())));
     }
 
     @Test
@@ -125,7 +126,7 @@ public class InstitutionMaterialControllerTest {
     public void should_GetUpdatedMaterial_When_ValidRequest() throws Exception {
         Material material = Material.builder().build();
         Material savedMaterial = materialRepository.save(material);
-        topic.setMaterials(new ArrayList<>(List.of(material)));
+        topic.setMaterials(new HashSet<>(Arrays.asList(material)));
         topic = topicRepository.save(topic);
         material.setName("material");
 

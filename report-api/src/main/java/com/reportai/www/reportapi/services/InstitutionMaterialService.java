@@ -7,7 +7,10 @@ import com.reportai.www.reportapi.repositories.MaterialRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
 import com.reportai.www.reportapi.util.Patcher;
 import jakarta.transaction.Transactional;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -25,23 +28,19 @@ public class InstitutionMaterialService {
     @Transactional
     public Material createMaterialForTopic(Material material, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(()->new NotFoundException("no topic found"));
-        Material savedMaterial = materialRepository.save(material);
-        topic.getMaterials().add(savedMaterial);
-        topicRepository.save(topic);
-        return savedMaterial;
+        material.setTopic(topic);
+        return materialRepository.save(material);
     }
 
     @Transactional
     public List<Material> batchCreateMaterialForTopic(List<Material> materials, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(()->new NotFoundException("no topic found"));
-        List<Material> savedMaterials = materialRepository.saveAll(materials);
-        topic.getMaterials().addAll(savedMaterials);
-        topicRepository.save(topic);
-        return savedMaterials;
+        materials.forEach(material -> material.setTopic(topic));
+        return materialRepository.saveAll(materials);
     }
 
     @Transactional
-    public List<Material> getAllMaterialsFromTopic(UUID topicId) {
+    public Set<Material> getAllMaterialsFromTopic(UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(()->new NotFoundException("no topic found"));
         return topic.getMaterials();
     }

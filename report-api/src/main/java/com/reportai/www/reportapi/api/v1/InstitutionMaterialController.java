@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.api.v1;
 import com.reportai.www.reportapi.entities.Material;
 import com.reportai.www.reportapi.services.InstitutionMaterialService;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +42,8 @@ public class InstitutionMaterialController {
     }
 
     @GetMapping("/topics/{topic_id}/materials")
-    public ResponseEntity<List<Material>> getAllMaterialsFromTopic(@PathVariable(name = "topic_id") UUID topicId) {
-        List<Material> materials = institutionMaterialService.getAllMaterialsFromTopic(topicId);
+    public ResponseEntity<Set<Material>> getAllMaterialsFromTopic(@PathVariable(name = "topic_id") UUID topicId) {
+        Set<Material> materials = institutionMaterialService.getAllMaterialsFromTopic(topicId);
         return new ResponseEntity<>(materials, HttpStatus.OK);
     }
 
