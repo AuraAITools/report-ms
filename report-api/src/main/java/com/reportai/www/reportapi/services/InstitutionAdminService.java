@@ -49,30 +49,25 @@ public class InstitutionAdminService {
     }
 
     @Transactional
-    public Course createCourseForInstitution(Course newCourse, UUID institutionId) {
+    public Course createCourseForInstitution(Course course, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()->new NotFoundException("no institution found"));
-        Course savedCourse = courseRepository.save(newCourse);
-        institution.getCourses().add(savedCourse);
-        institutionRepository.save(institution);
-        return savedCourse;
+        // owning side will have to set the reference to institution
+        course.setInstitution(institution);
+        return courseRepository.save(course);
     }
 
     @Transactional
     public List<Course> batchCreateCoursesForInstitution(List<Course> courses, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
-        List<Course> savedCourses = courseRepository.saveAll(courses);
-        institution.getCourses().addAll(savedCourses);
-        institutionRepository.save(institution);
-        return savedCourses;
+        courses.forEach(c -> c.setInstitution(institution));
+        return courseRepository.saveAll(courses);
     }
 
     @Transactional
     public List<Subject> batchCreateSubjectsForCourse(List<Subject> subjects, UUID courseId) {
         Course targetCourse = courseRepository.findById(courseId).orElseThrow(()-> new NotFoundException("class not found"));
-        List<Subject> savedSubjects = subjectRepository.saveAll(subjects);
-        targetCourse.getSubjects().addAll(savedSubjects);
-        courseRepository.save(targetCourse);
-        return savedSubjects;
+        subjects.forEach(s -> s.setCourse(targetCourse));
+        return subjectRepository.saveAll(subjects);
     }
 
     public List<Subject> getAllSubjectsFromCourse(UUID courseId) {
@@ -89,13 +84,12 @@ public class InstitutionAdminService {
     @Transactional
     public Topic createTopicForInstitution(Topic topic, UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("institution does not exist"));
-        Topic savedTopic = topicRepository.save(topic);
-        institution.getTopics().add(savedTopic);
-        institutionRepository.save(institution);
-        return savedTopic;
+        topic.setInstitution(institution);
+        return topicRepository.save(topic);
     }
 
     // Subjects
+    //TODO: review referential integrity
     public List<Educator> getAllEducatorsFromSubject(UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(()->new NotFoundException("Subject not found"));
         return subject.getEducators();
@@ -104,7 +98,7 @@ public class InstitutionAdminService {
     public List<Student> getAllStudentsFromSubject(UUID subjectId) {
         Subject subject = subjectRepository.findById(subjectId)
             .orElseThrow(() -> new NotFoundException("Subject not found"));
-        return subject.getStudents();
+        return subject.getStudents().stream().toList();
     }
 
     @Transactional

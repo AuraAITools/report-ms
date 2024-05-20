@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -19,10 +20,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "TestResults")
+@Table(name = "Topics")
 @Builder
 @Setter
 @Getter
@@ -36,13 +38,14 @@ public class Topic {
 
     private String name;
 
-    @OneToOne
+    @ManyToOne
     private Institution institution;
 
-    @ManyToMany
-    private List<Material> materials;
+    @ManyToMany(mappedBy = "topics")
+    private Set<Material> materials;
 
-    @ManyToMany List<Objective> objectives;
+    @ManyToMany
+    private Set<Objective> objectives;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
