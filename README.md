@@ -2,7 +2,7 @@
 microservice for reports
 
 ## dependencies
-Java jdk 17 and above
+Java jdk 21
 
 ## How to run
 ```
