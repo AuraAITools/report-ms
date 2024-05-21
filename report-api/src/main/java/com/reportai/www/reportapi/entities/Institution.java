@@ -36,7 +36,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Institution {
+public class Institution implements IAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -9,6 +9,5 @@ import java.util.UUID;
 
 public interface InstitutionRepository extends JpaRepository<Institution, UUID> {
     Optional<Institution> findByUserId(UUID userId);
-
     boolean existsByUserId(UUID userId);
 }

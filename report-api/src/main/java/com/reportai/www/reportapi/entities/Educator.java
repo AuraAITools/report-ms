@@ -38,7 +38,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Educator {
+public class Educator implements IAccount{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

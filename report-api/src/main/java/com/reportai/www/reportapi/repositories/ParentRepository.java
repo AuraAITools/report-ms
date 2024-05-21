@@ -4,8 +4,11 @@ import com.reportai.www.reportapi.entities.Parent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ParentRepository extends JpaRepository<Parent, UUID> {
     boolean existsByUserId(UUID userId);
+
+    Optional<Parent> findByUserId(UUID userId);
 }

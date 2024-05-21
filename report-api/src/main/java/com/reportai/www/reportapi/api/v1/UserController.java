@@ -1,6 +1,8 @@
 package com.reportai.www.reportapi.api.v1;
 
+import com.reportai.www.reportapi.dtos.responses.AccountDTO;
 import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.IAccount;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
@@ -9,19 +11,22 @@ import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.ParentRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
+import com.reportai.www.reportapi.services.AccountService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @RequestMapping("api/v1")
 @RestController
+@Slf4j
 public class UserController {
 
     private final ParentRepository parentRepository;
@@ -29,11 +34,20 @@ public class UserController {
     private final InstitutionRepository institutionRepository;
     private final EducatorRepository educatorRepository;
 
-    public UserController(ParentRepository parentRepository, StudentRepository studentRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository) {
+    private final AccountService accountService;
+
+    public UserController(ParentRepository parentRepository, StudentRepository studentRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, AccountService accountService) {
         this.parentRepository = parentRepository;
         this.studentRepository = studentRepository;
         this.institutionRepository = institutionRepository;
         this.educatorRepository = educatorRepository;
+        this.accountService = accountService;
+    }
+
+    @GetMapping("/users/{user_id}/accounts")
+    public ResponseEntity<List<AccountDTO>> getAccountsOfUser(@PathVariable(name = "user_id") UUID userId) {
+        List<AccountDTO> userAccounts = accountService.getAllAccountsOfUser(userId);
+        return new ResponseEntity<>(userAccounts, HttpStatus.OK);
     }
 
     @GetMapping("/parents/{id}")

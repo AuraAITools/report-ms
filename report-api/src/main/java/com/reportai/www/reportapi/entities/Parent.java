@@ -34,7 +34,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Parent {
+public class Parent implements IAccount{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
@@ -76,4 +76,6 @@ public class Parent {
     private void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
     }
+
+
 }
