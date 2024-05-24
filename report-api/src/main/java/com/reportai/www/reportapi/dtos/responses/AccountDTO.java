@@ -19,7 +19,7 @@ public class AccountDTO {
     public UUID userId;
 
     @JsonProperty("account_type")
-    public String accountType;
+    public ACCOUNT_TYPES accountType;
 
     public enum ACCOUNT_TYPES {
         INSTITUTION,
@@ -34,7 +34,7 @@ public class AccountDTO {
                 .id(account.getId())
                 .email(account.getEmail())
                 .userId(account.getUserId())
-                .accountType(type.toString())
+                .accountType(type)
                 .name(account.getName())
                 .build();
     }
