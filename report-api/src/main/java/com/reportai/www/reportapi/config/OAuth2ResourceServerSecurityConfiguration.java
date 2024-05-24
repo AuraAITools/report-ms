@@ -1,33 +1,36 @@
 package com.reportai.www.reportapi.config;
 
 import com.reportai.www.reportapi.configproperties.OauthResourceServerConfigProperties;
+import com.reportai.www.reportapi.services.AccountService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import javax.crypto.spec.SecretKeySpec;
-
+@Slf4j
 @Configuration
 @EnableWebSecurity
-@Slf4j
+@EnableMethodSecurity
 @ConditionalOnProperty(name = "oauth2.security.enabled", havingValue = "true")
 public class OAuth2ResourceServerSecurityConfiguration {
 
     private final OauthResourceServerConfigProperties oauthResourceServerConfigProperties;
 
-    public OAuth2ResourceServerSecurityConfiguration(OauthResourceServerConfigProperties oauthResourceServerConfigProperties) {
+    private final AccountService accountService;
+
+    public OAuth2ResourceServerSecurityConfiguration(OauthResourceServerConfigProperties oauthResourceServerConfigProperties, AccountService accountService) {
         this.oauthResourceServerConfigProperties = oauthResourceServerConfigProperties;
+        this.accountService = accountService;
     }
 
     @Bean
@@ -39,28 +42,16 @@ public class OAuth2ResourceServerSecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt ->jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+                        oauth2.jwt(jwt ->jwt.jwtAuthenticationConverter(new AuraJwtAuthenticationConverter(accountService))));
 
         return http.build();
     }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");  // Adjust if necessary
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");  // Adjust based on your token's claim name
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
-    }
-
 
     /**
      * supabase does not support JWK uri set atm. but it supports symmetric key signing
      * with the HS256 aka Hmac SHA256 algorithm
      * for now we can just decode by this way
-     * @return
+     * @return JwtDecoder
      */
     @Bean
     public JwtDecoder jwtDecoder() {
