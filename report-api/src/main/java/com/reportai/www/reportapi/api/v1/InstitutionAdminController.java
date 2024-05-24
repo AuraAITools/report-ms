@@ -80,6 +80,25 @@ public class InstitutionAdminController {
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 
+    // registration
+    @GetMapping("/institutions/{institution_id}/educators")
+    public ResponseEntity<List<Educator>> getAllEducatorsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Educator> topics = institutionAdminService.getAllEducatorsFromInstitution(institutionId);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
+    }
+
+    @GetMapping("/institutions/{institution_id}/parents")
+    public ResponseEntity<List<Parent>> getAllParentsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Parent> parents = institutionAdminService.getAllParentsFromInstitution(institutionId);
+        return new ResponseEntity<>(parents, HttpStatus.OK);
+    }
+
+    @GetMapping("/institutions/{institution_id}/students")
+    public ResponseEntity<List<Student>> getAllStudentsInInstitution(@PathVariable(name = "institution_id") UUID institutionId) {
+        List<Student> students = institutionAdminService.getAllStudentsFromInstitution(institutionId);
+        return new ResponseEntity<>(students, HttpStatus.OK);
+    }
+
     // Subjects
     @GetMapping("/subjects/{subject_id}/educators")
     public ResponseEntity<List<Educator>> getAllEducatorsFromSubject(@PathVariable(name = "subject_id") UUID subjectId) {

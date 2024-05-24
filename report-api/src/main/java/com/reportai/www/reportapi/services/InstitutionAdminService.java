@@ -165,4 +165,22 @@ public class InstitutionAdminService {
         institution.getParents().add(parent);
         return parent;
     }
+
+    @Transactional
+    public List<Educator> getAllEducatorsFromInstitution(UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
+        return institution.getEducators().stream().toList();
+    }
+
+    @Transactional
+    public List<Parent> getAllParentsFromInstitution(UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
+        return institution.getParents().stream().toList();
+    }
+
+    @Transactional
+    public List<Student> getAllStudentsFromInstitution(UUID institutionId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
+        return institution.getStudents().stream().toList();
+    }
 }
