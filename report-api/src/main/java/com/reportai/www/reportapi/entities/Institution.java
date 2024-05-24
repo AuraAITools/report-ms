@@ -107,4 +107,16 @@ public class Institution implements IAccount {
     private void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
     }
+
+    public boolean removeEducatorRegistration(@NotNull UUID educatorId) {
+        return this.educators.removeIf(educator -> educator.getId().equals(educatorId));
+    }
+
+    public boolean removeParentRegistration(@NotNull UUID parentId) {
+        return this.parents.removeIf(parent -> parent.getId().equals(parentId));
+    }
+
+    public boolean removeStudentRegistration(@NotNull UUID studentId) {
+        return this.students.removeIf(student -> student.getId().equals(studentId));
+    }
 }

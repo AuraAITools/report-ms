@@ -6,6 +6,7 @@ import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.Topic;
+import com.reportai.www.reportapi.exceptions.NotFoundException;
 import com.reportai.www.reportapi.services.InstitutionAdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -155,5 +156,33 @@ public class InstitutionAdminController {
     public ResponseEntity<Parent> registerParentToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "parent_id") UUID parentId) {
         Parent registeredParent = institutionAdminService.registerParentToInstitution(institutionId,parentId);
         return new ResponseEntity<>(registeredParent, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/institutions/{institution_id}/parents/{parent_id}")
+    public ResponseEntity<Void> deregisterParentToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "parent_id") UUID parentId) {
+        boolean isDeleted = institutionAdminService.deregisterParentToInstitution(institutionId,parentId);
+        if (!isDeleted) {
+            throw new NotFoundException("not deleted");
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/institutions/{institution_id}/students/{student_id}")
+    public ResponseEntity<Void> deregisterStudentToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "student_id") UUID studentId) {
+        boolean isDeleted = institutionAdminService.deregisterStudentToInstitution(institutionId,studentId);
+        if (!isDeleted) {
+            throw new NotFoundException("not deleted");
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @DeleteMapping("/institutions/{institution_id}/educators/{educator_id}")
+    public ResponseEntity<Void> deregisterEducatorToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "educator_id") UUID educatorId) {
+        boolean isDeleted = institutionAdminService.deregisterEducatorToInstitution(institutionId,educatorId);
+        if (!isDeleted) {
+            throw new NotFoundException("not deleted");
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

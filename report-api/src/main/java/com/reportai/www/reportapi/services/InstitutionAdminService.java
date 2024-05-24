@@ -167,6 +167,24 @@ public class InstitutionAdminService {
     }
 
     @Transactional
+    public boolean deregisterParentToInstitution(UUID institutionId, UUID parentId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        return institution.removeParentRegistration(parentId);
+    }
+
+    @Transactional
+    public boolean deregisterStudentToInstitution(UUID institutionId, UUID studentId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        return institution.removeStudentRegistration(studentId);
+    }
+
+    @Transactional
+    public boolean deregisterEducatorToInstitution(UUID institutionId, UUID educatorId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        return institution.removeEducatorRegistration(educatorId);
+    }
+
+    @Transactional
     public List<Educator> getAllEducatorsFromInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("no institution found"));
         return institution.getEducators().stream().toList();
