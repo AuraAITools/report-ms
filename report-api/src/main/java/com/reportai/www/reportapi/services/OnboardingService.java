@@ -4,6 +4,7 @@ import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
+import com.reportai.www.reportapi.exceptions.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.ParentRepository;
@@ -33,19 +34,35 @@ public class OnboardingService {
 
     // TODO: add account exist checks
     public Parent onboard(Parent parent) {
+        boolean exists = parentRepository.existsByUserId(parent.getUserId());
+        if (exists) {
+            throw new ResourceAlreadyExistsException("parent account already exists");
+        }
         return parentRepository.save(parent);
     }
 
     public Student onboard(Student student) {
+        boolean exists = studentRepository.existsByUserId(student.getUserId());
+        if (exists) {
+            throw new ResourceAlreadyExistsException("student account already exists");
+        }
         return studentRepository.save(student);
     }
 
     public Institution onboard(Institution institution) {
+        boolean exists = institutionRepository.existsByUserId(institution.getUserId());
+        if (exists) {
+            throw new ResourceAlreadyExistsException("institution account already exists");
+        }
         return institutionRepository.save(institution);
 
     }
 
     public Educator onboard(Educator educator) {
+        boolean exists = educatorRepository.existsByUserId(educator.getUserId());
+        if (exists) {
+            throw new ResourceAlreadyExistsException("educator account already exists");
+        }
         return educatorRepository.save(educator);
     }
 

@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.api.exceptions;
 
 import com.reportai.www.reportapi.dtos.responses.ErrorResponse;
 import com.reportai.www.reportapi.exceptions.NotFoundException;
+import com.reportai.www.reportapi.exceptions.ResourceAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,5 +43,14 @@ public class GlobalExceptionAdvice {
                 .target(e.getResourcePath())
                 .build();
         return new ResponseEntity<>(noRestResourceFoundErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({ResourceAlreadyExistsException.class})
+    public ResponseEntity<ErrorResponse> handlerResourceAlreadyExists(ResourceAlreadyExistsException e) {
+        ErrorResponse resourceAlreadyExistsException = ErrorResponse.builder()
+                .message(e.getMessage())
+                .errorCode("409001")
+                .build();
+        return new ResponseEntity<>(resourceAlreadyExistsException, HttpStatus.CONFLICT);
     }
 }
