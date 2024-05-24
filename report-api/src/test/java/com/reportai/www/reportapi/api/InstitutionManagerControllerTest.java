@@ -75,7 +75,12 @@ public class InstitutionManagerControllerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        institution = institutionRepository.save(Institution.builder().build());
+        institution = institutionRepository.save(Institution
+                .builder()
+                .name("name")
+                .email("test@gmail.com")
+                .userId(UUID.randomUUID())
+                .build());
         course = courseRepository.save(Course.builder().build());
         subject = subjectRepository.save(Subject.builder().build());
     }
@@ -128,8 +133,17 @@ public class InstitutionManagerControllerTest {
     // TODO: check for referential integrity violations
     @Test
     public void should_ReturnEducators_When_SubjectIdIsProvided() throws Exception {
-        Educator educatorOne = Educator.builder().build();
-        Educator educatorTwo = Educator.builder().build();
+        Educator educatorOne = Educator
+                .builder()
+                .name("educator1")
+                .email("educator@gmail.com")
+                .userId(UUID.randomUUID())
+                .build();
+        Educator educatorTwo = Educator
+                .builder()
+                .name("educator2")
+                .email("educator2@gmail.com")
+                .userId(UUID.randomUUID()).build();
         List<Educator> educators = Arrays.asList(educatorOne, educatorTwo);
         educatorRepository.saveAll(educators);
         subject.setEducators(educators);
@@ -145,8 +159,18 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_ReturnStudents_When_SubjectIdIsProvided() throws Exception {
-        Student studentOne = new Student();
-        Student studentTwo  = new Student();
+        Student studentOne = Student
+                .builder()
+                .name("student1")
+                .email("student1@gmail.com")
+                .userId(UUID.randomUUID())
+                .build();
+        Student studentTwo = Student
+                .builder()
+                .name("student2")
+                .email("student2@gmail.com")
+                .userId(UUID.randomUUID())
+                .build();
         Set<Student> students = Set.of(studentOne, studentTwo);
         studentRepository.saveAll(students);
         subject.setStudents(students);
@@ -162,7 +186,12 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_RemoveEducator_When_SubjectIdAndEducatorIdAreProvided() throws Exception {
-        educator = Educator.builder().name("educator").build();
+        educator = Educator
+                .builder()
+                .name("educator1")
+                .email("educator1@gmail.com")
+                .userId(UUID.randomUUID())
+                .build();
         educator = educatorRepository.save(educator);
         educatorRepository.save(educator);
         subject.setEducators(new ArrayList<>(List.of(educator)));
@@ -177,7 +206,12 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_RemoveStudent_When_SubjectIdAndStudentIdAreProvided() throws Exception {
-        student = Student.builder().name("student").build();
+        student = Student
+                .builder()
+                .name("student1")
+                .email("student1@gmail.com")
+                .userId(UUID.randomUUID())
+                .build();
         student = studentRepository.save(student);
         subject.setStudents(Set.of(student));
         subject = subjectRepository.save(subject);
