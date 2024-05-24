@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.api.v1;
 
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.Topic;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,11 +24,11 @@ import java.util.UUID;
 
 @RequestMapping("api/v1")
 @RestController
-public class InstitutionManagerController {
+public class InstitutionAdminController {
 
     private final InstitutionAdminService institutionAdminService;
 
-    public InstitutionManagerController(InstitutionAdminService institutionAdminService) {
+    public InstitutionAdminController(InstitutionAdminService institutionAdminService) {
         this.institutionAdminService = institutionAdminService;
     }
 
@@ -106,15 +108,33 @@ public class InstitutionManagerController {
         return new ResponseEntity<>(addedStudents, HttpStatus.OK);
     }
 
-    @DeleteMapping("/subjects/{subject_id}/educator/{educator_id}")
+    @DeleteMapping("/subjects/{subject_id}/educators/{educator_id}")
     public ResponseEntity<Educator> removeEducatorFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "educator_id") UUID educatorId) {
         Educator educator = institutionAdminService.removeEducatorFromSubject(subjectId, educatorId);
         return new ResponseEntity<>(educator, HttpStatus.OK);
     }
 
-    @DeleteMapping("/subjects/{subject_id}/student/{student_id}")
+    @DeleteMapping("/subjects/{subject_id}/students/{student_id}")
     public ResponseEntity<Student> removeStudentFromSubject(@PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "student_id") UUID studentId) {
         Student student = institutionAdminService.removeStudentFromSubject(subjectId, studentId);
         return new ResponseEntity<>(student, HttpStatus.OK);
+    }
+
+    @PatchMapping("/institutions/{institution_id}/educators/{educator_id}")
+    public ResponseEntity<Educator> registerEducatorToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "educator_id") UUID educatorId) {
+        Educator registeredEducator = institutionAdminService.registerEducatorToInstitution(institutionId,educatorId);
+        return new ResponseEntity<>(registeredEducator, HttpStatus.OK);
+    }
+
+    @PatchMapping("/institutions/{institution_id}/students/{student_id}")
+    public ResponseEntity<Student> registerStudentToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "student_id") UUID studentId) {
+        Student registeredStudent = institutionAdminService.registerStudentToInstitution(institutionId,studentId);
+        return new ResponseEntity<>(registeredStudent, HttpStatus.OK);
+    }
+
+    @PatchMapping("/institutions/{institution_id}/parents/{parent_id}")
+    public ResponseEntity<Parent> registerParentToInstitution(@PathVariable(name = "institution_id") UUID institutionId, @PathVariable(name = "parent_id") UUID parentId) {
+        Parent registeredParent = institutionAdminService.registerParentToInstitution(institutionId,parentId);
+        return new ResponseEntity<>(registeredParent, HttpStatus.OK);
     }
 }

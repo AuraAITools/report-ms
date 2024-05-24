@@ -41,8 +41,6 @@ public class OnboardingController {
 
     @PostMapping("/onboard/students")
     public ResponseEntity<Student> onboard(@AuthenticationPrincipal Jwt jwt, @RequestBody @Valid Student student) {
-        // TODO: yay i can extract from here
-        log.info("email: "+ jwt.getClaim("email"));
         Student onboardedStudent = onboardingService.onboard(student);
         return new ResponseEntity<>(onboardedStudent, HttpStatus.CREATED);
     }

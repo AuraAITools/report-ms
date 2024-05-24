@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.services;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.Topic;
@@ -10,6 +11,7 @@ import com.reportai.www.reportapi.exceptions.NotFoundException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.ParentRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
@@ -31,14 +33,17 @@ public class InstitutionAdminService {
 
     private final StudentRepository studentRepository;
 
+    private final ParentRepository parentRepository;
+
     private final TopicRepository topicRepository;
 
-    public InstitutionAdminService(InstitutionRepository institutionRepository, CourseRepository courseRepository, SubjectRepository subjectRepository, EducatorRepository educatorRepository, StudentRepository studentRepository, TopicRepository topicRepository) {
+    public InstitutionAdminService(InstitutionRepository institutionRepository, CourseRepository courseRepository, SubjectRepository subjectRepository, EducatorRepository educatorRepository, StudentRepository studentRepository, ParentRepository parentRepository, TopicRepository topicRepository) {
         this.institutionRepository = institutionRepository;
         this.courseRepository = courseRepository;
         this.subjectRepository = subjectRepository;
         this.educatorRepository = educatorRepository;
         this.studentRepository = studentRepository;
+        this.parentRepository = parentRepository;
         this.topicRepository = topicRepository;
     }
 
@@ -135,5 +140,29 @@ public class InstitutionAdminService {
         subject.getStudents().remove(student);
         subjectRepository.save(subject);
         return student;
+    }
+
+    @Transactional
+    public Educator registerEducatorToInstitution(UUID institutionId, UUID educatorId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        Educator educator = educatorRepository.findById(educatorId).orElseThrow(()-> new NotFoundException("Educator not found"));
+        institution.getEducators().add(educator);
+        return educator;
+    }
+
+    @Transactional
+    public Student registerStudentToInstitution(UUID institutionId, UUID studentId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        Student student = studentRepository.findById(studentId).orElseThrow(()-> new NotFoundException("Student not found"));
+        institution.getStudents().add(student);
+        return student;
+    }
+
+    @Transactional
+    public Parent registerParentToInstitution(UUID institutionId, UUID parentId) {
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(()-> new NotFoundException("Institution not found"));
+        Parent parent = parentRepository.findById(parentId).orElseThrow(()-> new NotFoundException("Parent not found"));
+        institution.getParents().add(parent);
+        return parent;
     }
 }
