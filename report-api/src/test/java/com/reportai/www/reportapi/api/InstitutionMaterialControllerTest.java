@@ -67,7 +67,7 @@ public class InstitutionMaterialControllerTest {
 
     @Test
     public void should_CreateMaterialForTopic_When_ValidRequest() throws Exception {
-        Material material = Material.builder().name("test").build();
+        Material material = Material.builder().name("test").topics(new HashSet<>()).build();
         topic = topicRepository.save(topic);
         mockMvc.perform(post("/api/v1/topics/{topic_id}/materials", topic.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -79,8 +79,8 @@ public class InstitutionMaterialControllerTest {
 
     @Test
     public void should_BatchCreateMaterialForTopic_When_ValidRequest() throws Exception {
-        Material materialOne = Material.builder().name("test1").build();
-        Material materialTwo = Material.builder().name("test2").build();
+        Material materialOne = Material.builder().name("test1").topics(new HashSet<>()).build();
+        Material materialTwo = Material.builder().name("test2").topics(new HashSet<>()).build();
         List<Material> materials = Arrays.asList(materialOne, materialTwo);
         topic = topicRepository.save(topic);
 
@@ -96,11 +96,11 @@ public class InstitutionMaterialControllerTest {
 
     @Test
     public void should_GetAllMaterialsFromTopic_When_ValidRequest() throws Exception {
-        Material materialOne = Material.builder().name("test1").build();
-        Material materialTwo = Material.builder().name("test2").build();
+        Material materialOne = Material.builder().name("test1").topics(new HashSet<>()).build();
+        Material materialTwo = Material.builder().name("test2").topics(new HashSet<>()).build();
         Set<Material> materials = new HashSet<>(Arrays.asList(materialOne, materialTwo));
         topic = topicRepository.save(topic);
-        materials.forEach(material -> material.setTopic(topic));
+        materials.forEach(material -> material.getTopics().add(topic));
         materialRepository.saveAll(materials);
 
         mockMvc.perform(get("/api/v1/topics/{topic_id}/materials", topic.getId())
@@ -124,13 +124,13 @@ public class InstitutionMaterialControllerTest {
 
     @Test
     public void should_GetUpdatedMaterial_When_ValidRequest() throws Exception {
-        Material material = Material.builder().build();
-        material.setTopic(topic);
+        Material material = Material.builder().topics(new HashSet<>()).build();
+        material.getTopics().add(topic);
         Topic newTopic = Topic.builder().build();
         topicRepository.saveAll(List.of(topic, newTopic));
         Material savedMaterial = materialRepository.save(material);
         material.setName("material");
-        material.setTopic(newTopic);
+        material.getTopics().add(newTopic);
 
         mockMvc.perform(patch("/api/v1/materials/{material_id}", savedMaterial.getId())
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(material)))

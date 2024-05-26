@@ -7,8 +7,6 @@ import com.reportai.www.reportapi.repositories.MaterialRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
 import com.reportai.www.reportapi.util.Patcher;
 import jakarta.transaction.Transactional;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,14 +26,14 @@ public class InstitutionMaterialService {
     @Transactional
     public Material createMaterialForTopic(Material material, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(()->new NotFoundException("no topic found"));
-        material.setTopic(topic);
+        material.getTopics().add(topic);
         return materialRepository.save(material);
     }
 
     @Transactional
     public List<Material> batchCreateMaterialForTopic(List<Material> materials, UUID topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow(()->new NotFoundException("no topic found"));
-        materials.forEach(material -> material.setTopic(topic));
+        materials.forEach(material -> material.getTopics().add(topic));
         return materialRepository.saveAll(materials);
     }
 

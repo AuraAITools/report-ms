@@ -70,13 +70,4 @@ public class Material {
     private void onUpdate() {
         this.modifiedAt = LocalDateTime.now();
     }
-
-    public void setTopic(Topic topic) {
-        if (topics == null) {
-            topics = new HashSet<>();
-        }
-        if (topic != null) {
-            this.topics.add(topic);
-        }
-    }
 }
