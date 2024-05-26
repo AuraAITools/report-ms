@@ -6,8 +6,11 @@ import com.reportai.www.reportapi.entities.Parent;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.services.OnboardingService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1")
 @RestController
+@Slf4j
 public class OnboardingController {
 
     private final OnboardingService onboardingService;
@@ -36,7 +40,9 @@ public class OnboardingController {
     }
 
     @PostMapping("/onboard/students")
-    public ResponseEntity<Student> onboard(@RequestBody @Valid Student student) {
+    public ResponseEntity<Student> onboard(@AuthenticationPrincipal Jwt jwt, @RequestBody @Valid Student student) {
+        // TODO: yay i can extract from here
+        log.info("email: "+ jwt.getClaim("email"));
         Student onboardedStudent = onboardingService.onboard(student);
         return new ResponseEntity<>(onboardedStudent, HttpStatus.CREATED);
     }
