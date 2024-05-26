@@ -1,10 +1,8 @@
 package com.reportai.www.reportapi.util;
 
 import java.util.Collection;
-import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 
-@Component
 public class Patcher {
 
     public static <T> void patch(T existingObject, T newObject) throws IllegalAccessException {
