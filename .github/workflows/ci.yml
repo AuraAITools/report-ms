@@ -12,11 +12,13 @@ on:
   push:
     branches: [ "main", '**' ]
   pull_request:
-    branches: [ "main", '**' ]
+    branches: [ "main" ]
 
 jobs:
   build:
-
+    defaults:
+      run:
+        working-directory: ./report-api
     runs-on: ubuntu-22.04
 
     steps:
@@ -28,15 +30,22 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Run Tests
-      working-directory: ./report-api
       run: mvn test 
     - name: Build with Maven
-      working-directory: ./report-api
       run: mvn -B package
+    - name: temporarily save jar artifact for docker build job
+      uses: actions/upload-artifact@v4
+      with:
+        name: jar-artifact
+        path: report-api/target/report-api-0.0.1-SNAPSHOT.jar
   docker-build:
     runs-on: ubuntu-22.04
     needs: build
     steps:
+      - name: Download a jar artifact from jar build job
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-artifact
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
