@@ -69,5 +69,5 @@ jobs:
         with:
           context: ./report-api
           push: true
-          tags: kevindevelopes/aura/report-api:latest
+          tags: kevindevelopes/aura:latest
     
