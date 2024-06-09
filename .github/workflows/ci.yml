@@ -43,7 +43,7 @@ jobs:
     needs: mvn-build
     defaults:
       run:
-        working-directory: report-api
+        working-directory: ./report-api
     steps:
       - name: Create target directory
         run: mkdir -p target
