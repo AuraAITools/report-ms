@@ -41,17 +41,17 @@ jobs:
   docker-build-push:
     runs-on: ubuntu-22.04
     needs: mvn-build
-    defaults:
-      run:
-        working-directory: ./report-api
+    # defaults:
+    #   run:
+    #     working-directory: ./report-api
     steps:
       - name: Create target directory
-        run: mkdir -p target
+        run: mkdir -p ./report-api/target
       - name: Download a jar artifact from jar build job
         uses: actions/download-artifact@v4
         with:
           name: jar-artifact
-          path: /target
+          path: ./report-api/target
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -64,7 +64,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./report-api
           push: true
           tags: kevindevelopes/aura/report-api:latest
     
