@@ -15,7 +15,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  mvn-build:
     defaults:
       run:
         working-directory: ./report-api
@@ -38,15 +38,20 @@ jobs:
       with:
         name: jar-artifact
         path: report-api/target/report-api-0.0.1-SNAPSHOT.jar
-  docker-build:
+  docker-build-push:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: mvn-build
+    defaults:
+      run:
+        working-directory: report-api
     steps:
+      - name: Create target directory
+        run: mkdir -p target
       - name: Download a jar artifact from jar build job
         uses: actions/download-artifact@v4
         with:
           name: jar-artifact
-          path: /report-api/target
+          path: /target
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -59,6 +64,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: kevindevelopes/aura/report-api:latest
     
