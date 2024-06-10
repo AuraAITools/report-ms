@@ -39,4 +39,4 @@ jobs:
         with:
           context: ./report-api
           push: true
-          tags: kevindevelopes/aura:report-ms-${{github.sha}}
+          tags: kevindevelopes/aura:report-ms
