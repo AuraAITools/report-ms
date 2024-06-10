@@ -1,0 +1,56 @@
+# cicd pipeline
+# on main trunk commits
+# run tests on new main trunk commit and push artefact to docker registry
+name: ci
+run-name: ci run triggered by ${{ github.ref_name }} merge to main trunk
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  test:
+    defaults:
+      run:
+        working-directory: ./report-api
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+      - name: Run Tests
+        run: mvn test
+  build-and-push-to-registry:
+    needs: test
+    defaults:
+      run:
+        working-directory: ./report-api
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+      - name: Build with Maven
+        run: mvn -B package
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push to docker registry
+        uses: docker/build-push-action@v5
+        with:
+          context: ./report-api
+          push: true
+          tags: kevindevelopes/aura:report-ms
