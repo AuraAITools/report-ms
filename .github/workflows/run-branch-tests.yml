@@ -1,10 +1,17 @@
-# cicd pipeline
-# on main trunk commits
-# run tests on new main trunk commit and push artefact to docker registry
-name: ci
-run-name: ci run triggered by ${{ github.ref_name }} merge to main trunk
+# run testing on feature branch
+# run testing on PRs to main trunk on the merge commit
+name: branch test
+run-name: running tests on branch ${{ github.ref_name }}
 on:
   push:
+    branches:
+      - "**"
+      - "!main"
+  pull_request:
+    types:
+      - "opened"
+      - "edited"
+      - "synchronize"
     branches:
       - "main"
 jobs:
@@ -21,9 +28,9 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: maven
-      - name: Run Tests
+      - name: Run tests
         run: mvn test
-      - name: Build with Maven
+      - name: Test mvn build
         run: mvn -B package
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -38,5 +45,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./report-api
-          push: true
-          tags: kevindevelopes/aura:report-ms-${{github.sha}}
+          push: false
