@@ -21,4 +21,4 @@ jobs:
             whoami
             echo ${{secrets.DOCKERHUB_TOKEN}} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin &&
             docker ps --format '{{.ID}}\t{{.Ports}}' | grep '80/tcp' | awk '{print $1}' | xargs -r -I {} sh -c 'docker stop {} && docker rm {}' &&
-            docker run -d -p 80:8080 ${{vars.IMAGE_REGISTRY}}:${{vars.IMAGE_TAG}}
+            docker run -e JWT_SECRET=${{secrets.JWT_SECRET}} -d -p 80:8080 ${{vars.IMAGE_REGISTRY}}:${{vars.IMAGE_TAG}}
