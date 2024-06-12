@@ -1,0 +1,17 @@
+# CD pipeline to deploy container to EC2 instance
+name: cd
+on:
+  workflow_run:
+    workflows:
+      - "ci"
+    types:
+      - "completed"
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Pull Docker Image into webserver
+        run: ssh -o StrictHostKeyChecking=no -i ${{secrets.MS_SSH_KEY}} root@${{vars.IP_ADDRESS}} "
+            docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_TOKEN}} &&
+            docker ps --format "{{.ID}}\t{{.Ports}}" | grep '80/tcp' | awk '{print $1}' | xargs -r -I {} sh -c 'docker stop {} && docker rm {}' &&
+            docker run -p 80:8080 ${{vars.IMAGE_REGISTRY}}:${{vars.IMAGE_TAG}}"
