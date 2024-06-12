@@ -19,6 +19,6 @@ jobs:
           port: 22
           script: | 
             whoami
-            docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_TOKEN}} &&
-            docker ps --format '{{.ID}}\t{{.Ports}}' | grep '80/tcp' | awk '{print \$1}' | xargs -r -I {} sh -c 'docker stop {} && docker rm {}' &&
-            docker run -p 80:8080 ${{vars.IMAGE_REGISTRY}}:${{vars.IMAGE_TAG}}
+            echo ${{secrets.DOCKERHUB_TOKEN}} | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin &&
+            docker ps --format '{{.ID}}\t{{.Ports}}' | grep '80/tcp' | awk '{print $1}' | xargs -r -I {} sh -c 'docker stop {} && docker rm {}' &&
+            docker run -d -p 80:8080 ${{vars.IMAGE_REGISTRY}}:${{vars.IMAGE_TAG}}
