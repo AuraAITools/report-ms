@@ -23,4 +23,4 @@ jobs:
           aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{vars.ECR_REGISTRY}} &&
           docker pull ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}} &&
           docker ps --format '{{.ID}}\t{{.Ports}}' | grep -w '0.0.0.0:8080' | awk '{print $1}' | xargs -r -I {} sh -c 'docker stop {} && docker rm {}' &&
-          docker run -e JWT_SECRET=${{secrets.JWT_SECRET}} -d -p 8080:8080 ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}}
+          docker run --name report-ms -e JWT_SECRET=${{secrets.JWT_SECRET}} -d -p 8080:8080 ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}}
