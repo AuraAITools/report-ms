@@ -1,27 +1,27 @@
-# CD pipeline to deploy container to EC2 instance
-name: cd
-on:
-  workflow_run:
-    workflows:
-      - "ci"
-    types:
-      - "completed"
-jobs:
-  deploy:
-    runs-on: ubuntu-22.04
-    steps:
-    - name: Pull Docker Image into webserver
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ vars.IP_ADDRESS }}
-        username: ubuntu
-        key: ${{ secrets.MS_SSH_KEY }}
-        port: 22
-        script: | 
-          export AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} && 
-          export AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} &&
-          aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{vars.ECR_REGISTRY}} &&
-          docker pull ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}} &&
-          docker stop report-ms && docker rm report-ms &&
-          docker run --name report-ms -e JWT_SECRET=${{secrets.JWT_SECRET}} -d -p 8080:8080 ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}} &&
-          docker image prune -a -f
+# # CD pipeline to deploy container to EC2 instance
+# name: cd
+# on:
+#   workflow_run:
+#     workflows:
+#       - "ci"
+#     types:
+#       - "completed"
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-22.04
+#     steps:
+#     - name: Pull Docker Image into webserver
+#       uses: appleboy/ssh-action@v1.0.3
+#       with:
+#         host: ${{ vars.IP_ADDRESS }}
+#         username: ubuntu
+#         key: ${{ secrets.MS_SSH_KEY }}
+#         port: 22
+#         script: | 
+#           export AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}} && 
+#           export AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} &&
+#           aws ecr get-login-password --region ${{vars.AWS_REGION}} | docker login --username AWS --password-stdin ${{vars.ECR_REGISTRY}} &&
+#           docker pull ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}} &&
+#           docker stop report-ms && docker rm report-ms &&
+#           docker run --name report-ms -e JWT_SECRET=${{secrets.JWT_SECRET}} -d -p 8080:8080 ${{vars.ECR_REGISTRY}}/${{vars.ECR_REPOSITORY}}:${{vars.IMAGE_TAG}} &&
+#           docker image prune -a -f
