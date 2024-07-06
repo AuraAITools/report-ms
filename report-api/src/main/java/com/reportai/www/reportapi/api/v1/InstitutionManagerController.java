@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@RequestMapping("api/v1")
+@RequestMapping("v1")
 @RestController
 public class InstitutionManagerController {
 

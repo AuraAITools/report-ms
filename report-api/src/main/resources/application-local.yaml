@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+oauth2:
+  security:
+    enabled: false
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://discovery-service:8080/eureka/
