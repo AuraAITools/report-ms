@@ -94,7 +94,7 @@ public class InstitutionManagerControllerTest {
         List<Course> courses = Arrays.asList(courseOne, courseTwo);
         courseRepository.saveAll(courses);
 
-        mockMvc.perform(get("/api/v1/institutions/{institution_id}/courses", institution.getId())
+        mockMvc.perform(get("/v1/institutions/{institution_id}/courses", institution.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -109,7 +109,7 @@ public class InstitutionManagerControllerTest {
         List<Subject> subjects = Arrays.asList(subjectOne, subjectTwo);
         subjectRepository.saveAll(subjects);
 
-        mockMvc.perform(get("/api/v1/courses/{course_id}/subjects", course.getId())
+        mockMvc.perform(get("/v1/courses/{course_id}/subjects", course.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -124,7 +124,7 @@ public class InstitutionManagerControllerTest {
         List<Topic> topics = Arrays.asList(topicOne, topicTwo);
         topicRepository.saveAll(topics);
 
-        mockMvc.perform(get("/api/v1/institutions/{institution_id}/topics", institution.getId())
+        mockMvc.perform(get("/v1/institutions/{institution_id}/topics", institution.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -151,7 +151,7 @@ public class InstitutionManagerControllerTest {
         subject.setEducators(educators);
         subject = subjectRepository.save(subject);
 
-        mockMvc.perform(get("/api/v1/subjects/{subject_id}/educators", subject.getId())
+        mockMvc.perform(get("/v1/subjects/{subject_id}/educators", subject.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -178,7 +178,7 @@ public class InstitutionManagerControllerTest {
         subject.setStudents(students);
         subject = subjectRepository.save(subject);
 
-        mockMvc.perform(get("/api/v1/subjects/{subject_id}/students", subject.getId())
+        mockMvc.perform(get("/v1/subjects/{subject_id}/students", subject.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
@@ -199,7 +199,7 @@ public class InstitutionManagerControllerTest {
         subject.setEducators(new ArrayList<>(List.of(educator)));
         subject = subjectRepository.save(subject);
 
-        mockMvc.perform(delete("/api/v1/subjects/{subject_id}/educator/{educator_id}", subject.getId(), educator.getId())
+        mockMvc.perform(delete("/v1/subjects/{subject_id}/educator/{educator_id}", subject.getId(), educator.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").isNotEmpty())
@@ -218,7 +218,7 @@ public class InstitutionManagerControllerTest {
         subject.setStudents(Set.of(student));
         subject = subjectRepository.save(subject);
 
-        mockMvc.perform(delete("/api/v1/subjects/{subject_id}/student/{student_id}", subject.getId(), student.getId())
+        mockMvc.perform(delete("/v1/subjects/{subject_id}/student/{student_id}", subject.getId(), student.getId())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").isNotEmpty())
