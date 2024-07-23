@@ -2,13 +2,29 @@ spring:
   config:
     activate:
       on-profile: local
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:7080/realms/oauthrealm
+        registration:
+          keycloak-oidc:
+            provider: keycloak
+            client-name: bugtracker
+            client-id: bugtracker
+            client-secret: KXkMEamips8esnTQxVUjmoekbtpoDc6E
+            authorization-grant-type: authorization_code
+            scope: openid,profile,email,bugtracker
 oauth2:
   security:
     enabled: false
 eureka:
   instance:
+#    hostName: localhost
     preferIpAddress: true
   client:
+    enabled: true
     fetchRegistry: false
     registerWithEureka: true
     serviceUrl:
