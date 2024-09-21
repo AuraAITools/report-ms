@@ -9,6 +9,7 @@ eureka:
   instance:
     preferIpAddress: true
   client:
+    enabled: false
     fetchRegistry: false
     registerWithEureka: true
     serviceUrl:
