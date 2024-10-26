@@ -14,6 +14,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +37,18 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
+
+    @NotEmpty
+    @Column(nullable = false)
+    private String title;
+
+    @NotEmpty
+    @Column(nullable = false)
+    private LocalDateTime lessonDate;
+
+    @NotEmpty
+    @Column(nullable = false)
+    private long duration;
 
     @ManyToOne
     @JsonIgnore
