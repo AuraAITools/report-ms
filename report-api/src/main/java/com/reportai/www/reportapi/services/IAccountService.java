@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.services;
 
-public interface IAccountService<T> {
-    T createAccount(T account);
+import com.reportai.www.reportapi.entities.Account;
 
-    T createDefaultAccount(T account);
+public interface IAccountService {
+    Account createAccount(Account account);
+
+    boolean deleteAccount(String email);
 }

@@ -11,10 +11,15 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * keycloak client
+ */
 @Component
 public class KeycloakAuthClient implements AuthClient<UserRepresentation> {
 
@@ -28,6 +33,7 @@ public class KeycloakAuthClient implements AuthClient<UserRepresentation> {
 
     private Logger log = LoggerFactory.getLogger(KeycloakAuthClient.class);
 
+    @Autowired
     public KeycloakAuthClient(Keycloak keycloakClient) {
         this.keycloakClient = keycloakClient;
         this.realmResource = keycloakClient.realm(REALM);
@@ -41,8 +47,8 @@ public class KeycloakAuthClient implements AuthClient<UserRepresentation> {
      * @return the user id
      */
     @Override
-    public String createDefaultUserAccount(UserRepresentation userRepresentation) throws KeycloakUserAccountAlreadyExistsException, KeycloakUserAccountCreationException {
-        Response response = usersResource.create(addDefaultConfigurations(userRepresentation));
+    public String createUserAccount(UserRepresentation userRepresentation) throws KeycloakUserAccountAlreadyExistsException, KeycloakUserAccountCreationException {
+        Response response = usersResource.create(withDefaultConfigurations(userRepresentation));
 
         if (response.getStatus() == Response.Status.CONFLICT.getStatusCode()) {
             throw new KeycloakUserAccountAlreadyExistsException("keycloak user account already exists");
@@ -57,7 +63,7 @@ public class KeycloakAuthClient implements AuthClient<UserRepresentation> {
     }
 
     /**
-     * Sends a email with the pending actions to the user
+     * Sends an email with the pending actions to the user
      *
      * @param userId
      */
@@ -74,7 +80,7 @@ public class KeycloakAuthClient implements AuthClient<UserRepresentation> {
         return credentialRepresentation;
     }
 
-    private static UserRepresentation addDefaultConfigurations(UserRepresentation userRepresentation) {
+    private static UserRepresentation withDefaultConfigurations(UserRepresentation userRepresentation) {
         CredentialRepresentation defaultCredentials = defaultCredentials();
         userRepresentation.setEnabled(true);
         userRepresentation.setEmailVerified(false);

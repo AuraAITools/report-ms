@@ -1,7 +1,7 @@
 package com.reportai.www.reportapi.clients.keycloak;
 
 public interface AuthClient<U> {
-    String createDefaultUserAccount(U userDetails);
+    String createUserAccount(U userDetails);
 
     void sendPendingActionsToUserEmail(String userId);
 

@@ -28,7 +28,7 @@ public class AdminService {
         userRepresentation.setEmail(createClientAccountDTO.getEmail());
         userRepresentation.setFirstName(createClientAccountDTO.firstName);
         userRepresentation.setLastName(createClientAccountDTO.lastName);
-        String createdUserId = keycloakAuthClient.createDefaultUserAccount(userRepresentation);
+        String createdUserId = keycloakAuthClient.createUserAccount(userRepresentation);
         // TODO: create students here
         studentService.createStudents(StudentMappers.convert(createClientAccountDTO));
         keycloakAuthClient.sendPendingActionsToUserEmail(createdUserId);
