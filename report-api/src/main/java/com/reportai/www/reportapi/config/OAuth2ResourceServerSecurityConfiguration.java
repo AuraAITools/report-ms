@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.config;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @ConditionalOnProperty(name = "oauth2.security.enabled", havingValue = "true")
 public class OAuth2ResourceServerSecurityConfiguration {
 
+    @Value("${oauth2.security.resource-server.jwk-set-uri}")
+    @NotEmpty
+    public String jwksUrl;
+
     public OAuth2ResourceServerSecurityConfiguration() {
     }
 
@@ -28,9 +34,13 @@ public class OAuth2ResourceServerSecurityConfiguration {
         http
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((auth)-> auth
-                        .anyRequest().authenticated()
-                );
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer.jwt(
+                            jwtConfigurer -> jwtConfigurer
+                                    .jwkSetUri(jwksUrl)
+                    );
+                })
+                .authorizeHttpRequests((auth)-> auth.anyRequest().authenticated());
 
         return http.build();
     }
@@ -39,6 +49,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
     @PostConstruct
     private void log() {
         log.info("Web security initialising");
+        log.info("jwks url: {}", jwksUrl);
     }
 
 

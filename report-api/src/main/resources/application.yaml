@@ -40,8 +40,3 @@ info:
     name: report-service
     description: report microservice
     version: 1.0.0
-oauth2:
-  security:
-    enabled: true
-  jwt:
-    secret: ${JWT_SECRET}

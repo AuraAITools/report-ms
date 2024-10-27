@@ -4,6 +4,8 @@ spring:
       on-profile: local
 oauth2:
   security:
+    resource-server:
+      jwk-set-uri: https://accounts.auratest.dev/realms/aura/protocol/openid-connect/certs
     enabled: false
 eureka:
   instance:

@@ -10,3 +10,6 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://discovery-service:8080/eureka/
+oauth2:
+  security:
+    enabled: false # TODO: to be enabled after development phase

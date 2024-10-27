@@ -25,8 +25,7 @@ public class WebSecurityDisabledConfig {
         http
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((auth) -> auth.
-                anyRequest().permitAll());
+                .authorizeHttpRequests((auth) -> auth.anyRequest().permitAll());
         return http.build();
     }
 
