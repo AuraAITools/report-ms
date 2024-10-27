@@ -16,3 +16,10 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://discovery-service:8080/eureka/
+# configurations for the backend keycloak client
+keycloak:
+  client:
+    serverUrl: ${KEYCLOAK_CLIENT_SERVER_URL}
+    realm: ${KEYCLOAK_CLIENT_REALM}
+    clientId: ${KEYCLOAK_CLIENT_ID}
+    clientSecret: ${KEYCLOAK_CLIENT_SECRET}
