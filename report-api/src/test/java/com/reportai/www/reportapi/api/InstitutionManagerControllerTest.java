@@ -81,7 +81,6 @@ public class InstitutionManagerControllerTest {
                 .builder()
                 .name("name")
                 .email("test@gmail.com")
-                .userId(UUID.randomUUID())
                 .build());
         course = courseRepository.save(Course.builder().build());
         subject = subjectRepository.save(Subject.builder().build());
@@ -139,13 +138,12 @@ public class InstitutionManagerControllerTest {
                 .builder()
                 .name("educator1")
                 .email("educator@gmail.com")
-                .userId(UUID.randomUUID())
                 .build();
         Educator educatorTwo = Educator
                 .builder()
                 .name("educator2")
                 .email("educator2@gmail.com")
-                .userId(UUID.randomUUID()).build();
+                .build();
         List<Educator> educators = Arrays.asList(educatorOne, educatorTwo);
         educatorRepository.saveAll(educators);
         subject.setEducators(educators);
@@ -165,13 +163,11 @@ public class InstitutionManagerControllerTest {
                 .builder()
                 .name("student1")
                 .email("student1@gmail.com")
-                .userId(UUID.randomUUID())
                 .build();
         Student studentTwo = Student
                 .builder()
                 .name("student2")
                 .email("student2@gmail.com")
-                .userId(UUID.randomUUID())
                 .build();
         Set<Student> students = Set.of(studentOne, studentTwo);
         studentRepository.saveAll(students);
@@ -192,7 +188,6 @@ public class InstitutionManagerControllerTest {
                 .builder()
                 .name("educator1")
                 .email("educator1@gmail.com")
-                .userId(UUID.randomUUID())
                 .build();
         educator = educatorRepository.save(educator);
         educatorRepository.save(educator);
@@ -212,7 +207,6 @@ public class InstitutionManagerControllerTest {
                 .builder()
                 .name("student1")
                 .email("student1@gmail.com")
-                .userId(UUID.randomUUID())
                 .build();
         student = studentRepository.save(student);
         subject.setStudents(Set.of(student));
