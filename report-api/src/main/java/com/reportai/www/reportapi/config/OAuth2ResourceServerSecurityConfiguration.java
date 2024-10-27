@@ -1,6 +1,5 @@
 package com.reportai.www.reportapi.config;
 
-import com.reportai.www.reportapi.configproperties.OauthResourceServerConfigProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,13 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @ConditionalOnProperty(name = "oauth2.security.enabled", havingValue = "true")
 public class OAuth2ResourceServerSecurityConfiguration {
 
-    private final OauthResourceServerConfigProperties oauthResourceServerConfigProperties;
-
-
-    public OAuth2ResourceServerSecurityConfiguration(OauthResourceServerConfigProperties oauthResourceServerConfigProperties) {
-        this.oauthResourceServerConfigProperties = oauthResourceServerConfigProperties;
+    public OAuth2ResourceServerSecurityConfiguration() {
     }
 
+    // TODO: add scopes and userinfo into security context
     @Bean
     SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         http
@@ -40,7 +36,6 @@ public class OAuth2ResourceServerSecurityConfiguration {
     }
 
 
-    // TODO: add scopes and userinfo into security context
     @PostConstruct
     private void log() {
         log.info("Web security initialising");

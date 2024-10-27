@@ -6,6 +6,7 @@ import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.services.InstitutionAdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@RequestMapping("v1")
+@RequestMapping("/api/v1")
 @RestController
 public class InstitutionManagerController {
 
     private final InstitutionAdminService institutionAdminService;
 
+    @Autowired
     public InstitutionManagerController(InstitutionAdminService institutionAdminService) {
         this.institutionAdminService = institutionAdminService;
     }

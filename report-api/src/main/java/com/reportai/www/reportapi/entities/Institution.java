@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,14 @@ public class Institution {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
+
+    @NotEmpty
+    @Column(nullable = false)
+    private String name;
+
+    @NotEmpty
+    @Column(nullable = false)
+    private String email;
 
     @ManyToMany
     @JsonIgnore

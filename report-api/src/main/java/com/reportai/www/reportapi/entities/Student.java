@@ -40,6 +40,15 @@ public class Student {
     @Column(nullable = false)
     private String email;
 
+    @NotEmpty
+    private LocalDateTime dateOfBirth;
+
+    @NotEmpty
+    private String currentSchool;
+
+    @NotEmpty
+    private String currentLevel;
+
     @ManyToMany(mappedBy = "students")
     @JsonIgnore
     private Set<Institution> institutions;
