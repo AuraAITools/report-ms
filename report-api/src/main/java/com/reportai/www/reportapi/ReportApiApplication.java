@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 // TODO: specify a private license
 @OpenAPIDefinition(
@@ -19,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         )
 )
 @SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 public class ReportApiApplication {
 
     public static void main(String[] args) {

@@ -21,7 +21,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Institution {
+public class Institution extends BaseEntity {
 
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.UUID)

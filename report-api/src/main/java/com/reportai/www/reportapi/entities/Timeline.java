@@ -41,7 +41,7 @@ import static java.util.Objects.isNull;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Timeline {
+public class Timeline extends BaseEntity {
 
     public enum TYPE {
         ABSOLUTE,

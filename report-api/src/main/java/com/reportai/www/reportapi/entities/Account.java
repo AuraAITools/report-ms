@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+public class Account extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

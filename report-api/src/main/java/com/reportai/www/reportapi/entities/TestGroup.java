@@ -31,7 +31,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TestGroup {
+public class TestGroup extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -32,7 +32,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Subject {
+public class Subject extends BaseEntity {
     private String name;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
