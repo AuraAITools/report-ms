@@ -1,18 +1,21 @@
 package com.reportai.www.reportapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "Institutions")
@@ -23,67 +26,40 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Institution extends BaseEntity {
 
-    @jakarta.persistence.Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
-
-    @NotEmpty
     @Column(nullable = false)
     private String name;
 
-    @NotEmpty
-    @Column(nullable = false)
+    @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @ManyToMany
-    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Student> students;
 
-    @ManyToMany
-    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Educator> educators;
 
-    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
-    @JsonIgnore
+    // NOTE: deleting institution will delete all its courses too
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "institution", fetch = FetchType.EAGER)
-    @JsonIgnore
+    // NOTE: deleting institution will delete all its topics too
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Topic> topics;
 
-    @OneToMany(mappedBy = "institution")
-    @JsonIgnore
+    // NOTE: deleting institution will not delete all its invoices
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Invoice> invoices;
 
-    @OneToMany(mappedBy = "institution")
-    @JsonIgnore
+    // NOTE: deleting institution will delete all its testGroups
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<TestGroup> testGroups;
 
-    @OneToMany(mappedBy = "institution")
-    @JsonIgnore
+    // NOTE: deleting institution will delete all its materials
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Material> materials;
 
-    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
-    private List<Timeline> timelines;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account account;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
-    @PrePersist
-    private void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.modifiedAt = now;
-    }
-
-    @PreUpdate
-    private void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
 }
