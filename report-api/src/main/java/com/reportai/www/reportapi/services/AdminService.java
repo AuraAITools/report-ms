@@ -3,28 +3,36 @@ package com.reportai.www.reportapi.services;
 import com.reportai.www.reportapi.clients.keycloak.KeycloakAuthClient;
 import com.reportai.www.reportapi.dtos.requests.CreateClientAccountDTO;
 import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundException;
 import com.reportai.www.reportapi.mappers.InstitutionMappers;
 import com.reportai.www.reportapi.mappers.StudentMappers;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Admin Service contains methods only available to admin users of institutions
+ */
 @Service
 public class AdminService {
     private final KeycloakAuthClient keycloakAuthClient;
     private final StudentService studentService;
     private final InstitutionRepository institutionRepository;
+    private final OutletRepository outletRepository;
 
     @Autowired
-    public AdminService(KeycloakAuthClient keycloakAuthClient, StudentService studentService, InstitutionRepository institutionRepository) {
+    public AdminService(KeycloakAuthClient keycloakAuthClient, StudentService studentService, InstitutionRepository institutionRepository, OutletRepository outletRepository) {
         this.keycloakAuthClient = keycloakAuthClient;
         this.studentService = studentService;
         this.institutionRepository = institutionRepository;
+        this.outletRepository = outletRepository;
     }
 
     @Transactional
@@ -51,5 +59,18 @@ public class AdminService {
         studentService.createStudents(StudentMappers.convert(createClientAccountDTO));
         keycloakAuthClient.sendPendingActionsToUserEmail(createdUserId);
         return createdUserId;
+    }
+
+    @Transactional
+    public Outlet createOutletForInstitution(UUID id, Outlet newOutlet) {
+        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+        newOutlet.setInstitution(institution);
+        return outletRepository.save(newOutlet);
+    }
+
+    @Transactional
+    public List<Outlet> getAllOutletsForInstitution(UUID id) {
+        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+        return institution.getOutlets().stream().toList();
     }
 }

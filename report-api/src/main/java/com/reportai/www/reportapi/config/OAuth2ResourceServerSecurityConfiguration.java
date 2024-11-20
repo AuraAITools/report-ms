@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class OAuth2ResourceServerSecurityConfiguration {
 
     @Value("${oauth2.security.resource-server.jwk-set-uri}")
-    @NotEmpty
+    @NotEmpty(message = "jwk url cannot be empty")
     public String jwksUrl;
 
     public OAuth2ResourceServerSecurityConfiguration() {
@@ -40,7 +40,7 @@ public class OAuth2ResourceServerSecurityConfiguration {
                                     .jwkSetUri(jwksUrl)
                     );
                 })
-                .authorizeHttpRequests((auth)-> auth.anyRequest().authenticated());
+                .authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
 
         return http.build();
     }
@@ -48,9 +48,6 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
     @PostConstruct
     private void log() {
-        log.info("Web security initialising");
         log.info("jwks url: {}", jwksUrl);
     }
-
-
 }
