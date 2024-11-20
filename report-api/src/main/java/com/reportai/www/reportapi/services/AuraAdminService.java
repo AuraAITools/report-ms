@@ -1,25 +1,24 @@
 package com.reportai.www.reportapi.services;
 
+import com.nimbusds.jose.util.Pair;
 import com.reportai.www.reportapi.clients.keycloak.KeycloakAuthClient;
 import com.reportai.www.reportapi.clients.keycloak.exceptions.KeycloakUserAccountAlreadyExistsException;
 import com.reportai.www.reportapi.clients.keycloak.exceptions.KeycloakUserAccountCreationException;
+import com.reportai.www.reportapi.dtos.responses.IndividualStatus;
+import com.reportai.www.reportapi.dtos.responses.MultiStatusResponseBody;
 import com.reportai.www.reportapi.entities.Account;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.exceptions.http.HttpInstitutionAlreadyExistsAbstractException;
-import com.reportai.www.reportapi.exceptions.http.HttpInternalServerAbstractException;
-import com.reportai.www.reportapi.exceptions.http.HttpUserAccountAlreadyExistsAbstractException;
-import com.reportai.www.reportapi.exceptions.http.HttpUserAccountCreationFailedAbstractException;
 import com.reportai.www.reportapi.mappers.AccountMappers;
 import com.reportai.www.reportapi.repositories.AccountRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Set;
 
 
 @Service
@@ -38,57 +37,105 @@ public class AuraAdminService {
     }
 
     /**
-     * Onboards an institution and creates 1 admin user for them
-     * the email of an account for a institution cannot be used for the email of an account for another institution
+     * Onboards an institution and creates an array of admin user accounts for them
+     * the email of an account for an institution cannot be used for the email of an account for another institution
      *
      * @param institution
-     * @param adminAccount
+     * @param adminAccounts
      * @return
      */
     @Transactional
-    public Account onboardInstitution(Institution institution, Account adminAccount) {
-        // check if user is already present
-        Optional<Account> account = accountRepository.findByEmail(adminAccount.getEmail());
+    public Pair<Institution, MultiStatusResponseBody<IndividualStatus>> onboardInstitution(Institution institution, List<Account> adminAccounts) {
+        // check if institution exists
+        boolean institutionExists = institutionRepository.existsByEmail(institution.getEmail());
 
-        // check if account is already present
-        if (account.isPresent()) {
-            Set<Institution> institutions = account.get().getInstitutions();
-
-            // if account already linked to an existing institution, stop onboarding
-            if (!institutions.isEmpty()) {
-                throw new HttpInstitutionAlreadyExistsAbstractException();
-            }
-
-            // link account to institution
-            institution.setAccount(account.get());
-            account.get().getInstitutions().add(institution);
-            Institution createdInstitution = institutionRepository.save(institution);
-            return account.get();
+        if (institutionExists) {
+            throw new HttpInstitutionAlreadyExistsAbstractException();
         }
 
-        UserRepresentation userRepresentation = AccountMappers.convert(adminAccount);
+        // create institution
+        Institution createdInstitution = institutionRepository.save(institution);
 
-        try {
-            // onboard institution admin user to keycloak
-            String userId = keycloakAuthClient.createUserAccount(userRepresentation);
+        MultiStatusResponseBody<IndividualStatus> completionStatuses = new MultiStatusResponseBody<>();
+        // create account or add existing account to this institution
+        adminAccounts.forEach(account -> {
+                    Optional<Account> existingAccount = accountRepository.findByEmail(account.getEmail());
 
-            // save institution and account on database
-            adminAccount.setUserId(userId);
-            institution.setAccount(adminAccount);
-            accountRepository.save(adminAccount);
-            institutionRepository.save(institution);
+                    if (existingAccount.isPresent()) {
+                        // add new institution to this account
+                        addInstitutionToExistingAccount(createdInstitution, account);
+                        completionStatuses.add(
+                                () -> IndividualStatus
+                                        .builder()
+                                        .status("201")
+                                        .errorCode("")
+                                        .target("accounts")
+                                        .targetId(account.getId().toString())
+                                        .message(String.format("successfully added institution %s to existing account %s", institution.getName(), existingAccount.get().getEmail()))
+                                        .build());
+                        return;
+                    }
 
-            keycloakAuthClient.sendPendingActionsToUserEmail(userId);
-        } catch (KeycloakUserAccountAlreadyExistsException keycloakUserAccountAlreadyExistsException) {
-            throw new HttpUserAccountAlreadyExistsAbstractException("user account already exists", "");
-        } catch (KeycloakUserAccountCreationException keycloakUserAccountAlreadyExistsException) {
-            throw new HttpUserAccountCreationFailedAbstractException("user account creation cannot be processed", "");
-        } catch (Exception exception) {
-            log.error("an unexpected error has occured: {}", Arrays.toString(exception.getStackTrace()));
-            throw new HttpInternalServerAbstractException();
-        }
+                    // if account is not present, create new keycloak account
+                    UserRepresentation userRepresentation = AccountMappers.convert(account);
+                    try {
+                        String userId = keycloakAuthClient.createUserAccount(userRepresentation);
+                        account.setUserId(userId);
+                        account.setInstitutions(Set.of(createdInstitution));
+                        Account createdAccount = accountRepository.save(account);
+                        completionStatuses.add(
+                                () -> IndividualStatus
+                                        .builder()
+                                        .status("201")
+                                        .errorCode("")
+                                        .target("accounts")
+                                        .targetId(account.getId().toString())
+                                        .message(String.format("successfully added institution %s to new account %s", institution.getName(), createdAccount.getEmail()))
+                                        .build());
+                    } catch (KeycloakUserAccountAlreadyExistsException keycloakUserAccountAlreadyExistsException) {
+                        completionStatuses.add(() ->
+                                IndividualStatus
+                                        .builder()
+                                        .status("409")
+                                        .errorCode("409010")
+                                        .message(String.format("keycloak account for email: %s exists but not in the database", account.getEmail()))
+                                        .targetId(account.getEmail())
+                                        .target("accounts")
+                                        .build()
+                        );
+                    } catch (KeycloakUserAccountCreationException keycloakUserAccountCreationException) {
+                        completionStatuses.add(() ->
+                                IndividualStatus
+                                        .builder()
+                                        .status("400")
+                                        .errorCode("400010")
+                                        .message(String.format("failed to create account with email %s", account.getEmail()))
+                                        .targetId(account.getEmail())
+                                        .target("accounts")
+                                        .build()
+                        );
+                    } catch (Exception exception) {
+                        log.error("an unexpected error has occurred", exception);
+                        completionStatuses.add(() ->
+                                IndividualStatus
+                                        .builder()
+                                        .status("500")
+                                        .errorCode("500001")
+                                        .targetId(account.getEmail())
+                                        .message(String.format("an unexpected error occurred when creating account with email %s", account.getEmail()))
+                                        .target("accounts")
+                                        .build()
+                        );
+                    }
+                }
+        );
+        return Pair.of(createdInstitution, completionStatuses);
+    }
 
-        return adminAccount;
+
+    private void addInstitutionToExistingAccount(Institution institution, Account account) {
+        account.getInstitutions().add(institution);
+        accountRepository.save(account);
     }
 
 }

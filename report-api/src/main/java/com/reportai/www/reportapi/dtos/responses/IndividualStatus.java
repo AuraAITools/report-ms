@@ -1,28 +1,21 @@
 package com.reportai.www.reportapi.dtos.responses;
 
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-public class HttpMultipleErrorResponseDTO {
+public class IndividualStatus {
+    private String status;
     private String message;
-
+    private String errorCode;
     private String target;
-
-    private int code;
-
-    private List<HttpErrorResponseDTO> errors;
+    private String targetId;
 }

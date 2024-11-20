@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -33,6 +32,12 @@ public class Institution extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
+    private String uen;
+
+    private String address;
+
+    private String contactNumber;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Student> students;
 
@@ -59,7 +64,9 @@ public class Institution extends BaseEntity {
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Material> materials;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Account account;
+    @ManyToMany(mappedBy = "institutions", fetch = FetchType.LAZY)
+    private Set<Account> accounts;
 
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Outlet> outlets;
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -55,7 +54,7 @@ public class Student extends BaseEntity {
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private Set<Lesson> lessons;
 
-    @ManyToOne
-    private Account account;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "students")
+    private Set<Account> accounts;
 
 }

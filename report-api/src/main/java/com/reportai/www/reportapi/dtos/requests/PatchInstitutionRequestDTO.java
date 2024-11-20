@@ -1,20 +1,25 @@
 package com.reportai.www.reportapi.dtos.requests;
 
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
-public class CreateInstitutionDTO {
-    @NotEmpty
+@Setter
+@Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class PatchInstitutionRequestDTO {
+
     private String name;
 
-    @NotEmpty
-    @Email
     private String email;
 
-}
+    private String uen;
 
+    private String address;
+
+    private String contactNumber;
+}

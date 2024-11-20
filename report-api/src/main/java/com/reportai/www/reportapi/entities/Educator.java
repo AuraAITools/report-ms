@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class Educator extends BaseEntity {
     @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
     private Set<Subject> subjects;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Account account;
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private Set<Account> accounts;
 
 }

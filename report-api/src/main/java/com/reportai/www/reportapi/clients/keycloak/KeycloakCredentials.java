@@ -1,20 +1,22 @@
-package com.reportai.www.reportapi.config.properties;
+package com.reportai.www.reportapi.clients.keycloak;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Config;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@Slf4j
-@ConfigurationProperties(prefix = "keycloak.client")
+@AllArgsConstructor
+@NoArgsConstructor
+@Validated
 @Getter
 @Setter
-@Validated
-public class KeycloakConfigProperties {
+@Slf4j
+public class KeycloakCredentials {
     @NotEmpty(message = "Keycloak serverUrl must not be empty")
     private String serverUrl;
 
@@ -36,4 +38,3 @@ public class KeycloakConfigProperties {
         log.info("keycloak configurations for client {} is read ", clientId);
     }
 }
-
