@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
@@ -9,17 +10,17 @@ import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "TestGroups")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "TestGroups")
 public class TestGroup extends BaseEntity {
 
     @OneToMany(mappedBy = "testGroup", fetch = FetchType.EAGER)
@@ -31,4 +32,6 @@ public class TestGroup extends BaseEntity {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Subject> subjects;
 
+    @Column(nullable = false)
+    private String tenantId;
 }

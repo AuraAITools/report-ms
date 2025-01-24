@@ -1,11 +1,5 @@
 package com.reportai.www.reportapi.api;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import com.reportai.www.reportapi.api.v1.InstitutionManagerController;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
@@ -18,14 +12,9 @@ import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.repositories.TopicRepository;
-import com.reportai.www.reportapi.services.InstitutionAdminService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -36,6 +25,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,10 +38,7 @@ public class InstitutionManagerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private InstitutionAdminService institutionAdminService;
-
+    
     @Autowired
     private InstitutionRepository institutionRepository;
 
@@ -64,9 +56,6 @@ public class InstitutionManagerControllerTest {
 
     @Autowired
     private StudentRepository studentRepository;
-
-    @Autowired
-    private InstitutionManagerController institutionManagerController;
 
     Institution institution;
     Course course;
@@ -94,11 +83,11 @@ public class InstitutionManagerControllerTest {
         courseRepository.saveAll(courses);
 
         mockMvc.perform(get("/v1/institutions/{institution_id}/courses", institution.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[1]").exists());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").exists());
     }
 
     @Test
@@ -109,11 +98,11 @@ public class InstitutionManagerControllerTest {
         subjectRepository.saveAll(subjects);
 
         mockMvc.perform(get("/v1/courses/{course_id}/subjects", course.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[1]").exists());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").exists());
     }
 
     @Test
@@ -124,11 +113,11 @@ public class InstitutionManagerControllerTest {
         topicRepository.saveAll(topics);
 
         mockMvc.perform(get("/v1/institutions/{institution_id}/topics", institution.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[1]").exists());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").exists());
     }
 
     // TODO: check for referential integrity violations
@@ -150,11 +139,11 @@ public class InstitutionManagerControllerTest {
         subject = subjectRepository.save(subject);
 
         mockMvc.perform(get("/v1/subjects/{subject_id}/educators", subject.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[1]").exists());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").exists());
     }
 
     @Test
@@ -169,17 +158,17 @@ public class InstitutionManagerControllerTest {
                 .name("student2")
                 .email("student2@gmail.com")
                 .build();
-        Set<Student> students = Set.of(studentOne, studentTwo);
+        List<Student> students = List.of(studentOne, studentTwo);
         studentRepository.saveAll(students);
         subject.setStudents(students);
         subject = subjectRepository.save(subject);
 
         mockMvc.perform(get("/v1/subjects/{subject_id}/students", subject.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[1]").exists());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").exists())
+                .andExpect(jsonPath("$[1]").exists());
     }
 
     @Test
@@ -195,10 +184,10 @@ public class InstitutionManagerControllerTest {
         subject = subjectRepository.save(subject);
 
         mockMvc.perform(delete("/v1/subjects/{subject_id}/educator/{educator_id}", subject.getId(), educator.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").isNotEmpty())
-            .andExpect(jsonPath("$.name").value(educator.getName()));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value(educator.getName()));
     }
 
     @Test
@@ -209,13 +198,13 @@ public class InstitutionManagerControllerTest {
                 .email("student1@gmail.com")
                 .build();
         student = studentRepository.save(student);
-        subject.setStudents(Set.of(student));
+        subject.setStudents(List.of(student));
         subject = subjectRepository.save(subject);
 
         mockMvc.perform(delete("/v1/subjects/{subject_id}/student/{student_id}", subject.getId(), student.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").isNotEmpty())
-            .andExpect(jsonPath("$.name").value(student.getName()));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").value(student.getName()));
     }
 }

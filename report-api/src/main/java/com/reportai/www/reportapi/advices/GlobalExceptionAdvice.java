@@ -3,7 +3,6 @@ package com.reportai.www.reportapi.advices;
 import com.reportai.www.reportapi.dtos.responses.HttpErrorResponseDTO;
 import com.reportai.www.reportapi.dtos.responses.HttpMultipleErrorResponseDTO;
 import com.reportai.www.reportapi.exceptions.http.HttpAbstractException;
-import com.reportai.www.reportapi.exceptions.http.HttpInternalServerAbstractException;
 import com.reportai.www.reportapi.exceptions.http.HttpMultiAbstractException;
 import com.reportai.www.reportapi.mappers.ExceptionMappers;
 import java.util.Arrays;
@@ -43,11 +42,11 @@ public class GlobalExceptionAdvice {
      * @param exception
      * @return
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<HttpErrorResponseDTO> handleAllOtherExceptions(Exception exception) {
-        log.error(Arrays.toString(exception.getStackTrace()));
-        HttpInternalServerAbstractException httpInternalServerException = new HttpInternalServerAbstractException("an unexpected server error has occurred", "");
-        HttpErrorResponseDTO internalServiceErrorDTO = ExceptionMappers.convert(httpInternalServerException);
-        return new ResponseEntity<>(internalServiceErrorDTO, httpInternalServerException.getHttpStatus());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<HttpErrorResponseDTO> handleAllOtherExceptions(Exception exception) {
+//        log.error(Arrays.toString(exception.getStackTrace()));
+//        HttpInternalServerAbstractException httpInternalServerException = new HttpInternalServerAbstractException("an unexpected server error has occurred", "");
+//        HttpErrorResponseDTO internalServiceErrorDTO = ExceptionMappers.convert(httpInternalServerException);
+//        return new ResponseEntity<>(internalServiceErrorDTO, httpInternalServerException.getHttpStatus());
+//    }
 }

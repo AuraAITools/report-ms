@@ -1,11 +1,8 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.dtos.requests.CreateClientAccountDTO;
-import com.reportai.www.reportapi.dtos.requests.CreateStudentDTO;
+import com.reportai.www.reportapi.api.v1.students.requests.CreateStudentDTO;
+import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Student;
-
-import java.util.List;
-import static java.util.stream.Collectors.toList;
 
 public class StudentMappers {
 
@@ -14,17 +11,17 @@ public class StudentMappers {
                 .builder()
                 .name(from.getName())
                 .email(from.getEmail())
-                .currentLevel(from.getCurrentLevel())
+                .level(Level.builder().name(from.getCurrentLevel()).build())
                 .currentSchool(from.getCurrentSchool())
                 .dateOfBirth(from.getDateOfBirth())
                 .build();
     }
 
-    public static List<Student> convert(CreateClientAccountDTO from) {
-        return from.getStudents()
-                .stream()
-                .map(StudentMappers::convert)
-                .collect(toList());
-    }
+//    public static List<Student> convert(CreateClientAccountDTO from) {
+//        return from.getStudents()
+//                .stream()
+//                .map(StudentMappers::convert)
+//                .collect(toList());
+//    }
 
 }

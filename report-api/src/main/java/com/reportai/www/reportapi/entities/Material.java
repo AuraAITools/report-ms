@@ -1,24 +1,25 @@
 package com.reportai.www.reportapi.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Set;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Materials")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "Materials")
 public class Material extends BaseEntity {
 
     private String name;
@@ -26,12 +27,14 @@ public class Material extends BaseEntity {
     private String fileUrl;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Topic> topics;
+    private List<Topic> topics;
 
     @ManyToMany(mappedBy = "materials", fetch = FetchType.LAZY)
-    private Set<Lesson> lessons;
+    private List<Lesson> lessons;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Institution institution;
 
+    @Column(nullable = false)
+    private String tenantId;
 }
