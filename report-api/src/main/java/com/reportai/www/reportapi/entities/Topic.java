@@ -1,24 +1,25 @@
 package com.reportai.www.reportapi.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Set;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Topics")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Topics")
 public class Topic extends BaseEntity {
 
     private String name;
@@ -27,9 +28,11 @@ public class Topic extends BaseEntity {
     private Institution institution;
 
     @ManyToMany(mappedBy = "topics", fetch = FetchType.LAZY)
-    private Set<Material> materials;
+    private List<Material> materials;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Objective> objectives;
+    private List<Objective> objectives;
 
+    @Column(nullable = false)
+    private String tenantId;
 }

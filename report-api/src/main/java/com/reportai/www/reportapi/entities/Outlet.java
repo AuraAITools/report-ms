@@ -1,23 +1,27 @@
 package com.reportai.www.reportapi.entities;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import java.util.Set;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "Outlets")
 public class Outlet extends BaseEntity {
     private String name;
 
@@ -27,9 +31,18 @@ public class Outlet extends BaseEntity {
 
     private String contactNumber;
 
+    @Email
+    private String email;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Institution institution;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Account> adminAccounts;
+    private List<Account> adminAccounts;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Student> students;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

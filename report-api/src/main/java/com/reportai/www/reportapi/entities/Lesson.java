@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.entities;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
@@ -8,20 +9,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Lessons")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "Lessons")
 public class Lesson extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -38,6 +38,11 @@ public class Lesson extends BaseEntity {
 
     // Note: deleting Lesson should not delete materials
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Set<Material> materials;
+    private List<Material> materials;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

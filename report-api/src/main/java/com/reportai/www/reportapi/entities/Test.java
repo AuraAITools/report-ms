@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
@@ -8,17 +9,17 @@ import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Tests")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Tests")
 public class Test extends BaseEntity {
 
     private String name;
@@ -29,4 +30,9 @@ public class Test extends BaseEntity {
     @OneToMany(mappedBy = "test", fetch = FetchType.LAZY)
     private List<TestResult> testResults;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

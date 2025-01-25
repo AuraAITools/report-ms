@@ -4,26 +4,26 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Students")
-@Setter
-@Getter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Students")
 public class Student extends BaseEntity {
 
     @Column(nullable = false)
@@ -37,13 +37,14 @@ public class Student extends BaseEntity {
 
     private String currentSchool;
 
-    private String currentLevel;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Level level;
 
-    @ManyToMany(mappedBy = "students", fetch = FetchType.EAGER)
-    private Set<Institution> institutions;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Institution institutions;
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private Set<Subject> subjects;
+    private List<Subject> subjects;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<TestResult> testResults;
@@ -52,9 +53,20 @@ public class Student extends BaseEntity {
     private StudentReport studentReport;
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private Set<Lesson> lessons;
+    private List<Lesson> lessons;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "students")
-    private Set<Account> accounts;
+    private List<Account> accounts;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Course> courses;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
+
+    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
+    private List<Outlet> outlets;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

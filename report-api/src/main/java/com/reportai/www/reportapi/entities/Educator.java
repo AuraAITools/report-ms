@@ -4,22 +4,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.util.Set;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Educators")
-@Setter
-@Getter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Educators")
 public class Educator extends BaseEntity {
 
     @Column(nullable = false)
@@ -29,13 +30,19 @@ public class Educator extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
-    private Set<Institution> institutions;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
-    private Set<Subject> subjects;
+    private List<Subject> subjects;
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
-    private Set<Account> accounts;
+    private List<Account> accounts;
+
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private List<Course> courses;
+
+    @Column(nullable = false)
+    private String tenantId;
 
 }

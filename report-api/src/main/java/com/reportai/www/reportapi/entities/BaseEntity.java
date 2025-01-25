@@ -8,8 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,8 +19,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @MappedSuperclass
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
@@ -33,7 +35,6 @@ public class BaseEntity {
     private LocalDateTime createdAt;
 
     @CreatedBy
-    @Column(updatable = false)
     private String createdBy;
 
     @Column(insertable = false)
@@ -41,7 +42,6 @@ public class BaseEntity {
     private LocalDateTime updatedAt;
 
     @LastModifiedBy
-    @Column(insertable = false)
     private String updatedBy;
 
 }

@@ -3,35 +3,47 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.util.Set;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
- * An account is created under an institution
- * The same account created for a user can be for a client, institution or educator
+ * This account is tenant aware, an account belongs to an institution
+ * This means a single keycloak user account can be mapped to multiple TenantAwareAccounts
  */
 @Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Accounts")
 public class Account extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    public enum RELATIONSHIP {
+        PARENT,
+        SELF
+    }
+
+    @Column(nullable = false)
     private String userId;
 
+    @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
+    private RELATIONSHIP relationship;
+
     @Email
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -40,18 +52,24 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
+    private String contact;
+
     // students managed under this account
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Student> students;
+    private List<Student> students;
 
     // institutions managed under this account
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Institution> institutions;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Institution institution;
 
     // educators managed under this account
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Educator> educators;
+    private List<Educator> educators;
 
     @ManyToMany(mappedBy = "adminAccounts", fetch = FetchType.LAZY)
-    private Set<Outlet> outlets;
+    private List<Outlet> outlets;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

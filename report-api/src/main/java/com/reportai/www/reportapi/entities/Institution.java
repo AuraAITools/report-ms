@@ -4,28 +4,27 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Table(name = "Institutions")
-@Setter
-@Getter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Institutions")
 public class Institution extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Email
@@ -38,11 +37,11 @@ public class Institution extends BaseEntity {
 
     private String contactNumber;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Student> students;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Student> students;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Educator> educators;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Educator> educators;
 
     // NOTE: deleting institution will delete all its courses too
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -64,9 +63,26 @@ public class Institution extends BaseEntity {
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Material> materials;
 
-    @ManyToMany(mappedBy = "institutions", fetch = FetchType.LAZY)
-    private Set<Account> accounts;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Account> accounts;
 
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Outlet> outlets;
+    private List<Outlet> outlets;
+
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Level> levels;
+
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Subject> subjects;
+
+    @Column(nullable = false)
+    private String tenantId;
+
+    @PrePersist
+    public void updateTenantIdOnCreation() {
+        if (this.tenantId == null) {
+            this.tenantId = this.getId().toString();
+        }
+    }
+
 }

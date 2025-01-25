@@ -4,6 +4,9 @@ import com.reportai.www.reportapi.clients.keycloak.KeycloakCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +35,17 @@ public class KeycloakClientConfig {
     @ConfigurationProperties(prefix = "keycloak.client")
     public KeycloakCredentials getKeycloakCredentials() {
         return new KeycloakCredentials();
+    }
+
+    @Bean
+    public RealmResource getKeycloakRealmResource(Keycloak keycloak, KeycloakCredentials keycloakCredentials) {
+        return keycloak.realm(keycloakCredentials.getRealm());
+    }
+
+    @Bean
+    public ClientResource getKeycloakClientResource(RealmResource realmResource, KeycloakCredentials keycloakCredentials) {
+        ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(keycloakCredentials.getClientId()).getFirst();
+        return realmResource.clients().get(clientRepresentation.getId());
     }
 
 }

@@ -1,30 +1,33 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.dtos.requests.CreateClientAccountDTO;
-import com.reportai.www.reportapi.dtos.requests.CreateStudentDTO;
+import com.reportai.www.reportapi.api.v1.students.requests.CreateStudentDTO;
+import com.reportai.www.reportapi.api.v1.students.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.entities.Student;
-
-import java.util.List;
-import static java.util.stream.Collectors.toList;
+import java.util.UUID;
 
 public class StudentMappers {
 
-    public static Student convert(CreateStudentDTO from) {
+    // level id is not included
+    public static Student convert(CreateStudentDTO from, UUID id) {
         return Student
                 .builder()
                 .name(from.getName())
                 .email(from.getEmail())
-                .currentLevel(from.getCurrentLevel())
                 .currentSchool(from.getCurrentSchool())
                 .dateOfBirth(from.getDateOfBirth())
+                .tenantId(id.toString())
                 .build();
     }
 
-    public static List<Student> convert(CreateClientAccountDTO from) {
-        return from.getStudents()
-                .stream()
-                .map(StudentMappers::convert)
-                .collect(toList());
-    }
+    public static CreateStudentResponseDTO convert(Student from) {
+        return CreateStudentResponseDTO
+                .builder()
+                .id(from.getId().toString())
+                .name(from.getName())
+                .email(from.getEmail())
+                .currentSchool(from.getCurrentSchool())
+                .dateOfBirth(from.getDateOfBirth())
+                .build();
 
+    }
 }
