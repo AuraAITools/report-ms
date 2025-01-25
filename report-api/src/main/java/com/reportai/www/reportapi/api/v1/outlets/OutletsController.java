@@ -34,11 +34,10 @@ public class OutletsController {
 
     private final OutletsService outletsService;
 
+    @Autowired
     public OutletsController(OutletsService outletsService) {
         this.outletsService = outletsService;
     }
-
-    @Autowired
 
 
     @Operation(summary = "create a outlet for a institution", description = "create an outlet for a institution")

@@ -34,6 +34,6 @@ public class OutletAdminAccountCreationStrategy implements AccountCreationStrate
     @Transactional
     @Override
     public Account createAccount() {
-        return StrategyUtils.createAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        return StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
     }
 }
