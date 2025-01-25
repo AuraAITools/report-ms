@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:report-api/src/main/java/com/reportai/www/reportapi/api/v1/accounts/requests/CreateInstitutionAdminAccountDTO.java
 package com.reportai.www.reportapi.api.v1.accounts.requests;
+========
+package com.reportai.www.reportapi.api.v1.outlets.requests;
+>>>>>>>> b5a20925c51209be1d8c827377bcbccd371c82b0:report-api/src/main/java/com/reportai/www/reportapi/api/v1/outlets/requests/CreateInstitutionAdminAccountDTO.java
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
