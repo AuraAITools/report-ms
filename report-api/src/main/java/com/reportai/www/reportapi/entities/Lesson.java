@@ -1,72 +1,63 @@
 package com.reportai.www.reportapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
-@Table(name = "Lessons")
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class Lesson {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
+@NoArgsConstructor
+@Table(name = "Lessons")
+public class Lesson extends BaseEntity {
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     private Subject subject;
 
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Objective> objectives;
 
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<StudentReport> studentReports;
 
-    @ManyToMany
-    @JsonIgnore
-    private Set<Material> materials;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "lesson_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    // Note: deleting Lesson should not delete materials
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "lesson_id"),
+            inverseJoinColumns = @JoinColumn(name = "material_id")
+    )
+    private List<Material> materials;
 
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-    @PrePersist
-    private void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.modifiedAt = now;
-    }
 
-    @PreUpdate
-    private void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Outlet outlet;
+
+    @Column(nullable = false)
+    private String tenantId;
 }

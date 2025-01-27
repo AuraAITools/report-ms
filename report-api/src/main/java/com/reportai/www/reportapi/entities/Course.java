@@ -1,70 +1,104 @@
 package com.reportai.www.reportapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import lombok.ToString;
 
 @Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Courses")
-public class Course {
+public class Course extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
+    public enum LESSON_FREQUENCY {
+        ONCE_PER_DAY,
+        TWICE_PER_WEEK,
+        THRICE_PER_WEEK,
+        FOUR_TIMES_PER_WEEK,
+        ONCE_PER_WEEK,
+        ONCE_PER_TWO_WEEKS,
+        ONCE_PER_MONTH,
+        ONCE_PER_TWO_MONTHS,
+        MANUAL_SELECT_LESSONS
+    }
 
-    @ManyToOne
-    private Timeline timeline;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LESSON_FREQUENCY lessonFrequency;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private PriceRecord priceRecord;
 
     private String name;
 
-    @JsonIgnore
-    @ManyToOne
+    @Column(nullable = false)
+    private Integer maxSize;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Institution institution;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Outlet outlet;
+
+    // Note: deleting a course will delete all subjects under the course
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
     private List<Subject> subjects;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Level level;
 
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<Student> students;
 
-    @PrePersist
-    private void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.modifiedAt = now;
-    }
+    @Column(nullable = false)
+    private String tenantId;
 
-    @PreUpdate
-    private void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
-
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "educator_id")
+    )
+    private List<Educator> educators;
 }

@@ -1,71 +1,51 @@
 package com.reportai.www.reportapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
-@Table(name = "Educators")
-@Setter
-@Getter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Educator {
+@Table(name = "Educators")
+public class Educator extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
-
-    @NotEmpty
     @Column(nullable = false)
     private String name;
 
-    @NotEmpty
-    @Column(nullable = false)
+    @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "educators")
-    private Set<Institution> institutions;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Institution institution;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "educators")
-    private Set<Subject> subjects;
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private List<Outlet> outlets;
 
-    @ManyToOne
-    private Account account;
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
+    private List<Subject> subjects;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private List<Account> accounts;
 
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-    
-    @PrePersist
-    private void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.modifiedAt = now;
-    }
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private List<Course> courses;
 
-    @PreUpdate
-    private void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
+    @Column(nullable = false)
+    private String tenantId;
+
 }

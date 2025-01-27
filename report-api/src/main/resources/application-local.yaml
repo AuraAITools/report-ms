@@ -2,11 +2,20 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    username: postgres
+    password: password
+    url: jdbc:postgresql://localhost:5433/aura
+    driverClassName: org.postgresql.Driver
+  h2.console.enabled: false
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
 oauth2:
   security:
     resource-server:
       jwk-set-uri: https://accounts.auratest.dev/realms/aura/protocol/openid-connect/certs
-    enabled: false
+    enabled: true
 eureka:
   instance:
     preferIpAddress: true

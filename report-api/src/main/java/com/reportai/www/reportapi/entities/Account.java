@@ -1,43 +1,85 @@
 package com.reportai.www.reportapi.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import lombok.*;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.util.Set;
-import java.util.UUID;
-
+/**
+ * This account is tenant aware, an account belongs to an institution
+ * This means a single keycloak user account can be mapped to multiple TenantAwareAccounts
+ */
 @Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+@Table(name = "Accounts")
+public class Account extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
+    public enum RELATIONSHIP {
+        PARENT,
+        SELF
+    }
 
-    @Column(unique = true)
+    @Column(nullable = false)
     private String userId;
 
-    @Column(unique = true)
+    @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
+    private RELATIONSHIP relationship;
+
     @Email
+    @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String firstName;
 
-    @Column
+    @Column(nullable = false)
     private String lastName;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Student> students;
+    @Column(nullable = false)
+    private String contact;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    private Set<Institution> institutions;
+    // students managed under this account
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Educator> educators;
+    // institutions managed under this account
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Institution institution;
+
+    // educators managed under this account
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "educator_id")
+    )
+    private List<Educator> educators;
+
+    @ManyToMany(mappedBy = "adminAccounts", fetch = FetchType.LAZY)
+    private List<Outlet> outlets;
+
+    @Column(nullable = false)
+    private String tenantId;
 }
