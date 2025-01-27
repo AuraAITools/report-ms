@@ -4,6 +4,7 @@ import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import java.util.UUID;
 
 public class CourseMappers {
     private CourseMappers() {
@@ -15,7 +16,7 @@ public class CourseMappers {
      * @param createCourseDTO
      * @return
      */
-    public static Course convert(CreateCourseDTO createCourseDTO) {
+    public static Course convert(CreateCourseDTO createCourseDTO, UUID id) {
         return Course
                 .builder()
                 .name(createCourseDTO.getName())
@@ -24,12 +25,14 @@ public class CourseMappers {
                         .builder()
                         .price(createCourseDTO.getPrice())
                         .frequency(createCourseDTO.getPriceFrequency())
+                        .tenantId(id.toString())
                         .build())
                 .lessonFrequency(createCourseDTO.getLessonFrequency())
                 .startDate(createCourseDTO.getStartDate())
                 .endDate(createCourseDTO.getEndDate())
                 .startTime(createCourseDTO.getStartTime())
                 .endTime(createCourseDTO.getEndTime())
+                .tenantId(id.toString())
                 .build();
     }
 

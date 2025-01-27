@@ -1,4 +1,4 @@
-package com.reportai.www.reportapi.api.v1.students.responses;
+package com.reportai.www.reportapi.api.v1.accounts.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

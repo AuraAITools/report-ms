@@ -35,6 +35,6 @@ public class WebSecurityDisabledConfig {
     private void log() {
         log.info("Security disabled, allowing all requests");
     }
-
+    
 }
 

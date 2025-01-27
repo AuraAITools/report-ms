@@ -6,6 +6,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,11 @@ public class KeycloakClientConfig {
     @Bean
     public RealmResource getKeycloakRealmResource(Keycloak keycloak, KeycloakCredentials keycloakCredentials) {
         return keycloak.realm(keycloakCredentials.getRealm());
+    }
+
+    @Bean
+    public UsersResource getUsersResource(RealmResource realmResource) {
+        return realmResource.users();
     }
 
     @Bean

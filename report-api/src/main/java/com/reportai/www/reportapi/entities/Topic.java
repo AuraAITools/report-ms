@@ -3,6 +3,8 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -31,6 +33,10 @@ public class Topic extends BaseEntity {
     private List<Material> materials;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "topic_id"),
+            inverseJoinColumns = @JoinColumn(name = "objective_id")
+    )
     private List<Objective> objectives;
 
     @Column(nullable = false)

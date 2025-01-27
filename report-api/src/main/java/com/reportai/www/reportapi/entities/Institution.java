@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -37,14 +38,17 @@ public class Institution extends BaseEntity {
 
     private String contactNumber;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Student> students;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Educator> educators;
 
     // NOTE: deleting institution will delete all its courses too
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Course> courses;
 
     // NOTE: deleting institution will delete all its topics too
@@ -63,16 +67,20 @@ public class Institution extends BaseEntity {
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Material> materials;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Account> accounts;
 
-    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "institution", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Outlet> outlets;
 
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Level> levels;
 
     @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Subject> subjects;
 
     @Column(nullable = false)

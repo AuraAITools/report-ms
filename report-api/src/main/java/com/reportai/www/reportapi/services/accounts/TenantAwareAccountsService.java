@@ -1,11 +1,15 @@
 package com.reportai.www.reportapi.services.accounts;
 
 import com.reportai.www.reportapi.entities.Account;
+import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.Student;
-import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.AccountRepository;
+import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.ClientTenantAwareAccountCreationStrategy;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.EducatorTenantAwareAccountCreationStrategy;
@@ -13,9 +17,15 @@ import com.reportai.www.reportapi.services.accounts.creationstrategies.Instituti
 import com.reportai.www.reportapi.services.accounts.creationstrategies.OutletAdminTenantAwareAccountCreationStrategy;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.TenantAwareAccountCreationContext;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.TenantAwareAccountCreationStrategy;
+import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,13 +42,20 @@ public class TenantAwareAccountsService {
     private final TenantAwareAccountCreationContext tenantAwareAccountCreationContext = new TenantAwareAccountCreationContext();
     private final ClientResource clientResource;
     private final StudentRepository studentRepository;
+    private final EducatorRepository educatorRepository;
+    private final OutletRepository outletRepository;
+    private final UsersResource usersResource;
 
-    public TenantAwareAccountsService(RealmResource realmResource, InstitutionRepository institutionRepository, AccountRepository accountRepository, ClientResource clientResource, StudentRepository studentRepository) {
+    @Autowired
+    public TenantAwareAccountsService(RealmResource realmResource, InstitutionRepository institutionRepository, AccountRepository accountRepository, ClientResource clientResource, StudentRepository studentRepository, EducatorRepository educatorRepository, OutletRepository outletRepository, UsersResource usersResource) {
         this.realmResource = realmResource;
         this.institutionRepository = institutionRepository;
         this.accountRepository = accountRepository;
         this.clientResource = clientResource;
         this.studentRepository = studentRepository;
+        this.educatorRepository = educatorRepository;
+        this.outletRepository = outletRepository;
+        this.usersResource = usersResource;
     }
 
     // can create Client account, educator account, Institution_admin account and outlet_admin account
@@ -77,13 +94,43 @@ public class TenantAwareAccountsService {
     }
 
     public Account findById(UUID id) {
-        return accountRepository.findById(id).orElseThrow(() -> new ResourceAlreadyExistsException("Account already exists"));
+        return accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("account does not exist"));
     }
 
+    @Transactional
     public Account linkAccountToStudent(UUID accountId, UUID studentId) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account does not exist"));
         Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Student already exists"));
         account.getStudents().add(student);
         return accountRepository.save(account);
+    }
+
+    @Transactional
+    public Account linkAccountToEducator(UUID accountId, UUID educatorId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account does not exist"));
+        Educator educator = educatorRepository.findById(educatorId).orElseThrow(() -> new ResourceNotFoundException("Student already exists"));
+        account.getEducators().add(educator);
+        return accountRepository.save(account);
+    }
+
+    @Transactional
+    public Account assignOutletAdminRole(UUID institutionId, UUID outletId, UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("account not found"));
+        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("outlet not found"));
+        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new ResourceNotFoundException("institution not found"));
+        UserResource userResource = usersResource.get(account.getUserId());
+
+        outlet.getAdminAccounts().add(account);
+        outletRepository.save(outlet);
+        RoleRepresentation tenantAwareOutletAdminRole = clientResource
+                .roles()
+                .get(String.format("%s_%s_outlet-admin", institution.getId(), outlet.getId()))
+                .toRepresentation();
+        userResource
+                .roles()
+                .clientLevel(clientResource.toRepresentation().getId())
+                .add(List.of(tenantAwareOutletAdminRole));
+        return account;
+
     }
 }

@@ -1,9 +1,9 @@
 package com.reportai.www.reportapi.api.v1.courses;
 
+import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
 import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.mappers.CourseMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +19,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Courses APIs", description = "APIs for managing a Courses resource")
+
+import static com.reportai.www.reportapi.mappers.CourseMappers.convert;
+
+@Tag(name = "Courses APIs", description = "APIs for managing a Courses resource. Courses must be created under an outlet")
 @RestController
 @RequestMapping("/api/v1")
 @Validated
 @Slf4j
-// TODO: fix the courses
+// TODO: Courses need to be composed under Outlet
 // plan is to create a singular course by itself
 // then FE will repeatedly call endpoints to create lessons
 public class CoursesController {
@@ -45,17 +47,17 @@ public class CoursesController {
      * @param id
      * @return
      */
-    @PostMapping("/institutions/{id}/courses")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+
+    @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
-    public ResponseEntity<CreateCourseDTOResponse> createCourseForInstitution(@RequestBody CreateCourseDTO createCourseDTO, @PathVariable UUID id) {
-        Course newCourse = CourseMappers.convert(createCourseDTO);
-        Course createdCourse = coursesService.createCourseForInstitution(newCourse, id);
+    public ResponseEntity<CreateCourseDTOResponse> createCourseForInstitution(@RequestBody CreateCourseDTO createCourseDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+        Course createdCourse = coursesService.createCourseForInstitution(convert(createCourseDTO, id), id);
         coursesService.addLevelToCourse(createCourseDTO.getLevelId(), createdCourse.getId());
         createCourseDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, createdCourse.getId()));
         createCourseDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, createdCourse.getId()));
         Course resultantCourse = coursesService.findById(createdCourse.getId());
-        return new ResponseEntity<>(CourseMappers.convert(resultantCourse), HttpStatus.CREATED);
+        return new ResponseEntity<>(convert(resultantCourse), HttpStatus.CREATED);
     }
 
 }

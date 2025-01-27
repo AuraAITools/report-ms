@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.api.v1.subjects;
 
+import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.subjects.requests.CreateSubjectDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.Subject;
@@ -14,7 +15,6 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +41,7 @@ public class SubjectsController {
 
     // Subjects
     @GetMapping("/institutions/{id}/subjects")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:read'")
     public ResponseEntity<List<SubjectResponseDTO>> getAllSubjectsForInstitution(@PathVariable UUID id) {
         List<Subject> subjects = subjectsService.getAllSubjectsForInstitution(id);
         List<SubjectResponseDTO> subjectResponseDTOS = subjects
@@ -54,7 +54,7 @@ public class SubjectsController {
     @Operation(summary = "create a subject for a institution", description = "create an subject for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/institutions/{id}/subjects")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:create'")
     public ResponseEntity<SubjectResponseDTO> createSubjectForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateSubjectDTO createSubjectDTO) {
         Subject createdSubject = subjectsService.createSubjectForInstitution(id, convert(createSubjectDTO, id));
         return new ResponseEntity<>(convert(createdSubject), HttpStatus.OK);

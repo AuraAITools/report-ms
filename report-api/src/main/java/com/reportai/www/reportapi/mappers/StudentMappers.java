@@ -1,7 +1,7 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.students.requests.CreateStudentDTO;
-import com.reportai.www.reportapi.api.v1.students.responses.CreateStudentResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.entities.Student;
 import java.util.UUID;
 

@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.api.v1.outlets;
 
+import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDto;
 import com.reportai.www.reportapi.entities.Outlet;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,7 +43,7 @@ public class OutletsController {
     @Operation(summary = "create a outlet for a institution", description = "create an outlet for a institution")
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
     public ResponseEntity<OutletResponseDto> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletDTO createOutletDTO) {
         Outlet newOutlet = OutletMappers.convert(createOutletDTO, id.toString());
         Outlet createdOutlet = outletsService.createOutletForInstitution(id, newOutlet);
@@ -54,7 +54,7 @@ public class OutletsController {
     @Operation(summary = "get all outlets for a institution", description = "get all outlets for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
     public ResponseEntity<List<OutletResponseDto>> getOutletsForInstitution(@PathVariable UUID id) {
         List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
         List<OutletResponseDto> outletsDto = outlets
@@ -67,9 +67,11 @@ public class OutletsController {
     @Operation(summary = "assign student to outlet", description = "assign student to an outlet")
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}/students/{student_id}")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + ':add-student")
     public ResponseEntity<Void> addStudentToOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "student_id") UUID studentId) {
         outletsService.addStudentToOutlet(studentId, outletId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    // TODO: add educator to outlet
 }

@@ -32,4 +32,7 @@ public class PriceRecord extends BaseEntity {
     @Column(nullable = false)
     private FREQUENCY frequency;
 
+    @Column(nullable = false)
+    private String tenantId;
+
 }

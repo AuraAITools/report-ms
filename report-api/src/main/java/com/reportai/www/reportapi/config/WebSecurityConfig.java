@@ -2,15 +2,16 @@ package com.reportai.www.reportapi.config;
 
 import com.reportai.www.reportapi.config.converters.AuraAuthenticationToken;
 import com.reportai.www.reportapi.config.converters.KeycloakUserPrincipalConverter;
+import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,12 +22,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @ConditionalOnProperty(name = "oauth2.security.enabled", havingValue = "true")
-public class OAuth2ResourceServerSecurityConfiguration {
+public class WebSecurityConfig {
 
+    private final InstitutionRepository institutionRepository;
 
-    public OAuth2ResourceServerSecurityConfiguration() {
+    @Autowired
+    public WebSecurityConfig(InstitutionRepository institutionRepository) {
+        this.institutionRepository = institutionRepository;
     }
 
     @Value("${oauth2.security.resource-server.jwk-set-uri}")
@@ -59,6 +62,6 @@ public class OAuth2ResourceServerSecurityConfiguration {
     }
 
     private Converter<Jwt, AuraAuthenticationToken> jwtAuraAuthenticationTokenConverter() {
-        return new KeycloakUserPrincipalConverter();
+        return new KeycloakUserPrincipalConverter(institutionRepository);
     }
 }

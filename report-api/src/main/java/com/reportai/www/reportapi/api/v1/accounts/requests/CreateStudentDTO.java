@@ -3,31 +3,34 @@ package com.reportai.www.reportapi.api.v1.accounts.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.entities.Account;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
-public class CreateUserDTO {
+public class CreateStudentDTO {
+
+    @NotEmpty
+    private String name;
 
     @Email
     @NotEmpty
-    public String email;
+    private String email;
+
+    @DateTimeFormat
+    @NotNull
+    private LocalDateTime dateOfBirth;
 
     @NotEmpty
-    public String firstName;
+    private String currentSchool;
 
-    @NotEmpty
-    public String lastName;
-
-    @NotEmpty
-    public String contact;
-
-    //    @NotEmpty
-    public Account.RELATIONSHIP relationship;
-
+    @NotNull
+    private UUID levelId;
 
 }

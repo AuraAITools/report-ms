@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.api.v1.levels;
 
+import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
 import com.reportai.www.reportapi.entities.Level;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,8 +44,8 @@ public class LevelsController {
     @Operation(summary = "create a level for a institution", description = "create an level for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/institutions/{id}/levels")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
-    public ResponseEntity<CreateLevelsResponseDTO> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsDTO createLevelsDTO) {
+    @HasResourcePermission(permission = "'institutions::' + #id + '::levels:create'")
+    public ResponseEntity<CreateLevelsResponseDTO> createLevelForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsDTO createLevelsDTO) {
         Level createdLevel = levelsService.createLevelForInstitution(id, convert(id, createLevelsDTO));
         return new ResponseEntity<>(convert(createdLevel), HttpStatus.OK);
     }
@@ -53,8 +53,8 @@ public class LevelsController {
     @Operation(summary = "get all levels for a institution", description = "get all levels for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/levels")
-    @PreAuthorize("hasRole(#id + '_institution-admin')")
-    public ResponseEntity<List<CreateLevelsResponseDTO>> getOutletsForInstitution(@PathVariable UUID id) {
+    @HasResourcePermission(permission = "'institutions::' + #id + '::levels:read'")
+    public ResponseEntity<List<CreateLevelsResponseDTO>> getAllLevelsForInstitution(@PathVariable UUID id) {
         List<Level> levels = levelsService.getAllLevelsForInstitution(id);
         List<CreateLevelsResponseDTO> levelsDTO = levels
                 .stream()

@@ -3,6 +3,8 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -40,9 +42,6 @@ public class Student extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private Level level;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Institution institutions;
-
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Subject> subjects;
 
@@ -55,10 +54,14 @@ public class Student extends BaseEntity {
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Lesson> lessons;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "students")
+    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Account> accounts;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
     private List<Course> courses;
 
     @ManyToOne(fetch = FetchType.LAZY)

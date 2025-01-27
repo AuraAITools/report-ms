@@ -11,7 +11,12 @@ public class AuditAwareImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        KeycloakUserPrincipal userPrincipal = (KeycloakUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        KeycloakUserPrincipal userPrincipal = (KeycloakUserPrincipal) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        // ensure user identity is always present when mutating resources
+        assert userPrincipal.getUserId() != null;
         return Optional.of(userPrincipal.getUserId());
     }
 }

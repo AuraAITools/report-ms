@@ -12,6 +12,8 @@ import com.reportai.www.reportapi.repositories.StudentRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import org.keycloak.admin.client.resource.ClientResource;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +23,15 @@ public class OutletsService {
     private final InstitutionRepository institutionRepository;
     private final OutletRepository outletRepository;
     private final StudentRepository studentRepository;
+    private final ClientResource clientResource;
+    private final String OUTLET_ROLE_TEMPLATE = "%s_%s_outlet-admin";
 
     @Autowired
-    public OutletsService(InstitutionRepository institutionRepository, OutletRepository outletRepository, StudentRepository studentRepository) {
+    public OutletsService(InstitutionRepository institutionRepository, OutletRepository outletRepository, StudentRepository studentRepository, ClientResource clientResource) {
         this.institutionRepository = institutionRepository;
         this.outletRepository = outletRepository;
         this.studentRepository = studentRepository;
+        this.clientResource = clientResource;
     }
 
     @Transactional
@@ -39,7 +44,9 @@ public class OutletsService {
             }
         });
         newOutlet.setInstitution(institution);
-        return outletRepository.save(newOutlet);
+        Outlet createdOutlet = outletRepository.save(newOutlet);
+        clientResource.roles().create(createTenantAwareOutletRole(id.toString(), createdOutlet.getId().toString()));
+        return createdOutlet;
     }
 
     @Transactional
@@ -58,5 +65,13 @@ public class OutletsService {
         outlet.getStudents().add(student);
         outletRepository.save(outlet);
         return student;
+    }
+
+    private RoleRepresentation createTenantAwareOutletRole(String tenantId, String outletId) {
+        RoleRepresentation clientRole = new RoleRepresentation();
+        clientRole.setClientRole(true);
+        clientRole.setDescription(tenantId);
+        clientRole.setName(String.format(OUTLET_ROLE_TEMPLATE, tenantId, outletId));
+        return clientRole;
     }
 }

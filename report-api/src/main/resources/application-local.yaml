@@ -9,7 +9,7 @@ spring:
     driverClassName: org.postgresql.Driver
   h2.console.enabled: false
   jpa:
-    hibernate.ddl-auto: create
+    hibernate.ddl-auto: update
     show-sql: true
 oauth2:
   security:

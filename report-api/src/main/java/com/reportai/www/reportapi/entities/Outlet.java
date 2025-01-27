@@ -4,8 +4,11 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.List;
@@ -38,10 +41,31 @@ public class Outlet extends BaseEntity {
     private Institution institution;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "outlet_id"),
+            inverseJoinColumns = @JoinColumn(name = "account_id")
+    )
     private List<Account> adminAccounts;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "outlet_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
     private List<Student> students;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "outlet_id"),
+            inverseJoinColumns = @JoinColumn(name = "educator_id")
+    )
+    private List<Educator> educators;
+
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    private List<Course> courses;
+
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    private List<Lesson> lessons;
 
     @Column(nullable = false)
     private String tenantId;

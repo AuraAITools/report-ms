@@ -49,6 +49,5 @@ public class CreateCourseDTO {
     @NotEmpty
     private UUID levelId;
 
-    @NotEmpty
     private List<UUID> educatorIds;
 }

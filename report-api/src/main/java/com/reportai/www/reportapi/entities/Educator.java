@@ -33,6 +33,9 @@ public class Educator extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Institution institution;
 
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
+    private List<Outlet> outlets;
+
     @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
     private List<Subject> subjects;
 
