@@ -4,6 +4,7 @@ import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Level;
+import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.exceptions.lib.NotFoundException;
@@ -12,6 +13,7 @@ import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.LevelsRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.PriceRecordRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import jakarta.transaction.Transactional;
@@ -36,14 +38,17 @@ public class CoursesService {
 
     private final PriceRecordRepository priceRecordRepository;
 
+    private final OutletRepository outletRepository;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelsRepository levelsRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository) {
+    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelsRepository levelsRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository) {
         this.courseRepository = courseRepository;
         this.institutionRepository = institutionRepository;
         this.educatorRepository = educatorRepository;
         this.levelsRepository = levelsRepository;
         this.subjectRepository = subjectRepository;
         this.priceRecordRepository = priceRecordRepository;
+        this.outletRepository = outletRepository;
     }
 
     // Courses
@@ -57,12 +62,16 @@ public class CoursesService {
     }
 
     @Transactional
-    public Course createCourseForInstitution(Course course, UUID institutionId) {
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new NotFoundException("no institution found"));
+    public Course createCourseForOutlet(Course course, UUID outletId) {
+        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("outlet not found"));
+        Institution institution = outlet.getInstitution();
+
         PriceRecord priceRecord = course.getPriceRecord();
         PriceRecord createdPriceRecord = priceRecordRepository.save(priceRecord);
+
         // owning side will have to set the reference to institution
         course.setInstitution(institution);
+        course.setOutlet(outlet);
         course.setPriceRecord(createdPriceRecord);
         return courseRepository.save(course);
     }

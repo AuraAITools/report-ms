@@ -21,7 +21,7 @@ public class ClientTenantAwareAccountCreationStrategy implements TenantAwareAcco
     private final RealmResource realmResource;
     private final InstitutionRepository institutionRepository;
     private final ClientResource clientResource;
-    private final List<String> GRANTED_ROLES_ON_CREATION = List.of("report-mobile");
+    private final List<String> GRANTED_ROLES_ON_CREATION = List.of("client-report-mobile");
 
 
     public ClientTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository) {

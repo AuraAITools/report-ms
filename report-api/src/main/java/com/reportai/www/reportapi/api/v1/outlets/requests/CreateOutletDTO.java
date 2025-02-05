@@ -25,4 +25,6 @@ public class CreateOutletDTO {
 
     @Email
     private String email;
+
+    private String description;
 }

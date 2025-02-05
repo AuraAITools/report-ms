@@ -63,7 +63,7 @@ public class InstitutionsController {
     @Operation(summary = "creates an institution", description = "creates an bare institution with no accounts. Please create an admin account on the institution to continue")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "created"), @ApiResponse(responseCode = "500", description = "unexpected internal server error has occurred")})
     @PostMapping("/institutions")
-    @HasRole("aura-admin")
+    @HasRole("'aura-admin'")
     public ResponseEntity<InstitutionResponseDto> createInstitution(@RequestBody @Valid CreateInstitutionDTO createInstitutionDTO) {
         Institution institution = InstitutionMappers.convert(createInstitutionDTO);
         Institution createdInstitution = institutionsService.createInstitution(institution);

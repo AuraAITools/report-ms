@@ -34,6 +34,8 @@ public class Outlet extends BaseEntity {
 
     private String contactNumber;
 
+    private String description;
+
     @Email
     private String email;
 
@@ -43,9 +45,9 @@ public class Outlet extends BaseEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             joinColumns = @JoinColumn(name = "outlet_id"),
-            inverseJoinColumns = @JoinColumn(name = "account_id")
+            inverseJoinColumns = @JoinColumn(name = "outlet_admin_id")
     )
-    private List<Account> adminAccounts;
+    private List<OutletAdmin> outletAdmins;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

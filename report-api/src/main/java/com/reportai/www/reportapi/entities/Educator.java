@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -26,12 +27,13 @@ public class Educator extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Email
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @ToString.Exclude
     private Institution institution;
+
+    @Email
+    @Column(nullable = false)
+    private String email;
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
     private List<Outlet> outlets;

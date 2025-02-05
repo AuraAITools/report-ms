@@ -20,20 +20,25 @@ public class OutletAdminTenantAwareAccountCreationStrategy implements TenantAwar
     private final UUID institutionId;
     private final RealmResource realmResource;
     private final InstitutionRepository institutionRepository;
-    private final List<String> GRANTED_ROLES_ON_CREATION = List.of("outlet-admin");
+    private final String OUTLET_ADMIN_ROLE_TEMPLATE = "%s_outlet-admin";
+    private final List<String> grantedRoles;
 
-    public OutletAdminTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository) {
+    public OutletAdminTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository, List<String> outletIds) {
         this.clientResource = clientResource;
         this.accountRepository = accountRepository;
         this.requestedAccount = requestedAccount;
         this.institutionId = institutionId;
         this.realmResource = realmResource;
         this.institutionRepository = institutionRepository;
+        this.grantedRoles = outletIds
+                .stream()
+                .map(outletId -> String.format(OUTLET_ADMIN_ROLE_TEMPLATE, outletId))
+                .toList();
     }
 
     @Transactional
     @Override
     public Account createTenantAwareAccount() {
-        return StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        return StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, grantedRoles);
     }
 }

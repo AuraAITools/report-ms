@@ -9,6 +9,7 @@ import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -55,7 +56,9 @@ public class OutletsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
+    @Transactional
     public ResponseEntity<List<OutletResponseDto>> getOutletsForInstitution(@PathVariable UUID id) {
+
         List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
         List<OutletResponseDto> outletsDto = outlets
                 .stream()
