@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.services.accounts.creationstrategies;
 
 import com.reportai.www.reportapi.entities.Account;
+import com.reportai.www.reportapi.entities.personas.EducatorClientPersona;
 import com.reportai.www.reportapi.repositories.AccountRepository;
+import com.reportai.www.reportapi.repositories.EducatorClientPersonaRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -13,7 +15,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 
 @Slf4j
 @RequiredArgsConstructor
-public class EducatorTenantAwareAccountCreationStrategy implements TenantAwareAccountCreationStrategy {
+public class EducatorClientTenantAwareAccountCreationStrategy implements TenantAwareAccountCreationStrategy {
     private final ClientResource clientResource;
     private final AccountRepository accountRepository;
     private final Account requestedAccount;
@@ -21,20 +23,28 @@ public class EducatorTenantAwareAccountCreationStrategy implements TenantAwareAc
     private final RealmResource realmResource;
     private final InstitutionRepository institutionRepository;
     private final List<String> GRANTED_ROLES_ON_CREATION = List.of("educator-report-mobile");
+    private final EducatorClientPersonaRepository educatorClientPersonaRepository;
 
-
-    public EducatorTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository) {
+    public EducatorClientTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository, EducatorClientPersonaRepository educatorClientPersonaRepository) {
         this.clientResource = clientResource;
         this.accountRepository = accountRepository;
         this.requestedAccount = requestedAccount;
         this.institutionId = institutionId;
         this.realmResource = realmResource;
         this.institutionRepository = institutionRepository;
+        this.educatorClientPersonaRepository = educatorClientPersonaRepository;
     }
 
     @Transactional
     @Override
     public Account createTenantAwareAccount() {
-        return StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        Account account = StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        EducatorClientPersona educatorClientPersona = EducatorClientPersona
+                .builder()
+                .tenantId(institutionId.toString())
+                .account(account)
+                .build();
+        educatorClientPersonaRepository.save(educatorClientPersona);
+        return account;
     }
 }

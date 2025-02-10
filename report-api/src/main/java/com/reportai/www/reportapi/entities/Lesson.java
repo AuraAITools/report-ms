@@ -3,6 +3,8 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -10,21 +12,57 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Lessons")
 public class Lesson extends BaseEntity {
+
+    public enum STATUS {
+        COMPLETED,
+        CANCELLED,
+        POSTPONED,
+        MOST_RECENT_COMPLETED,
+        UPCOMING,
+        NEXT_UPCOMING,
+        REVIEWED,
+        NOT_REVIEWED,
+        PLANNED,
+        UNPLANNED
+    }
+
+    @Column(nullable = false)
+    private String name;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private STATUS status;
+
+    private LocalDate date;
+
+    @Column(nullable = false)
+    private DayOfWeek day;
+
+    @Column(nullable = false)
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
+
+    private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Subject subject;
@@ -53,6 +91,9 @@ public class Lesson extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Institution institution;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Course course;
 
     @ManyToOne
     @JoinColumn(nullable = false)

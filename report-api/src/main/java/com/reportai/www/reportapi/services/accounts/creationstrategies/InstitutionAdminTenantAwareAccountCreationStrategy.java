@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.services.accounts.creationstrategies;
 
 import com.reportai.www.reportapi.entities.Account;
+import com.reportai.www.reportapi.entities.personas.InstitutionAdminPersona;
 import com.reportai.www.reportapi.repositories.AccountRepository;
+import com.reportai.www.reportapi.repositories.InstitutionAdminPersonaRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -22,20 +24,30 @@ public class InstitutionAdminTenantAwareAccountCreationStrategy implements Tenan
     private final InstitutionRepository institutionRepository;
     private final ClientResource clientResource;
     private final List<String> GRANTED_ROLES_ON_CREATION = List.of("institution-admin");
+    private final InstitutionAdminPersonaRepository institutionAdminPersonaRepository;
 
-    public InstitutionAdminTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository) {
+    public InstitutionAdminTenantAwareAccountCreationStrategy(UUID institutionId, Account requestedAccount, ClientResource clientResource, RealmResource realmResource, AccountRepository accountRepository, InstitutionRepository institutionRepository, InstitutionAdminPersonaRepository institutionAdminPersonaRepository) {
         this.accountRepository = accountRepository;
         this.requestedAccount = requestedAccount;
         this.institutionId = institutionId;
         this.realmResource = realmResource;
         this.institutionRepository = institutionRepository;
         this.clientResource = clientResource;
+        this.institutionAdminPersonaRepository = institutionAdminPersonaRepository;
     }
 
     @Transactional
     @Override
     public Account createTenantAwareAccount() {
-        return StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        Account account = StrategyUtils.createTenantAwareAccount(realmResource, clientResource, institutionId, institutionRepository, accountRepository, requestedAccount, GRANTED_ROLES_ON_CREATION);
+        InstitutionAdminPersona institutionAdminPersona = InstitutionAdminPersona
+                .builder()
+                .institution(account.getInstitution())
+                .tenantId(institutionId.toString())
+                .account(account)
+                .build();
+        institutionAdminPersonaRepository.save(institutionAdminPersona);
+        return account;
     }
 
 }

@@ -9,19 +9,18 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Subjects")
@@ -31,7 +30,7 @@ public class Subject extends BaseEntity {
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private List<Course> courses = new ArrayList<>();
+    private List<Course> courses;
 
     // NOTE: deleting Subject shouldn't delete all the lessons
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)

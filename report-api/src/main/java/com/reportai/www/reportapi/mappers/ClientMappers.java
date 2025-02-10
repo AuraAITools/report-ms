@@ -1,17 +1,17 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateClientRequestDTO;
-import com.reportai.www.reportapi.entities.Client;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentClientRequestDTO;
+import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import java.util.UUID;
 
 public class ClientMappers {
     private ClientMappers() {
     }
 
-    public static Client convert(CreateClientRequestDTO createClientRequestDTO, UUID id) {
-        return Client
+    public static StudentClientPersona convert(CreateStudentClientRequestDTO createStudentClientRequestDTO, UUID id) {
+        return StudentClientPersona
                 .builder()
-                .relationship(createClientRequestDTO.getRelationship())
+                .relationship(createStudentClientRequestDTO.getRelationship())
                 .tenantId(id.toString())
                 .build();
     }

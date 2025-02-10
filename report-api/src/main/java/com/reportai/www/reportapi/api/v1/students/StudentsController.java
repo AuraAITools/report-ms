@@ -43,4 +43,13 @@ public class StudentsController {
         List<Student> students = outletsService.getOutletStudents(outletId);
         return new ResponseEntity<>(students.stream().map(StudentMappers::convert).toList(), HttpStatus.OK);
     }
+
+    // TODO: finish this API
+    @GetMapping("/institutions/{id}/students")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::students:read'")
+    @Transactional
+    public ResponseEntity<List<CreateStudentResponseDTO>> getAllStudentsInInstitution(@PathVariable UUID id) {
+        List<Student> students = studentsService.getAllStudentsInInstitution(id);
+        return new ResponseEntity<>(students.stream().map(StudentMappers::convert).toList(), HttpStatus.OK);
+    }
 }

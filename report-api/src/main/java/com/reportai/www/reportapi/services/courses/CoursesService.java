@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.services.courses;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.PriceRecord;
@@ -12,7 +13,8 @@ import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.LevelsRepository;
+import com.reportai.www.reportapi.repositories.LessonGenerationTemplateRepository;
+import com.reportai.www.reportapi.repositories.LevelRepository;
 import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.PriceRecordRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
@@ -32,7 +34,7 @@ public class CoursesService {
 
     private final EducatorRepository educatorRepository;
 
-    private final LevelsRepository levelsRepository;
+    private final LevelRepository levelRepository;
 
     private final SubjectRepository subjectRepository;
 
@@ -40,15 +42,18 @@ public class CoursesService {
 
     private final OutletRepository outletRepository;
 
+    private final LessonGenerationTemplateRepository lessonGenerationTemplateRepository;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelsRepository levelsRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository) {
+    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelRepository levelRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository, LessonGenerationTemplateRepository lessonGenerationTemplateRepository) {
         this.courseRepository = courseRepository;
         this.institutionRepository = institutionRepository;
         this.educatorRepository = educatorRepository;
-        this.levelsRepository = levelsRepository;
+        this.levelRepository = levelRepository;
         this.subjectRepository = subjectRepository;
         this.priceRecordRepository = priceRecordRepository;
         this.outletRepository = outletRepository;
+        this.lessonGenerationTemplateRepository = lessonGenerationTemplateRepository;
     }
 
     // Courses
@@ -98,7 +103,7 @@ public class CoursesService {
     @Transactional
     public Course addLevelToCourse(UUID levelId, UUID courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
-        Level level = levelsRepository.findById(levelId).orElseThrow(() -> new ResourceNotFoundException("level does not exist"));
+        Level level = levelRepository.findById(levelId).orElseThrow(() -> new ResourceNotFoundException("level does not exist"));
         course.setLevel(level);
         return courseRepository.save(course);
     }
@@ -113,5 +118,17 @@ public class CoursesService {
             course.getSubjects().add(subject);
         }
         return courseRepository.save(course);
+    }
+
+    /**
+     * Creates lesson generation templates
+     *
+     * @return
+     */
+    @Transactional
+    public List<LessonGenerationTemplate> createLessonGenerationTemplates(UUID courseId, List<LessonGenerationTemplate> lessonGenerationTemplates) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course not found"));
+        lessonGenerationTemplates.forEach(lessonGenerationTemplate -> lessonGenerationTemplate.setCourse(course));
+        return lessonGenerationTemplateRepository.saveAll(lessonGenerationTemplates);
     }
 }

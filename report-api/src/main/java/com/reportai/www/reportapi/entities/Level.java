@@ -9,16 +9,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Levels")
@@ -28,6 +28,10 @@ public class Level extends BaseEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Subject> subjects;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "levels")
+    @ToString.Exclude
+    private List<Educator> educators;
 
     @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     @ToString.Exclude

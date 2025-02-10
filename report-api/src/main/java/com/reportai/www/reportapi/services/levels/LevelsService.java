@@ -6,7 +6,7 @@ import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundExcepti
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.LevelsRepository;
+import com.reportai.www.reportapi.repositories.LevelRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -15,27 +15,31 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LevelsService {
-    private final LevelsRepository levelsRepository;
+    private final LevelRepository levelRepository;
     private final InstitutionRepository institutionRepository;
 
-    public LevelsService(LevelsRepository levelsRepository, InstitutionRepository institutionRepository) {
-        this.levelsRepository = levelsRepository;
+    public LevelsService(LevelRepository levelRepository, InstitutionRepository institutionRepository) {
+        this.levelRepository = levelRepository;
         this.institutionRepository = institutionRepository;
     }
 
     public Level findById(UUID id) {
-        return levelsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("level not found"));
+        return levelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("level not found"));
+    }
+
+    public List<Level> findByIds(List<UUID> ids) {
+        return levelRepository.findAllById(ids);
     }
 
     @Transactional
     public Level createLevelForInstitution(UUID id, Level newLevel) {
         Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
-        Optional<Level> existingLevel = levelsRepository.findByName(newLevel.getName());
+        Optional<Level> existingLevel = levelRepository.findByName(newLevel.getName());
         if (existingLevel.isPresent()) {
             throw new ResourceAlreadyExistsException(String.format("Level with name %s already exists", newLevel.getName()));
         }
         newLevel.setInstitution(institution);
-        return levelsRepository.save(newLevel);
+        return levelRepository.save(newLevel);
     }
 
     public List<Level> getAllLevelsForInstitution(UUID id) {

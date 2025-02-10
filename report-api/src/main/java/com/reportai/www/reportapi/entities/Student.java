@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,18 +12,18 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Students")
@@ -35,7 +36,7 @@ public class Student extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String currentSchool;
 
@@ -54,8 +55,12 @@ public class Student extends BaseEntity {
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Lesson> lessons;
 
-    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<Account> accounts;
+//    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
+//    private List<Account> accounts;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false)
+    private StudentClientPersona studentClientPersona;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

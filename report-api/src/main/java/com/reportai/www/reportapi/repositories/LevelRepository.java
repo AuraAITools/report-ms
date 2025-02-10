@@ -6,6 +6,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface LevelsRepository extends JpaRepository<Level, UUID>, JpaSpecificationExecutor<Level> {
+public interface LevelRepository extends JpaRepository<Level, UUID>, JpaSpecificationExecutor<Level> {
     Optional<Level> findByName(String name);
 }

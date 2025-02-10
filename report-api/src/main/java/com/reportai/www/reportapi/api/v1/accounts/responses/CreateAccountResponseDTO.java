@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Getter
+@Data
 @Builder
 public class CreateAccountResponseDTO {
 
@@ -29,5 +29,4 @@ public class CreateAccountResponseDTO {
 
     @NotEmpty
     public String contact;
-
 }

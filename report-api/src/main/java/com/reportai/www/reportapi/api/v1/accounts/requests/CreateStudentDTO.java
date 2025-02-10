@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,7 +25,7 @@ public class CreateStudentDTO {
 
     @DateTimeFormat
     @NotNull
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotEmpty
     private String currentSchool;

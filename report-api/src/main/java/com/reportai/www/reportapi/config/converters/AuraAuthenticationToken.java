@@ -149,10 +149,13 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
     private static String[] institutionAdminRoleResourcePermissions(String tenantId) {
         return List.of(
                 String.format("institutions::%s:update", tenantId),
+                String.format("institutions::%s:read", tenantId), // necessary role to be here in case outlets are not created yet
+                String.format("institutions::%s::accounts::student-clients:read", tenantId), // necessary role to be here
+                String.format("institutions::%s::students:read", tenantId), // necessary role to be here
                 String.format("institutions::%s::outlets:read", tenantId),
                 String.format("institutions::%s::outlets:create", tenantId),
-                String.format("institutions::%s::accounts:link-educator", tenantId),
-                String.format("institutions::%s::accounts:link-student", tenantId),
+                String.format("institutions::%s::accounts:create-educator", tenantId),
+                String.format("institutions::%s::accounts:create-student", tenantId),
                 String.format("institutions::%s::accounts:create", tenantId),
                 String.format("institutions::%s::accounts:create-link-outlet-admin", tenantId),
                 String.format("institutions::%s::levels:create", tenantId),
@@ -172,6 +175,12 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
     private static String[] outletAdminRoleResourcePermission(String tenantId, String outletId) {
         return List.of(
                 String.format("institutions::%s:read", tenantId),
+                String.format("institutions::%s::students:read", tenantId),
+                String.format("institutions::%s::accounts::student-client-account:create", tenantId),
+                String.format("institutions::%s::accounts::educator-client-account:create", tenantId),
+                String.format("institutions::%s::outlets::%s::accounts::educators:create", tenantId, outletId),
+                String.format("institutions::%s::accounts::student-clients:read", tenantId),
+                String.format("institutions::%s::accounts::educator-clients:read", tenantId),
                 String.format("institutions::%s::outlets::%s:create", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s:read", tenantId, outletId),
                 String.format("institutions::%s::outlets:read", tenantId),
@@ -179,6 +188,9 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::outlets::%s:update", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses:create", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses:read", tenantId, outletId),
+                String.format("institutions::%s::outlets::%s::courses::lessons:create", tenantId, outletId),
+                String.format("institutions::%s::outlets::%s::courses::lessons:read", tenantId, outletId),
+                String.format("institutions::%s::outlets::%s::lessons:read", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::educators:read", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::students:read", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s:add-student", tenantId, outletId),

@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.entities;
 
 
+import com.reportai.www.reportapi.entities.personas.OutletAdminPersona;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,15 +14,15 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Outlets")
@@ -47,7 +48,7 @@ public class Outlet extends BaseEntity {
             joinColumns = @JoinColumn(name = "outlet_id"),
             inverseJoinColumns = @JoinColumn(name = "outlet_admin_id")
     )
-    private List<OutletAdmin> outletAdmins;
+    private List<OutletAdminPersona> outletAdminPersonas;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -56,11 +57,7 @@ public class Outlet extends BaseEntity {
     )
     private List<Student> students;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "outlet_id"),
-            inverseJoinColumns = @JoinColumn(name = "educator_id")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
     private List<Educator> educators;
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
