@@ -5,11 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
@@ -22,6 +25,9 @@ import lombok.experimental.SuperBuilder;
 public class OutletAdminPersona extends Persona {
 
     @ManyToMany(mappedBy = "outletAdminPersonas", fetch = FetchType.LAZY)
-    public List<Outlet> outlets;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    public List<Outlet> outlets = new ArrayList<>();
 
 }

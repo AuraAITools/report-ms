@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -29,6 +30,8 @@ public class PriceRecord extends BaseEntity {
     }
 
     @OneToOne(mappedBy = "priceRecord")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Course course;
 
     @Column(nullable = false)

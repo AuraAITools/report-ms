@@ -7,6 +7,7 @@ import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.exceptions.lib.NotFoundException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
@@ -17,6 +18,7 @@ import com.reportai.www.reportapi.repositories.LessonGenerationTemplateRepositor
 import com.reportai.www.reportapi.repositories.LevelRepository;
 import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.PriceRecordRepository;
+import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -44,8 +46,10 @@ public class CoursesService {
 
     private final LessonGenerationTemplateRepository lessonGenerationTemplateRepository;
 
+    private final StudentRepository studentRepository;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelRepository levelRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository, LessonGenerationTemplateRepository lessonGenerationTemplateRepository) {
+    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelRepository levelRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository, LessonGenerationTemplateRepository lessonGenerationTemplateRepository, StudentRepository studentRepository) {
         this.courseRepository = courseRepository;
         this.institutionRepository = institutionRepository;
         this.educatorRepository = educatorRepository;
@@ -54,7 +58,9 @@ public class CoursesService {
         this.priceRecordRepository = priceRecordRepository;
         this.outletRepository = outletRepository;
         this.lessonGenerationTemplateRepository = lessonGenerationTemplateRepository;
+        this.studentRepository = studentRepository;
     }
+
 
     // Courses
     public List<Course> getAllCoursesFromInstitution(UUID institutionId) {
@@ -130,5 +136,15 @@ public class CoursesService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course not found"));
         lessonGenerationTemplates.forEach(lessonGenerationTemplate -> lessonGenerationTemplate.setCourse(course));
         return lessonGenerationTemplateRepository.saveAll(lessonGenerationTemplates);
+    }
+
+    @Transactional
+    public List<Course> enrollStudentToCourses(UUID studentId, List<UUID> courseIds) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("no student found"));
+        List<Course> courses = courseRepository.findAllById(courseIds);
+        List<Course> cour = student.getCourses();
+        student.getCourses().addAll(courses);
+        studentRepository.save(student);
+        return courses;
     }
 }

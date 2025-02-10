@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
-public class CreateStudentDTO {
+public class CreateStudentRequestDTO {
 
     @NotEmpty
     private String name;
@@ -33,4 +35,5 @@ public class CreateStudentDTO {
     @NotNull
     private UUID levelId;
 
+    private List<UUID> courseIds = new ArrayList<>();
 }

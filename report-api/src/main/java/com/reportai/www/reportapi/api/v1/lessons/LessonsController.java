@@ -1,9 +1,9 @@
 package com.reportai.www.reportapi.api.v1.lessons;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonDTO;
-import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponse;
-import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponse;
+import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO;
+import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
+import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Lesson;
 import com.reportai.www.reportapi.mappers.LessonMappers;
@@ -48,9 +48,9 @@ public class LessonsController {
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}/lessons")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:create'")
     @Transactional
-    public ResponseEntity<CreateLessonResponse> createLessonForCourse(@RequestBody CreateLessonDTO createLessonDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+    public ResponseEntity<CreateLessonResponseDTO> createLessonForCourse(@RequestBody CreateLessonRequestDTO createLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course course = coursesService.findById(courseId);
-        Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonDTO, id));
+        Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonRequestDTO, id));
         return new ResponseEntity<>(LessonMappers.convert(lesson), HttpStatus.OK);
     }
 
@@ -59,9 +59,9 @@ public class LessonsController {
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}/lessons")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:read'")
     @Transactional
-    public ResponseEntity<List<CreateLessonResponse>> getAllLessonsOfCourse(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+    public ResponseEntity<List<CreateLessonResponseDTO>> getAllLessonsOfCourse(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course course = coursesService.findById(courseId);
-        List<CreateLessonResponse> lessons = course.getLessons().stream().map(LessonMappers::convert).toList();
+        List<CreateLessonResponseDTO> lessons = course.getLessons().stream().map(LessonMappers::convert).toList();
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 
@@ -70,7 +70,7 @@ public class LessonsController {
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/lessons/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::lessons:read'")
     @Transactional
-    public ResponseEntity<List<ExpandedLessonResponse>> getAllLessonsOfInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<List<ExpandedLessonResponseDTO>> getAllLessonsOfInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         List<Lesson> lessons = lessonService.getExpandedLessonsInInstitution(id);
         return new ResponseEntity<>(lessons.stream().map(LessonMappers::convertToExpanded).toList(), HttpStatus.OK);
     }

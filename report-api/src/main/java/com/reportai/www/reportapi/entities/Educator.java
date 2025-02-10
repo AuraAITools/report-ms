@@ -14,8 +14,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -42,6 +44,7 @@ public class Educator extends BaseEntity {
     private LocalDate startDate;
 
     @ManyToOne
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Institution institution;
 
@@ -58,23 +61,37 @@ public class Educator extends BaseEntity {
             joinColumns = @JoinColumn(name = "educator_id"),
             inverseJoinColumns = @JoinColumn(name = "outlet_id")
     )
-    private List<Outlet> outlets;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Outlet> outlets = new ArrayList<>();
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
-    private List<Subject> subjects;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Subject> subjects = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private EducatorClientPersona educatorClientPersona;
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
-    private List<Course> courses;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Course> courses = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             joinColumns = @JoinColumn(name = "educator_id"),
             inverseJoinColumns = @JoinColumn(name = "level_id")
     )
-    private List<Level> levels;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Level> levels = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

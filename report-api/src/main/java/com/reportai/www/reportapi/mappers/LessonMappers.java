@@ -1,8 +1,8 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonDTO;
-import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponse;
-import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponse;
+import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO;
+import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
+import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.entities.Lesson;
 import java.util.UUID;
 
@@ -10,21 +10,21 @@ public class LessonMappers {
     private LessonMappers() {
     }
 
-    public static Lesson convert(CreateLessonDTO createLessonDTO, UUID tenantId) {
+    public static Lesson convert(CreateLessonRequestDTO createLessonRequestDTO, UUID tenantId) {
         return Lesson.builder()
-                .date(createLessonDTO.getDate())
-                .name(createLessonDTO.getName())
+                .date(createLessonRequestDTO.getDate())
+                .name(createLessonRequestDTO.getName())
                 .status(Lesson.STATUS.UPCOMING)
-                .startTime(createLessonDTO.getStartTime())
-                .endTime(createLessonDTO.getEndTime())
-                .description(createLessonDTO.getDescription())
-                .day(createLessonDTO.getDate().getDayOfWeek())
+                .startTime(createLessonRequestDTO.getStartTime())
+                .endTime(createLessonRequestDTO.getEndTime())
+                .description(createLessonRequestDTO.getDescription())
+                .day(createLessonRequestDTO.getDate().getDayOfWeek())
                 .tenantId(tenantId.toString())
                 .build();
     }
 
-    public static CreateLessonResponse convert(Lesson lesson) {
-        return CreateLessonResponse
+    public static CreateLessonResponseDTO convert(Lesson lesson) {
+        return CreateLessonResponseDTO
                 .builder()
                 .id(lesson.getId().toString())
                 .name(lesson.getName())
@@ -36,8 +36,8 @@ public class LessonMappers {
                 .build();
     }
 
-    public static ExpandedLessonResponse convertToExpanded(Lesson lesson) {
-        return ExpandedLessonResponse
+    public static ExpandedLessonResponseDTO convertToExpanded(Lesson lesson) {
+        return ExpandedLessonResponseDTO
                 .builder()
                 .id(lesson.getId().toString())
                 .name(lesson.getName())

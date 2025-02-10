@@ -1,7 +1,7 @@
 package com.reportai.www.reportapi.api.v1.subjects;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.subjects.requests.CreateSubjectDTO;
+import com.reportai.www.reportapi.api.v1.subjects.requests.CreateSubjectRequestDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.mappers.SubjectMappers;
@@ -55,8 +55,8 @@ public class SubjectsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/institutions/{id}/subjects")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:create'")
-    public ResponseEntity<SubjectResponseDTO> createSubjectForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateSubjectDTO createSubjectDTO) {
-        Subject createdSubject = subjectsService.createSubjectForInstitution(id, convert(createSubjectDTO, id));
+    public ResponseEntity<SubjectResponseDTO> createSubjectForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateSubjectRequestDTO createSubjectRequestDTO) {
+        Subject createdSubject = subjectsService.createSubjectForInstitution(id, convert(createSubjectRequestDTO, id));
         return new ResponseEntity<>(convert(createdSubject), HttpStatus.OK);
     }
 

@@ -1,7 +1,7 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
+import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import java.util.UUID;
@@ -13,32 +13,32 @@ public class CourseMappers {
     /**
      * does not deal with converting subjectids,level ids and educatorids
      *
-     * @param createCourseDTO
+     * @param createCourseRequestDTO
      * @return
      */
-    public static Course convert(CreateCourseDTO createCourseDTO, UUID id) {
+    public static Course convert(CreateCourseRequestDTO createCourseRequestDTO, UUID id) {
         return Course
                 .builder()
-                .name(createCourseDTO.getName())
-                .maxSize(createCourseDTO.getMaxSize())
+                .name(createCourseRequestDTO.getName())
+                .maxSize(createCourseRequestDTO.getMaxSize())
                 .priceRecord(PriceRecord
                         .builder()
-                        .price(createCourseDTO.getPrice())
-                        .frequency(createCourseDTO.getPriceFrequency())
+                        .price(createCourseRequestDTO.getPrice())
+                        .frequency(createCourseRequestDTO.getPriceFrequency())
                         .tenantId(id.toString())
                         .build())
-                .lessonNumberFrequency(createCourseDTO.getLessonNumberFrequency())
-                .lessonWeeklyFrequency(createCourseDTO.getLessonWeeklyFrequency())
-                .startDate(createCourseDTO.getStartDate())
-                .endDate(createCourseDTO.getEndDate())
-                .startTime(createCourseDTO.getStartTime())
-                .endTime(createCourseDTO.getEndTime())
+                .lessonNumberFrequency(createCourseRequestDTO.getLessonNumberFrequency())
+                .lessonWeeklyFrequency(createCourseRequestDTO.getLessonWeeklyFrequency())
+                .startDate(createCourseRequestDTO.getStartDate())
+                .endDate(createCourseRequestDTO.getEndDate())
+                .startTime(createCourseRequestDTO.getStartTime())
+                .endTime(createCourseRequestDTO.getEndTime())
                 .tenantId(id.toString())
                 .build();
     }
 
-    public static CreateCourseDTOResponse convert(Course course) {
-        return CreateCourseDTOResponse
+    public static CreateCourseDTOResponseDTO convert(Course course) {
+        return CreateCourseDTOResponseDTO
                 .builder()
                 .id(course.getId().toString())
                 .name(course.getName())

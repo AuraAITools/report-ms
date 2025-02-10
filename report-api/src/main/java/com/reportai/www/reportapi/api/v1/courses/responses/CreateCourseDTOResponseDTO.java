@@ -1,40 +1,46 @@
-package com.reportai.www.reportapi.api.v1.courses.requests;
+package com.reportai.www.reportapi.api.v1.courses.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Getter
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateCourseDTO {
 
-    @NotNull
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
+@Data
+@Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonInclude(NON_EMPTY)
+public class CreateCourseDTOResponseDTO {
+
+    @NotEmpty
+    private String id;
+
+    @NotEmpty
     private Integer lessonNumberFrequency;
 
-    @NotNull
+    @NotEmpty
     private Integer lessonWeeklyFrequency;
 
-    @NotNull
+    @NotEmpty
     private Double price;
 
-    @NotNull
+    @NotEmpty
     private PriceRecord.FREQUENCY priceFrequency;
 
     @NotEmpty
     private String name;
 
-    @NotNull
+    @NotEmpty
     private Integer maxSize;
 
     @DateTimeFormat
@@ -52,11 +58,12 @@ public class CreateCourseDTO {
     @NotEmpty
     private List<UUID> subjectIds;
 
-    @NotNull
+    @NotEmpty
     private UUID levelId;
 
-    private Optional<List<UUID>> educatorIds = Optional.empty();
+    @NotEmpty
+    private List<UUID> educatorIds;
 
     @NotEmpty
-    private List<CreateLessonGenerationTemplateDTO> lessonGenerationTemplates;
+    private List<CreateLessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
 }

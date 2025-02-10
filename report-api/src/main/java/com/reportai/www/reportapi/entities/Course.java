@@ -13,8 +13,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,8 @@ public class Course extends BaseEntity {
     private Integer lessonWeeklyFrequency;
 
     @OneToOne
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private PriceRecord priceRecord;
 
     private String name;
@@ -57,10 +61,14 @@ public class Course extends BaseEntity {
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Outlet outlet;
 
     // Note: deleting a course will delete all subjects under the course
@@ -70,14 +78,20 @@ public class Course extends BaseEntity {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
-    private List<Subject> subjects;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    private List<Subject> subjects = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Level level;
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Student> students;
+    private List<Student> students = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

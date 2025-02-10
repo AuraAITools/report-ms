@@ -2,9 +2,9 @@ package com.reportai.www.reportapi.api.v1.accounts.responses;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
+import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
-import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDto;
+import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -47,10 +47,10 @@ public class CreateStudentResponseDTO {
     private CreateLevelsResponseDTO level;
 
     @NotNull
-    private List<OutletResponseDto> outlets;
+    private List<CreateOutletResponseDto> outlets;
 
     @NotNull
-    private List<CreateCourseDTOResponse> courses;
+    private List<CreateCourseDTOResponseDTO> courses;
 
     @NotEmpty
     private String contact;

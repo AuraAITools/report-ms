@@ -9,11 +9,14 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -26,9 +29,14 @@ import lombok.experimental.SuperBuilder;
 public class TestGroup extends BaseEntity {
 
     @OneToMany(mappedBy = "testGroup", fetch = FetchType.EAGER)
-    private List<Test> tests;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Test> tests = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -36,7 +44,10 @@ public class TestGroup extends BaseEntity {
             joinColumns = @JoinColumn(name = "test_group_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
-    private List<Subject> subjects;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Subject> subjects = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

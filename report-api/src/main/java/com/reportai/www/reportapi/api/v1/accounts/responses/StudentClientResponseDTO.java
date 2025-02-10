@@ -15,7 +15,7 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Data
 @Builder
-public class StudentClientResponse {
+public class StudentClientResponseDTO {
     @NotEmpty
     public String id;
 
@@ -34,6 +34,6 @@ public class StudentClientResponse {
 
     @NotNull
     public StudentClientPersona.RELATIONSHIP relationship;
-    
+
     private List<CreateStudentResponseDTO> students;
 }

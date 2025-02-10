@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -24,7 +25,10 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "Personas")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Persona extends BaseEntity {
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Account account;
 
     @Column(nullable = false)

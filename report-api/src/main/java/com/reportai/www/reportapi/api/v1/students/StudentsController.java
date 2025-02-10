@@ -4,6 +4,7 @@ import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermissio
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.mappers.StudentMappers;
+import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import com.reportai.www.reportapi.services.students.StudentsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,11 +30,13 @@ public class StudentsController {
 
     private final OutletsService outletsService;
     private final StudentsService studentsService;
+    private final CoursesService coursesService;
 
     @Autowired
-    public StudentsController(OutletsService outletsService, StudentsService studentsService) {
+    public StudentsController(OutletsService outletsService, StudentsService studentsService, CoursesService coursesService) {
         this.outletsService = outletsService;
         this.studentsService = studentsService;
+        this.coursesService = coursesService;
     }
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/students")

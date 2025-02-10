@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
+import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.entities.Lesson;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -21,7 +21,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Setter
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ExpandedLessonResponse {
+public class ExpandedLessonResponseDTO {
 
     @NotEmpty
     private String id;
@@ -54,5 +54,5 @@ public class ExpandedLessonResponse {
     private List<CreateStudentResponseDTO> students;
 
     @NotNull
-    private CreateCourseDTOResponse course;
+    private CreateCourseDTOResponseDTO course;
 }

@@ -1,8 +1,8 @@
 package com.reportai.www.reportapi.api.v1.courses;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponse;
+import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
 import com.reportai.www.reportapi.mappers.CourseMappers;
@@ -52,34 +52,34 @@ public class CoursesController {
      * Creates a course in an institution
      * Also links the level, subjects and educators to the created course
      *
-     * @param createCourseDTO
+     * @param createCourseRequestDTO
      * @param id
      * @return
      */
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
-    public ResponseEntity<CreateCourseDTOResponse> createCourseForInstitution(@RequestBody @Valid CreateCourseDTO createCourseDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<CreateCourseDTOResponseDTO> createCourseForInstitution(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         // TODO: add lesson generation template creation
-        Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseDTO, id), outletId);
-        List<LessonGenerationTemplate> lessonGenerationTemplates = coursesService.createLessonGenerationTemplates(createdCourse.getId(), createCourseDTO
+        Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseRequestDTO, id), outletId);
+        List<LessonGenerationTemplate> lessonGenerationTemplates = coursesService.createLessonGenerationTemplates(createdCourse.getId(), createCourseRequestDTO
                 .getLessonGenerationTemplates()
                 .stream()
                 .map(createLessonGenerationTemplateDTO -> LessonGenerationTemplateMappers.convert(createLessonGenerationTemplateDTO, id.toString()))
                 .toList());
-        Course courseWithLevel = coursesService.addLevelToCourse(createCourseDTO.getLevelId(), createdCourse.getId());
-        createCourseDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, courseWithLevel.getId()));
-        createCourseDTO.getEducatorIds().ifPresent(educatorIds -> educatorIds.forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId())));
+        Course courseWithLevel = coursesService.addLevelToCourse(createCourseRequestDTO.getLevelId(), createdCourse.getId());
+        createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, courseWithLevel.getId()));
+        createCourseRequestDTO.getEducatorIds().ifPresent(educatorIds -> educatorIds.forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId())));
         Course resultantCourse = coursesService.findById(courseWithLevel.getId());
-        CreateCourseDTOResponse createCourseDTOResponse = convert(resultantCourse);
-        createCourseDTOResponse.setLessonGenerationTemplates(lessonGenerationTemplates.stream().map(LessonGenerationTemplateMappers::convert).toList());
-        return new ResponseEntity<>(createCourseDTOResponse, HttpStatus.CREATED);
+        CreateCourseDTOResponseDTO createCourseDTOResponseDTO = convert(resultantCourse);
+        createCourseDTOResponseDTO.setLessonGenerationTemplates(lessonGenerationTemplates.stream().map(LessonGenerationTemplateMappers::convert).toList());
+        return new ResponseEntity<>(createCourseDTOResponseDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
-    public ResponseEntity<List<CreateCourseDTOResponse>> createCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<List<CreateCourseDTOResponseDTO>> createCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         List<Course> courses = outletsService.getOutletCourses(outletId);
         return new ResponseEntity<>(courses.stream().map(CourseMappers::convert).toList(), HttpStatus.OK);
     }

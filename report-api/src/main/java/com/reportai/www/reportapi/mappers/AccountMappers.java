@@ -1,10 +1,10 @@
 package com.reportai.www.reportapi.mappers;
 
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateBlankAccountRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateInstitutionAdminAccountDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateInstitutionAdminAccountRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentClientRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateAccountResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentClientResponse;
+import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentClientResponseDTO;
 import com.reportai.www.reportapi.entities.Account;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import java.util.List;
@@ -63,7 +63,7 @@ public class AccountMappers {
 
     }
 
-    public static Account convert(CreateInstitutionAdminAccountDTO from) {
+    public static Account convert(CreateInstitutionAdminAccountRequestDTO from) {
         return Account.builder().
                 firstName(from.getFirstName())
                 .lastName(from.getLastName())
@@ -82,8 +82,8 @@ public class AccountMappers {
                 .build();
     }
 
-    public static CreateStudentClientResponse convert(Account from, StudentClientPersona.RELATIONSHIP relationship) {
-        return CreateStudentClientResponse
+    public static CreateStudentClientResponseDTO convert(Account from, StudentClientPersona.RELATIONSHIP relationship) {
+        return CreateStudentClientResponseDTO
                 .builder()
                 .id(from.getId().toString())
                 .firstName(from.getFirstName())

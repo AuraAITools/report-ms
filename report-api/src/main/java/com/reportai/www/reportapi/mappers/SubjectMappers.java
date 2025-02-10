@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.subjects.requests.CreateSubjectDTO;
+import com.reportai.www.reportapi.api.v1.subjects.requests.CreateSubjectRequestDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.Subject;
 import java.util.UUID;
@@ -9,10 +9,10 @@ public class SubjectMappers {
     private SubjectMappers() {
     }
 
-    public static Subject convert(CreateSubjectDTO createSubjectDTO, UUID id) {
+    public static Subject convert(CreateSubjectRequestDTO createSubjectRequestDTO, UUID id) {
         return Subject
                 .builder()
-                .name(createSubjectDTO.getName())
+                .name(createSubjectRequestDTO.getName())
                 .tenantId(id.toString())
                 .build();
     }

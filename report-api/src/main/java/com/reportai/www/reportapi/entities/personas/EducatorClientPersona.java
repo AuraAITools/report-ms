@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -24,6 +25,8 @@ public class EducatorClientPersona extends Persona {
 
 
     @OneToOne(mappedBy = "educatorClientPersona")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Educator educator;
 
 }

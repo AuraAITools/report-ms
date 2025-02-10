@@ -12,7 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateLessonGenerationTemplateDTO {
+public class CreateLessonGenerationTemplateRequestDTO {
 
     @NotNull
     private DayOfWeek dayOfWeek;

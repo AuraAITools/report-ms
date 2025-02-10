@@ -12,11 +12,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -41,6 +44,8 @@ public class Outlet extends BaseEntity {
     private String email;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -48,23 +53,34 @@ public class Outlet extends BaseEntity {
             joinColumns = @JoinColumn(name = "outlet_id"),
             inverseJoinColumns = @JoinColumn(name = "outlet_admin_id")
     )
-    private List<OutletAdminPersona> outletAdminPersonas;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "outlet_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
-    )
-    private List<Student> students;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<OutletAdminPersona> outletAdminPersonas = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
-    private List<Educator> educators;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Student> students = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Educator> educators = new ArrayList<>();
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
-    private List<Course> courses;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Course> courses = new ArrayList<>();
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
-    private List<Lesson> lessons;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

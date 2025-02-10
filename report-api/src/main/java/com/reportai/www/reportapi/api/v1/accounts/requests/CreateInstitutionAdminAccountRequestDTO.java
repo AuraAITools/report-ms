@@ -1,4 +1,4 @@
-package com.reportai.www.reportapi.api.v1.institutions.dtos.requests;
+package com.reportai.www.reportapi.api.v1.accounts.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -7,28 +7,23 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
-@JsonInclude(NON_EMPTY)
-public class CreateInstitutionDTO {
-    @NotEmpty
-    private String name;
+public class CreateInstitutionAdminAccountRequestDTO {
 
-    @NotEmpty
     @Email
-    private String email;
+    @NotEmpty
+    public String email;
 
     @NotEmpty
-    private String uen;
+    public String firstName;
 
     @NotEmpty
-    private String address;
+    public String lastName;
 
     @NotEmpty
-    private String contactNumber;
+    public String contact;
+
 
 }
-

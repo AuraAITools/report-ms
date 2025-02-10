@@ -17,7 +17,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(NON_EMPTY)
-public class InstitutionResponseDto {
+public class InstitutionResponseDTO {
 
     private UUID id;
 

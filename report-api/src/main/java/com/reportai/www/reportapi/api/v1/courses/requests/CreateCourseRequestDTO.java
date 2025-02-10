@@ -1,46 +1,40 @@
-package com.reportai.www.reportapi.api.v1.courses.responses;
+package com.reportai.www.reportapi.api.v1.courses.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-
-@Data
-@Builder
+@Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonInclude(NON_EMPTY)
-public class CreateCourseDTOResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CreateCourseRequestDTO {
 
-    @NotEmpty
-    private String id;
-
-    @NotEmpty
+    @NotNull
     private Integer lessonNumberFrequency;
 
-    @NotEmpty
+    @NotNull
     private Integer lessonWeeklyFrequency;
 
-    @NotEmpty
+    @NotNull
     private Double price;
 
-    @NotEmpty
+    @NotNull
     private PriceRecord.FREQUENCY priceFrequency;
 
     @NotEmpty
     private String name;
 
-    @NotEmpty
+    @NotNull
     private Integer maxSize;
 
     @DateTimeFormat
@@ -58,12 +52,11 @@ public class CreateCourseDTOResponse {
     @NotEmpty
     private List<UUID> subjectIds;
 
-    @NotEmpty
+    @NotNull
     private UUID levelId;
 
-    @NotEmpty
-    private List<UUID> educatorIds;
+    private Optional<List<UUID>> educatorIds = Optional.empty();
 
     @NotEmpty
-    private List<CreateLessonGenerationTemplateResponse> lessonGenerationTemplates;
+    private List<CreateLessonGenerationTemplateRequestDTO> lessonGenerationTemplates;
 }
