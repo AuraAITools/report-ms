@@ -23,4 +23,5 @@ public class EducatorsService {
         educator.setInstitution(institution);
         return educatorRepository.save(educator);
     }
+
 }

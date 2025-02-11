@@ -3,16 +3,22 @@ package com.reportai.www.reportapi.services.courses;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
+import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
 import com.reportai.www.reportapi.entities.Level;
+import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.exceptions.lib.NotFoundException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.LevelsRepository;
+import com.reportai.www.reportapi.repositories.LessonGenerationTemplateRepository;
+import com.reportai.www.reportapi.repositories.LevelRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.PriceRecordRepository;
+import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -30,21 +36,31 @@ public class CoursesService {
 
     private final EducatorRepository educatorRepository;
 
-    private final LevelsRepository levelsRepository;
+    private final LevelRepository levelRepository;
 
     private final SubjectRepository subjectRepository;
 
     private final PriceRecordRepository priceRecordRepository;
 
+    private final OutletRepository outletRepository;
+
+    private final LessonGenerationTemplateRepository lessonGenerationTemplateRepository;
+
+    private final StudentRepository studentRepository;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelsRepository levelsRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository) {
+    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelRepository levelRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository, LessonGenerationTemplateRepository lessonGenerationTemplateRepository, StudentRepository studentRepository) {
         this.courseRepository = courseRepository;
         this.institutionRepository = institutionRepository;
         this.educatorRepository = educatorRepository;
-        this.levelsRepository = levelsRepository;
+        this.levelRepository = levelRepository;
         this.subjectRepository = subjectRepository;
         this.priceRecordRepository = priceRecordRepository;
+        this.outletRepository = outletRepository;
+        this.lessonGenerationTemplateRepository = lessonGenerationTemplateRepository;
+        this.studentRepository = studentRepository;
     }
+
 
     // Courses
     public List<Course> getAllCoursesFromInstitution(UUID institutionId) {
@@ -57,12 +73,16 @@ public class CoursesService {
     }
 
     @Transactional
-    public Course createCourseForInstitution(Course course, UUID institutionId) {
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new NotFoundException("no institution found"));
+    public Course createCourseForOutlet(Course course, UUID outletId) {
+        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("outlet not found"));
+        Institution institution = outlet.getInstitution();
+
         PriceRecord priceRecord = course.getPriceRecord();
         PriceRecord createdPriceRecord = priceRecordRepository.save(priceRecord);
+
         // owning side will have to set the reference to institution
         course.setInstitution(institution);
+        course.setOutlet(outlet);
         course.setPriceRecord(createdPriceRecord);
         return courseRepository.save(course);
     }
@@ -89,7 +109,7 @@ public class CoursesService {
     @Transactional
     public Course addLevelToCourse(UUID levelId, UUID courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
-        Level level = levelsRepository.findById(levelId).orElseThrow(() -> new ResourceNotFoundException("level does not exist"));
+        Level level = levelRepository.findById(levelId).orElseThrow(() -> new ResourceNotFoundException("level does not exist"));
         course.setLevel(level);
         return courseRepository.save(course);
     }
@@ -104,5 +124,27 @@ public class CoursesService {
             course.getSubjects().add(subject);
         }
         return courseRepository.save(course);
+    }
+
+    /**
+     * Creates lesson generation templates
+     *
+     * @return
+     */
+    @Transactional
+    public List<LessonGenerationTemplate> createLessonGenerationTemplates(UUID courseId, List<LessonGenerationTemplate> lessonGenerationTemplates) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course not found"));
+        lessonGenerationTemplates.forEach(lessonGenerationTemplate -> lessonGenerationTemplate.setCourse(course));
+        return lessonGenerationTemplateRepository.saveAll(lessonGenerationTemplates);
+    }
+
+    @Transactional
+    public List<Course> enrollStudentToCourses(UUID studentId, List<UUID> courseIds) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("no student found"));
+        List<Course> courses = courseRepository.findAllById(courseIds);
+        List<Course> cour = student.getCourses();
+        student.getCourses().addAll(courses);
+        studentRepository.save(student);
+        return courses;
     }
 }

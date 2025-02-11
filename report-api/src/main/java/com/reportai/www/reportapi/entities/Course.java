@@ -3,18 +3,17 @@ package com.reportai.www.reportapi.entities;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,34 +21,26 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Courses")
 public class Course extends BaseEntity {
 
-    public enum LESSON_FREQUENCY {
-        ONCE_PER_DAY,
-        TWICE_PER_WEEK,
-        THRICE_PER_WEEK,
-        FOUR_TIMES_PER_WEEK,
-        ONCE_PER_WEEK,
-        ONCE_PER_TWO_WEEKS,
-        ONCE_PER_MONTH,
-        ONCE_PER_TWO_MONTHS,
-        MANUAL_SELECT_LESSONS
-    }
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LESSON_FREQUENCY lessonFrequency;
+    private Integer lessonNumberFrequency;
+
+    @Column(nullable = false)
+    private Integer lessonWeeklyFrequency;
 
     @OneToOne
-    @PrimaryKeyJoinColumn
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private PriceRecord priceRecord;
 
     private String name;
@@ -70,10 +61,14 @@ public class Course extends BaseEntity {
     private LocalTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Outlet outlet;
 
     // Note: deleting a course will delete all subjects under the course
@@ -83,14 +78,20 @@ public class Course extends BaseEntity {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
-    private List<Subject> subjects;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    private List<Subject> subjects = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Level level;
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Student> students;
+    private List<Student> students = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;
@@ -101,4 +102,10 @@ public class Course extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "educator_id")
     )
     private List<Educator> educators;
+
+    @OneToMany(mappedBy = "course")
+    private List<Lesson> lessons;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
+    private List<LessonGenerationTemplate> lessonGenerationTemplates;
 }

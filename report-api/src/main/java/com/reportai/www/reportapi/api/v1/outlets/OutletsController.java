@@ -1,14 +1,15 @@
 package com.reportai.www.reportapi.api.v1.outlets;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletDTO;
-import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDto;
+import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO;
+import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.mappers.OutletMappers;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -44,20 +45,22 @@ public class OutletsController {
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
-    public ResponseEntity<OutletResponseDto> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletDTO createOutletDTO) {
-        Outlet newOutlet = OutletMappers.convert(createOutletDTO, id.toString());
+    public ResponseEntity<CreateOutletResponseDto> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
+        Outlet newOutlet = OutletMappers.convert(createOutletRequestDTO, id.toString());
         Outlet createdOutlet = outletsService.createOutletForInstitution(id, newOutlet);
-        OutletResponseDto outletResponseDto = OutletMappers.convert(createdOutlet);
-        return new ResponseEntity<>(outletResponseDto, HttpStatus.CREATED);
+        CreateOutletResponseDto createOutletResponseDto = OutletMappers.convert(createdOutlet);
+        return new ResponseEntity<>(createOutletResponseDto, HttpStatus.CREATED);
     }
 
     @Operation(summary = "get all outlets for a institution", description = "get all outlets for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
-    public ResponseEntity<List<OutletResponseDto>> getOutletsForInstitution(@PathVariable UUID id) {
+    @Transactional
+    public ResponseEntity<List<CreateOutletResponseDto>> getOutletsForInstitution(@PathVariable UUID id) {
+
         List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
-        List<OutletResponseDto> outletsDto = outlets
+        List<CreateOutletResponseDto> outletsDto = outlets
                 .stream()
                 .map(OutletMappers::convert)
                 .toList();

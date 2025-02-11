@@ -1,23 +1,23 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.personas.Persona;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * This account is tenant aware, an account belongs to an institution
@@ -26,23 +26,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Accounts")
 public class Account extends BaseEntity {
 
-    public enum RELATIONSHIP {
-        PARENT,
-        SELF
-    }
-
     @Column(nullable = false)
     private String userId;
-
-    @Column(nullable = true)
-    @Enumerated(EnumType.STRING)
-    private RELATIONSHIP relationship;
 
     @Email
     @Column(nullable = false)
@@ -57,28 +48,17 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private String contact;
 
-    // students managed under this account
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
-    )
-    private List<Student> students;
+    @OneToMany(mappedBy = "account")
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Persona> personas = new ArrayList<>();
 
     // institutions managed under this account
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
-
-    // educators managed under this account
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "educator_id")
-    )
-    private List<Educator> educators;
-
-    @ManyToMany(mappedBy = "adminAccounts", fetch = FetchType.LAZY)
-    private List<Outlet> outlets;
 
     @Column(nullable = false)
     private String tenantId;

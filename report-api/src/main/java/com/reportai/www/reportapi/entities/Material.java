@@ -8,17 +8,21 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Materials")
@@ -34,12 +38,20 @@ public class Material extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "topic_id")
 
     )
-    private List<Topic> topics;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Topic> topics = new ArrayList<>();
 
     @ManyToMany(mappedBy = "materials", fetch = FetchType.LAZY)
-    private List<Lesson> lessons;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @Column(nullable = false)

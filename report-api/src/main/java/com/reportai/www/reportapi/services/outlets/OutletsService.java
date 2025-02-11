@@ -1,5 +1,7 @@
 package com.reportai.www.reportapi.services.outlets;
 
+import com.reportai.www.reportapi.entities.Course;
+import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.Student;
@@ -59,6 +61,21 @@ public class OutletsService {
         return outletRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist"));
     }
 
+    public List<Course> getOutletCourses(UUID outletId) {
+        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getCourses();
+    }
+
+
+    public List<Educator> getOutletEducators(UUID outletId) {
+        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getEducators();
+    }
+
+
+    public List<Student> getOutletStudents(UUID outletId) {
+        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getStudents();
+    }
+
+
     public Student addStudentToOutlet(UUID studentId, UUID outletId) {
         Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist"));
         Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Student does not exist"));
@@ -74,4 +91,5 @@ public class OutletsService {
         clientRole.setName(String.format(OUTLET_ROLE_TEMPLATE, tenantId, outletId));
         return clientRole;
     }
+
 }

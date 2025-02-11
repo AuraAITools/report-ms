@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.mappers;
 
-import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsDTO;
+import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsRequestDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
 import com.reportai.www.reportapi.entities.Level;
 import java.util.UUID;
@@ -9,10 +9,10 @@ public class LevelMappers {
     private LevelMappers() {
     }
 
-    public static Level convert(UUID id, CreateLevelsDTO createLevelsDTO) {
+    public static Level convert(UUID id, CreateLevelsRequestDTO createLevelsRequestDTO) {
         return Level
                 .builder()
-                .name(createLevelsDTO.getName())
+                .name(createLevelsRequestDTO.getName())
                 .tenantId(id.toString())
                 .build();
     }

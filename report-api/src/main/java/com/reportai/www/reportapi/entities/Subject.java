@@ -17,11 +17,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Subjects")
@@ -30,26 +31,37 @@ public class Subject extends BaseEntity {
     private String name;
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Course> courses = new ArrayList<>();
 
     // NOTE: deleting Subject shouldn't delete all the lessons
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
-    private List<Lesson> lessons;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id")
     )
-    private List<Student> students;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Student> students = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "educator_id")
     )
-    private List<Educator> educators;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Educator> educators = new ArrayList<>();
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
     private List<TestGroup> testGroups;

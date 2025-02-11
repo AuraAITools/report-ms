@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.repositories;
 
 import com.reportai.www.reportapi.entities.Account;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,4 +24,18 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 //    Optional<Account> findByEmailAndInstitutionId(@Param("email") String email, @Param("institutionId") String institutionId);
 //
 
+    @Override
+    @Transactional
+    default <S extends Account> S save(S entity) {
+        try {
+            System.out.println("Attempting to save account: " + entity);
+            S savedEntity = saveAndFlush(entity);
+            System.out.println("Account saved successfully: " + savedEntity);
+            return savedEntity;
+        } catch (Exception e) {
+            System.err.println("Error saving account: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

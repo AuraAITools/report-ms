@@ -4,15 +4,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Builder
+@SuperBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
@@ -21,9 +23,16 @@ import lombok.NoArgsConstructor;
 public class PriceRecord extends BaseEntity {
 
     public enum FREQUENCY {
-        PER_CLASS,
-        PER_MONTH,
+        MONTHLY,
+        WEEKLY,
+        PER_LESSON,
+        TOTAL
     }
+
+    @OneToOne(mappedBy = "priceRecord")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Course course;
 
     @Column(nullable = false)
     private Double price;

@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,18 +12,21 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Students")
@@ -35,40 +39,68 @@ public class Student extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String currentSchool;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Level level;
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<Subject> subjects;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Subject> subjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
-    private List<TestResult> testResults;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<TestResult> testResults = new ArrayList<>();
 
     @OneToOne(mappedBy = "student", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private StudentReport studentReport;
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<Lesson> lessons;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<Account> accounts;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private StudentClientPersona studentClientPersona;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    private List<Course> courses;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Course> courses = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
-    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
-    private List<Outlet> outlets;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "outlet_id")
+    )
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Outlet> outlets = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

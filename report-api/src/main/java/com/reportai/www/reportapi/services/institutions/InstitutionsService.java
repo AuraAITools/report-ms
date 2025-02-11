@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class InstitutionsService {
 
     private final InstitutionRepository institutionRepository;
-    private final List<String> ALL_INSTITUTION_ROLES = List.of("institution-admin", "outlet-admin", "report-mobile", "educator-report-mobile");
+    private final List<String> ALL_INSTITUTION_ROLES = List.of("institution-admin", "student-report-mobile", "educator-report-mobile");
     private final ClientResource clientResource;
 
 

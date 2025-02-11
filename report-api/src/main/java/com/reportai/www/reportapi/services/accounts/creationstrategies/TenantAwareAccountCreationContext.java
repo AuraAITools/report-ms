@@ -4,8 +4,9 @@ import com.reportai.www.reportapi.entities.Account;
 
 public class TenantAwareAccountCreationContext {
     public enum AccountType {
-        CLIENT,
-        EDUCATOR,
+        BLANK,
+        STUDENT_CLIENT,
+        EDUCATOR_CLIENT,
         INSTITUTION_ADMIN,
         OUTLET_ADMIN
     }
