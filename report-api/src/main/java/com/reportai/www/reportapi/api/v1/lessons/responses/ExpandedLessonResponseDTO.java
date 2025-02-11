@@ -13,12 +13,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Getter
-@Setter
+@Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ExpandedLessonResponseDTO {

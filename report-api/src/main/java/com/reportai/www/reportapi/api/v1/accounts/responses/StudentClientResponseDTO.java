@@ -1,6 +1,5 @@
 package com.reportai.www.reportapi.api.v1.accounts.responses;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
@@ -11,7 +10,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Data
 @Builder

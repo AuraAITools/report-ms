@@ -1,4 +1,4 @@
-package com.reportai.www.reportapi.api.v1.institutions.dtos.requests;
+package com.reportai.www.reportapi.api.v1.institutions.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;

@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -55,8 +55,8 @@ public class CreateCourseRequestDTO {
     @NotNull
     private UUID levelId;
 
-    private Optional<List<UUID>> educatorIds = Optional.empty();
+    private List<UUID> educatorIds = new ArrayList<>();
 
     @NotEmpty
-    private List<CreateLessonGenerationTemplateRequestDTO> lessonGenerationTemplates;
+    private List<CreateLessonGenerationTemplateRequestDTO> lessonGenerationTemplates = new ArrayList<>();
 }

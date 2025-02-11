@@ -1,6 +1,5 @@
 package com.reportai.www.reportapi.api.v1.courses.responses;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
@@ -13,13 +12,9 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@JsonInclude(NON_EMPTY)
 public class CreateCourseDTOResponseDTO {
 
     @NotEmpty

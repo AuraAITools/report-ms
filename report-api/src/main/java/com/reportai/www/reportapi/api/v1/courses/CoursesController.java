@@ -69,7 +69,7 @@ public class CoursesController {
                 .toList());
         Course courseWithLevel = coursesService.addLevelToCourse(createCourseRequestDTO.getLevelId(), createdCourse.getId());
         createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, courseWithLevel.getId()));
-        createCourseRequestDTO.getEducatorIds().ifPresent(educatorIds -> educatorIds.forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId())));
+        createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId()));
         Course resultantCourse = coursesService.findById(courseWithLevel.getId());
         CreateCourseDTOResponseDTO createCourseDTOResponseDTO = convert(resultantCourse);
         createCourseDTOResponseDTO.setLessonGenerationTemplates(lessonGenerationTemplates.stream().map(LessonGenerationTemplateMappers::convert).toList());

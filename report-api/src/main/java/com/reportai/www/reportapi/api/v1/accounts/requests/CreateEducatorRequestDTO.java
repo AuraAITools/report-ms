@@ -7,6 +7,7 @@ import com.reportai.www.reportapi.entities.Educator;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
@@ -23,10 +24,10 @@ public class CreateEducatorRequestDTO {
     private String email;
 
     @NotEmpty
-    private List<UUID> levelIds;
+    private List<UUID> levelIds = new ArrayList<>();
 
     @NotEmpty
-    private List<UUID> subjectIds;
+    private List<UUID> subjectIds = new ArrayList<>();
 
     @DateTimeFormat
     private LocalDate startDate;

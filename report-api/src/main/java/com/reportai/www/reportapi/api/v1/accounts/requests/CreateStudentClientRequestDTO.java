@@ -7,15 +7,13 @@ import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Getter
-@Builder
 public class CreateStudentClientRequestDTO {
-    
+
     @Email
     @NotEmpty
     public String email;

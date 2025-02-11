@@ -131,9 +131,15 @@ public class AccountsController {
     @Transactional
     public ResponseEntity<CreateStudentResponseDTO> createStudentInClientAccount(@PathVariable UUID id, @PathVariable("account_id") UUID accountId, @RequestBody @Valid CreateStudentRequestDTO createStudentRequestDTO) {
         Account account = tenantAwareAccountsService.findById(accountId);
+        List<StudentClientPersona> studentPersonas = account.getPersonas().stream().filter((acc) -> acc instanceof StudentClientPersona).map(student -> (StudentClientPersona) student).toList();
+        if (studentPersonas.isEmpty()) {
+            throw new ResourceNotFoundException("no student persona");
+        }
         Student newStudent = StudentMappers.convert(createStudentRequestDTO, id);
+
         Level level = levelsService.findById(createStudentRequestDTO.getLevelId());
         newStudent.setLevel(level);
+        newStudent.setStudentClientPersona(studentPersonas.getFirst());
         Student createdStudent = tenantAwareAccountsService.createStudentInAccount(accountId, newStudent);
         if (!createStudentRequestDTO.getCourseIds().isEmpty()) {
             coursesService.enrollStudentToCourses(createdStudent.getId(), createStudentRequestDTO.getCourseIds());

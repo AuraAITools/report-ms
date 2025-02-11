@@ -8,12 +8,10 @@ import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTORespon
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Builder
-@Setter
-@Getter
+@Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateOutletResponseDto {
 

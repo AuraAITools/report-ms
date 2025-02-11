@@ -2,9 +2,9 @@ package com.reportai.www.reportapi.api.v1.institutions;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.annotations.authorisation.HasRole;
-import com.reportai.www.reportapi.api.v1.institutions.dtos.requests.CreateInstitutionRequestDTO;
-import com.reportai.www.reportapi.api.v1.institutions.dtos.requests.PatchInstitutionRequestDTO;
-import com.reportai.www.reportapi.api.v1.institutions.dtos.responses.InstitutionResponseDTO;
+import com.reportai.www.reportapi.api.v1.institutions.requests.CreateInstitutionRequestDTO;
+import com.reportai.www.reportapi.api.v1.institutions.requests.PatchInstitutionRequestDTO;
+import com.reportai.www.reportapi.api.v1.institutions.responses.InstitutionResponseDTO;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.mappers.InstitutionMappers;
 import com.reportai.www.reportapi.services.institutions.InstitutionsService;
