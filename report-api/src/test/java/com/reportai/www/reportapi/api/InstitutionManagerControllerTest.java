@@ -38,7 +38,7 @@ public class InstitutionManagerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Autowired
     private InstitutionRepository institutionRepository;
 
@@ -92,8 +92,8 @@ public class InstitutionManagerControllerTest {
 
     @Test
     public void should_ReturnSubjects_When_CourseIdIsProvided() throws Exception {
-        Subject subjectOne = Subject.builder().course(course).build();
-        Subject subjectTwo = Subject.builder().course(course).build();
+        Subject subjectOne = Subject.builder().courses(List.of(course)).build();
+        Subject subjectTwo = Subject.builder().courses(List.of(course)).build();
         List<Subject> subjects = Arrays.asList(subjectOne, subjectTwo);
         subjectRepository.saveAll(subjects);
 
