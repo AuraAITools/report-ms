@@ -3,28 +3,18 @@ spring:
     activate:
       on-profile: local
   datasource:
-    username: postgres
-    password: password
-    url: jdbc:postgresql://localhost:5433/aura
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
     driverClassName: org.postgresql.Driver
-  h2.console.enabled: false
   jpa:
     hibernate.ddl-auto: update
     show-sql: true
 oauth2:
   security:
     resource-server:
-      jwk-set-uri: https://accounts.auratest.dev/realms/aura/protocol/openid-connect/certs
+      jwk-set-uri: ${JWK_SET_URI}
     enabled: true
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    enabled: false
-    fetchRegistry: false
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://discovery-service:8080/eureka/
 # configurations for the backend keycloak client
 keycloak:
   client:

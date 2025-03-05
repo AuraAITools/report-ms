@@ -2,18 +2,19 @@ spring:
   config:
     activate:
       on-profile: cloud
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: false
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://discovery-service:8080/eureka/
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
 oauth2:
   security:
-    enabled: false # TODO: to be enabled after development phase
-
+    resource-server:
+      jwk-set-uri: ${JWK_SET_URI}
+    enabled: true
 # configurations for the backend keycloak client
 keycloak:
   client:
