@@ -11,7 +11,7 @@ COPY src/ /app/src/
 RUN mvn package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-alpine AS production
 WORKDIR /app
 # Copy only the JAR file from the build stage
 COPY --from=build /app/target/*.jar /app/app.jar
