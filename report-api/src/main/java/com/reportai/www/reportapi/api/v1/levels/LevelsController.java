@@ -23,6 +23,7 @@ import com.reportai.www.reportapi.services.students.StudentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,8 +67,9 @@ public class LevelsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/institutions/{id}/levels")
     @HasResourcePermission(permission = "'institutions::' + #id + '::levels:create'")
+    @Transactional
     public ResponseEntity<CreateLevelsResponseDTO> createLevelForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsRequestDTO createLevelsRequestDTO) {
-        Level createdLevel = levelsService.createLevelForInstitution(id, convert(id, createLevelsRequestDTO));
+        Level createdLevel = levelsService.createLevelForInstitution(id, convert(id, createLevelsRequestDTO), createLevelsRequestDTO.getSubjects());
         return new ResponseEntity<>(convert(createdLevel), HttpStatus.OK);
     }
 
@@ -100,7 +103,6 @@ public class LevelsController {
     }
 
     // TODO: get all courses of level
-
     @Operation(summary = "get all courses of a level of a outlet", description = "get all levels for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/levels/{level_id}/courses")
@@ -138,5 +140,15 @@ public class LevelsController {
                 .getSubjects()
                 .stream().toList();
         return new ResponseEntity<>(subjects.stream().map(SubjectMappers::convert).toList(), HttpStatus.OK);
+    }
+
+    // attach a subject to a level
+    @Operation(summary = "attach a subject to a level in an institution", description = "Attach a subject to a level in the institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("/institutions/{id}/levels/{level_id}/subjects/{subject_id}")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:attach'")
+    public ResponseEntity<List<SubjectResponseDTO>> attachSubjectToLevelInInstitution(@PathVariable UUID id, @PathVariable(name = "level_id") UUID levelId, @PathVariable(name = "subject_id") UUID subjectId) {
+        Subject subject = levelsService.attachSubjectForLevel(levelId, subjectId);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
