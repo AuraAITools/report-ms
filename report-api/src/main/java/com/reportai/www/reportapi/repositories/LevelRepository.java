@@ -8,4 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface LevelRepository extends JpaRepository<Level, UUID>, JpaSpecificationExecutor<Level> {
     Optional<Level> findByName(String name);
+
+    Optional<Level> findByNameAndTenantId(String name, String tenantId);
+
 }
