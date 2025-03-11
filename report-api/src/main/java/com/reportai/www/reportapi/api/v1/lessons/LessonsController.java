@@ -5,10 +5,14 @@ import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO
 import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
+import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Lesson;
+import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.mappers.LessonMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
+import com.reportai.www.reportapi.services.educators.EducatorsService;
 import com.reportai.www.reportapi.services.lessons.LessonsService;
+import com.reportai.www.reportapi.services.students.StudentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,10 +41,16 @@ public class LessonsController {
 
     private final CoursesService coursesService;
 
+    private final StudentsService studentsService;
+
+    private final EducatorsService educatorsService;
+
     @Autowired
-    public LessonsController(LessonsService lessonService, CoursesService coursesService) {
+    public LessonsController(LessonsService lessonService, CoursesService coursesService, StudentsService studentsService, EducatorsService educatorsService) {
         this.lessonService = lessonService;
         this.coursesService = coursesService;
+        this.studentsService = studentsService;
+        this.educatorsService = educatorsService;
     }
 
     @Operation(summary = "create lesson of course", description = "create a lesson in a course")
@@ -50,7 +60,9 @@ public class LessonsController {
     @Transactional
     public ResponseEntity<CreateLessonResponseDTO> createLessonForCourse(@RequestBody CreateLessonRequestDTO createLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course course = coursesService.findById(courseId);
-        Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonRequestDTO, id));
+        List<Student> students = studentsService.findByIds(createLessonRequestDTO.getStudentIds());
+        List<Educator> educators = educatorsService.findByIds(createLessonRequestDTO.getEducatorIds());
+        Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonRequestDTO, id), students, educators);
         return new ResponseEntity<>(LessonMappers.convert(lesson), HttpStatus.OK);
     }
 

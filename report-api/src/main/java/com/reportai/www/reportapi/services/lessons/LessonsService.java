@@ -1,7 +1,9 @@
 package com.reportai.www.reportapi.services.lessons;
 
 import com.reportai.www.reportapi.entities.Course;
+import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Lesson;
+import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
@@ -34,16 +36,18 @@ public class LessonsService {
     }
 
     @Transactional
-    public Lesson createLessonForCourse(UUID courseId, Lesson lesson) {
+    public Lesson createLessonForCourse(UUID courseId, Lesson lesson, List<Student> students, List<Educator> educators) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("no course found"));
         lesson.setOutlet(course.getOutlet());
         lesson.setCourse(course);
+        lesson.setStudents(students);
+        lesson.setEducators(educators);
         return lessonRepository.save(lesson);
     }
 
     @Transactional
     public List<Lesson> getExpandedLessonsInInstitution(UUID institutionId) {
         return lessonRepository.findAll(TenantSpecification.forTenant(institutionId.toString()));
-
     }
+
 }

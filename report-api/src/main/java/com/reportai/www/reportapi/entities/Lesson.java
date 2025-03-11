@@ -65,7 +65,7 @@ public class Lesson extends BaseEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    private String description;
+    private String description = "";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
@@ -93,6 +93,13 @@ public class Lesson extends BaseEntity {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Student> students = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "lesson_id"),
+            inverseJoinColumns = @JoinColumn(name = "educator_id")
+    )
+    private List<Educator> educators;
 
     // Note: deleting Lesson should not delete materials
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
