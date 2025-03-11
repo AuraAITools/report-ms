@@ -6,8 +6,12 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.Lesson;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -34,5 +38,12 @@ public class CreateLessonRequestDTO {
     @DateTimeFormat
     private LocalTime endTime;
 
-    private String description = "";
+    @Size(min = 1)
+    @NotNull
+    private List<UUID> educatorIds = new ArrayList<>();
+
+    @Size(min = 1)
+    @NotNull
+    private List<UUID> studentIds = new ArrayList<>();
+
 }

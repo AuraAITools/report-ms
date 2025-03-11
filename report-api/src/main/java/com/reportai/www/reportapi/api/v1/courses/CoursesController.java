@@ -34,8 +34,6 @@ import static com.reportai.www.reportapi.mappers.CourseMappers.convert;
 @RequestMapping("/api/v1")
 @Validated
 @Slf4j
-// TODO: plan is to create a singular course by itself
-// then FE will repeatedly call endpoints to create lessons
 public class CoursesController {
 
     private final CoursesService coursesService;
@@ -60,13 +58,14 @@ public class CoursesController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
     public ResponseEntity<CreateCourseDTOResponseDTO> createCourseForInstitution(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        // TODO: add lesson generation template creation
+        // TODO: if lessonGenerationTemplate array is not empty, generate lessons
         Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseRequestDTO, id), outletId);
         List<LessonGenerationTemplate> lessonGenerationTemplates = coursesService.createLessonGenerationTemplates(createdCourse.getId(), createCourseRequestDTO
                 .getLessonGenerationTemplates()
                 .stream()
                 .map(createLessonGenerationTemplateDTO -> LessonGenerationTemplateMappers.convert(createLessonGenerationTemplateDTO, id.toString()))
                 .toList());
+        //TODO: Create Lessons from lesson generation templates
         Course courseWithLevel = coursesService.addLevelToCourse(createCourseRequestDTO.getLevelId(), createdCourse.getId());
         createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, courseWithLevel.getId()));
         createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId()));

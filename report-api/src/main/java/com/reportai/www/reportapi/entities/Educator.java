@@ -93,6 +93,9 @@ public class Educator extends BaseEntity {
     @ToString.Exclude
     private List<Level> levels = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
+    private List<Lesson> lessons;
+
     @Column(nullable = false)
     private String tenantId;
 

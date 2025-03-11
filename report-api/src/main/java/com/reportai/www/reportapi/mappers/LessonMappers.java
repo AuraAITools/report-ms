@@ -11,13 +11,13 @@ public class LessonMappers {
     }
 
     public static Lesson convert(CreateLessonRequestDTO createLessonRequestDTO, UUID tenantId) {
+
         return Lesson.builder()
                 .date(createLessonRequestDTO.getDate())
                 .name(createLessonRequestDTO.getName())
                 .status(Lesson.STATUS.UPCOMING)
                 .startTime(createLessonRequestDTO.getStartTime())
                 .endTime(createLessonRequestDTO.getEndTime())
-                .description(createLessonRequestDTO.getDescription())
                 .day(createLessonRequestDTO.getDate().getDayOfWeek())
                 .tenantId(tenantId.toString())
                 .build();
@@ -30,6 +30,8 @@ public class LessonMappers {
                 .name(lesson.getName())
                 .date(lesson.getDate())
                 .day(lesson.getDay())
+                .students(lesson.getStudents().stream().map(StudentMappers::convert).toList())
+                .educators(lesson.getEducators().stream().map(EducatorMappers::convert).toList())
                 .startTime(lesson.getStartTime())
                 .endTime(lesson.getEndTime())
                 .status(lesson.getStatus())

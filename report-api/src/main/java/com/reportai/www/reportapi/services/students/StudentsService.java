@@ -26,6 +26,10 @@ public class StudentsService {
         return studentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("student does not exist"));
     }
 
+    public List<Student> findByIds(List<UUID> ids) {
+        return studentRepository.findAllById(ids);
+    }
+
     public List<Student> getAllStudentsInInstitution(UUID institutionId) {
         Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new ResourceNotFoundException("no institution found"));
         return institution.getStudents();
