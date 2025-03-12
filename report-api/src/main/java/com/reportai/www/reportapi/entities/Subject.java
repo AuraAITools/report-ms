@@ -53,11 +53,7 @@ public class Subject extends BaseEntity {
     @ToString.Exclude
     private List<Student> students = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "subject_id"),
-            inverseJoinColumns = @JoinColumn(name = "educator_id")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "subjects")
     @Builder.Default
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

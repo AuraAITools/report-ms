@@ -68,7 +68,11 @@ public class Educator extends BaseEntity {
     @ToString.Exclude
     private List<Outlet> outlets = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "educator_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
     @Builder.Default
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
