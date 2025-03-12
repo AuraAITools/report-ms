@@ -43,6 +43,8 @@ public class Educator extends BaseEntity {
 
     private LocalDate startDate;
 
+    private LocalDate dateOfBirth;
+
     @ManyToOne
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

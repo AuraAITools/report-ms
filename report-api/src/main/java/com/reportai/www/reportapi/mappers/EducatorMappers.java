@@ -18,6 +18,7 @@ public class EducatorMappers {
                 .employmentType(createEducatorRequestDTO.getEmploymentType())
                 .startDate(createEducatorRequestDTO.getStartDate())
                 .name(createEducatorRequestDTO.getName())
+                .dateOfBirth(createEducatorRequestDTO.getDateOfBirth())
                 .email(createEducatorRequestDTO.getEmail())
                 .tenantId(id.toString())
                 .build();
@@ -44,7 +45,7 @@ public class EducatorMappers {
                 .lastName(from.getAccount().getLastName())
                 .email(from.getAccount().getEmail())
                 .contact(from.getAccount().getContact())
-                .educator(EducatorMappers.convert(from.getEducator()))
+                .educator(from.getEducator() == null ? null : EducatorMappers.convert(from.getEducator()))
                 .build();
 
     }

@@ -34,4 +34,7 @@ public class CreateEducatorRequestDTO {
 
     @NotNull
     private Educator.EMPLOYMENT_TYPE employmentType;
+
+    @NotNull
+    private LocalDate dateOfBirth;
 }
