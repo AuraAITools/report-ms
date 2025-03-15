@@ -10,6 +10,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,7 +49,7 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private String contact;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @Builder.Default
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -62,4 +63,35 @@ public class Account extends BaseEntity {
 
     @Column(nullable = false)
     private String tenantId;
+
+    /**
+     * If persona is transient entity, creates persona under account
+     * If persona is not transient entity, associate persona with account
+     *
+     * @param persona entity
+     * @return account entity
+     */
+    public Account addPersona(Persona persona) {
+        assert persona != null : "input persona cannot be null";
+        assert persona.getAccount() == null : "Persona already has an account";
+        // INFO: have to update both sides of the entity
+        persona.setAccount(this);
+        this.getPersonas().add(persona);
+        return this;
+    }
+
+    /**
+     * Creates and links persona to account if it doesn't already exist,
+     * links persona to account if it does
+     *
+     * @param personas entity
+     * @return account entity
+     */
+    public Account addPersonas(Collection<Persona> personas) {
+        assert personas != null;
+        assert !personas.isEmpty();
+
+        personas.forEach(this::addPersona);
+        return this;
+    }
 }

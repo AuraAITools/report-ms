@@ -2,42 +2,54 @@ package com.reportai.www.reportapi.services.subjects;
 
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Subject;
-import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
+import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.institutions.InstitutionsService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SubjectsService {
+public class SubjectsService implements BaseServiceTemplate<Subject, UUID> {
 
     private final SubjectRepository subjectRepository;
 
-    private final InstitutionRepository institutionRepository;
+    private final InstitutionsService institutionsService;
 
-    public SubjectsService(SubjectRepository subjectRepository, InstitutionRepository institutionRepository) {
+    @Autowired
+    public SubjectsService(SubjectRepository subjectRepository, InstitutionsService institutionsService) {
         this.subjectRepository = subjectRepository;
-        this.institutionRepository = institutionRepository;
+        this.institutionsService = institutionsService;
+    }
+
+    @Override
+    public JpaRepository<Subject, UUID> getRepository() {
+        return subjectRepository;
     }
 
     @Transactional
-    public Subject createSubjectForInstitution(UUID id, Subject newSubject) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+    public Subject createSubjectForInstitution(@NonNull UUID id, @NonNull Subject newSubject) {
+        Institution institution = institutionsService.findById(id);
         institution.getSubjects().forEach(s -> {
             if (newSubject.getName().equals(s.getName())) {
                 throw new ResourceAlreadyExistsException("Subject already exists");
             }
         });
+        /**
+         * TODO: refactor in entity
+         */
         newSubject.setInstitution(institution);
         return subjectRepository.save(newSubject);
     }
 
     @Transactional
-    public List<Subject> getAllSubjectsForInstitution(UUID id) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+    public List<Subject> getAllSubjectsForInstitution(@NonNull UUID id) {
+        Institution institution = institutionsService.findById(id);
         return institution.getSubjects();
     }
 }

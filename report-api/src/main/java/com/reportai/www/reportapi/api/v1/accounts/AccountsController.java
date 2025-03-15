@@ -13,6 +13,7 @@ import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentRespons
 import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorClientResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.StudentClientResponseDTO;
 import com.reportai.www.reportapi.entities.Account;
+import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Level;
@@ -110,7 +111,7 @@ public class AccountsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-link-outlet-admin'")
     public ResponseEntity<CreateAccountResponseDTO> createAccountAndAddOutletAdminRole(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @RequestBody CreateBlankAccountRequestDTO createBlankAccountRequestDTO) {
         Account account = AccountMappers.convert(createBlankAccountRequestDTO, id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.OUTLET_ADMIN, id, List.of(outletId.toString()), null);
+        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.OUTLET_ADMIN, id, List.of(outletId), null);
         return new ResponseEntity<>(AccountMappers.convert(createdAccount), HttpStatus.OK);
     }
 
@@ -130,38 +131,16 @@ public class AccountsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-student'")
     @Transactional
     public ResponseEntity<CreateStudentResponseDTO> createStudentInClientAccount(@PathVariable UUID id, @PathVariable("account_id") UUID accountId, @RequestBody @Valid CreateStudentRequestDTO createStudentRequestDTO) {
-        Account account = tenantAwareAccountsService.findById(accountId);
-        List<StudentClientPersona> studentPersonas = account.getPersonas().stream().filter((acc) -> acc instanceof StudentClientPersona).map(student -> (StudentClientPersona) student).toList();
-        if (studentPersonas.isEmpty()) {
-            throw new ResourceNotFoundException("no student persona");
-        }
-        Student newStudent = StudentMappers.convert(createStudentRequestDTO, id);
 
-        Level level = levelsService.findById(createStudentRequestDTO.getLevelId());
-        newStudent.setLevel(level);
-        newStudent.setStudentClientPersona(studentPersonas.getFirst());
+        Student newStudent = StudentMappers.convert(createStudentRequestDTO, id);
         Student createdStudent = tenantAwareAccountsService.createStudentInAccount(accountId, newStudent);
+        studentsService.addLevel(createdStudent.getId(), createStudentRequestDTO.getLevelId());
         if (!createStudentRequestDTO.getCourseIds().isEmpty()) {
-            coursesService.enrollStudentToCourses(createdStudent.getId(), createStudentRequestDTO.getCourseIds());
+            List<Course> courses = coursesService.findByIds(createStudentRequestDTO.getCourseIds());
+            courses.forEach(course -> coursesService.addStudentsToCourse(course.getId(), List.of(createdStudent.getId())));
         }
         return new ResponseEntity<>(StudentMappers.convert(createdStudent), HttpStatus.OK);
     }
-
-//    @Operation(summary = "creates a student in a client account attached to an outlet", description = "creates student in an already created client account")
-//    @ApiResponse(responseCode = "200", description = "OK")
-//    @PostMapping("/institutions/{id}/outlets/{outlet_id}/accounts/{account_id}/students")
-//    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::accounts:create-student'")
-//    @Transactional
-//    public ResponseEntity<CreateStudentResponseDTO> createStudentInClientAccountInOutlet(@PathVariable UUID id, @PathVariable("outlet_id") UUID outletId, @PathVariable("account_id") UUID accountId, @RequestBody @Valid CreateStudentDTO createStudentDTO) {
-//        Outlet outlet = outletsService.findById(outletId);
-//        Account account = tenantAwareAccountsService.findById(accountId);
-//        Student newStudent = StudentMappers.convert(createStudentDTO, id);
-//        Level level = levelsService.findById(createStudentDTO.getLevelId());
-//        newStudent.setLevel(level);
-//        newStudent.setOutlets(List.of(outlet));
-//        Student createdStudent = tenantAwareAccountsService.createStudentInAccount(accountId, newStudent);
-//        return new ResponseEntity<>(StudentMappers.convert(createdStudent), HttpStatus.OK);
-//    }
 
     @Operation(summary = "get student client details", description = "create an account for the clients of a institution.")
     @ApiResponse(responseCode = "200", description = "OK")

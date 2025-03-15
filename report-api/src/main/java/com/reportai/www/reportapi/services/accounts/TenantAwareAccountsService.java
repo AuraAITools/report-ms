@@ -12,13 +12,9 @@ import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.AccountRepository;
 import com.reportai.www.reportapi.repositories.EducatorClientPersonaRepository;
-import com.reportai.www.reportapi.repositories.EducatorRepository;
 import com.reportai.www.reportapi.repositories.InstitutionAdminPersonaRepository;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
 import com.reportai.www.reportapi.repositories.OutletAdminPersonaRepository;
-import com.reportai.www.reportapi.repositories.OutletRepository;
 import com.reportai.www.reportapi.repositories.StudentClientPersonaRepository;
-import com.reportai.www.reportapi.repositories.StudentRepository;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.BlankTenantAwareAccountCreationStrategy;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.EducatorClientTenantAwareAccountCreationStrategy;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.InstitutionAdminTenantAwareAccountCreationStrategy;
@@ -26,6 +22,11 @@ import com.reportai.www.reportapi.services.accounts.creationstrategies.OutletAdm
 import com.reportai.www.reportapi.services.accounts.creationstrategies.StudentClientTenantAwareAccountCreationStrategy;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.TenantAwareAccountCreationContext;
 import com.reportai.www.reportapi.services.accounts.creationstrategies.TenantAwareAccountCreationStrategy;
+import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.educators.EducatorsService;
+import com.reportai.www.reportapi.services.institutions.InstitutionsService;
+import com.reportai.www.reportapi.services.outlets.OutletsService;
+import com.reportai.www.reportapi.services.students.StudentsService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,7 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,15 +46,15 @@ import org.springframework.stereotype.Service;
  * users have 1 keycloak account that might be used to access multiple TenantAwareAccounts
  */
 @Service
-public class TenantAwareAccountsService {
+public class TenantAwareAccountsService implements BaseServiceTemplate<Account, UUID> {
     private final RealmResource realmResource;
-    private final InstitutionRepository institutionRepository;
+    private final InstitutionsService institutionsService;
     private final AccountRepository accountRepository;
     private final TenantAwareAccountCreationContext tenantAwareAccountCreationContext = new TenantAwareAccountCreationContext();
     private final ClientResource clientResource;
-    private final StudentRepository studentRepository;
-    private final EducatorRepository educatorRepository;
-    private final OutletRepository outletRepository;
+    private final StudentsService studentsService;
+    private final EducatorsService educatorsService;
+    private final OutletsService outletsService;
     private final UsersResource usersResource;
     private final StudentClientPersonaRepository studentClientPersonaRepository;
     private final InstitutionAdminPersonaRepository institutionAdminPersonaRepository;
@@ -60,19 +62,24 @@ public class TenantAwareAccountsService {
     private final OutletAdminPersonaRepository outletAdminPersonaRepository;
 
     @Autowired
-    public TenantAwareAccountsService(RealmResource realmResource, InstitutionRepository institutionRepository, AccountRepository accountRepository, ClientResource clientResource, StudentRepository studentRepository, EducatorRepository educatorRepository, OutletRepository outletRepository, UsersResource usersResource, StudentClientPersonaRepository studentClientPersonaRepository, InstitutionAdminPersonaRepository institutionAdminPersonaRepository, EducatorClientPersonaRepository educatorClientPersonaRepository, OutletAdminPersonaRepository outletAdminPersonaRepository) {
+    public TenantAwareAccountsService(RealmResource realmResource, InstitutionsService institutionsService, AccountRepository accountRepository, ClientResource clientResource, StudentsService studentsService, EducatorsService educatorsService, OutletsService outletsService, UsersResource usersResource, StudentClientPersonaRepository studentClientPersonaRepository, InstitutionAdminPersonaRepository institutionAdminPersonaRepository, EducatorClientPersonaRepository educatorClientPersonaRepository, OutletAdminPersonaRepository outletAdminPersonaRepository) {
         this.realmResource = realmResource;
-        this.institutionRepository = institutionRepository;
+        this.institutionsService = institutionsService;
         this.accountRepository = accountRepository;
         this.clientResource = clientResource;
-        this.studentRepository = studentRepository;
-        this.educatorRepository = educatorRepository;
-        this.outletRepository = outletRepository;
+        this.studentsService = studentsService;
+        this.educatorsService = educatorsService;
+        this.outletsService = outletsService;
         this.usersResource = usersResource;
         this.studentClientPersonaRepository = studentClientPersonaRepository;
         this.institutionAdminPersonaRepository = institutionAdminPersonaRepository;
         this.educatorClientPersonaRepository = educatorClientPersonaRepository;
         this.outletAdminPersonaRepository = outletAdminPersonaRepository;
+    }
+
+    @Override
+    public JpaRepository<Account, UUID> getRepository() {
+        return this.accountRepository;
     }
 
     // can create Client account, educator account, Institution_admin account and outlet_admin account
@@ -81,7 +88,7 @@ public class TenantAwareAccountsService {
     // INSTITUTION_ADMIN: access to ops website
     // This method creates a logical multitenant aware account
     // OUTLET_ADMIN: access to ops website
-    public Account createTenantAwareAccount(Account tenantAwareAccount, TenantAwareAccountCreationContext.AccountType accountType, UUID tenantId, List<String> outletIds, StudentClientPersona.RELATIONSHIP relationship) {
+    public Account createTenantAwareAccount(Account tenantAwareAccount, TenantAwareAccountCreationContext.AccountType accountType, UUID tenantId, List<UUID> outletIds, StudentClientPersona.RELATIONSHIP relationship) {
         // create tenantAwareAccount according to the strategy
         // TODO: strategy to create keycloak user
         return tenantAwareAccountCreationContext.createTenantAwareAccount(chooseStrategy(accountType, tenantAwareAccount, tenantId, outletIds, relationship));
@@ -96,32 +103,76 @@ public class TenantAwareAccountsService {
      * @param institutionId
      * @return
      */
-    private TenantAwareAccountCreationStrategy chooseStrategy(TenantAwareAccountCreationContext.AccountType accountType, Account tenantAwareAccount, UUID institutionId, List<String> outletIds, StudentClientPersona.RELATIONSHIP relationship) {
+    private TenantAwareAccountCreationStrategy chooseStrategy(TenantAwareAccountCreationContext.AccountType accountType, Account tenantAwareAccount, UUID institutionId, List<UUID> outletIds, StudentClientPersona.RELATIONSHIP relationship) {
         return switch (accountType) {
-            case BLANK ->
-                    new BlankTenantAwareAccountCreationStrategy(institutionId, tenantAwareAccount, clientResource, realmResource, accountRepository, institutionRepository); // doesn't create any personas
-            case STUDENT_CLIENT ->
-                    new StudentClientTenantAwareAccountCreationStrategy(institutionId, tenantAwareAccount, clientResource, realmResource, accountRepository, institutionRepository, studentClientPersonaRepository, relationship); // creates studentClientPersona
-            case EDUCATOR_CLIENT ->
-                    new EducatorClientTenantAwareAccountCreationStrategy(institutionId, tenantAwareAccount, clientResource, realmResource, accountRepository, institutionRepository, educatorClientPersonaRepository);
+            case BLANK -> new BlankTenantAwareAccountCreationStrategy(
+                    BlankTenantAwareAccountCreationStrategy.CreateBlankTenantAwareAccountParams
+                            .builder()
+                            .institutionId(institutionId)
+                            .requestedAccount(tenantAwareAccount)
+                            .clientResource(clientResource)
+                            .realmResource(realmResource)
+                            .accountRepository(accountRepository)
+                            .institutionsService(institutionsService)
+                            .build()); // doesn't create any personas
+            case STUDENT_CLIENT -> new StudentClientTenantAwareAccountCreationStrategy(
+                    StudentClientTenantAwareAccountCreationStrategy.CreateStudentClientTenantAwareAccountParams
+                            .builder()
+                            .institutionId(institutionId)
+                            .requestedAccount(tenantAwareAccount)
+                            .clientResource(clientResource)
+                            .realmResource(realmResource)
+                            .accountRepository(accountRepository)
+                            .institutionsService(institutionsService)
+                            .studentClientPersonaRepository(studentClientPersonaRepository)
+                            .relationship(relationship)
+                            .build()); // creates studentClientPersona
+            case EDUCATOR_CLIENT -> new EducatorClientTenantAwareAccountCreationStrategy(
+                    EducatorClientTenantAwareAccountCreationStrategy.CreateEducatorClientTenantAwareAccountParams
+                            .builder()
+                            .institutionId(institutionId)
+                            .requestedAccount(tenantAwareAccount)
+                            .clientResource(clientResource)
+                            .realmResource(realmResource)
+                            .accountRepository(accountRepository)
+                            .institutionsService(institutionsService)
+                            .educatorClientPersonaRepository(educatorClientPersonaRepository)
+                            .build());
             case INSTITUTION_ADMIN ->
-                    new InstitutionAdminTenantAwareAccountCreationStrategy(institutionId, tenantAwareAccount, clientResource, realmResource, accountRepository, institutionRepository, institutionAdminPersonaRepository);
-            case OUTLET_ADMIN ->
-                    new OutletAdminTenantAwareAccountCreationStrategy(institutionId, tenantAwareAccount, clientResource, realmResource, accountRepository, institutionRepository, outletIds, outletRepository, outletAdminPersonaRepository);
+                    new InstitutionAdminTenantAwareAccountCreationStrategy(InstitutionAdminTenantAwareAccountCreationStrategy.CreateInstitutionAdminTenantAwareAccountParams.builder()
+                            .institutionId(institutionId)
+                            .requestedAccount(tenantAwareAccount)
+                            .clientResource(clientResource)
+                            .realmResource(realmResource)
+                            .accountRepository(accountRepository)
+                            .institutionsService(institutionsService)
+                            .institutionsService(institutionsService)
+                            .institutionAdminPersonaRepository(institutionAdminPersonaRepository)
+                            .build());
+            case OUTLET_ADMIN -> new OutletAdminTenantAwareAccountCreationStrategy(
+                    OutletAdminTenantAwareAccountCreationStrategy.CreateOutletAdminTenantAwareAccountParams
+                            .builder()
+                            .institutionId(institutionId)
+                            .requestedAccount(tenantAwareAccount)
+                            .clientResource(clientResource)
+                            .realmResource(realmResource)
+                            .accountRepository(accountRepository)
+                            .institutionsService(institutionsService)
+                            .outletIds(outletIds)
+                            .outletsService(outletsService)
+                            .outletAdminPersonaRepository(outletAdminPersonaRepository)
+                            .build()
+            );
             default ->
                     throw new UnsupportedOperationException(String.format("accountType of %s is not allowed", accountType));
         };
     }
 
-    public Account findById(UUID id) {
-        return accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("account does not exist"));
-    }
-
     @Transactional
     public Account createOutletAdminAndLinkToAccount(UUID institutionId, UUID outletId, UUID accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("account not found"));
-        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("outlet not found"));
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new ResourceNotFoundException("institution not found"));
+        Account account = findById(accountId);
+        Outlet outlet = outletsService.findById(outletId);
+        Institution institution = institutionsService.findById(institutionId);
         UserResource userResource = usersResource.get(account.getUserId());
         // TODO: check that account is not already an outlet admin in this outlet
         OutletAdminPersona createdOutletAdminPersona = outletAdminPersonaRepository.save(OutletAdminPersona
@@ -130,8 +181,7 @@ public class TenantAwareAccountsService {
                 .account(account)
                 .build());
 
-        outlet.getOutletAdminPersonas().add(createdOutletAdminPersona);
-        outletRepository.save(outlet);
+        outlet.addOutletAdminPersona(createdOutletAdminPersona);
         RoleRepresentation tenantAwareOutletAdminRole = clientResource
                 .roles()
                 .get(String.format("%s_%s_outlet-admin", institution.getId(), outlet.getId()))
@@ -145,29 +195,31 @@ public class TenantAwareAccountsService {
 
     @Transactional
     public Student createStudentInAccount(UUID accountId, Student student) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("no account found"));
+        Account account = findById(accountId);
         List<Persona> accountPersonas = account.getPersonas();
         List<Persona> studentClientPersonas = accountPersonas.stream().filter(persona -> persona instanceof StudentClientPersona).toList();
         if (studentClientPersonas.isEmpty()) {
             throw new ResourceNotFoundException("No student client persona found in account");
         }
-        student.setInstitution(account.getInstitution());
-        student.setStudentClientPersona((StudentClientPersona) accountPersonas.getFirst());
-        return studentRepository.save(student);
+        Student newStudent = studentsService.create(student);
+        studentsService
+                .addInstitution(newStudent.getId(), account.getInstitution().getId());
+        return studentsService.addStudentClientPersona(newStudent.getId(), accountPersonas.getFirst().getId());
     }
 
     @Transactional
     public Educator createEducatorInAccountUnderOutlet(UUID accountId, UUID outletId, Educator educator) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("no account found"));
-        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("no outlet found"));
+        Account account = findById(accountId);
+        Outlet outlet = outletsService.findById(outletId);
         List<Persona> accountPersonas = account.getPersonas();
         List<Persona> educatorClientPersonas = accountPersonas.stream().filter(persona -> persona instanceof EducatorClientPersona).toList();
         if (educatorClientPersonas.isEmpty()) {
             throw new ResourceNotFoundException("No educator client persona found in account");
         }
-        educator.setInstitution(account.getInstitution());
-        educator.setEducatorClientPersona((EducatorClientPersona) accountPersonas.getFirst());
-        educator.setOutlets(List.of(outlet));
-        return educatorRepository.save(educator);
+
+        Educator newEducator = educatorsService.create(educator);
+        educatorsService.addInstitution(newEducator.getId(), account.getInstitution().getId());
+        educatorsService.addEducatorClientPersona(newEducator.getId(), accountPersonas.getFirst().getId());
+        return educatorsService.addOulets(newEducator.getId(), List.of(outlet.getId()));
     }
 }

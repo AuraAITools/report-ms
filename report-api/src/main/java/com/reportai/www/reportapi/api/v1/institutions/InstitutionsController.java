@@ -46,7 +46,7 @@ public class InstitutionsController {
     @GetMapping("/institutions/{id}")
     @HasResourcePermission(permission = "'institutions::' + #id + ':read'")
     public ResponseEntity<InstitutionResponseDTO> getInstitution(@PathVariable UUID id) {
-        InstitutionResponseDTO institution = InstitutionMappers.convert(institutionsService.getInstitution(id));
+        InstitutionResponseDTO institution = InstitutionMappers.convert(institutionsService.findById(id));
         return new ResponseEntity<>(institution, HttpStatus.OK);
     }
 

@@ -37,6 +37,8 @@ public class Objective extends BaseEntity {
     private List<Topic> topics = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @Column(nullable = false)
