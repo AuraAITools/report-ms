@@ -1,17 +1,21 @@
 package com.reportai.www.reportapi.services.clients;
 
+import com.reportai.www.reportapi.entities.personas.Persona;
 import com.reportai.www.reportapi.repositories.AccountRepository;
 import com.reportai.www.reportapi.repositories.ClientRepository;
+import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ClientService {
+public class ClientService implements BaseServiceTemplate<Persona, UUID> {
 
     private final ClientRepository clientRepository;
 
@@ -22,6 +26,11 @@ public class ClientService {
     private final UsersResource usersResource;
 
     private static final List<String> GRANTED_CLIENT_ROLES = List.of("client-report-mobile");
+
+    @Override
+    public JpaRepository<Persona, UUID> getRepository() {
+        return clientRepository;
+    }
 
     @Autowired
     public ClientService(ClientRepository clientRepository, AccountRepository accountRepository, ClientResource clientResource, UsersResource usersResource) {

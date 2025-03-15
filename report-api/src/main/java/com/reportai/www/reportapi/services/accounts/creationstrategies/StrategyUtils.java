@@ -4,17 +4,19 @@ import com.reportai.www.reportapi.clients.keycloak.exceptions.KeycloakUserAccoun
 import com.reportai.www.reportapi.clients.keycloak.exceptions.KeycloakUserAccountCreationException;
 import com.reportai.www.reportapi.entities.Account;
 import com.reportai.www.reportapi.entities.Institution;
-import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.mappers.AccountMappers;
 import com.reportai.www.reportapi.repositories.AccountRepository;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.services.institutions.InstitutionsService;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -32,14 +34,35 @@ public class StrategyUtils {
     private StrategyUtils() {
     }
 
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class CreateTenantAwareAccountParams {
+        private final RealmResource realmResource;
+        private final ClientResource clientResource;
+        private final UUID institutionId;
+        private final InstitutionsService institutionsService;
+        private final AccountRepository accountRepository;
+        private final Account requestedAccount;
+        private final List<String> grantedRoles;
+    }
+
     @Transactional
-    public static Account createTenantAwareAccount(RealmResource realmResource, ClientResource clientResource, UUID institutionId, InstitutionRepository institutionRepository, AccountRepository accountRepository, Account requestedAccount, List<String> grantedRoles) {
-        UsersResource usersResource = realmResource.users();
+    public static Account createTenantAwareAccount(CreateTenantAwareAccountParams params) {
+        UsersResource usersResource = params.getRealmResource().users();
+        UUID institutionId = params.getInstitutionId();
+        RealmResource realmResource = params.getRealmResource();
+        ClientResource clientResource = params.getClientResource();
+        InstitutionsService institutionsService = params.getInstitutionsService();
+        AccountRepository accountRepository = params.getAccountRepository();
+        Account requestedAccount = params.getRequestedAccount();
+        List<String> grantedRoles = params.getGrantedRoles();
+
         requestedAccount.setTenantId(institutionId.toString()); // TODO: arguably should be in converter
 
 //        Persona
         // get institution
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(HttpInstitutionNotFoundException::new);
+        Institution institution = institutionsService.findById(institutionId);
 
         // fetch all TenantAwareAccounts in All tenants/institution
         List<Account> accountsInAllTenants = accountRepository.findAllByEmail(requestedAccount.getEmail());

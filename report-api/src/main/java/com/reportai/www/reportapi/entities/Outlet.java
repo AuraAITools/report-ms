@@ -13,12 +13,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -57,6 +59,21 @@ public class Outlet extends BaseEntity {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<OutletAdminPersona> outletAdminPersonas = new ArrayList<>();
+
+    public Outlet addOutletAdminPersona(@NonNull OutletAdminPersona outletAdminPersona) {
+        this.getOutletAdminPersonas().add(outletAdminPersona);
+        outletAdminPersona.getOutlets().add(this);
+        return this;
+    }
+
+    public Outlet addOutletAdminPersonas(@NonNull List<OutletAdminPersona> outletAdminPersonas) {
+        assert Collections.disjoint(this.getOutletAdminPersonas(), outletAdminPersonas);
+        assert !outletAdminPersonas.isEmpty();
+
+        this.getOutletAdminPersonas().addAll(outletAdminPersonas);
+        outletAdminPersonas.forEach(outletAdminPersona -> outletAdminPersona.getOutlets().add(this));
+        return this;
+    }
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
     @Builder.Default

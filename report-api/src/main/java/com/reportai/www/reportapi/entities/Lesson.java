@@ -65,6 +65,7 @@ public class Lesson extends BaseEntity {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    @Builder.Default
     private String description = "";
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -94,12 +95,15 @@ public class Lesson extends BaseEntity {
     @ToString.Exclude
     private List<Student> students = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             joinColumns = @JoinColumn(name = "lesson_id"),
             inverseJoinColumns = @JoinColumn(name = "educator_id")
     )
-    private List<Educator> educators;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Educator> educators = new ArrayList<>();
 
     // Note: deleting Lesson should not delete materials
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
@@ -107,19 +111,33 @@ public class Lesson extends BaseEntity {
             joinColumns = @JoinColumn(name = "lesson_id"),
             inverseJoinColumns = @JoinColumn(name = "material_id")
     )
-    private List<Material> materials;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Material> materials = new ArrayList<>();
 
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Institution institution;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Course course;
 
     @ManyToOne
     @JoinColumn(nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Outlet outlet;
 
     @Column(nullable = false)
     private String tenantId;
+
+    public void addEducators(List<Educator> educators) {
+        assert educators != null;
+        this.getEducators().addAll(educators);
+    }
 }

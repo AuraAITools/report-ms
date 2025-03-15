@@ -3,148 +3,117 @@ package com.reportai.www.reportapi.services.courses;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
-import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
+import com.reportai.www.reportapi.entities.Lesson;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
-import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
-import com.reportai.www.reportapi.exceptions.lib.NotFoundException;
-import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
-import com.reportai.www.reportapi.repositories.EducatorRepository;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.LessonGenerationTemplateRepository;
-import com.reportai.www.reportapi.repositories.LevelRepository;
-import com.reportai.www.reportapi.repositories.OutletRepository;
-import com.reportai.www.reportapi.repositories.PriceRecordRepository;
-import com.reportai.www.reportapi.repositories.StudentRepository;
-import com.reportai.www.reportapi.repositories.SubjectRepository;
+import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.educators.EducatorsService;
+import com.reportai.www.reportapi.services.institutions.InstitutionsService;
+import com.reportai.www.reportapi.services.lessons.LessonsService;
+import com.reportai.www.reportapi.services.levels.LevelsService;
+import com.reportai.www.reportapi.services.outlets.OutletsService;
+import com.reportai.www.reportapi.services.students.StudentsService;
+import com.reportai.www.reportapi.services.subjects.SubjectsService;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CoursesService {
+public class CoursesService implements BaseServiceTemplate<Course, UUID> {
 
     private final CourseRepository courseRepository;
 
-    private final InstitutionRepository institutionRepository;
+    private final InstitutionsService institutionsService;
 
-    private final EducatorRepository educatorRepository;
+    private final EducatorsService educatorsService;
 
-    private final LevelRepository levelRepository;
+    private final StudentsService studentsService;
 
-    private final SubjectRepository subjectRepository;
+    private final OutletsService outletsService;
 
-    private final PriceRecordRepository priceRecordRepository;
+    private final LevelsService levelsService;
 
-    private final OutletRepository outletRepository;
+    private final SubjectsService subjectsService;
 
-    private final LessonGenerationTemplateRepository lessonGenerationTemplateRepository;
-
-    private final StudentRepository studentRepository;
+    private final LessonsService lessonsService;
 
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionRepository institutionRepository, EducatorRepository educatorRepository, LevelRepository levelRepository, SubjectRepository subjectRepository, PriceRecordRepository priceRecordRepository, OutletRepository outletRepository, LessonGenerationTemplateRepository lessonGenerationTemplateRepository, StudentRepository studentRepository) {
+    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService) {
         this.courseRepository = courseRepository;
-        this.institutionRepository = institutionRepository;
-        this.educatorRepository = educatorRepository;
-        this.levelRepository = levelRepository;
-        this.subjectRepository = subjectRepository;
-        this.priceRecordRepository = priceRecordRepository;
-        this.outletRepository = outletRepository;
-        this.lessonGenerationTemplateRepository = lessonGenerationTemplateRepository;
-        this.studentRepository = studentRepository;
+        this.institutionsService = institutionsService;
+        this.educatorsService = educatorsService;
+        this.studentsService = studentsService;
+        this.outletsService = outletsService;
+        this.levelsService = levelsService;
+        this.subjectsService = subjectsService;
+        this.lessonsService = lessonsService;
     }
 
+    @Override
+    public JpaRepository<Course, UUID> getRepository() {
+        return this.courseRepository;
+    }
 
     // Courses
-    public List<Course> getAllCoursesFromInstitution(UUID institutionId) {
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new NotFoundException("no institution found"));
+    public List<Course> getAllCoursesFromInstitution(@NonNull UUID institutionId) {
+        Institution institution = institutionsService.findById(institutionId);
         return institution.getCourses();
     }
 
-    public Course findById(UUID id) {
-        return courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
+    @Transactional
+    public Course createCourseForOutlet(@NonNull Course course, @NonNull UUID outletId) {
+        Outlet outlet = outletsService.findById(outletId);// this method might throw assertion error for the id not being null
+        course.addOutlet(outlet).addInstitution(outlet.getInstitution());
+        return courseRepository.save(course);
     }
 
+
     @Transactional
-    public Course createCourseForOutlet(Course course, UUID outletId) {
-        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("outlet not found"));
-        Institution institution = outlet.getInstitution();
-
-        PriceRecord priceRecord = course.getPriceRecord();
-        PriceRecord createdPriceRecord = priceRecordRepository.save(priceRecord);
-
-        // owning side will have to set the reference to institution
-        course.setInstitution(institution);
-        course.setOutlet(outlet);
-        course.setPriceRecord(createdPriceRecord);
+    public Course addStudentsToCourse(@NonNull UUID courseId, @NonNull List<UUID> studentIds) {
+        Course course = findById(courseId);
+        List<Student> students = studentsService.findByIds(studentIds);
+        course.addStudents(students);
         return courseRepository.save(course);
     }
 
     @Transactional
-    public List<Course> batchCreateCoursesForInstitution(List<Course> courses, UUID institutionId) {
-        Institution institution = institutionRepository.findById(institutionId).orElseThrow(() -> new NotFoundException("no institution found"));
-        courses.forEach(c -> c.setInstitution(institution));
-        return courseRepository.saveAll(courses);
+    public Course addEducatorsToCourse(@NonNull UUID courseId, @NonNull List<UUID> educatorIds) {
+        List<Educator> educators = educatorsService.findByIds(educatorIds);
+        Course course = findById(courseId);
+        course.addEducators(educators);
+        return courseRepository.save(course);
     }
 
+
     @Transactional
-    public Course addEducatorToCourse(UUID educatorId, UUID courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
-        Educator educator = educatorRepository.findById(educatorId).orElseThrow(() -> new ResourceNotFoundException("Educator does not exist"));
-        if (course.getEducators() == null) {
-            course.setEducators(new ArrayList<>(List.of(educator)));
-        } else {
-            course.getEducators().add(educator);
-        }
+    public Course addLevelToCourse(@NonNull UUID courseId, @NonNull UUID levelId) {
+        Level level = levelsService.findById(levelId);
+        Course course = findById(courseId);
+        course.addLevel(level);
         return courseRepository.save(course);
     }
 
     @Transactional
-    public Course addLevelToCourse(UUID levelId, UUID courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
-        Level level = levelRepository.findById(levelId).orElseThrow(() -> new ResourceNotFoundException("level does not exist"));
-        course.setLevel(level);
+    public Course addSubjectsToCourse(@NonNull UUID courseId, @NonNull List<UUID> subjectIds) {
+        List<Subject> subjects = subjectsService.findByIds(subjectIds);
+        Course course = findById(courseId);
+        course.addSubjects(subjects);
         return courseRepository.save(course);
     }
 
     @Transactional
-    public Course addSubjectToCourse(UUID subjectId, UUID courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course does not exist"));
-        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new ResourceNotFoundException("subject does not exist"));
-        if (course.getSubjects() == null) {
-            course.setSubjects(new ArrayList<>(List.of(subject)));
-        } else {
-            course.getSubjects().add(subject);
-        }
+    public Course addLessonsToCourse(@NonNull UUID courseId, @NonNull List<UUID> lessonIds) {
+        List<Lesson> lessons = lessonsService.findByIds(lessonIds);
+        Course course = findById(courseId);
+        course.addLessons(lessons);
         return courseRepository.save(course);
     }
 
-    /**
-     * Creates lesson generation templates
-     *
-     * @return
-     */
-    @Transactional
-    public List<LessonGenerationTemplate> createLessonGenerationTemplates(UUID courseId, List<LessonGenerationTemplate> lessonGenerationTemplates) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException("course not found"));
-        lessonGenerationTemplates.forEach(lessonGenerationTemplate -> lessonGenerationTemplate.setCourse(course));
-        return lessonGenerationTemplateRepository.saveAll(lessonGenerationTemplates);
-    }
-
-    @Transactional
-    public List<Course> enrollStudentToCourses(UUID studentId, List<UUID> courseIds) {
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("no student found"));
-        List<Course> courses = courseRepository.findAllById(courseIds);
-        List<Course> cour = student.getCourses();
-        student.getCourses().addAll(courses);
-        studentRepository.save(student);
-        return courses;
-    }
 }

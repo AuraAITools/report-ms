@@ -60,13 +60,22 @@ public class Subject extends BaseEntity {
     private List<Educator> educators = new ArrayList<>();
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
-    private List<TestGroup> testGroups;
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @ToString.Exclude
+    private List<TestGroup> testGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
-    private List<TestResult> testResults;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @Builder.Default
+    private List<TestResult> testResults = new ArrayList<>();
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
-    private List<Level> levels;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @Builder.Default
+    private List<Level> levels = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Institution institution;

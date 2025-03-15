@@ -5,40 +5,51 @@ import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.Student;
-import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundException;
+import com.reportai.www.reportapi.entities.personas.OutletAdminPersona;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.OutletAdminPersonaRepository;
 import com.reportai.www.reportapi.repositories.OutletRepository;
-import com.reportai.www.reportapi.repositories.StudentRepository;
+import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.institutions.InstitutionsService;
+import com.reportai.www.reportapi.services.students.StudentsService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OutletsService {
+public class OutletsService implements BaseServiceTemplate<Outlet, UUID> {
 
-    private final InstitutionRepository institutionRepository;
-    private final OutletRepository outletRepository;
-    private final StudentRepository studentRepository;
+    private final InstitutionsService institutionsService;
+    private final OutletRepository outletsRepository;
+    private final StudentsService studentsService;
     private final ClientResource clientResource;
+    private final OutletAdminPersonaRepository outletAdminPersonaRepository;
     private final String OUTLET_ROLE_TEMPLATE = "%s_%s_outlet-admin";
 
     @Autowired
-    public OutletsService(InstitutionRepository institutionRepository, OutletRepository outletRepository, StudentRepository studentRepository, ClientResource clientResource) {
-        this.institutionRepository = institutionRepository;
-        this.outletRepository = outletRepository;
-        this.studentRepository = studentRepository;
+    public OutletsService(InstitutionsService institutionsService, OutletRepository outletsRepository, StudentsService studentsService, ClientResource clientResource, OutletAdminPersonaRepository outletAdminPersonaRepository) {
+        this.institutionsService = institutionsService;
+        this.outletsRepository = outletsRepository;
+        this.studentsService = studentsService;
         this.clientResource = clientResource;
+        this.outletAdminPersonaRepository = outletAdminPersonaRepository;
+    }
+
+    @Override
+    public JpaRepository<Outlet, UUID> getRepository() {
+        return outletsRepository;
     }
 
     @Transactional
-    public Outlet createOutletForInstitution(UUID id, Outlet newOutlet) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+    public Outlet createOutletForInstitution(@NonNull UUID id, @NonNull Outlet newOutlet) {
+        Institution institution = institutionsService.findById(id);
         // TODO: maybe got better way to do this using SQL on DB
         institution.getOutlets().forEach(outlet -> {
             if (outlet.getName().equals(newOutlet.getName())) {
@@ -46,45 +57,59 @@ public class OutletsService {
             }
         });
         newOutlet.setInstitution(institution);
-        Outlet createdOutlet = outletRepository.save(newOutlet);
+        Outlet createdOutlet = outletsRepository.save(newOutlet);
         clientResource.roles().create(createTenantAwareOutletRole(id.toString(), createdOutlet.getId().toString()));
         return createdOutlet;
     }
 
     @Transactional
-    public List<Outlet> getAllOutletsForInstitution(UUID id) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(HttpInstitutionNotFoundException::new);
+    public List<Outlet> getAllOutletsForInstitution(@NonNull UUID id) {
+        Institution institution = institutionsService.findById(id);
         return institution.getOutlets();
     }
 
-    public Outlet findById(UUID id) {
-        return outletRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist"));
-    }
 
-    public List<Course> getOutletCourses(UUID outletId) {
-        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getCourses();
+    public List<Course> getOutletCourses(@NonNull UUID outletId) {
+        return outletsRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getCourses();
     }
 
 
-    public List<Educator> getOutletEducators(UUID outletId) {
-        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getEducators();
+    public List<Educator> getOutletEducators(@NonNull UUID outletId) {
+        return findById(outletId).getEducators();
     }
 
 
-    public List<Student> getOutletStudents(UUID outletId) {
-        return outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist")).getStudents();
+    public List<Student> getOutletStudents(@NonNull UUID outletId) {
+        return findById(outletId).getStudents();
     }
 
 
-    public Student addStudentToOutlet(UUID studentId, UUID outletId) {
-        Outlet outlet = outletRepository.findById(outletId).orElseThrow(() -> new ResourceNotFoundException("Outlet does not exist"));
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Student does not exist"));
+    public Student addStudent(@NonNull UUID studentId, @NonNull UUID outletId) {
+        Outlet outlet = findById(outletId);
+        Student student = studentsService.findById(studentId);
+        /**
+         * TODO: add method in entity
+         */
         outlet.getStudents().add(student);
-        outletRepository.save(outlet);
+        outletsRepository.save(outlet);
         return student;
     }
 
-    private RoleRepresentation createTenantAwareOutletRole(String tenantId, String outletId) {
+    public Outlet addOutletAdminPersona(UUID outletId, UUID outletAdminPersonaId) {
+        Outlet outlet = findById(outletId);
+        OutletAdminPersona outletAdminPersona = outletAdminPersonaRepository.findById(outletAdminPersonaId).orElseThrow(() -> new ResourceNotFoundException("no outletAdminPersona found"));
+        outlet.addOutletAdminPersona(outletAdminPersona);
+        return outlet;
+    }
+
+    public Outlet addOutletAdminPersonas(UUID outletId, List<UUID> outletAdminPersonaIds) {
+        Outlet outlet = findById(outletId);
+        List<OutletAdminPersona> outletAdminPersonas = outletAdminPersonaRepository.findAllById(outletAdminPersonaIds);
+        outlet.addOutletAdminPersonas(outletAdminPersonas);
+        return outlet;
+    }
+
+    private RoleRepresentation createTenantAwareOutletRole(@NonNull String tenantId, @NonNull String outletId) {
         RoleRepresentation clientRole = new RoleRepresentation();
         clientRole.setClientRole(true);
         clientRole.setDescription(tenantId);

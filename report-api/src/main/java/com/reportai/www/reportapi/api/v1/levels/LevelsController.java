@@ -148,7 +148,7 @@ public class LevelsController {
     @PatchMapping("/institutions/{id}/levels/{level_id}/subjects/{subject_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:attach'")
     public ResponseEntity<List<SubjectResponseDTO>> attachSubjectToLevelInInstitution(@PathVariable UUID id, @PathVariable(name = "level_id") UUID levelId, @PathVariable(name = "subject_id") UUID subjectId) {
-        Subject subject = levelsService.attachSubjectForLevel(levelId, subjectId);
+        Subject subject = levelsService.addSubject(levelId, subjectId);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

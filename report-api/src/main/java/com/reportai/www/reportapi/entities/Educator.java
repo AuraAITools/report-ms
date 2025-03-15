@@ -15,12 +15,14 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -50,6 +52,15 @@ public class Educator extends BaseEntity {
     @ToString.Exclude
     private Institution institution;
 
+    public Educator addInstitution(@NonNull Institution institution) {
+        if (this.getInstitution() != null) {
+            throw new IllegalArgumentException("educator already part of a institution");
+        }
+        this.setInstitution(institution);
+        institution.getEducators().add(this);
+        return this;
+    }
+
     @Email
     @Column(nullable = false)
     private String email;
@@ -68,6 +79,14 @@ public class Educator extends BaseEntity {
     @ToString.Exclude
     private List<Outlet> outlets = new ArrayList<>();
 
+    public Educator addOutlets(@NonNull List<Outlet> outlets) {
+        assert Collections.disjoint(outlets, this.getOutlets());
+
+        this.getOutlets().addAll(outlets);
+        outlets.forEach(outlet -> outlet.getEducators().add(this));
+        return this;
+    }
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             joinColumns = @JoinColumn(name = "educator_id"),
@@ -82,6 +101,15 @@ public class Educator extends BaseEntity {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private EducatorClientPersona educatorClientPersona;
+
+    public Educator addEducatorClientPersona(@NonNull EducatorClientPersona educatorClientPersona) {
+        if (this.getEducatorClientPersona() != null) {
+            throw new IllegalArgumentException("there is an existing educator client persona");
+        }
+        this.setEducatorClientPersona(educatorClientPersona);
+        educatorClientPersona.setEducator(this);
+        return this;
+    }
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.LAZY)
     @Builder.Default
@@ -100,7 +128,10 @@ public class Educator extends BaseEntity {
     private List<Level> levels = new ArrayList<>();
 
     @ManyToMany(mappedBy = "educators", fetch = FetchType.EAGER)
-    private List<Lesson> lessons;
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
 
     @Column(nullable = false)
     private String tenantId;

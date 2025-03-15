@@ -72,7 +72,7 @@ public class OutletsController {
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}/students/{student_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + ':add-student")
     public ResponseEntity<Void> addStudentToOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "student_id") UUID studentId) {
-        outletsService.addStudentToOutlet(studentId, outletId);
+        outletsService.addStudent(studentId, outletId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

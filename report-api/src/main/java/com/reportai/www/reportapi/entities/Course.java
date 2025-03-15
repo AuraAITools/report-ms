@@ -14,6 +14,8 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +40,8 @@ public class Course extends BaseEntity {
     @Column(nullable = false)
     private Integer lessonWeeklyFrequency;
 
-    @OneToOne
+    // TODO: make embeddable entity?
+    @OneToOne(cascade = CascadeType.PERSIST)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private PriceRecord priceRecord;
@@ -65,14 +68,28 @@ public class Course extends BaseEntity {
     @ToString.Exclude
     private Institution institution;
 
+    public Course addInstitution(Institution institution) {
+        assert institution != null;
+        assert this.getInstitution() != null : "course is attached to existing institution";
+        this.setInstitution(institution);
+        institution.getCourses().add(this);
+        return this;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Outlet outlet;
 
-    // Note: deleting a course will delete all subjects under the course
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    public Course addOutlet(Outlet outlet) {
+        assert outlet != null;
+        outlet.getCourses().add(this);
+        this.setOutlet(outlet);
+        return this;
+    }
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
     @JoinTable(
             joinColumns = @JoinColumn(name = "course_id"),
@@ -82,16 +99,53 @@ public class Course extends BaseEntity {
     @EqualsAndHashCode.Exclude
     private List<Subject> subjects = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    public Course addSubjects(Collection<Subject> subjects) {
+        assert subjects != null;
+        assert !subjects.isEmpty();
+
+        this.getSubjects().addAll(subjects);
+        subjects.forEach(subject -> subject.getCourses().add(this));
+        return this;
+    }
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Level level;
+
+    public Course addLevel(Level level) {
+        assert level != null;
+        assert this.getLevel() == null;
+
+        this.setLevel(level);
+        return this;
+    }
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
     @Builder.Default
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<Student> students = new ArrayList<>();
+
+    public Course addStudent(Student student) {
+        assert student != null;
+        assert !this.getStudents().contains(student) : "incoming student is already registered in course";
+
+        this.getStudents().add(student);
+        student.getCourses().add(this);
+        return this;
+    }
+
+    public Course addStudents(Collection<Student> students) {
+        assert students != null;
+        assert !students.isEmpty();
+        assert Collections.disjoint(this.getStudents(), students) : "incoming student is already registered in course";
+
+        this.getStudents().addAll(students);
+        students.forEach(student -> student.getCourses().add(this));
+        return this;
+    }
 
     @Column(nullable = false)
     private String tenantId;
@@ -101,11 +155,43 @@ public class Course extends BaseEntity {
             joinColumns = @JoinColumn(name = "course_id"),
             inverseJoinColumns = @JoinColumn(name = "educator_id")
     )
-    private List<Educator> educators;
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @ToString.Exclude
+    private List<Educator> educators = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
-    private List<Lesson> lessons;
+    public Course addEducators(Collection<Educator> educators) {
+        assert educators != null;
+        assert !educators.isEmpty();
+        assert Collections.disjoint(this.getEducators(), educators) : "incoming educator is already registered in course";
 
+        this.getEducators().addAll(educators);
+        educators.forEach(educator -> educator.getCourses().add(this));
+        return this;
+    }
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.PERSIST)
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @ToString.Exclude
+    private List<Lesson> lessons = new ArrayList<>();
+
+    public Course addLessons(List<Lesson> lessons) {
+        assert lessons != null;
+        assert !lessons.isEmpty();
+        assert Collections.disjoint(lessons, this.getLessons());
+
+        this.getLessons().addAll(lessons);
+        lessons.forEach(lesson -> lesson.setCourse(this));
+        return this;
+    }
+
+    /**
+     * TODO: remove?
+     */
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
-    private List<LessonGenerationTemplate> lessonGenerationTemplates;
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    @ToString.Exclude
+    private List<LessonGenerationTemplate> lessonGenerationTemplates = new ArrayList<>();
 }

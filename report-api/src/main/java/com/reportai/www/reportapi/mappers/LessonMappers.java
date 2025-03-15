@@ -48,7 +48,7 @@ public class LessonMappers {
                 .startTime(lesson.getStartTime())
                 .endTime(lesson.getEndTime())
                 .status(lesson.getStatus())
-                .educators(lesson.getCourse().getEducators().stream().map(EducatorMappers::convert).toList())
+                .educators(lesson.getEducators().stream().map(EducatorMappers::convert).toList())
                 .students(lesson.getStudents().stream().map(StudentMappers::convert).toList())
                 .course(CourseMappers.convert(lesson.getCourse()))
                 .build();

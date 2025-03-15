@@ -4,9 +4,7 @@ import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermissio
 import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.entities.LessonGenerationTemplate;
 import com.reportai.www.reportapi.mappers.CourseMappers;
-import com.reportai.www.reportapi.mappers.LessonGenerationTemplateMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,21 +55,14 @@ public class CoursesController {
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
-    public ResponseEntity<CreateCourseDTOResponseDTO> createCourseForInstitution(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<CreateCourseDTOResponseDTO> createCourseForOutlet(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         // TODO: if lessonGenerationTemplate array is not empty, generate lessons
         Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseRequestDTO, id), outletId);
-        List<LessonGenerationTemplate> lessonGenerationTemplates = coursesService.createLessonGenerationTemplates(createdCourse.getId(), createCourseRequestDTO
-                .getLessonGenerationTemplates()
-                .stream()
-                .map(createLessonGenerationTemplateDTO -> LessonGenerationTemplateMappers.convert(createLessonGenerationTemplateDTO, id.toString()))
-                .toList());
-        //TODO: Create Lessons from lesson generation templates
-        Course courseWithLevel = coursesService.addLevelToCourse(createCourseRequestDTO.getLevelId(), createdCourse.getId());
-        createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectToCourse(subjectId, courseWithLevel.getId()));
-        createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorToCourse(educatorId, courseWithLevel.getId()));
+        Course courseWithLevel = coursesService.addLevelToCourse(createdCourse.getId(), createCourseRequestDTO.getLevelId());
+        createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectsToCourse(courseWithLevel.getId(), List.of(subjectId)));
+        createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorsToCourse(courseWithLevel.getId(), List.of(educatorId)));
         Course resultantCourse = coursesService.findById(courseWithLevel.getId());
         CreateCourseDTOResponseDTO createCourseDTOResponseDTO = convert(resultantCourse);
-        createCourseDTOResponseDTO.setLessonGenerationTemplates(lessonGenerationTemplates.stream().map(LessonGenerationTemplateMappers::convert).toList());
         return new ResponseEntity<>(createCourseDTOResponseDTO, HttpStatus.CREATED);
     }
 
