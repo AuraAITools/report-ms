@@ -48,6 +48,13 @@ public class SubjectsService implements BaseServiceTemplate<Subject, UUID> {
     }
 
     @Transactional
+    public Subject updateSubjectForInstitution(@NonNull UUID subjectId, @NonNull Subject updatedSubject) {
+        Subject subject = findById(subjectId);
+        subject.setName(updatedSubject.getName());
+        return subjectRepository.save(subject);
+    }
+
+    @Transactional
     public List<Subject> getAllSubjectsForInstitution(@NonNull UUID id) {
         Institution institution = institutionsService.findById(id);
         return institution.getSubjects();

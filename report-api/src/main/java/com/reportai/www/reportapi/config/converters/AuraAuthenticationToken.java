@@ -162,7 +162,8 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::levels:read", tenantId),
                 String.format("institutions::%s::subjects:read", tenantId),
                 String.format("institutions::%s::subjects:attach", tenantId),
-                String.format("institutions::%s::subjects:create", tenantId)
+                String.format("institutions::%s::subjects:create", tenantId),
+                String.format("institutions::%s::subjects:update", tenantId)
         ).toArray(String[]::new);
     }
 
@@ -190,6 +191,7 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::outlets::%s:update", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses:create", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses:read", tenantId, outletId),
+                String.format("institutions::%s::outlets::%s::courses:update", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses::lessons:create", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::courses::lessons:read", tenantId, outletId),
                 String.format("institutions::%s::outlets::%s::lessons:read", tenantId, outletId),

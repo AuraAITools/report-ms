@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateSubjectRequestDTO {
+public class UpdateSubjectRequestDTO {
 
     @NotEmpty
     private String name;

@@ -1,40 +1,32 @@
-package com.reportai.www.reportapi.api.v1.courses.responses;
+package com.reportai.www.reportapi.api.v1.courses.requests;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
-import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.Builder;
-import lombok.Data;
+import java.util.UUID;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Data
-@Builder
+@Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CreateCourseDTOResponseDTO {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UpdateCourseRequestDTO {
 
-    @NotEmpty
-    private String id;
-
-    @NotEmpty
     private Integer lessonNumberFrequency;
 
-    @NotEmpty
     private Integer lessonWeeklyFrequency;
 
-    @NotEmpty
     private Double price;
 
-    @NotEmpty
     private PriceRecord.FREQUENCY priceFrequency;
 
-    @NotEmpty
     private String name;
 
-    @NotEmpty
     private Integer maxSize;
 
     @DateTimeFormat
@@ -49,6 +41,12 @@ public class CreateCourseDTOResponseDTO {
     @DateTimeFormat
     private LocalTime endTime;
 
-    @NotEmpty
-    private List<CreateLessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
+    /**
+     * TODO: figure out how to patch subjects
+     */
+    private List<UUID> subjectIds = new ArrayList<>();
+
+    private UUID levelId;
+
+    private List<UUID> educatorIds = new ArrayList<>();
 }

@@ -41,7 +41,7 @@ public class Course extends BaseEntity {
     private Integer lessonWeeklyFrequency;
 
     // TODO: make embeddable entity?
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private PriceRecord priceRecord;
