@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.mappers;
 
 import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
+import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponse;
 import com.reportai.www.reportapi.entities.Outlet;
 
 public class OutletMappers {
@@ -27,9 +28,21 @@ public class OutletMappers {
                 .postalCode(outlet.getPostalCode())
                 .name(outlet.getName())
                 .description(outlet.getDescription())
-//                .educators(outlet.getEducators().stream().map(EducatorMappers::convert).toList())
-//                .students(outlet.getStudents().stream().map(StudentMappers::convert).toList())
-//                .courses(outlet.getCourses().stream().map(CourseMappers::convert).toList())
+                .build();
+    }
+
+    public static ExpandedOutletsResponse convertExpanded(Outlet outlet) {
+        return ExpandedOutletsResponse
+                .builder()
+                .id(outlet.getId().toString())
+                .address(outlet.getAddress())
+                .contactNumber(outlet.getContactNumber())
+                .postalCode(outlet.getPostalCode())
+                .name(outlet.getName())
+                .description(outlet.getDescription())
+                .educators(outlet.getEducators().stream().map(EducatorMappers::convert).toList())
+                .students(outlet.getStudents().stream().map(StudentMappers::convert).toList())
+                .courses(outlet.getCourses().stream().map(CourseMappers::convert).toList())
                 .build();
     }
 }

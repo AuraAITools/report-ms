@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.NonNull;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,10 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
 
     private final LessonsService lessonsService;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService) {
+    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService, ModelMapper modelMapper) {
         this.courseRepository = courseRepository;
         this.institutionsService = institutionsService;
         this.educatorsService = educatorsService;
@@ -54,6 +57,7 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
         this.levelsService = levelsService;
         this.subjectsService = subjectsService;
         this.lessonsService = lessonsService;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -71,6 +75,13 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
     public Course createCourseForOutlet(@NonNull Course course, @NonNull UUID outletId) {
         Outlet outlet = outletsService.findById(outletId);// this method might throw assertion error for the id not being null
         course.addOutlet(outlet).addInstitution(outlet.getInstitution());
+        return courseRepository.save(course);
+    }
+
+    @Transactional
+    public Course updateCourseForOutlet(@NonNull UUID courseId, @NonNull Course updatedCourse) {
+        Course course = findById(courseId);
+        modelMapper.map(updatedCourse, course);
         return courseRepository.save(course);
     }
 

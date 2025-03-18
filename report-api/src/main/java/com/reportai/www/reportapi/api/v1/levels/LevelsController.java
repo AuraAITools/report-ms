@@ -6,6 +6,7 @@ import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentRespons
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsRequestDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
+import com.reportai.www.reportapi.api.v1.levels.responses.ExpandedLevelsResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
@@ -82,6 +83,23 @@ public class LevelsController {
         List<CreateLevelsResponseDTO> levelsDTO = levels
                 .stream()
                 .map(LevelMappers::convert)
+                .toList();
+        return new ResponseEntity<>(levelsDTO, HttpStatus.OK);
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    @Operation(summary = "get all expanded levels for a institution", description = "get all expanded levels for a institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @GetMapping("/institutions/{id}/levels/expand")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::levels:read'")
+    public ResponseEntity<List<ExpandedLevelsResponseDTO>> getAllExpandedLevelsForInstitution(@PathVariable UUID id) {
+        List<Level> levels = levelsService.getAllLevelsForInstitution(id);
+        List<ExpandedLevelsResponseDTO> levelsDTO = levels
+                .stream()
+                .map(LevelMappers::convertExpanded)
                 .toList();
         return new ResponseEntity<>(levelsDTO, HttpStatus.OK);
     }

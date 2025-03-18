@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.api.v1.outlets;
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
+import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponse;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.mappers.OutletMappers;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
@@ -63,6 +64,21 @@ public class OutletsController {
         List<CreateOutletResponseDto> outletsDto = outlets
                 .stream()
                 .map(OutletMappers::convert)
+                .toList();
+        return new ResponseEntity<>(outletsDto, HttpStatus.OK);
+    }
+
+    @Operation(summary = "get all expanded outlets for a institution", description = "get all outlets for a institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @GetMapping("/institutions/{id}/outlets/expand")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
+    @Transactional
+    public ResponseEntity<List<ExpandedOutletsResponse>> getExpandedOutletsForInstitution(@PathVariable UUID id) {
+
+        List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
+        List<ExpandedOutletsResponse> outletsDto = outlets
+                .stream()
+                .map(OutletMappers::convertExpanded)
                 .toList();
         return new ResponseEntity<>(outletsDto, HttpStatus.OK);
     }

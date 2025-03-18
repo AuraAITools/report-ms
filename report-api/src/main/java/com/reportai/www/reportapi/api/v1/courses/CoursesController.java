@@ -2,8 +2,11 @@ package com.reportai.www.reportapi.api.v1.courses;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
+import com.reportai.www.reportapi.api.v1.courses.requests.UpdateCourseRequestDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.ExpandedCourseResponse;
 import com.reportai.www.reportapi.entities.Course;
+import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.mappers.CourseMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
@@ -13,11 +16,14 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Conditions;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,10 +44,13 @@ public class CoursesController {
 
     private final OutletsService outletsService;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public CoursesController(CoursesService coursesService, OutletsService outletsService) {
+    public CoursesController(CoursesService coursesService, OutletsService outletsService, ModelMapper modelMapper) {
         this.coursesService = coursesService;
         this.outletsService = outletsService;
+        this.modelMapper = modelMapper;
     }
 
     /**
@@ -69,9 +78,67 @@ public class CoursesController {
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
-    public ResponseEntity<List<CreateCourseDTOResponseDTO>> createCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<List<CreateCourseDTOResponseDTO>> getAllCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         List<Course> courses = outletsService.getOutletCourses(outletId);
         return new ResponseEntity<>(courses.stream().map(CourseMappers::convert).toList(), HttpStatus.OK);
+    }
+
+    @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses/expand")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
+    @Transactional
+    public ResponseEntity<List<ExpandedCourseResponse>> getAllExpandedCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+        List<Course> courses = outletsService.getOutletCourses(outletId);
+        return new ResponseEntity<>(courses.stream().map(CourseMappers::convertExpanded).toList(), HttpStatus.OK);
+    }
+
+    /**
+     * Creates a course in an institution
+     * Also links the level, subjects and educators to the created course
+     *
+     * @param updateCourseRequestDTO
+     * @param id
+     * @return
+     */
+    @PatchMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:update'")
+    @Transactional
+    public ResponseEntity<CreateCourseDTOResponseDTO> updateCourseForOutlet(@RequestBody @Valid UpdateCourseRequestDTO updateCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+        Course updates = Course.builder().build();
+        ModelMapper customModelMapper = new ModelMapper();
+        customModelMapper.getConfiguration()
+                .setSkipNullEnabled(true)
+                .setPropertyCondition(Conditions.isNotNull());
+        customModelMapper.createTypeMap(UpdateCourseRequestDTO.class, Course.class)
+//                .addMappings(mapper -> {
+//                    mapper.skip(UpdateCourseRequestDTO::getPrice, Course::setPrice);
+//                    mapper.skip(UpdateCourseRequestDTO::getPriceFrequency, Course::setPriceFrequency);
+//                })
+                .setPostConverter(context -> {
+                    UpdateCourseRequestDTO source = context.getSource();
+                    Course destination = context.getDestination();
+
+                    // Handle PriceRecord mapping
+                    if (source.getPrice() != null || source.getPriceFrequency() != null) {
+                        PriceRecord priceRecord = destination.getPriceRecord();
+                        if (priceRecord == null) {
+                            priceRecord = new PriceRecord();
+                            destination.setPriceRecord(priceRecord);
+                        }
+
+                        if (source.getPrice() != null) {
+                            priceRecord.setPrice(source.getPrice());
+                        }
+                        if (source.getPriceFrequency() != null) {
+                            priceRecord.setFrequency(source.getPriceFrequency());
+                        }
+                        priceRecord.setTenantId(id.toString());
+                    }
+
+                    return destination;
+                });
+        customModelMapper.map(updateCourseRequestDTO, updates);
+        Course updatedCourse = coursesService.updateCourseForOutlet(courseId, updates);
+        return new ResponseEntity<>(convert(updatedCourse), HttpStatus.OK);
     }
 
 }

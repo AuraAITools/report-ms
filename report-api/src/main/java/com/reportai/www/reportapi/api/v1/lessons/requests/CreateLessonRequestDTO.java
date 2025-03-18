@@ -26,6 +26,8 @@ public class CreateLessonRequestDTO {
     @NotEmpty
     private String name;
 
+    private String description;
+
     @NotNull
     private Lesson.STATUS status;
 

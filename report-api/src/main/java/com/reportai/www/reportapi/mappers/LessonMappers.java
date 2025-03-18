@@ -19,6 +19,7 @@ public class LessonMappers {
                 .startTime(createLessonRequestDTO.getStartTime())
                 .endTime(createLessonRequestDTO.getEndTime())
                 .day(createLessonRequestDTO.getDate().getDayOfWeek())
+                .description(createLessonRequestDTO.getDescription())
                 .tenantId(tenantId.toString())
                 .build();
     }
@@ -30,6 +31,7 @@ public class LessonMappers {
                 .name(lesson.getName())
                 .date(lesson.getDate())
                 .day(lesson.getDay())
+                .description(lesson.getDescription())
                 .students(lesson.getStudents().stream().map(StudentMappers::convert).toList())
                 .educators(lesson.getEducators().stream().map(EducatorMappers::convert).toList())
                 .startTime(lesson.getStartTime())
