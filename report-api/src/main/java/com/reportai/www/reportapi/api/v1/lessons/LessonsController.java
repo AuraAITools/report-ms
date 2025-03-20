@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.api.v1.lessons;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO;
+import com.reportai.www.reportapi.api.v1.lessons.requests.UpdateLessonRequestDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.entities.Course;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,6 +66,16 @@ public class LessonsController {
         List<Educator> educators = educatorsService.findByIds(createLessonRequestDTO.getEducatorIds());
         Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonRequestDTO, id), students, educators);
         return new ResponseEntity<>(LessonMappers.convert(lesson), HttpStatus.OK);
+    }
+
+    @Operation(summary = "patch lesson of course", description = "patch a lesson in a course")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}/lessons/{lesson_id}")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:update'")
+    @Transactional
+    public ResponseEntity<ExpandedLessonResponseDTO> updateLessonForCourse(@RequestBody UpdateLessonRequestDTO updateLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId, @PathVariable(name = "lesson_id") UUID lessonId) {
+        Lesson lesson = lessonService.update(lessonId, updateLessonRequestDTO);
+        return new ResponseEntity<>(LessonMappers.convertToExpanded(lesson), HttpStatus.OK);
     }
 
     @Operation(summary = "get lessons of a course", description = "get lessons of a course")
