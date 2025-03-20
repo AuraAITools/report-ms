@@ -53,6 +53,7 @@ public class LessonMappers {
                 .educators(lesson.getEducators().stream().map(EducatorMappers::convert).toList())
                 .students(lesson.getStudents().stream().map(StudentMappers::convert).toList())
                 .course(CourseMappers.convert(lesson.getCourse()))
+                .subject(lesson.getSubject() != null ? SubjectMappers.convert(lesson.getSubject()) : null)
                 .build();
     }
 }
