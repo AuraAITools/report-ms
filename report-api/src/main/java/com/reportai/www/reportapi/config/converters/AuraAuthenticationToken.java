@@ -152,6 +152,7 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s:read", tenantId), // necessary role to be here in case outlets are not created yet
                 String.format("institutions::%s::accounts::student-clients:read", tenantId), // necessary role to be here
                 String.format("institutions::%s::students:read", tenantId), // necessary role to be here
+                String.format("institutions::%s::students:update", tenantId),
                 String.format("institutions::%s::outlets:read", tenantId),
                 String.format("institutions::%s::outlets:create", tenantId),
                 String.format("institutions::%s::accounts:create-educator", tenantId),
