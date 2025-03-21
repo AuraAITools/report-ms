@@ -27,6 +27,7 @@ public class OutletMappers {
                 .contactNumber(outlet.getContactNumber())
                 .postalCode(outlet.getPostalCode())
                 .name(outlet.getName())
+                .email(outlet.getEmail())
                 .description(outlet.getDescription())
                 .build();
     }
@@ -39,6 +40,7 @@ public class OutletMappers {
                 .contactNumber(outlet.getContactNumber())
                 .postalCode(outlet.getPostalCode())
                 .name(outlet.getName())
+                .email(outlet.getEmail())
                 .description(outlet.getDescription())
                 .educators(outlet.getEducators().stream().map(EducatorMappers::convert).toList())
                 .students(outlet.getStudents().stream().map(StudentMappers::convert).toList())

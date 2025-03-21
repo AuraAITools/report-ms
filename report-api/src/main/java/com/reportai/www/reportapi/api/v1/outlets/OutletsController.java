@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.api.v1.outlets;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO;
+import com.reportai.www.reportapi.api.v1.outlets.requests.UpdateOutletRequestDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
 import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponse;
 import com.reportai.www.reportapi.entities.Outlet;
@@ -27,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import static com.reportai.www.reportapi.mappers.OutletMappers.convert;
+
 @Tag(name = "Outlet APIs", description = "APIs for managing a Outlet resource")
 @RestController
 @RequestMapping("/api/v1")
@@ -47,10 +51,19 @@ public class OutletsController {
     @PostMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
     public ResponseEntity<CreateOutletResponseDto> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
-        Outlet newOutlet = OutletMappers.convert(createOutletRequestDTO, id.toString());
+        Outlet newOutlet = convert(createOutletRequestDTO, id.toString());
         Outlet createdOutlet = outletsService.createOutletForInstitution(id, newOutlet);
-        CreateOutletResponseDto createOutletResponseDto = OutletMappers.convert(createdOutlet);
+        CreateOutletResponseDto createOutletResponseDto = convert(createdOutlet);
         return new ResponseEntity<>(createOutletResponseDto, HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "update a outlet for a institution", description = "update an outlet for a institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("/institutions/{id}/outlets/{outlet_id}")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:update'")
+    public ResponseEntity<CreateOutletResponseDto> updateOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @Valid @RequestBody UpdateOutletRequestDTO updateOutletRequestDTO) {
+        Outlet outlet = outletsService.update(outletId, updateOutletRequestDTO);
+        return new ResponseEntity<>(convert(outlet), HttpStatus.OK);
     }
 
     @Operation(summary = "get all outlets for a institution", description = "get all outlets for a institution")

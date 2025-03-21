@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class ExpandedOutletsResponse {
 
     private String description;
 
+    @Email
+    @NotEmpty
+    private String email;
 
     private List<CreateCourseDTOResponseDTO> courses;
     private List<CreateEducatorResponseDTO> educators;

@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.services.outlets;
 
+import com.reportai.www.reportapi.api.v1.outlets.requests.UpdateOutletRequestDTO;
 import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Institution;
@@ -19,6 +20,8 @@ import java.util.UUID;
 import lombok.NonNull;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class OutletsService implements BaseServiceTemplate<Outlet, UUID> {
     private final StudentsService studentsService;
     private final ClientResource clientResource;
     private final OutletAdminPersonaRepository outletAdminPersonaRepository;
+    private final ModelMapper modelMapper;
     private final String OUTLET_ROLE_TEMPLATE = "%s_%s_outlet-admin";
 
     @Autowired
@@ -40,6 +44,11 @@ public class OutletsService implements BaseServiceTemplate<Outlet, UUID> {
         this.studentsService = studentsService;
         this.clientResource = clientResource;
         this.outletAdminPersonaRepository = outletAdminPersonaRepository;
+        this.modelMapper = new ModelMapper();
+        this.modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setSkipNullEnabled(true);// skip null values
+        this.modelMapper.typeMap(UpdateOutletRequestDTO.class, Outlet.class);
     }
 
     @Override
@@ -102,10 +111,18 @@ public class OutletsService implements BaseServiceTemplate<Outlet, UUID> {
         return outlet;
     }
 
+    @Transactional
     public Outlet addOutletAdminPersonas(UUID outletId, List<UUID> outletAdminPersonaIds) {
         Outlet outlet = findById(outletId);
         List<OutletAdminPersona> outletAdminPersonas = outletAdminPersonaRepository.findAllById(outletAdminPersonaIds);
         outlet.addOutletAdminPersonas(outletAdminPersonas);
+        return outlet;
+    }
+
+    @Transactional
+    public Outlet update(UUID outletId, UpdateOutletRequestDTO updateOutletRequestDTO) {
+        Outlet outlet = findById(outletId);
+        modelMapper.map(updateOutletRequestDTO, outlet);
         return outlet;
     }
 

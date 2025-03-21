@@ -155,6 +155,7 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::students:update", tenantId),
                 String.format("institutions::%s::outlets:read", tenantId),
                 String.format("institutions::%s::outlets:create", tenantId),
+                String.format("institutions::%s::outlets:update", tenantId),
                 String.format("institutions::%s::accounts:create-educator", tenantId),
                 String.format("institutions::%s::accounts:create-student", tenantId),
                 String.format("institutions::%s::accounts:create", tenantId),

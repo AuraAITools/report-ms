@@ -1,36 +1,25 @@
-package com.reportai.www.reportapi.api.v1.outlets.responses;
+package com.reportai.www.reportapi.api.v1.outlets.requests;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Builder
-@Data
+@Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CreateOutletResponseDto {
-
-    @NotEmpty
-    private String id;
-
-    @NotEmpty
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UpdateOutletRequestDTO {
     private String name;
 
-    @NotEmpty
     private String address;
 
-    @NotEmpty
     private String postalCode;
 
-    @NotEmpty
     private String contactNumber;
 
     @Email
-    @NotEmpty
     private String email;
-
+    
     private String description;
-
 }
