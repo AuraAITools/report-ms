@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.services.levels;
 
+import com.reportai.www.reportapi.api.v1.levels.requests.UpdateLevelRequestDTO;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Subject;
@@ -12,7 +13,11 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.NonNull;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -22,12 +27,37 @@ public class LevelsService implements BaseServiceTemplate<Level, UUID> {
     private final LevelRepository levelRepository;
     private final InstitutionsService institutionsService;
     private final SubjectsService subjectsService;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public LevelsService(LevelRepository levelRepository, InstitutionsService institutionsService, SubjectsService subjectsService) {
         this.levelRepository = levelRepository;
         this.institutionsService = institutionsService;
         this.subjectsService = subjectsService;
+        this.modelMapper = new ModelMapper();
+        this.modelMapper
+                .getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setSkipNullEnabled(true);// skip null values
+        // TODO: refactor Converters and Configurers to be in separate files instead of in the constructor
+        // Educators converter with null check
+        Converter<List<UUID>, List<Subject>> subjectIdsToSubjectsConverter = context -> {
+            if (context.getSource() == null) {
+                return null;
+            }
+            List<UUID> subjectIds = context.getSource();
+            return subjectIds.stream()
+                    .map(subjectsService::findById)
+                    .collect(Collectors.toList());
+        };
+
+
+        this.modelMapper
+                .typeMap(UpdateLevelRequestDTO.class, Level.class)
+                .addMappings(mapper -> {
+                    mapper.using(subjectIdsToSubjectsConverter)
+                            .map(UpdateLevelRequestDTO::getSubjectIds, Level::setSubjects);
+                });
     }
 
     @Override
@@ -48,6 +78,14 @@ public class LevelsService implements BaseServiceTemplate<Level, UUID> {
         newLevel.getSubjects().addAll(subjects);
         return levelRepository.save(newLevel);
     }
+
+    @Transactional
+    public Level update(@NonNull UUID levelId, @NonNull UpdateLevelRequestDTO update) {
+        Level level = findById(levelId);
+        this.modelMapper.map(update, level);
+        return level;
+    }
+
 
     public List<Level> getAllLevelsForInstitution(@NonNull UUID id) {
         Institution institution = institutionsService.findById(id);

@@ -5,6 +5,7 @@ import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorRespon
 import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsRequestDTO;
+import com.reportai.www.reportapi.api.v1.levels.requests.UpdateLevelRequestDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.ExpandedLevelsResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import static com.reportai.www.reportapi.mappers.LevelMappers.convert;
+import static com.reportai.www.reportapi.mappers.LevelMappers.convertExpanded;
 
 @Tag(name = "Levels APIs", description = "APIs for managing a Levels resource")
 @RestController
@@ -72,6 +74,16 @@ public class LevelsController {
     public ResponseEntity<CreateLevelsResponseDTO> createLevelForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsRequestDTO createLevelsRequestDTO) {
         Level createdLevel = levelsService.createLevelForInstitution(id, convert(id, createLevelsRequestDTO), createLevelsRequestDTO.getSubjects());
         return new ResponseEntity<>(convert(createdLevel), HttpStatus.OK);
+    }
+
+    @Operation(summary = "update a level for a institution", description = "update an level for a institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("/institutions/{id}/levels/{level_id}")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::levels:update'")
+    @Transactional
+    public ResponseEntity<ExpandedLevelsResponseDTO> updateLevelForInstitution(@PathVariable UUID id, @PathVariable(name = "level_id") UUID levelId, @Valid @RequestBody UpdateLevelRequestDTO updateLevelRequestDTO) {
+        Level createdLevel = levelsService.update(levelId, updateLevelRequestDTO);
+        return new ResponseEntity<>(convertExpanded(createdLevel), HttpStatus.OK);
     }
 
     @Operation(summary = "get all levels for a institution", description = "get all levels for a institution")
