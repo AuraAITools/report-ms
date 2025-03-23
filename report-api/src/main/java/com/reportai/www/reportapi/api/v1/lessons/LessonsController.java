@@ -89,13 +89,13 @@ public class LessonsController {
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 
-    @Operation(summary = "get expanded lessons of a course", description = "get lessons of a course")
+    @Operation(summary = "get expanded lessons in an outlet", description = "get lessons in an outlet")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/lessons/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::lessons:read'")
     @Transactional
-    public ResponseEntity<List<ExpandedLessonResponseDTO>> getAllLessonsOfInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        List<Lesson> lessons = lessonService.getExpandedLessonsInInstitution(id);
+    public ResponseEntity<List<ExpandedLessonResponseDTO>> getAllLessonsOfOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+        List<Lesson> lessons = lessonService.getExpandedLessonsInOutlet(outletId);
         return new ResponseEntity<>(lessons.stream().map(LessonMappers::convertToExpanded).toList(), HttpStatus.OK);
     }
 }

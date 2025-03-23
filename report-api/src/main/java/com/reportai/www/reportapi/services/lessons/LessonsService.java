@@ -7,7 +7,6 @@ import com.reportai.www.reportapi.entities.Lesson;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.repositories.LessonRepository;
-import com.reportai.www.reportapi.repositories.specifications.TenantSpecification;
 import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.educators.EducatorsService;
@@ -124,14 +123,21 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
     }
 
     /**
-     * TODO: refactor
-     *
      * @param institutionId
      * @return
      */
     @Transactional
     public List<Lesson> getExpandedLessonsInInstitution(@NonNull UUID institutionId) {
-        return lessonRepository.findAll(TenantSpecification.forTenant(institutionId.toString()));
+        return lessonRepository.findAllByInstitutionId(institutionId);
+    }
+
+    /**
+     * @param outletId
+     * @return list of lessons
+     */
+    @Transactional
+    public List<Lesson> getExpandedLessonsInOutlet(@NonNull UUID outletId) {
+        return lessonRepository.findAllByOutletId(outletId);
     }
 
     /**
