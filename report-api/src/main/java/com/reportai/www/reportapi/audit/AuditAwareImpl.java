@@ -6,6 +6,9 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+/**
+ * TODO: refactor
+ */
 @Component("auditAwareImpl")
 public class AuditAwareImpl implements AuditorAware<String> {
 

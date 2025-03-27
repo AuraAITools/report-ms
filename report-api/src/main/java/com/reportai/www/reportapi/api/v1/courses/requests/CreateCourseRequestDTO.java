@@ -57,6 +57,4 @@ public class CreateCourseRequestDTO {
 
     private List<UUID> educatorIds = new ArrayList<>();
 
-    @NotEmpty
-    private List<CreateLessonGenerationTemplateRequestDTO> lessonGenerationTemplates = new ArrayList<>();
 }

@@ -1,5 +1,7 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.analytics.LessonHomeworkCompletion;
+import com.reportai.www.reportapi.entities.base.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -84,6 +86,12 @@ public class Lesson extends BaseEntity {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private List<StudentReport> studentReports = new ArrayList<>();
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<LessonHomeworkCompletion> lessonHomeworkCompletions = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

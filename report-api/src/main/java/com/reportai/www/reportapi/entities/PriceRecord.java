@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

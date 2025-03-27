@@ -1,5 +1,6 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.base.BaseEntity;
 import com.reportai.www.reportapi.entities.personas.InstitutionAdminPersona;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

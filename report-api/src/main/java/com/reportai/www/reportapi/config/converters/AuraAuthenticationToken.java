@@ -204,7 +204,8 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::outlets::%s:add-student", tenantId, outletId),
                 String.format("institutions::%s::levels:read", tenantId),
                 String.format("institutions::%s::subjects:read", tenantId),
-                String.format("institutions::%s::accounts:link-client", tenantId)
+                String.format("institutions::%s::accounts:link-client", tenantId),
+                String.format("institutions::%s::outlets::%s::lessons::homework-completion:create", tenantId, outletId)
         ).toArray(String[]::new);
     }
 

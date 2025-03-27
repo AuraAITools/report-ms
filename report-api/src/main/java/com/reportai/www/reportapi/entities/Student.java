@@ -1,6 +1,9 @@
 package com.reportai.www.reportapi.entities;
 
+import com.reportai.www.reportapi.entities.analytics.LessonHomeworkCompletion;
+import com.reportai.www.reportapi.entities.base.BaseEntity;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -136,11 +139,18 @@ public class Student extends BaseEntity {
         return this;
     }
 
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<LessonHomeworkCompletion> lessonHomeworkCompletions = new ArrayList<>();
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "outlet_id")
     )
+
     @Builder.Default
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
