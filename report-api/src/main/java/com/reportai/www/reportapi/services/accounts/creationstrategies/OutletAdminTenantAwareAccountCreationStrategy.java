@@ -64,11 +64,10 @@ public class OutletAdminTenantAwareAccountCreationStrategy implements TenantAwar
                         .grantedRoles(grantedRoles).build());
         OutletAdminPersona outletAdminPersona = OutletAdminPersona
                 .builder()
-                .tenantId(params.getInstitutionId().toString())
                 .account(account)
                 .build();
         OutletAdminPersona createdOutletAdminPersona = params.getOutletAdminPersonaRepository().save(outletAdminPersona);
-        outlets.forEach(outlet -> params.getOutletsService().addOutletAdminPersona(outlet.getId(), createdOutletAdminPersona.getId()));
+        outlets.forEach(outlet -> params.getOutletsService().addOutletAdminToOutlet(outlet.getId(), createdOutletAdminPersona.getId()));
         return account;
     }
 }

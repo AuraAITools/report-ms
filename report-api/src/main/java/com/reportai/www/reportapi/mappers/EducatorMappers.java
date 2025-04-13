@@ -1,9 +1,9 @@
 package com.reportai.www.reportapi.mappers;
 
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateEducatorRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorClientResponseDTO;
-import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
+import com.reportai.www.reportapi.entities.educators.Educator;
 import com.reportai.www.reportapi.entities.personas.EducatorClientPersona;
 import java.util.UUID;
 
@@ -24,12 +24,16 @@ public class EducatorMappers {
                 .build();
     }
 
-    public static CreateEducatorResponseDTO convert(Educator educator) {
-        return CreateEducatorResponseDTO
+    public static EducatorResponseDTO convert(Educator educator) {
+        return EducatorResponseDTO
                 .builder()
-                .levels(educator.getLevels().stream().map(LevelMappers::convert).toList())
-                .subjects(educator.getSubjects().stream().map(SubjectMappers::convert).toList())
-                .outlets(educator.getOutlets().stream().map(OutletMappers::convert).toList())
+                .levels(educator.getLevelEducatorAttachments() == null ? null : educator.getLevelEducatorAttachments()
+                        .stream()
+                        .map(
+                                levelEducatorAttachment -> LevelMappers.convert(levelEducatorAttachment.getLevel()))
+                        .toList())
+                .subjects(educator.getSubjectEducatorAttachments() == null ? null : educator.getSubjectEducatorAttachments().stream().map(subjectEducatorAttachment -> SubjectMappers.convert(subjectEducatorAttachment.getSubject())).toList())
+                .outlets(educator.getOutletEducatorAttachments() == null ? null : educator.getOutletEducatorAttachments().stream().map(outletEducatorAttachment -> OutletMappers.convert(outletEducatorAttachment.getOutlet())).toList())
                 .employmentType(educator.getEmploymentType())
                 .id(educator.getId().toString())
                 .name(educator.getName())

@@ -3,10 +3,16 @@ package com.reportai.www.reportapi.mappers;
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateBlankAccountRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateInstitutionAdminAccountRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentClientRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateAccountResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentClientResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.AccountResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.ExpandedAccountResponse;
+import com.reportai.www.reportapi.api.v1.accounts.responses.StudentClientResponseDTO;
 import com.reportai.www.reportapi.entities.Account;
+import com.reportai.www.reportapi.entities.personas.EducatorClientPersona;
+import com.reportai.www.reportapi.entities.personas.InstitutionAdminPersona;
+import com.reportai.www.reportapi.entities.personas.OutletAdminPersona;
+import com.reportai.www.reportapi.entities.personas.Persona;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -51,8 +57,8 @@ public class AccountMappers {
                 .build();
     }
 
-    public static CreateAccountResponseDTO convert(Account from) {
-        return CreateAccountResponseDTO
+    public static AccountResponseDTO convert(Account from) {
+        return AccountResponseDTO
                 .builder()
                 .id(from.getId().toString())
                 .firstName(from.getFirstName())
@@ -82,8 +88,8 @@ public class AccountMappers {
                 .build();
     }
 
-    public static CreateStudentClientResponseDTO convert(Account from, StudentClientPersona.RELATIONSHIP relationship) {
-        return CreateStudentClientResponseDTO
+    public static StudentClientResponseDTO convert(Account from, StudentClientPersona.RELATIONSHIP relationship) {
+        return StudentClientResponseDTO
                 .builder()
                 .id(from.getId().toString())
                 .firstName(from.getFirstName())
@@ -92,6 +98,59 @@ public class AccountMappers {
                 .contact(from.getContact())
                 .relationship(relationship)
                 .build();
+    }
+
+    public static ExpandedAccountResponse convertExpanded(Account account) {
+        return ExpandedAccountResponse
+                .builder()
+                .contact(account.getContact())
+                .email(account.getEmail())
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .id(account.getId().toString())
+                .personas(account.getPersonas() == null ? Collections.emptyList() :
+                        account
+                                .getPersonas()
+                                .stream()
+                                .map(AccountMappers::convert)
+                                .toList())
+                /**
+                 * TODO: implement actions pending from account fetch from keycloak
+                 */
+                .pendingAccountActions(Collections.emptyList())
+                .build();
+    }
+
+    private static ExpandedAccountResponse.PersonaResponseDTO convert(Persona persona) {
+        return ExpandedAccountResponse.PersonaResponseDTO
+                .builder()
+                .displayRoles(extractRolesFromPersona(persona))
+                .id(persona.getId().toString())
+                .build();
+    }
+
+    public static List<String> extractRolesFromPersona(Persona persona) {
+        if (persona instanceof StudentClientPersona) {
+            return List.of("student");
+        }
+
+        if (persona instanceof EducatorClientPersona) {
+            return List.of("educator");
+        }
+
+        if (persona instanceof OutletAdminPersona) {
+            return ((OutletAdminPersona) persona)
+                    .getOutlets()
+                    .stream()
+                    .map(outlet -> String.format("%s outlet-admin", outlet.getName()))
+                    .toList();
+        }
+
+        if (persona instanceof InstitutionAdminPersona) {
+            return List.of("institution-admin");
+        }
+
+        return List.of("none");
     }
 
 

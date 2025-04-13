@@ -1,38 +1,47 @@
 package com.reportai.www.reportapi.entities;
 
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
+import com.reportai.www.reportapi.entities.attachments.OutletEducatorAttachment;
+import com.reportai.www.reportapi.entities.attachments.StudentOutletRegistration;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
+import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.helpers.EntityRelationshipUtils;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.entities.personas.OutletAdminPersona;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.modelmapper.internal.util.Assert;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Outlets")
-public class Outlet extends BaseEntity {
+@Table(name = "Outlets", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_outlet_name",
+                columnNames = {"tenant_id", "name"}
+        )
+})
+public class Outlet extends TenantAwareBaseEntity {
     private String name;
 
     private String address;
@@ -46,60 +55,52 @@ public class Outlet extends BaseEntity {
     @Email
     private String email;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Institution institution;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "outlet_id"),
-            inverseJoinColumns = @JoinColumn(name = "outlet_admin_id")
-    )
+    @ManyToMany(mappedBy = "outlets", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<OutletAdminPersona> outletAdminPersonas = new ArrayList<>();
+    private Set<OutletAdminPersona> outletAdminPersonas = new HashSet<>();
 
     public Outlet addOutletAdminPersona(@NonNull OutletAdminPersona outletAdminPersona) {
-        this.getOutletAdminPersonas().add(outletAdminPersona);
-        outletAdminPersona.getOutlets().add(this);
-        return this;
+        return EntityRelationshipUtils.addToManyToMany(
+                this, outletAdminPersona, this.getOutletAdminPersonas(),
+                outletAdminPersona.getOutlets()
+        );
     }
 
-    public Outlet addOutletAdminPersonas(@NonNull List<OutletAdminPersona> outletAdminPersonas) {
-        assert Collections.disjoint(this.getOutletAdminPersonas(), outletAdminPersonas);
-        assert !outletAdminPersonas.isEmpty();
+    public Outlet addOutletAdminPersonas(@NonNull Collection<OutletAdminPersona> outletAdminPersonas) {
+        Assert.isTrue(Collections.disjoint(this.getOutletAdminPersonas(), outletAdminPersonas));
+        Assert.isTrue(!outletAdminPersonas.isEmpty());
 
-        this.getOutletAdminPersonas().addAll(outletAdminPersonas);
-        outletAdminPersonas.forEach(outletAdminPersona -> outletAdminPersona.getOutlets().add(this));
-        return this;
+        return EntityRelationshipUtils.addAllToManyToMany(
+                this, outletAdminPersonas, this.getOutletAdminPersonas(),
+                OutletAdminPersona::getOutlets
+        );
     }
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Student> students = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "outlets")
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Educator> educators = new ArrayList<>();
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Course> courses = new ArrayList<>();
+    private Set<StudentOutletRegistration> studentOutletRegistrations = new HashSet<>();
+
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Lesson> lessons = new ArrayList<>();
+    private Set<OutletEducatorAttachment> outletEducatorAttachments = new HashSet<>();
 
-    @Column(nullable = false)
-    private String tenantId;
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<Course> courses = new HashSet<>();
+
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<OutletRoom> outletRooms = new HashSet<>();
+
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<Lesson> lessons = new HashSet<>();
+
+
 }

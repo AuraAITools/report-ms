@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.api.v1.topics;
 import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.services.topics.TopicsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +35,14 @@ public class TopicsController {
     @PostMapping("/institutions/{id}/topics")
     @PreAuthorize("hasRole(#id + '_institution-admin')")
     public ResponseEntity<Topic> createTopicInInstitution(@RequestBody Topic topic, @PathVariable UUID id) {
-        Topic createdTopic = topicsService.createTopicForInstitution(topic, id);
+        Topic createdTopic = topicsService.createTopicForInstitution(topic);
         return new ResponseEntity<>(createdTopic, HttpStatus.CREATED);
     }
 
     @GetMapping("/institutions/{id}/topics")
     @PreAuthorize("hasRole(#id + '_institution-admin')")
     public ResponseEntity<List<Topic>> getAllTopicsInInstitution(@PathVariable UUID id) {
-        List<Topic> topics = topicsService.getAllTopicsFromInstitution(id);
-        return new ResponseEntity<>(topics, HttpStatus.OK);
+        Collection<Topic> topics = topicsService.getAllTopicsFromInstitution();
+        return new ResponseEntity<>(topics.stream().toList(), HttpStatus.OK);
     }
 }

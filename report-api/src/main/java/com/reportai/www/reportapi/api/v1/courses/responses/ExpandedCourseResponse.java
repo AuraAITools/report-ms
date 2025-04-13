@@ -2,9 +2,9 @@ package com.reportai.www.reportapi.api.v1.courses.responses;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
-import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
-import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
+import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
+import com.reportai.www.reportapi.api.v1.levels.responses.LevelsResponseDTO;
+import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import jakarta.validation.constraints.NotEmpty;
@@ -52,18 +52,18 @@ public class ExpandedCourseResponse {
 
     @DateTimeFormat
     private LocalTime endTime;
-    
-    @NotEmpty
-    private List<CreateLessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
 
     @NotEmpty
-    private CreateOutletResponseDto outlet;
+    private List<LessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
 
     @NotEmpty
-    private CreateLevelsResponseDTO level;
+    private OutletResponseDTO outlet;
 
     @NotEmpty
-    private List<CreateLessonResponseDTO> lessons;
+    private LevelsResponseDTO level;
+
+    @NotEmpty
+    private List<LessonResponseDTO> lessons;
 
     @NotEmpty
     private List<SubjectResponseDTO> subjects;

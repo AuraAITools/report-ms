@@ -1,8 +1,8 @@
 package com.reportai.www.reportapi.mappers;
 
 import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.StudentClientResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
 import java.util.UUID;
@@ -21,8 +21,8 @@ public class StudentMappers {
                 .build();
     }
 
-    public static CreateStudentResponseDTO convert(Student from) {
-        return CreateStudentResponseDTO
+    public static StudentResponseDTO convert(Student from) {
+        return StudentResponseDTO
                 .builder()
                 .id(from.getId().toString())
                 .name(from.getName())
@@ -30,10 +30,10 @@ public class StudentMappers {
                 .currentSchool(from.getCurrentSchool())
                 .dateOfBirth(from.getDateOfBirth())
                 .relationship(from.getStudentClientPersona().getRelationship())
-                .courses(from.getCourses().stream().map(CourseMappers::convert).toList())
+                .courses(from.getStudentCourseRegistrations().stream().map(studentCourseRegistration -> CourseMappers.convert(studentCourseRegistration.getCourse())).toList())
                 .level(LevelMappers.convert(from.getLevel()))
                 .contact(from.getStudentClientPersona().getAccount().getContact())
-                .outlets(from.getOutlets().stream().map(OutletMappers::convert).toList())
+                .outlets(from.getStudentOutletRegistrations().stream().map(studentOutletRegistration -> OutletMappers.convert(studentOutletRegistration.getOutlet())).toList())
                 .build();
     }
 

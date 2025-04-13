@@ -3,20 +3,23 @@ package com.reportai.www.reportapi.entities.personas;
 import com.reportai.www.reportapi.entities.Outlet;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -24,10 +27,14 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "OutletAdminPersonas")
 public class OutletAdminPersona extends Persona {
 
-    @ManyToMany(mappedBy = "outletAdminPersonas", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "outlet_admin_id"),
+            inverseJoinColumns = @JoinColumn(name = "outlet_id")
+    )
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    public List<Outlet> outlets = new ArrayList<>();
+    public Set<Outlet> outlets = new HashSet<>();
+
 
 }

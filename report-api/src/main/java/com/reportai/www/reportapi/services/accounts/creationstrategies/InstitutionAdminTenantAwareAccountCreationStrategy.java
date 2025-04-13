@@ -54,7 +54,6 @@ public class InstitutionAdminTenantAwareAccountCreationStrategy implements Tenan
                         .grantedRoles(GRANTED_ROLES_ON_CREATION).build());
         InstitutionAdminPersona institutionAdminPersona = InstitutionAdminPersona
                 .builder()
-                .tenantId(params.getInstitutionId().toString())
                 .account(account)
                 .build();
         params.institutionAdminPersonaRepository.save(institutionAdminPersona);

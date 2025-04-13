@@ -17,13 +17,6 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpec
 
     Optional<Account> findByUserId(String userId);
 
-    // find by institution id and account email
-    Optional<Account> findByInstitution_IdAndEmail(UUID institutionId, String email);
-
-//    @Query("SELECT a FROM Account a JOIN a.institutions i WHERE a.email = :email AND i.id = :institutionId")
-//    Optional<Account> findByEmailAndInstitutionId(@Param("email") String email, @Param("institutionId") String institutionId);
-//
-
     @Override
     @Transactional
     default <S extends Account> S save(S entity) {

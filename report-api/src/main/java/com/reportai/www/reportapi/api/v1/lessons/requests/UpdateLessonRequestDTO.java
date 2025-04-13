@@ -3,7 +3,7 @@ package com.reportai.www.reportapi.api.v1.lessons.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.entities.Lesson;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -23,7 +23,7 @@ public class UpdateLessonRequestDTO {
 
     private String description;
 
-    private Lesson.STATUS status;
+    private Lesson.LESSON_STATUS status;
 
     @DateTimeFormat
     private LocalDate date;

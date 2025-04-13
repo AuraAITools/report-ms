@@ -2,7 +2,8 @@ package com.reportai.www.reportapi.config;
 
 import com.reportai.www.reportapi.config.converters.AuraAuthenticationToken;
 import com.reportai.www.reportapi.config.converters.KeycloakUserPrincipalConverter;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.filters.TenantFilter;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
@@ -18,18 +19,23 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(name = "oauth2.security.enabled", havingValue = "true")
 public class WebSecurityConfig {
+    private final OutletRepository outletRepository;
 
-    private final InstitutionRepository institutionRepository;
+
+    private final TenantFilter tenantFilter;
 
     @Autowired
-    public WebSecurityConfig(InstitutionRepository institutionRepository) {
-        this.institutionRepository = institutionRepository;
+    public WebSecurityConfig(TenantFilter tenantFilter,
+                             OutletRepository outletRepository) {
+        this.tenantFilter = tenantFilter;
+        this.outletRepository = outletRepository;
     }
 
     @Value("${oauth2.security.resource-server.jwk-set-uri}")
@@ -50,7 +56,8 @@ public class WebSecurityConfig {
                                 jwtConfigurer -> jwtConfigurer
                                         .jwkSetUri(jwksUrl)
                                         .jwtAuthenticationConverter(jwtAuraAuthenticationTokenConverter())
-                        ));
+                        ))
+                .addFilterAfter(tenantFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -62,6 +69,6 @@ public class WebSecurityConfig {
     }
 
     private Converter<Jwt, AuraAuthenticationToken> jwtAuraAuthenticationTokenConverter() {
-        return new KeycloakUserPrincipalConverter(institutionRepository);
+        return new KeycloakUserPrincipalConverter(outletRepository);
     }
 }

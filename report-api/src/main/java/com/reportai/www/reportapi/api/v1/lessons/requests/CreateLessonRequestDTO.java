@@ -3,10 +3,8 @@ package com.reportai.www.reportapi.api.v1.lessons.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.entities.Lesson;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -28,9 +26,6 @@ public class CreateLessonRequestDTO {
 
     private String description;
 
-    @NotNull
-    private Lesson.STATUS status;
-
     @DateTimeFormat
     private LocalDate date;
 
@@ -40,11 +35,9 @@ public class CreateLessonRequestDTO {
     @DateTimeFormat
     private LocalTime endTime;
 
-    @Size(min = 1)
     @NotNull
     private List<UUID> educatorIds = new ArrayList<>();
 
-    @Size(min = 1)
     @NotNull
     private List<UUID> studentIds = new ArrayList<>();
 

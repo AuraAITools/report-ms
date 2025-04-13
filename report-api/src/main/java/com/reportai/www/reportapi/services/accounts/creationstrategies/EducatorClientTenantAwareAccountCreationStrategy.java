@@ -53,7 +53,6 @@ public class EducatorClientTenantAwareAccountCreationStrategy implements TenantA
                 .build());
         EducatorClientPersona educatorClientPersona = EducatorClientPersona
                 .builder()
-                .tenantId(params.getInstitutionId().toString())
                 .account(account)
                 .build();
         params.getEducatorClientPersonaRepository().save(educatorClientPersona);

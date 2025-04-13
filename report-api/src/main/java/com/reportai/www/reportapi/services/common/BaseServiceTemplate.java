@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.services.common;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import java.util.List;
 import lombok.NonNull;
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @param <E>  resource entity
  * @param <ID> resource ID i.e. UUID
  */
-public interface BaseServiceTemplate<E extends BaseEntity, ID> {
+public interface BaseServiceTemplate<E extends TenantAwareBaseEntity, ID> {
 
     JpaRepository<E, ID> getRepository();
 

@@ -2,7 +2,7 @@ package com.reportai.www.reportapi.api.v1.analytics;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.analytics.requests.CreateLessonHomeworkCompletionRequest;
-import com.reportai.www.reportapi.entities.analytics.LessonHomeworkCompletion;
+import com.reportai.www.reportapi.entities.lessons.LessonHomeworkCompletion;
 import com.reportai.www.reportapi.mappers.LessonHomeworkCompletionMapper;
 import com.reportai.www.reportapi.services.analytics.AnalyticsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,7 +45,6 @@ public class LessonAnalyticsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::lessons::homework-completion:create'")
     @Transactional
     public ResponseEntity<Void> createLessonHomeworkCompletion(@PathVariable(name = "id") UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "lesson_id") UUID lessonId, @PathVariable(name = "student_id") UUID studentId, @RequestBody @Valid CreateLessonHomeworkCompletionRequest createLessonHomeworkCompletionRequest) {
-
         LessonHomeworkCompletion lessonHomeworkCompletion = analyticsService.createLessonHomeworkCompletion(studentId, lessonId, LessonHomeworkCompletionMapper.convert(createLessonHomeworkCompletionRequest));
         return ResponseEntity.ok().build();
     }

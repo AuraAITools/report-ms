@@ -3,16 +3,17 @@ package com.reportai.www.reportapi.api.v1.courses;
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
 import com.reportai.www.reportapi.api.v1.courses.requests.UpdateCourseRequestDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.ExpandedCourseResponse;
-import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.mappers.CourseMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -64,22 +65,22 @@ public class CoursesController {
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
-    public ResponseEntity<CreateCourseDTOResponseDTO> createCourseForOutlet(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<CourseResponseDTO> createCourseForOutlet(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         // TODO: if lessonGenerationTemplate array is not empty, generate lessons
         Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseRequestDTO, id), outletId);
         Course courseWithLevel = coursesService.addLevelToCourse(createdCourse.getId(), createCourseRequestDTO.getLevelId());
         createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectsToCourse(courseWithLevel.getId(), List.of(subjectId)));
         createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorsToCourse(courseWithLevel.getId(), List.of(educatorId)));
         Course resultantCourse = coursesService.findById(courseWithLevel.getId());
-        CreateCourseDTOResponseDTO createCourseDTOResponseDTO = convert(resultantCourse);
-        return new ResponseEntity<>(createCourseDTOResponseDTO, HttpStatus.CREATED);
+        CourseResponseDTO courseResponseDTO = convert(resultantCourse);
+        return new ResponseEntity<>(courseResponseDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
-    public ResponseEntity<List<CreateCourseDTOResponseDTO>> getAllCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        List<Course> courses = outletsService.getOutletCourses(outletId);
+    public ResponseEntity<List<CourseResponseDTO>> getAllCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+        Collection<Course> courses = outletsService.getOutletCourses(outletId);
         return new ResponseEntity<>(courses.stream().map(CourseMappers::convert).toList(), HttpStatus.OK);
     }
 
@@ -87,7 +88,7 @@ public class CoursesController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
     public ResponseEntity<List<ExpandedCourseResponse>> getAllExpandedCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        List<Course> courses = outletsService.getOutletCourses(outletId);
+        Collection<Course> courses = outletsService.getOutletCourses(outletId);
         return new ResponseEntity<>(courses.stream().map(CourseMappers::convertExpanded).toList(), HttpStatus.OK);
     }
 
@@ -102,7 +103,7 @@ public class CoursesController {
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:update'")
     @Transactional
-    public ResponseEntity<CreateCourseDTOResponseDTO> updateCourseForOutlet(@RequestBody @Valid UpdateCourseRequestDTO updateCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+    public ResponseEntity<CourseResponseDTO> updateCourseForOutlet(@RequestBody @Valid UpdateCourseRequestDTO updateCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course updates = Course.builder().build();
         ModelMapper customModelMapper = new ModelMapper();
         customModelMapper.getConfiguration()
@@ -122,7 +123,7 @@ public class CoursesController {
                         PriceRecord priceRecord = destination.getPriceRecord();
                         if (priceRecord == null) {
                             priceRecord = new PriceRecord();
-                            destination.setPriceRecord(priceRecord);
+                            destination.addPriceRecord(priceRecord);
                         }
 
                         if (source.getPrice() != null) {

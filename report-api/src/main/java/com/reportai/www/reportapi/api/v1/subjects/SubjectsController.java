@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class SubjectsController {
     @GetMapping("/institutions/{id}/subjects")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:read'")
     public ResponseEntity<List<SubjectResponseDTO>> getAllSubjectsForInstitution(@PathVariable UUID id) {
-        List<Subject> subjects = subjectsService.getAllSubjectsForInstitution(id);
+        Collection<Subject> subjects = subjectsService.getAllSubjectsForInstitution(id);
         List<SubjectResponseDTO> subjectResponseDTOS = subjects
                 .stream()
                 .map(SubjectMappers::convert)
@@ -58,7 +59,7 @@ public class SubjectsController {
     @PostMapping("/institutions/{id}/subjects")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:create'")
     public ResponseEntity<SubjectResponseDTO> createSubjectForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateSubjectRequestDTO createSubjectRequestDTO) {
-        Subject createdSubject = subjectsService.createSubjectForInstitution(id, convert(createSubjectRequestDTO, id));
+        Subject createdSubject = subjectsService.createSubjectForInstitution(convert(createSubjectRequestDTO, id));
         return new ResponseEntity<>(convert(createdSubject), HttpStatus.OK);
     }
 

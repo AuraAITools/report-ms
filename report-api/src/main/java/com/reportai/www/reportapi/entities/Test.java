@@ -1,49 +1,40 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
-import jakarta.persistence.Column;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Tests")
-public class Test extends BaseEntity {
+public class Test extends TenantAwareBaseEntity {
 
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private TestGroup testGroup;
 
     @OneToMany(mappedBy = "test", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<TestResult> testResults = new ArrayList<>();
+    private Set<TestResult> testResults = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Institution institution;
 
-    @Column(nullable = false)
-    private String tenantId;
 }

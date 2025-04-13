@@ -3,21 +3,19 @@ package com.reportai.www.reportapi.api.v1.lessons;
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO;
 import com.reportai.www.reportapi.api.v1.lessons.requests.UpdateLessonRequestDTO;
-import com.reportai.www.reportapi.api.v1.lessons.responses.CreateLessonResponseDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
-import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.entities.Educator;
-import com.reportai.www.reportapi.entities.Lesson;
-import com.reportai.www.reportapi.entities.Student;
+import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
+import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
+import com.reportai.www.reportapi.entities.lessons.LessonView;
 import com.reportai.www.reportapi.mappers.LessonMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
-import com.reportai.www.reportapi.services.educators.EducatorsService;
 import com.reportai.www.reportapi.services.lessons.LessonsService;
-import com.reportai.www.reportapi.services.students.StudentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -43,16 +41,10 @@ public class LessonsController {
 
     private final CoursesService coursesService;
 
-    private final StudentsService studentsService;
-
-    private final EducatorsService educatorsService;
-
     @Autowired
-    public LessonsController(LessonsService lessonService, CoursesService coursesService, StudentsService studentsService, EducatorsService educatorsService) {
+    public LessonsController(LessonsService lessonService, CoursesService coursesService) {
         this.lessonService = lessonService;
         this.coursesService = coursesService;
-        this.studentsService = studentsService;
-        this.educatorsService = educatorsService;
     }
 
     @Operation(summary = "create lesson of course", description = "create a lesson in a course")
@@ -60,11 +52,8 @@ public class LessonsController {
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}/lessons")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:create'")
     @Transactional
-    public ResponseEntity<CreateLessonResponseDTO> createLessonForCourse(@RequestBody CreateLessonRequestDTO createLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
-        Course course = coursesService.findById(courseId);
-        List<Student> students = studentsService.findByIds(createLessonRequestDTO.getStudentIds());
-        List<Educator> educators = educatorsService.findByIds(createLessonRequestDTO.getEducatorIds());
-        Lesson lesson = lessonService.createLessonForCourse(course.getId(), LessonMappers.convert(createLessonRequestDTO, id), students, educators);
+    public ResponseEntity<LessonResponseDTO> createLessonForCourse(@RequestBody @Valid CreateLessonRequestDTO createLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+        Lesson lesson = lessonService.createLessonForCourse(courseId, LessonMappers.convert(createLessonRequestDTO, id), createLessonRequestDTO.getStudentIds(), createLessonRequestDTO.getEducatorIds());
         return new ResponseEntity<>(LessonMappers.convert(lesson), HttpStatus.OK);
     }
 
@@ -83,9 +72,9 @@ public class LessonsController {
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses/{course_id}/lessons")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:read'")
     @Transactional
-    public ResponseEntity<List<CreateLessonResponseDTO>> getAllLessonsOfCourse(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
+    public ResponseEntity<List<LessonResponseDTO>> getAllLessonsOfCourse(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course course = coursesService.findById(courseId);
-        List<CreateLessonResponseDTO> lessons = course.getLessons().stream().map(LessonMappers::convert).toList();
+        List<LessonResponseDTO> lessons = course.getLessons().stream().map(LessonMappers::convert).toList();
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 
@@ -95,7 +84,7 @@ public class LessonsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::lessons:read'")
     @Transactional
     public ResponseEntity<List<ExpandedLessonResponseDTO>> getAllLessonsOfOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        List<Lesson> lessons = lessonService.getExpandedLessonsInOutlet(outletId);
+        List<LessonView> lessons = lessonService.getLessonsInOutlet(outletId);
         return new ResponseEntity<>(lessons.stream().map(LessonMappers::convertToExpanded).toList(), HttpStatus.OK);
     }
 }

@@ -28,6 +28,6 @@ public class EducatorClientResponseDTO {
     public String contact;
 
     @NotEmpty
-    public CreateEducatorResponseDTO educator;
+    public EducatorResponseDTO educator;
 
 }

@@ -5,7 +5,6 @@ import com.reportai.www.reportapi.clients.keycloak.exceptions.KeycloakUserAccoun
 import com.reportai.www.reportapi.entities.Account;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
-import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.mappers.AccountMappers;
 import com.reportai.www.reportapi.repositories.AccountRepository;
 import com.reportai.www.reportapi.services.institutions.InstitutionsService;
@@ -24,6 +23,7 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.modelmapper.internal.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,18 +58,18 @@ public class StrategyUtils {
         Account requestedAccount = params.getRequestedAccount();
         List<String> grantedRoles = params.getGrantedRoles();
 
-        requestedAccount.setTenantId(institutionId.toString()); // TODO: arguably should be in converter
-
-//        Persona
         // get institution
-        Institution institution = institutionsService.findById(institutionId);
+        Institution institution = institutionsService.getCurrentInstitution();
 
-        // fetch all TenantAwareAccounts in All tenants/institution
-        List<Account> accountsInAllTenants = accountRepository.findAllByEmail(requestedAccount.getEmail());
+        List<UserRepresentation> idpUserAccounts = usersResource.searchByEmail(requestedAccount.getEmail(), true);
 
+        // each email should only be unique
+        Assert.isTrue(idpUserAccounts.size() < 2);
+
+        // TODO: look into this logic after database multitenancy change. might break
         // brand new user, create new keycloak user account and new tenant aware account
-        if (accountsInAllTenants.isEmpty()) {
-            // create user account in keycloak
+        if (idpUserAccounts.isEmpty()) {
+            // create idpUserAccount in keycloak with tenant-ids as user attribute
             UserRepresentation userRepresentation = AccountMappers.convert(requestedAccount, Map.of("tenant-ids", List.of(institutionId.toString())));
 
             Response response = usersResource.create(userRepresentation);
@@ -83,77 +83,54 @@ public class StrategyUtils {
             }
 
             String userId = CreatedResponseUtil.getCreatedId(response);
-
             log.info("successfully created user with userId: {}", userId);
 
             UserResource userResource = usersResource.get(userId);
 
             // add roles for created user
-            // TODO: see if we can add roles after email is verified
             List<RoleRepresentation> grantedTenantAwareRoles = grantedRoles
                     .stream()
                     .map(role -> {
                         String tenantAwareRole = String.format("%s_%s", institutionId, role);
                         return clientResource.roles().get(tenantAwareRole).toRepresentation();
-                    }).toList();
+                    })
+                    .toList();
 
             userResource.roles().clientLevel(clientResource.toRepresentation().getId()).add(grantedTenantAwareRoles);
             log.info("Client roles {} has been granted to user {}", String.join(", ", grantedTenantAwareRoles.stream().map(RoleRepresentation::getName).toList()), userId);
 
             requestedAccount.setUserId(userId);
-            requestedAccount.setInstitution(institution);
             return accountRepository.save(requestedAccount);
         }
 
-        // if TenantAwareAccount exists in tenant, throw error
-        boolean tenantAwareAccountExistsInTenant = !accountsInAllTenants
-                .stream()
-                .filter(account -> institution.getId().equals(account.getInstitution().getId()))
-                .toList()
-                .isEmpty();
-
-        if (tenantAwareAccountExistsInTenant) {
+        // idpUserAccount exists, check if tenantAwareAccount is already registered with idpUserAccount
+        // if it exists, prevent creation of duplicate tenantAwareAccount
+        if (accountRepository.findByEmail(params.getRequestedAccount().getEmail()).isPresent()) {
             throw new ResourceAlreadyExistsException(String.format("account with email %s is already present in institution %s", requestedAccount.getEmail(), institution.getName()));
         }
 
-        // if TenantAwareAccount exists in another tenant/institution
-        // skip creation of keycloak user account
-        // add tenant_id and tenant aware roles into existing keycloak account user
-        // and create tenantAwareAccount in current tenant
-        List<UserRepresentation> users = usersResource.searchByEmail(requestedAccount.getEmail(), true);
+        // idpUserAccount exists, there is already another tenantAwareAccount from another tenant registered to this idpUserAccount
+        // in this case, just append tenant-id to existing user-attributes of idpUserAccount and attach tenant-specific roles
+        UserRepresentation existingIdpUserAccount = idpUserAccounts.getFirst();
+        requestedAccount.setUserId(existingIdpUserAccount.getId());
+        List<RoleRepresentation> newGrantedTenantAwareRoles = grantedRoles
+                .stream()
+                .map(r -> {
+                    String tenantAwareRole = String.format("%s_%s", institutionId, r);
+                    log.info("fetching role {} for user {}", tenantAwareRole, existingIdpUserAccount.getId());
+                    return clientResource.roles().get(tenantAwareRole).toRepresentation();
+                })
+                .toList();
 
-        if (users.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("keycloak user account by email %s not found", requestedAccount.getEmail()));
-        }
+        UserResource existingIdpUserAccountUserResource = usersResource.get(existingIdpUserAccount.getId());
 
-        // TODO: specify a more detailed unchecked exception
-        if (users.size() > 1) {
-            throw new RuntimeException("SYSTEM_IRREGULARITY: System found 2 keycloak user accounts with the same email");
-        }
-
-        UserRepresentation targetUser = users.getFirst();
-
-        // add tenant aware roles to targetUser
-        List<RoleRepresentation> newGrantedTenantAwareRoles = grantedRoles.stream().map(r -> {
-            String tenantAwareRole = String.format("%s_%s", institutionId, r);
-            log.info("fetching role {} for user {}", tenantAwareRole, targetUser.getId());
-            return clientResource
-                    .roles()
-                    .get(tenantAwareRole)
-                    .toRepresentation();
-        }).toList();
-
-        UserResource targetUserResource = usersResource.get(targetUser.getId());
-
-        // TODO: see if you can grant roles after email verification will be better
-        targetUserResource
+        existingIdpUserAccountUserResource
                 .roles()
                 .clientLevel(clientResource.toRepresentation().getId())
                 .add(newGrantedTenantAwareRoles);
 
-        addTenantIdAttributeIfNotExist(targetUserResource, institution);
-        requestedAccount.setInstitution(institution);
-        requestedAccount.setUserId(targetUser.getId());
+        // append tenant-id
+        addTenantIdAttributeIfNotExist(existingIdpUserAccountUserResource, institution);
         return accountRepository.save(requestedAccount);
     }
 

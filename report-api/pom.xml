@@ -18,13 +18,21 @@
         <modelmapper.version>3.2.0</modelmapper.version>
         <keycloak-admin-client.version>25.0.6</keycloak-admin-client.version>
         <springdoc-openapi-stgarter-webmvc-ui.version>2.6.0</springdoc-openapi-stgarter-webmvc-ui.version>
-        <modelmapper.version>3.0.0</modelmapper.version>
+        <liquibase.version>4.27.0</liquibase.version>
+        <liquibase-maven-plugin.version>4.27.0</liquibase-maven-plugin.version>
+        <!--        used for liquibase profile, TODO: check if needed-->
+        <liquibase-hibernate6.version>4.23.0</liquibase-hibernate6.version>
+        <spring-boot-starter-data-jpa.version>3.4.2</spring-boot-starter-data-jpa.version>
+        <jakarta-validation-api.version>3.0.2</jakarta-validation-api.version>
+        <hibernate-validation.version>8.0.2.Final</hibernate-validation.version>
+        <postgresql.version>42.7.5</postgresql.version>
     </properties>
     <dependencies>
+        <!-- Liquibase -->
         <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>${modelmapper.version}</version>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -82,8 +90,66 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-shade</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
-
+    <profiles>
+        <profile>
+            <id>generate-db-changelog</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase-maven-plugin.version}</version>
+                        <configuration>
+                            <propertyFile>src/main/resources/db/liquibase.properties</propertyFile>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.liquibase.ext</groupId>
+                                <artifactId>liquibase-hibernate6</artifactId>
+                                <version>${liquibase-hibernate6.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                <version>${spring-boot-starter-data-jpa.version}</version>
+                            </dependency>
+                            <!-- Add this dependency -->
+                            <dependency>
+                                <groupId>jakarta.validation</groupId>
+                                <artifactId>jakarta.validation-api</artifactId>
+                                <version>${jakarta-validation-api.version}</version>
+                            </dependency>
+                            <!-- Also add the implementation -->
+                            <dependency>
+                                <groupId>org.hibernate.validator</groupId>
+                                <artifactId>hibernate-validator</artifactId>
+                                <version>${hibernate-validator.version}</version>
+                            </dependency>
+                            <!-- Include your PostgreSQL driver -->
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>${postgresql.version}</version>
+                            </dependency>
+                            <!-- Add your database driver dependency here -->
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <finalName>report-api</finalName>
         <plugins>

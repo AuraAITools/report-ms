@@ -3,8 +3,9 @@ package com.reportai.www.reportapi.api.v1.outlets;
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO;
 import com.reportai.www.reportapi.api.v1.outlets.requests.UpdateOutletRequestDTO;
-import com.reportai.www.reportapi.api.v1.outlets.responses.CreateOutletResponseDto;
-import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponse;
+import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponseDTO;
+import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDTO;
+import com.reportai.www.reportapi.contexts.requests.TenantContext;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.mappers.OutletMappers;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -50,18 +52,18 @@ public class OutletsController {
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
-    public ResponseEntity<CreateOutletResponseDto> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
+    public ResponseEntity<OutletResponseDTO> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
         Outlet newOutlet = convert(createOutletRequestDTO, id.toString());
-        Outlet createdOutlet = outletsService.createOutletForInstitution(id, newOutlet);
-        CreateOutletResponseDto createOutletResponseDto = convert(createdOutlet);
-        return new ResponseEntity<>(createOutletResponseDto, HttpStatus.CREATED);
+        Outlet createdOutlet = outletsService.createOutletForInstitution(newOutlet, TenantContext.getTenantId());
+        OutletResponseDTO outletResponseDTO = convert(createdOutlet);
+        return new ResponseEntity<>(outletResponseDTO, HttpStatus.CREATED);
     }
 
     @Operation(summary = "update a outlet for a institution", description = "update an outlet for a institution")
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:update'")
-    public ResponseEntity<CreateOutletResponseDto> updateOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @Valid @RequestBody UpdateOutletRequestDTO updateOutletRequestDTO) {
+    public ResponseEntity<OutletResponseDTO> updateOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @Valid @RequestBody UpdateOutletRequestDTO updateOutletRequestDTO) {
         Outlet outlet = outletsService.update(outletId, updateOutletRequestDTO);
         return new ResponseEntity<>(convert(outlet), HttpStatus.OK);
     }
@@ -71,10 +73,10 @@ public class OutletsController {
     @GetMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
     @Transactional
-    public ResponseEntity<List<CreateOutletResponseDto>> getOutletsForInstitution(@PathVariable UUID id) {
+    public ResponseEntity<List<OutletResponseDTO>> getOutletsForInstitution(@PathVariable UUID id) {
 
-        List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
-        List<CreateOutletResponseDto> outletsDto = outlets
+        Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();
+        List<OutletResponseDTO> outletsDto = outlets
                 .stream()
                 .map(OutletMappers::convert)
                 .toList();
@@ -86,10 +88,10 @@ public class OutletsController {
     @GetMapping("/institutions/{id}/outlets/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
     @Transactional
-    public ResponseEntity<List<ExpandedOutletsResponse>> getExpandedOutletsForInstitution(@PathVariable UUID id) {
+    public ResponseEntity<List<ExpandedOutletsResponseDTO>> getExpandedOutletsForInstitution(@PathVariable UUID id) {
 
-        List<Outlet> outlets = outletsService.getAllOutletsForInstitution(id);
-        List<ExpandedOutletsResponse> outletsDto = outlets
+        Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();
+        List<ExpandedOutletsResponseDTO> outletsDto = outlets
                 .stream()
                 .map(OutletMappers::convertExpanded)
                 .toList();
@@ -105,5 +107,4 @@ public class OutletsController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // TODO: add educator to outlet
 }

@@ -33,5 +33,5 @@ public class StudentClientResponseDTO {
     @NotNull
     public StudentClientPersona.RELATIONSHIP relationship;
 
-    private List<CreateStudentResponseDTO> students;
+    private List<StudentResponseDTO> students;
 }

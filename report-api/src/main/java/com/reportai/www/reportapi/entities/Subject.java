@@ -1,87 +1,73 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
-import jakarta.persistence.Column;
+import com.reportai.www.reportapi.entities.attachments.SubjectCourseAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectEducatorAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectLevelAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectStudentAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectTestGroupAttachment;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.UniqueConstraint;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Subjects")
-public class Subject extends BaseEntity {
+@Table(name = "Subjects", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_subject_name",
+                columnNames = {"tenant_id", "name"}
+        )
+})
+public class Subject extends TenantAwareBaseEntity {
 
     private String name;
 
-    @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Course> courses = new ArrayList<>();
+    private Set<SubjectCourseAttachment> subjectCourseAttachments = new HashSet<>();
 
     // NOTE: deleting Subject shouldn't delete all the lessons
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Lesson> lessons = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "subject_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
-    )
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Student> students = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "subjects")
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Educator> educators = new ArrayList<>();
-
-    @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
-    @Builder.Default
-    @ToString.Exclude
-    private List<TestGroup> testGroups = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private Set<SubjectStudentAttachment> subjectStudentAttachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<SubjectEducatorAttachment> subjectEducatorAttachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<SubjectTestGroupAttachment> subjectTestGroupAttachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private List<TestResult> testResults = new ArrayList<>();
+    private Set<TestResult> testResults = new HashSet<>();
 
-    @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private List<Level> levels = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Institution institution;
-
-    @Column(nullable = false)
-    private String tenantId;
+    private Set<SubjectLevelAttachment> subjectLevelAttachments = new HashSet<>();
 
 }

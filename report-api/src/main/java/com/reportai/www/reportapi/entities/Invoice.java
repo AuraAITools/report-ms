@@ -1,32 +1,22 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
-import jakarta.persistence.Column;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Invoices")
-public class Invoice extends BaseEntity {
+public class Invoice extends TenantAwareBaseEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Institution institution;
-
-    @Column(nullable = false)
-    private String tenantId;
+    private double costed;
 }

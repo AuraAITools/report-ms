@@ -7,21 +7,22 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
  * a Students Client is able to access the report-mobile's students analytics dashboard
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -40,7 +41,6 @@ public class StudentClientPersona extends Persona {
 
     @OneToMany(mappedBy = "studentClientPersona")
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Student> students = new ArrayList<>();
+    private Set<Student> students = new HashSet<>();
 }

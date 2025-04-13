@@ -2,11 +2,11 @@ package com.reportai.www.reportapi.api.v1.lessons.responses;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
-import com.reportai.www.reportapi.entities.Lesson;
+import com.reportai.www.reportapi.entities.lessons.LessonView;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.DayOfWeek;
@@ -29,7 +29,13 @@ public class ExpandedLessonResponseDTO {
     private String name;
 
     @NotNull
-    private Lesson.STATUS status;
+    private LessonView.LESSON_STATUS lessonStatus;
+
+    @NotNull
+    private LessonView.LESSON_REVIEW_STATUS lessonReviewStatus;
+
+    @NotNull
+    private LessonView.LESSON_PLAN_STATUS lessonPlanStatus;
 
     @DateTimeFormat
     private LocalDate date;
@@ -47,13 +53,13 @@ public class ExpandedLessonResponseDTO {
     private DayOfWeek day;
 
     @NotNull
-    private List<CreateEducatorResponseDTO> educators;
+    private List<EducatorResponseDTO> educators;
 
     @NotNull
-    private List<CreateStudentResponseDTO> students;
+    private List<StudentResponseDTO> students;
 
     @NotNull
-    private CreateCourseDTOResponseDTO course;
+    private CourseResponseDTO course;
 
     @NotNull
     private SubjectResponseDTO subject;

@@ -57,13 +57,10 @@ public class StudentClientTenantAwareAccountCreationStrategy implements TenantAw
         StudentClientPersona studentClientPersona = StudentClientPersona
                 .builder()
                 .relationship(params.getRelationship())
-                .tenantId(params.getInstitutionId().toString())
-                .account(account)
                 .build();
 
+        studentClientPersona.addToAccount(account);
         StudentClientPersona createdStudentClientPersona = params.getStudentClientPersonaRepository().save(studentClientPersona);
-        account.getPersonas().add(createdStudentClientPersona);
-        params.getAccountRepository().save(account);
-        return account;
+        return createdStudentClientPersona.getAccount();
     }
 }

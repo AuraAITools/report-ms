@@ -1,13 +1,11 @@
 package com.reportai.www.reportapi.services.subjects;
 
-import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Subject;
-import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.SubjectRepository;
 import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import com.reportai.www.reportapi.services.institutions.InstitutionsService;
 import jakarta.transaction.Transactional;
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +31,7 @@ public class SubjectsService implements BaseServiceTemplate<Subject, UUID> {
     }
 
     @Transactional
-    public Subject createSubjectForInstitution(@NonNull UUID id, @NonNull Subject newSubject) {
-        Institution institution = institutionsService.findById(id);
-        institution.getSubjects().forEach(s -> {
-            if (newSubject.getName().equals(s.getName())) {
-                throw new ResourceAlreadyExistsException("Subject already exists");
-            }
-        });
-        /**
-         * TODO: refactor in entity
-         */
-        newSubject.setInstitution(institution);
+    public Subject createSubjectForInstitution(@NonNull Subject newSubject) {
         return subjectRepository.save(newSubject);
     }
 
@@ -55,8 +43,7 @@ public class SubjectsService implements BaseServiceTemplate<Subject, UUID> {
     }
 
     @Transactional
-    public List<Subject> getAllSubjectsForInstitution(@NonNull UUID id) {
-        Institution institution = institutionsService.findById(id);
-        return institution.getSubjects();
+    public Collection<Subject> getAllSubjectsForInstitution(@NonNull UUID id) {
+        return subjectRepository.findAll();
     }
 }

@@ -1,10 +1,11 @@
 package com.reportai.www.reportapi.services.institutions;
 
+import com.reportai.www.reportapi.contexts.requests.TenantContext;
 import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.exceptions.http.HttpInstitutionNotFoundException;
+import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.mappers.InstitutionMappers;
 import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -12,12 +13,11 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.RoleRepresentation;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class InstitutionsService implements BaseServiceTemplate<Institution, UUID> {
+public class InstitutionsService {
 
     private final InstitutionRepository institutionRepository;
     private final List<String> ALL_INSTITUTION_ROLES = List.of("institution-admin", "student-report-mobile", "educator-report-mobile");
@@ -37,6 +37,11 @@ public class InstitutionsService implements BaseServiceTemplate<Institution, UUI
         return institutionRepository.save(institution);
     }
 
+    @Transactional
+    public Institution getCurrentInstitution() {
+        return institutionRepository.findById(UUID.fromString(TenantContext.getTenantId())).orElseThrow(() -> new ResourceNotFoundException("no institution found"));
+    }
+
     /**
      * Creates institution as well as all roles for the institution
      *
@@ -45,15 +50,25 @@ public class InstitutionsService implements BaseServiceTemplate<Institution, UUI
      */
     @Transactional
     public Institution createInstitution(@NonNull Institution requestedInstitution) {
-        Institution createdInstitution = institutionRepository.save(requestedInstitution);
-        // create all institution roles
-        allTenantAwareInstitutionRoles(createdInstitution.getId().toString(), createdInstitution.getName()).forEach(cr -> {
-            log.info("creating client role {} for institution {}", cr.getName(), createdInstitution.getName());
-            clientResource.roles().create(cr);
-        });
+        // temporarily save the auraAdminTenantId which is "*"
+        String tentativeTenantId = TenantContext.getTenantId();
 
-        // create institution
-        return createdInstitution;
+        // set newly generated tenant id to create institution
+        requestedInstitution.setId(UUID.fromString(tentativeTenantId));
+        try {
+            Institution createdInstitution = institutionRepository.saveAndFlush(requestedInstitution);
+
+            // create all institution roles
+            allTenantAwareInstitutionRoles(createdInstitution.getId().toString(), createdInstitution.getName()).forEach(cr -> {
+                log.info("creating client role {} for institution {}", cr.getName(), createdInstitution.getName());
+                clientResource.roles().create(cr);
+            });
+            return createdInstitution;
+
+        } finally {
+            // return the context back to the AuraAdminTenant context
+            TenantContext.clear();
+        }
     }
 
     private List<RoleRepresentation> allTenantAwareInstitutionRoles(@NonNull String prefix, @NonNull String institutionName) {
@@ -67,8 +82,4 @@ public class InstitutionsService implements BaseServiceTemplate<Institution, UUI
 
     }
 
-    @Override
-    public JpaRepository<Institution, UUID> getRepository() {
-        return this.institutionRepository;
-    }
 }

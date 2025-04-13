@@ -1,10 +1,10 @@
 package com.reportai.www.reportapi.mappers;
 
 import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.ExpandedCourseResponse;
-import com.reportai.www.reportapi.entities.Course;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.courses.Course;
 import java.util.UUID;
 
 public class CourseMappers {
@@ -38,8 +38,8 @@ public class CourseMappers {
                 .build();
     }
 
-    public static CreateCourseDTOResponseDTO convert(Course course) {
-        return CreateCourseDTOResponseDTO
+    public static CourseResponseDTO convert(Course course) {
+        return CourseResponseDTO
                 .builder()
                 .id(course.getId().toString())
                 .name(course.getName())
@@ -69,7 +69,12 @@ public class CourseMappers {
                 .endDate(course.getEndDate())
                 .startTime(course.getStartTime())
                 .endTime(course.getEndTime())
-                .subjects(course.getSubjects().stream().map(SubjectMappers::convert).toList())
+                .subjects(
+                        course
+                                .getSubjectCourseAttachments()
+                                .stream()
+                                .map(subjectCourseAttachment -> SubjectMappers.convert(subjectCourseAttachment.getSubject()))
+                                .toList())
                 .lessons(course.getLessons().stream().map(LessonMappers::convert).toList())
                 .level(LevelMappers.convert(course.getLevel()))
                 .outlet(OutletMappers.convert(course.getOutlet()))

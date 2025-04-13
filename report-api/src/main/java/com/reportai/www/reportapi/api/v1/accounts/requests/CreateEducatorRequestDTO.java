@@ -3,7 +3,7 @@ package com.reportai.www.reportapi.api.v1.accounts.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.educators.Educator;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -23,10 +23,10 @@ public class CreateEducatorRequestDTO {
     @NotEmpty
     private String email;
 
-    @NotEmpty
+    @NotNull
     private List<UUID> levelIds = new ArrayList<>();
 
-    @NotEmpty
+    @NotNull
     private List<UUID> subjectIds = new ArrayList<>();
 
     @DateTimeFormat

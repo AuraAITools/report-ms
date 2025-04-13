@@ -1,56 +1,38 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
-import jakarta.persistence.Column;
+import com.reportai.www.reportapi.entities.attachments.LessonObjectiveTopicAttachment;
+import com.reportai.www.reportapi.entities.attachments.MaterialTopicAttachment;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Topics")
-public class Topic extends BaseEntity {
+public class Topic extends TenantAwareBaseEntity {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Institution institution;
-
-    @ManyToMany(mappedBy = "topics", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Material> materials = new ArrayList<>();
+    private Set<MaterialTopicAttachment> materialTopicAttachments = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            joinColumns = @JoinColumn(name = "topic_id"),
-            inverseJoinColumns = @JoinColumn(name = "objective_id")
-    )
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Objective> objectives = new ArrayList<>();
+    private Set<LessonObjectiveTopicAttachment> lessonObjectiveTopicAttachments = new HashSet<>();
 
-    @Column(nullable = false)
-    private String tenantId;
 }

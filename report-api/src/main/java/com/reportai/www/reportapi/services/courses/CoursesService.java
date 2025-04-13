@@ -1,14 +1,19 @@
 package com.reportai.www.reportapi.services.courses;
 
-import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.entities.Educator;
-import com.reportai.www.reportapi.entities.Institution;
-import com.reportai.www.reportapi.entities.Lesson;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
+import com.reportai.www.reportapi.entities.attachments.StudentCourseRegistration;
+import com.reportai.www.reportapi.entities.attachments.SubjectCourseAttachment;
+import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.educators.Educator;
+import com.reportai.www.reportapi.entities.helpers.Attachment;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
+import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
+import com.reportai.www.reportapi.repositories.StudentCourseRegistrationRepository;
+import com.reportai.www.reportapi.repositories.SubjectCourseAttachmentRepository;
 import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import com.reportai.www.reportapi.services.educators.EducatorsService;
 import com.reportai.www.reportapi.services.institutions.InstitutionsService;
@@ -18,13 +23,19 @@ import com.reportai.www.reportapi.services.outlets.OutletsService;
 import com.reportai.www.reportapi.services.students.StudentsService;
 import com.reportai.www.reportapi.services.subjects.SubjectsService;
 import jakarta.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+
+
+import static java.util.Collections.disjoint;
 
 @Service
 public class CoursesService implements BaseServiceTemplate<Course, UUID> {
@@ -46,9 +57,13 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
     private final LessonsService lessonsService;
 
     private final ModelMapper modelMapper;
+    private final SubjectCourseAttachmentRepository subjectCourseAttachmentRepository;
+    private final StudentCourseRegistrationRepository studentCourseRegistrationRepository;
 
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService, ModelMapper modelMapper) {
+    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService, ModelMapper modelMapper,
+                          SubjectCourseAttachmentRepository subjectCourseAttachmentRepository,
+                          StudentCourseRegistrationRepository studentCourseRegistrationRepository) {
         this.courseRepository = courseRepository;
         this.institutionsService = institutionsService;
         this.educatorsService = educatorsService;
@@ -58,6 +73,8 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
         this.subjectsService = subjectsService;
         this.lessonsService = lessonsService;
         this.modelMapper = modelMapper;
+        this.subjectCourseAttachmentRepository = subjectCourseAttachmentRepository;
+        this.studentCourseRegistrationRepository = studentCourseRegistrationRepository;
     }
 
     @Override
@@ -66,17 +83,17 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
     }
 
     // Courses
-    public List<Course> getAllCoursesFromInstitution(@NonNull UUID institutionId) {
-        Institution institution = institutionsService.findById(institutionId);
-        return institution.getCourses();
+    public Collection<Course> getAllCourses() {
+        return courseRepository.findAll();
     }
 
     @Transactional
     public Course createCourseForOutlet(@NonNull Course course, @NonNull UUID outletId) {
-        Outlet outlet = outletsService.findById(outletId);// this method might throw assertion error for the id not being null
-        course.addOutlet(outlet).addInstitution(outlet.getInstitution());
+        Outlet outlet = outletsService.findById(outletId);
+        course.addOutlet(outlet);
         return courseRepository.save(course);
     }
+
 
     @Transactional
     public Course updateCourseForOutlet(@NonNull UUID courseId, @NonNull Course updatedCourse) {
@@ -85,20 +102,62 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
         return courseRepository.save(course);
     }
 
+    @Transactional
+    public List<StudentCourseRegistration> registerStudentsToCourse(UUID courseId, List<UUID> studentIds) {
+        Course course = findById(courseId);
+        List<Student> incomingRegistrations = studentsService.findByIds(studentIds);
+        Set<Student> existingRegisteredStudents = course
+                .getStudentCourseRegistrations()
+                .stream()
+                .map(StudentCourseRegistration::getStudent)
+                .collect(Collectors.toSet());
+
+        if (!disjoint(incomingRegistrations, existingRegisteredStudents)) {
+            throw new ResourceAlreadyExistsException("some incoming student registrations already exists");
+        }
+
+        List<StudentCourseRegistration> newlyCreatedStudentRegistrations = incomingRegistrations
+                .stream()
+                .map(student -> {
+                    StudentCourseRegistration studentCourseRegistration = new StudentCourseRegistration()
+                            .create(student, course);
+                    return Attachment.createAndSync(student, course, studentCourseRegistration);
+                })
+                .toList();
+
+        return studentCourseRegistrationRepository.saveAll(newlyCreatedStudentRegistrations);
+    }
 
     @Transactional
-    public Course addStudentsToCourse(@NonNull UUID courseId, @NonNull List<UUID> studentIds) {
+    public List<StudentCourseRegistration> deregisterStudentsToCourse(UUID courseId, List<UUID> studentIds) {
         Course course = findById(courseId);
-        List<Student> students = studentsService.findByIds(studentIds);
-        course.addStudents(students);
-        return courseRepository.save(course);
+        List<Student> studentToDeregister = studentsService.findByIds(studentIds);
+        Set<Student> existingRegisteredStudents = course
+                .getStudentCourseRegistrations()
+                .stream()
+                .map(StudentCourseRegistration::getStudent)
+                .collect(Collectors.toSet());
+
+        if (disjoint(studentToDeregister, existingRegisteredStudents)) {
+            throw new ResourceAlreadyExistsException("students are not registered to course");
+        }
+
+        List<StudentCourseRegistration> deregistrations = course
+                .getStudentCourseRegistrations()
+                .stream()
+                .filter(studentRegistration -> studentToDeregister.contains(studentRegistration.getStudent()))
+                .toList();
+
+        studentCourseRegistrationRepository.deleteAll(deregistrations);
+        return deregistrations;
     }
+
 
     @Transactional
     public Course addEducatorsToCourse(@NonNull UUID courseId, @NonNull List<UUID> educatorIds) {
         List<Educator> educators = educatorsService.findByIds(educatorIds);
         Course course = findById(courseId);
-        course.addEducators(educators);
+//        course.addEducators(educators);
         return courseRepository.save(course);
     }
 
@@ -115,13 +174,17 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
     public Course addSubjectsToCourse(@NonNull UUID courseId, @NonNull List<UUID> subjectIds) {
         List<Subject> subjects = subjectsService.findByIds(subjectIds);
         Course course = findById(courseId);
-        course.addSubjects(subjects);
-        return courseRepository.save(course);
+        List<SubjectCourseAttachment> subjectCourseAttachments = subjects
+                .stream()
+                .map(subject -> Attachment.createAndSync(subject, course, new SubjectCourseAttachment()))
+                .toList();
+        subjectCourseAttachmentRepository.saveAll(subjectCourseAttachments);
+        return course;
     }
 
     @Transactional
     public Course addLessonsToCourse(@NonNull UUID courseId, @NonNull List<UUID> lessonIds) {
-        List<Lesson> lessons = lessonsService.findByIds(lessonIds);
+        Collection<Lesson> lessons = lessonsService.findByIds(lessonIds);
         Course course = findById(courseId);
         course.addLessons(lessons);
         return courseRepository.save(course);

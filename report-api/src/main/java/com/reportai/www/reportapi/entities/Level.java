@@ -1,62 +1,52 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
-import jakarta.persistence.Column;
+import com.reportai.www.reportapi.entities.attachments.LevelEducatorAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectLevelAttachment;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
+import com.reportai.www.reportapi.entities.courses.Course;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Levels")
-public class Level extends BaseEntity {
+public class Level extends TenantAwareBaseEntity {
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Subject> subjects = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "levels")
+    @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    private List<Educator> educators = new ArrayList<>();
+    private Set<SubjectLevelAttachment> subjectLevelAttachments = new HashSet<>();
 
     @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    private List<Course> courses = new ArrayList<>();
+    private Set<LevelEducatorAttachment> levelEducatorAttachments = new HashSet<>();
 
     @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    @EqualsAndHashCode.Exclude
-    private List<Student> students = new ArrayList<>();
+    private Set<Course> courses = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private Institution institution;
+    @Builder.Default
+    private Set<Student> students = new HashSet<>();
 
-    @Column(nullable = false)
-    private String tenantId;
+
 }

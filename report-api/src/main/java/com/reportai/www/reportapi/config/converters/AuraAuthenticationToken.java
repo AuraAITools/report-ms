@@ -1,18 +1,17 @@
 package com.reportai.www.reportapi.config.converters;
 
+import com.reportai.www.reportapi.contexts.requests.TenantContext;
 import com.reportai.www.reportapi.dtos.auth.KeycloakUserPrincipal;
-import com.reportai.www.reportapi.entities.Institution;
 import com.reportai.www.reportapi.entities.Outlet;
-import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import jakarta.transaction.Transactional;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,16 +38,16 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
 
     private static final String CLIENT_NAME = "aura-application-client";
 
-    private InstitutionRepository institutionRepository;
+    private OutletRepository outletRepository;
 
 
-    public AuraAuthenticationToken(KeycloakUserPrincipal keycloakUserPrincipal, Jwt jwt, InstitutionRepository institutionRepository) {
-        super(jwt, keycloakUserPrincipal, jwt, getAuthoritiesFromClaim(jwt, institutionRepository));
+    public AuraAuthenticationToken(KeycloakUserPrincipal keycloakUserPrincipal, Jwt jwt, OutletRepository outletRepository) {
+        super(jwt, keycloakUserPrincipal, jwt, getAuthoritiesFromClaim(jwt, outletRepository));
         setAuthenticated(true);
     }
 
     @Transactional
-    private static List<? extends GrantedAuthority> getAuthoritiesFromClaim(Jwt jwt, InstitutionRepository institutionRepository) {
+    private static List<? extends GrantedAuthority> getAuthoritiesFromClaim(Jwt jwt, OutletRepository outletRepository) {
         Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
         if (resourceAccess == null) {
             return emptyList();
@@ -79,18 +78,24 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
-        // INFO: reason for not using default prefix ROLE_ is because we want to convert from ROLE_ to resurce permissions too which cannot have ROLE_
+        // INFO: reason for not using default prefix ROLE_ is because we want to convert from ROLE_ to resource permissions too which cannot have ROLE_
         RoleHierarchyImpl.Builder roleHierarchyBuilder = RoleHierarchyImpl.withRolePrefix("");
 
         Map<String, Object> extendedAttributes = jwt.getClaimAsMap("ext_attrs");
 
+        // current service account roles only has aura-admin
         Set<String> serviceAccountRoles = new HashSet<>();
         serviceAccountRoles.add("aura-admin");
+
         // service accounts do not have tenant-ids, so just return before processing tenant ids
         serviceAccountRoles.retainAll(roles);
         if (!serviceAccountRoles.isEmpty() && extendedAttributes == null) {
-            return serviceAccountRoles.stream().map(sa -> new SimpleGrantedAuthority("ROLE_" + sa)).toList();
+            return serviceAccountRoles
+                    .stream()
+                    .map(sa -> new SimpleGrantedAuthority("ROLE_" + sa))
+                    .toList();
         }
+
         Object tenantIdsListObject = extendedAttributes.getOrDefault("tenant_ids", emptyList());
 
         if (!(tenantIdsListObject instanceof List<?>)) {
@@ -99,38 +104,38 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
 
         // allow unchecked casting of tenantIds list, it is expected that the list contains string type
         @SuppressWarnings("unchecked")
-        List<String> tenantIds = (List<String>) tenantIdsListObject;
+        List<String> allowedTenantIds = (List<String>) tenantIdsListObject;
 
         // expand roles to all implied roles, an institution-admin should is implicitly outlet-admin for all his outlets
-        tenantIds.forEach(tenantId -> {
-            Institution institution = institutionRepository
-                    .findById(UUID.fromString(tenantId))
-                    .orElseThrow(() -> new ResourceNotFoundException("institution in token absent"));
+        String targetTenantId = TenantContext.getTenantId();
 
-            List<Outlet> outlets = institution.getOutlets();
+        if (!allowedTenantIds.contains(targetTenantId)) {
+            throw new AuthorizationServiceException("you do not have tenant access");
+        }
 
-            // if outlets exist imply outlet roles
-            if (!outlets.isEmpty()) {
-                List<String> impliedOutletAdminRoles = outlets
-                        .stream()
-                        .map(outlet -> String.format("ROLE_%s_%s_outlet-admin", tenantId, outlet.getId()))
-                        .toList();
+        List<Outlet> outlets = outletRepository.findAll();
 
-                roleHierarchyBuilder
-                        .role(String.format("ROLE_%s_institution-admin", tenantId))
-                        .implies(impliedOutletAdminRoles.toArray(String[]::new));
+        // if outlets exist imply outlet roles
+        if (!outlets.isEmpty()) {
+            List<String> impliedOutletAdminRoles = outlets
+                    .stream()
+                    .map(outlet -> String.format("ROLE_%s_%s_outlet-admin", targetTenantId, outlet.getId()))
+                    .toList();
 
-                // give outlet resource permissions for all implied roles
-                outlets.forEach(o -> roleHierarchyBuilder
-                        .role(String.format("ROLE_%s_%s_outlet-admin", tenantId, o.getId()))
-                        .implies(outletAdminRoleResourcePermission(tenantId, o.getId().toString())));
-            }
-            // give implied institution permissions
             roleHierarchyBuilder
-                    .role(String.format("ROLE_%s_institution-admin", tenantId))
-                    .implies(institutionAdminRoleResourcePermissions(tenantId));
+                    .role(String.format("ROLE_%s_institution-admin", targetTenantId))
+                    .implies(impliedOutletAdminRoles.toArray(String[]::new));
 
-        });
+            // give outlet resource permissions for all implied roles
+            outlets.forEach(o -> roleHierarchyBuilder
+                    .role(String.format("ROLE_%s_%s_outlet-admin", targetTenantId, o.getId()))
+                    .implies(outletAdminRoleResourcePermission(targetTenantId, o.getId().toString())));
+        }
+        // give implied institution permissions
+        roleHierarchyBuilder
+                .role(String.format("ROLE_%s_institution-admin", targetTenantId))
+                .implies(institutionAdminRoleResourcePermissions(targetTenantId));
+
 
         return roleHierarchyBuilder
                 .build()
@@ -159,6 +164,7 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
                 String.format("institutions::%s::accounts:create-educator", tenantId),
                 String.format("institutions::%s::accounts:create-student", tenantId),
                 String.format("institutions::%s::accounts:create", tenantId),
+                String.format("institutions::%s::accounts:read", tenantId),
                 String.format("institutions::%s::accounts:create-link-outlet-admin", tenantId),
                 String.format("institutions::%s::levels:create", tenantId),
                 String.format("institutions::%s::levels:update", tenantId),

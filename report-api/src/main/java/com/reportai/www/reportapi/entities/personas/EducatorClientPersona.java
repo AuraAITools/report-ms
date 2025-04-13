@@ -1,21 +1,22 @@
 package com.reportai.www.reportapi.entities.personas;
 
-import com.reportai.www.reportapi.entities.Educator;
+import com.reportai.www.reportapi.entities.educators.Educator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
  * a EducatorsClient is able to access the report-mobile's edycators feature
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -25,7 +26,6 @@ public class EducatorClientPersona extends Persona {
 
 
     @OneToOne(mappedBy = "educatorClientPersona")
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Educator educator;
 

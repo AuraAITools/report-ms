@@ -2,13 +2,13 @@ package com.reportai.www.reportapi.api.v1.levels.responses;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import jakarta.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,11 +22,15 @@ public class ExpandedLevelsResponseDTO {
     @NotEmpty
     private String name;
 
-    private List<CreateCourseDTOResponseDTO> courses = new ArrayList<>();
+    @Builder.Default
+    private Set<CourseResponseDTO> courses = new HashSet<>();
 
-    private List<CreateStudentResponseDTO> students = new ArrayList<>();
+    @Builder.Default
+    private Set<StudentResponseDTO> students = new HashSet<>();
 
-    private List<CreateEducatorResponseDTO> educators = new ArrayList<>();
-    
-    private List<SubjectResponseDTO> subjects = new ArrayList<>();
+    @Builder.Default
+    private Set<EducatorResponseDTO> educators = new HashSet<>();
+
+    @Builder.Default
+    private Set<SubjectResponseDTO> subjects = new HashSet<>();
 }

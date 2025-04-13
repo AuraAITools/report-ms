@@ -1,7 +1,7 @@
 package com.reportai.www.reportapi.config.converters;
 
 import com.reportai.www.reportapi.dtos.auth.KeycloakUserPrincipal;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
+import com.reportai.www.reportapi.repositories.OutletRepository;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -10,15 +10,15 @@ import org.springframework.security.oauth2.jwt.Jwt;
  */
 public class KeycloakUserPrincipalConverter implements Converter<Jwt, AuraAuthenticationToken> {
     private final String CLIENT_ID = "aura-application-client";
-    private final InstitutionRepository institutionRepository;
+    private final OutletRepository outletRepository;
 
-    public KeycloakUserPrincipalConverter(InstitutionRepository institutionRepository) {
-        this.institutionRepository = institutionRepository;
+    public KeycloakUserPrincipalConverter(OutletRepository outletRepository) {
+        this.outletRepository = outletRepository;
     }
 
     @Override
     public AuraAuthenticationToken convert(Jwt jwt) {
         KeycloakUserPrincipal keycloakUserPrincipal = KeycloakUserPrincipal.from(jwt, CLIENT_ID);
-        return new AuraAuthenticationToken(keycloakUserPrincipal, jwt, institutionRepository);
+        return new AuraAuthenticationToken(keycloakUserPrincipal, jwt, outletRepository);
     }
 }

@@ -1,23 +1,22 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.BaseEntity;
+import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.entities.personas.Persona;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -26,13 +25,13 @@ import lombok.experimental.SuperBuilder;
  * This means a single keycloak user account can be mapped to multiple TenantAwareAccounts
  */
 @Entity
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Accounts")
-public class Account extends BaseEntity {
+public class Account extends TenantAwareBaseEntity {
 
     @Column(nullable = false)
     private String userId;
@@ -50,20 +49,11 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private String contact;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @Builder.Default
-    @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Persona> personas = new ArrayList<>();
+    private Set<Persona> personas = new HashSet<>();
 
-    // institutions managed under this account
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Institution institution;
-
-    @Column(nullable = false)
-    private String tenantId;
 
     /**
      * If persona is transient entity, creates persona under account
@@ -73,10 +63,10 @@ public class Account extends BaseEntity {
      * @return account entity
      */
     public Account addPersona(Persona persona) {
-        assert persona != null : "input persona cannot be null";
-        assert persona.getAccount() == null : "Persona already has an account";
+        if (persona == null) {
+            throw new IllegalArgumentException("input persona cannot be null");
+        }
         // INFO: have to update both sides of the entity
-        persona.setAccount(this);
         this.getPersonas().add(persona);
         return this;
     }

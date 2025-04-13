@@ -17,7 +17,15 @@ public class InstitutionMappers {
     }
 
     public static InstitutionResponseDTO convert(Institution from) {
-        return InstitutionResponseDTO.builder().id(from.getId()).name(from.getName()).email(from.getEmail()).address(from.getAddress()).uen(from.getUen()).contactNumber(from.getContactNumber()).id(from.getId()).build();
+        return InstitutionResponseDTO
+                .builder()
+                .id(from.getId())
+                .name(from.getName())
+                .email(from.getEmail())
+                .address(from.getAddress())
+                .uen(from.getUen())
+                .contactNumber(from.getContactNumber())
+                .build();
     }
 
     public static Institution convert(PatchInstitutionRequestDTO from, String tenantId) {

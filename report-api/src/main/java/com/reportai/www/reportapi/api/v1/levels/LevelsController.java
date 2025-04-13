@@ -1,19 +1,21 @@
 package com.reportai.www.reportapi.api.v1.levels;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateEducatorResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.CreateStudentResponseDTO;
-import com.reportai.www.reportapi.api.v1.courses.responses.CreateCourseDTOResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
+import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.requests.CreateLevelsRequestDTO;
 import com.reportai.www.reportapi.api.v1.levels.requests.UpdateLevelRequestDTO;
-import com.reportai.www.reportapi.api.v1.levels.responses.CreateLevelsResponseDTO;
 import com.reportai.www.reportapi.api.v1.levels.responses.ExpandedLevelsResponseDTO;
+import com.reportai.www.reportapi.api.v1.levels.responses.LevelsResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
-import com.reportai.www.reportapi.entities.Course;
-import com.reportai.www.reportapi.entities.Educator;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
+import com.reportai.www.reportapi.entities.attachments.LevelEducatorAttachment;
+import com.reportai.www.reportapi.entities.attachments.SubjectLevelAttachment;
+import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.educators.Educator;
 import com.reportai.www.reportapi.mappers.CourseMappers;
 import com.reportai.www.reportapi.mappers.EducatorMappers;
 import com.reportai.www.reportapi.mappers.LevelMappers;
@@ -27,6 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +74,7 @@ public class LevelsController {
     @PostMapping("/institutions/{id}/levels")
     @HasResourcePermission(permission = "'institutions::' + #id + '::levels:create'")
     @Transactional
-    public ResponseEntity<CreateLevelsResponseDTO> createLevelForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsRequestDTO createLevelsRequestDTO) {
+    public ResponseEntity<LevelsResponseDTO> createLevelForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateLevelsRequestDTO createLevelsRequestDTO) {
         Level createdLevel = levelsService.createLevelForInstitution(id, convert(id, createLevelsRequestDTO), createLevelsRequestDTO.getSubjects());
         return new ResponseEntity<>(convert(createdLevel), HttpStatus.OK);
     }
@@ -90,9 +93,9 @@ public class LevelsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/levels")
     @HasResourcePermission(permission = "'institutions::' + #id + '::levels:read'")
-    public ResponseEntity<List<CreateLevelsResponseDTO>> getAllLevelsForInstitution(@PathVariable UUID id) {
-        List<Level> levels = levelsService.getAllLevelsForInstitution(id);
-        List<CreateLevelsResponseDTO> levelsDTO = levels
+    public ResponseEntity<List<LevelsResponseDTO>> getAllLevelsForInstitution(@PathVariable UUID id) {
+        Collection<Level> levels = levelsService.getAllLevelsForInstitution();
+        List<LevelsResponseDTO> levelsDTO = levels
                 .stream()
                 .map(LevelMappers::convert)
                 .toList();
@@ -108,7 +111,7 @@ public class LevelsController {
     @GetMapping("/institutions/{id}/levels/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::levels:read'")
     public ResponseEntity<List<ExpandedLevelsResponseDTO>> getAllExpandedLevelsForInstitution(@PathVariable UUID id) {
-        List<Level> levels = levelsService.getAllLevelsForInstitution(id);
+        Collection<Level> levels = levelsService.getAllLevelsForInstitution();
         List<ExpandedLevelsResponseDTO> levelsDTO = levels
                 .stream()
                 .map(LevelMappers::convertExpanded)
@@ -121,14 +124,9 @@ public class LevelsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/levels/{level_id}/students")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::students:read'")
-    public ResponseEntity<List<CreateStudentResponseDTO>> getAllStudentsOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
-        List<Student> students = levelsService.findById(levelId)
-                .getStudents()
-                .stream()
-                .filter(student -> student
-                        .getOutlets()
-                        .stream()
-                        .anyMatch(o -> o.getId().equals(outletId))).toList();
+    public ResponseEntity<List<StudentResponseDTO>> getAllStudentsOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
+        Collection<Student> students = levelsService.findById(levelId)
+                .getStudents();
         return new ResponseEntity<>(students.stream().map(StudentMappers::convert).toList(), HttpStatus.OK);
     }
 
@@ -137,7 +135,7 @@ public class LevelsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/levels/{level_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
-    public ResponseEntity<List<CreateCourseDTOResponseDTO>> getAllCoursesOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
+    public ResponseEntity<List<CourseResponseDTO>> getAllCoursesOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
         List<Course> courses = levelsService.findById(levelId)
                 .getCourses()
                 .stream()
@@ -151,12 +149,12 @@ public class LevelsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/levels/{level_id}/educators")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::educators:read'")
-    public ResponseEntity<List<CreateEducatorResponseDTO>> getAllEducatorsOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
+    public ResponseEntity<List<EducatorResponseDTO>> getAllEducatorsOfLevelInOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "level_id") UUID levelId) {
         List<Educator> educators = levelsService.findById(levelId)
-                .getEducators()
+                .getLevelEducatorAttachments()
                 .stream()
-                .filter(educator -> educator
-                        .getOutlets().stream().anyMatch(o -> o.getId().equals(outletId))).toList();
+                .map(LevelEducatorAttachment::getEducator)
+                .toList();
         return new ResponseEntity<>(educators.stream().map(EducatorMappers::convert).toList(), HttpStatus.OK);
     }
 
@@ -167,8 +165,10 @@ public class LevelsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:read'")
     public ResponseEntity<List<SubjectResponseDTO>> getAllSubjectsOfLevelInInstitution(@PathVariable UUID id, @PathVariable(name = "level_id") UUID levelId) {
         List<Subject> subjects = levelsService.findById(levelId)
-                .getSubjects()
-                .stream().toList();
+                .getSubjectLevelAttachments()
+                .stream()
+                .map(SubjectLevelAttachment::getSubject)
+                .toList();
         return new ResponseEntity<>(subjects.stream().map(SubjectMappers::convert).toList(), HttpStatus.OK);
     }
 
