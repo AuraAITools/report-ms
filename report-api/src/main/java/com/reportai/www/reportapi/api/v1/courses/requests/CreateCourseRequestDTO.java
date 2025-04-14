@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,17 +37,13 @@ public class CreateCourseRequestDTO {
     @NotNull
     private Integer maxSize;
 
-    @DateTimeFormat
-    private LocalDate startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // ISO 8601 format
+    @FutureOrPresent
+    private Instant courseStartTimestamptz;
 
-    @DateTimeFormat
-    private LocalDate endDate;
-
-    @DateTimeFormat
-    private LocalTime startTime;
-
-    @DateTimeFormat
-    private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // ISO 8601 format
+    @FutureOrPresent
+    private Instant courseEndTimestamptz;
 
     @NotEmpty
     private List<UUID> subjectIds;

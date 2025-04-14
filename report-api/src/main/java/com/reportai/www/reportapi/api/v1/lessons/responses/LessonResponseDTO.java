@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
-import com.reportai.www.reportapi.entities.lessons.Lesson;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -28,22 +26,23 @@ public class LessonResponseDTO {
     private String name;
 
     @NotNull
-    private Lesson.LESSON_STATUS status;
+    private LessonView.LESSON_STATUS lessonStatus;
 
-    @DateTimeFormat
-    private LocalDate date;
+    @NotNull
+    private LessonView.LESSON_REVIEW_STATUS lessonReviewStatus;
 
-    @DateTimeFormat
-    private LocalTime startTime;
+    @NotNull
+    private LessonView.LESSON_PLAN_STATUS lessonPlanStatus;
 
-    @DateTimeFormat
-    private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant lessonStartTimestamptz;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant lessonEndTimestamptz;
 
     @NotEmpty
     private String description;
 
-    @NotEmpty
-    private DayOfWeek day;
 
     private List<StudentResponseDTO> students = new ArrayList<>();
 

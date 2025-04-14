@@ -1,6 +1,6 @@
 package com.reportai.www.reportapi.repositories.views;
 
-import com.reportai.www.reportapi.entities.lessons.LessonView;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

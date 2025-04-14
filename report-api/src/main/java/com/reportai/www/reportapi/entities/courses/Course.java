@@ -9,6 +9,7 @@ import com.reportai.www.reportapi.entities.attachments.SubjectCourseAttachment;
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.entities.helpers.EntityRelationshipUtils;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,8 +19,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,16 +69,10 @@ public class Course extends TenantAwareBaseEntity {
     private Integer maxSize;
 
     @Column(nullable = false)
-    private LocalDate startDate;
+    private Instant courseStartTimestamptz;
 
     @Column(nullable = false)
-    private LocalDate endDate;
-
-    @Column(nullable = false)
-    private LocalTime startTime;
-
-    @Column(nullable = false)
-    private LocalTime endTime;
+    private Instant courseEndTimestamptz;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -136,5 +130,10 @@ public class Course extends TenantAwareBaseEntity {
         lessons.forEach(lesson -> lesson.setCourse(this));
         return this;
     }
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.PERSIST)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<LessonView> lessonsView = new HashSet<>();
 
 }

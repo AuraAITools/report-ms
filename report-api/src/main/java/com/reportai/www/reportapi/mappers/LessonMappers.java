@@ -4,7 +4,7 @@ import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO
 import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
-import com.reportai.www.reportapi.entities.lessons.LessonView;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import java.util.UUID;
 
 public class LessonMappers {
@@ -14,24 +14,19 @@ public class LessonMappers {
     public static Lesson convert(CreateLessonRequestDTO createLessonRequestDTO, UUID tenantId) {
 
         return Lesson.builder()
-                .date(createLessonRequestDTO.getDate())
+                .lessonStartTimestamptz(createLessonRequestDTO.getLessonStartTimestamptz())
+                .lessonEndTimestamptz(createLessonRequestDTO.getLessonEndTimestamptz())
                 .name(createLessonRequestDTO.getName())
-//                .status(Lesson.STATUS.UPCOMING)
-                .startTime(createLessonRequestDTO.getStartTime())
-                .endTime(createLessonRequestDTO.getEndTime())
-                .day(createLessonRequestDTO.getDate().getDayOfWeek())
                 .description(createLessonRequestDTO.getDescription())
                 .tenantId(tenantId.toString())
                 .build();
     }
 
-    public static LessonResponseDTO convert(Lesson lesson) {
+    public static LessonResponseDTO convert(LessonView lesson) {
         return LessonResponseDTO
                 .builder()
                 .id(lesson.getId().toString())
                 .name(lesson.getName())
-                .date(lesson.getDate())
-                .day(lesson.getDay())
                 .description(lesson.getDescription())
                 .students(lesson.getStudentLessonRegistrations().stream().map(lessonRegistration -> StudentMappers.convert(lessonRegistration.getStudent())).toList())
                 .educators(lesson
@@ -40,51 +35,25 @@ public class LessonMappers {
                         .map(
                                 educatorLessonAttachment -> EducatorMappers.convert(educatorLessonAttachment.getEducator())
                         ).toList())
-                .startTime(lesson.getStartTime())
-                .endTime(lesson.getEndTime())
-//                .status(lesson.getStatus())
+                .lessonStatus(lesson.getLessonStatus())
+                .lessonReviewStatus(lesson.getLessonReviewStatus())
+                .lessonPlanStatus(lesson.getLessonPlanStatus())
+                .lessonStartTimestamptz(lesson.getLessonStartTimestamptz())
+                .lessonEndTimestamptz(lesson.getLessonEndTimestamptz())
                 .build();
     }
 
-    public static ExpandedLessonResponseDTO convertToExpanded(Lesson lesson) {
-
-        return ExpandedLessonResponseDTO
-                .builder()
-                .id(lesson.getId().toString())
-                .name(lesson.getName())
-                .date(lesson.getDate())
-                .day(lesson.getDay())
-                .startTime(lesson.getStartTime())
-                .endTime(lesson.getEndTime())
-//                .status(lesson.getStatus())
-                .educators(lesson
-                        .getEducatorLessonAttachments()
-                        .stream()
-                        .map(
-                                educatorLessonAttachment -> EducatorMappers.convert(educatorLessonAttachment.getEducator())
-                        ).toList())
-                .students(lesson
-                        .getStudentLessonRegistrations()
-                        .stream()
-                        .map(lessonRegistration -> StudentMappers.convert(lessonRegistration.getStudent())).toList())
-                .course(CourseMappers.convert(lesson.getCourse()))
-                .subject(lesson.getSubject() != null ? SubjectMappers.convert(lesson.getSubject()) : null)
-                .build();
-    }
 
     public static ExpandedLessonResponseDTO convertToExpanded(LessonView lessonView) {
-
         return ExpandedLessonResponseDTO
                 .builder()
                 .id(lessonView.getId().toString())
                 .name(lessonView.getName())
-                .date(lessonView.getDate())
-                .day(lessonView.getDay())
-                .startTime(lessonView.getStartTime())
-                .endTime(lessonView.getEndTime())
                 .lessonStatus(lessonView.getLessonStatus())
                 .lessonPlanStatus(lessonView.getLessonPlanStatus())
                 .lessonReviewStatus(lessonView.getLessonReviewStatus())
+                .lessonStartTimestamptz(lessonView.getLessonStartTimestamptz())
+                .lessonEndTimestamptz(lessonView.getLessonEndTimestamptz())
                 .educators(lessonView
                         .getEducatorLessonAttachments()
                         .stream()

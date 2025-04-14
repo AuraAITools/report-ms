@@ -6,8 +6,7 @@ import com.reportai.www.reportapi.api.v1.lessons.requests.UpdateLessonRequestDTO
 import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonResponseDTO;
 import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
 import com.reportai.www.reportapi.entities.courses.Course;
-import com.reportai.www.reportapi.entities.lessons.Lesson;
-import com.reportai.www.reportapi.entities.lessons.LessonView;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import com.reportai.www.reportapi.mappers.LessonMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.lessons.LessonsService;
@@ -53,8 +52,8 @@ public class LessonsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:create'")
     @Transactional
     public ResponseEntity<LessonResponseDTO> createLessonForCourse(@RequestBody @Valid CreateLessonRequestDTO createLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
-        Lesson lesson = lessonService.createLessonForCourse(courseId, LessonMappers.convert(createLessonRequestDTO, id), createLessonRequestDTO.getStudentIds(), createLessonRequestDTO.getEducatorIds());
-        return new ResponseEntity<>(LessonMappers.convert(lesson), HttpStatus.OK);
+        LessonView lessonView = lessonService.createLessonForCourse(courseId, LessonMappers.convert(createLessonRequestDTO, id), createLessonRequestDTO.getStudentIds(), createLessonRequestDTO.getEducatorIds());
+        return new ResponseEntity<>(LessonMappers.convert(lessonView), HttpStatus.OK);
     }
 
     @Operation(summary = "patch lesson of course", description = "patch a lesson in a course")
@@ -63,8 +62,8 @@ public class LessonsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses::lessons:update'")
     @Transactional
     public ResponseEntity<ExpandedLessonResponseDTO> updateLessonForCourse(@RequestBody UpdateLessonRequestDTO updateLessonRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId, @PathVariable(name = "lesson_id") UUID lessonId) {
-        Lesson lesson = lessonService.update(lessonId, updateLessonRequestDTO);
-        return new ResponseEntity<>(LessonMappers.convertToExpanded(lesson), HttpStatus.OK);
+        LessonView lessonView = lessonService.update(lessonId, updateLessonRequestDTO);
+        return new ResponseEntity<>(LessonMappers.convertToExpanded(lessonView), HttpStatus.OK);
     }
 
     @Operation(summary = "get lessons of a course", description = "get lessons of a course")
@@ -74,7 +73,7 @@ public class LessonsController {
     @Transactional
     public ResponseEntity<List<LessonResponseDTO>> getAllLessonsOfCourse(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "course_id") UUID courseId) {
         Course course = coursesService.findById(courseId);
-        List<LessonResponseDTO> lessons = course.getLessons().stream().map(LessonMappers::convert).toList();
+        List<LessonResponseDTO> lessons = course.getLessonsView().stream().map(LessonMappers::convert).toList();
         return new ResponseEntity<>(lessons, HttpStatus.OK);
     }
 

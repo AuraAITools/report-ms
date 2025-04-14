@@ -18,5 +18,5 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "Invoices")
 public class Invoice extends TenantAwareBaseEntity {
 
-    private double costed;
+    private double cost;
 }

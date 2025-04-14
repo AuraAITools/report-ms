@@ -30,10 +30,8 @@ public class CourseMappers {
                         .build())
                 .lessonNumberFrequency(createCourseRequestDTO.getLessonNumberFrequency())
                 .lessonWeeklyFrequency(createCourseRequestDTO.getLessonWeeklyFrequency())
-                .startDate(createCourseRequestDTO.getStartDate())
-                .endDate(createCourseRequestDTO.getEndDate())
-                .startTime(createCourseRequestDTO.getStartTime())
-                .endTime(createCourseRequestDTO.getEndTime())
+                .courseStartTimestamptz(createCourseRequestDTO.getCourseStartTimestamptz())
+                .courseEndTimestamptz(createCourseRequestDTO.getCourseEndTimestamptz())
                 .tenantId(id.toString())
                 .build();
     }
@@ -48,10 +46,8 @@ public class CourseMappers {
                 .priceFrequency(course.getPriceRecord().getFrequency())
                 .lessonNumberFrequency(course.getLessonNumberFrequency())
                 .lessonWeeklyFrequency(course.getLessonWeeklyFrequency())
-                .startDate(course.getStartDate())
-                .endDate(course.getEndDate())
-                .startTime(course.getStartTime())
-                .endTime(course.getEndTime())
+                .courseStartTimestamptz(course.getCourseStartTimestamptz())
+                .courseEndTimestamptz(course.getCourseEndTimestamptz())
                 .build();
     }
 
@@ -65,17 +61,15 @@ public class CourseMappers {
                 .priceFrequency(course.getPriceRecord().getFrequency())
                 .lessonNumberFrequency(course.getLessonNumberFrequency())
                 .lessonWeeklyFrequency(course.getLessonWeeklyFrequency())
-                .startDate(course.getStartDate())
-                .endDate(course.getEndDate())
-                .startTime(course.getStartTime())
-                .endTime(course.getEndTime())
+                .courseStartTimestamptz(course.getCourseStartTimestamptz())
+                .courseEndTimestamptz(course.getCourseEndTimestamptz())
                 .subjects(
                         course
                                 .getSubjectCourseAttachments()
                                 .stream()
                                 .map(subjectCourseAttachment -> SubjectMappers.convert(subjectCourseAttachment.getSubject()))
                                 .toList())
-                .lessons(course.getLessons().stream().map(LessonMappers::convert).toList())
+                .lessons(course.getLessonsView().stream().map(LessonMappers::convert).toList())
                 .level(LevelMappers.convert(course.getLevel()))
                 .outlet(OutletMappers.convert(course.getOutlet()))
                 .build();

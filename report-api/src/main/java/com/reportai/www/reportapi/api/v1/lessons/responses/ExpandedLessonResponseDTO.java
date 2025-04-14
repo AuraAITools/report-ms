@@ -6,12 +6,10 @@ import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
-import com.reportai.www.reportapi.entities.lessons.LessonView;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -37,20 +35,14 @@ public class ExpandedLessonResponseDTO {
     @NotNull
     private LessonView.LESSON_PLAN_STATUS lessonPlanStatus;
 
-    @DateTimeFormat
-    private LocalDate date;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant lessonStartTimestamptz;
 
-    @DateTimeFormat
-    private LocalTime startTime;
-
-    @DateTimeFormat
-    private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant lessonEndTimestamptz;
 
     @NotEmpty
     private String description;
-
-    @NotEmpty
-    private DayOfWeek day;
 
     @NotNull
     private List<EducatorResponseDTO> educators;

@@ -17,9 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -55,16 +53,11 @@ public class Lesson extends TenantAwareBaseEntity {
     @Column(nullable = false)
     private String name;
 
-    private LocalDate date;
+    @Column(nullable = false)
+    private Instant lessonStartTimestamptz;
 
     @Column(nullable = false)
-    private DayOfWeek day;
-
-    @Column(nullable = false)
-    private LocalTime startTime;
-
-    @Column(nullable = false)
-    private LocalTime endTime;
+    private Instant lessonEndTimestamptz;
 
     @Builder.Default
     private String description = "";

@@ -1,4 +1,4 @@
-package com.reportai.www.reportapi.entities.lessons;
+package com.reportai.www.reportapi.entities.views;
 
 import com.reportai.www.reportapi.entities.LessonObjective;
 import com.reportai.www.reportapi.entities.Outlet;
@@ -8,6 +8,8 @@ import com.reportai.www.reportapi.entities.attachments.MaterialLessonAttachment;
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.lessons.LessonPlan;
+import com.reportai.www.reportapi.entities.lessons.LessonPostponementRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,9 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -61,16 +61,11 @@ public class LessonView extends TenantAwareBaseEntity {
     @Column(nullable = false)
     private String name;
 
-    private LocalDate date;
+    @Column(nullable = false)
+    private Instant lessonStartTimestamptz;
 
     @Column(nullable = false)
-    private DayOfWeek day;
-
-    @Column(nullable = false)
-    private LocalTime startTime;
-
-    @Column(nullable = false)
-    private LocalTime endTime;
+    private Instant lessonEndTimestamptz;
 
     private String description;
 

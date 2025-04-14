@@ -10,7 +10,7 @@ import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.educators.Educator;
 import com.reportai.www.reportapi.entities.helpers.Attachment;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
-import com.reportai.www.reportapi.entities.lessons.LessonView;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.EducatorLessonAttachmentRepository;
 import com.reportai.www.reportapi.repositories.LessonRepository;
@@ -124,7 +124,7 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
      * @return
      */
     @Transactional
-    public Lesson createLessonForCourse(@NonNull UUID courseId, Lesson lesson, List<UUID> studentIds, List<UUID> educatorIds) {
+    public LessonView createLessonForCourse(@NonNull UUID courseId, Lesson lesson, List<UUID> studentIds, List<UUID> educatorIds) {
         Course course = coursesService.findById(courseId);
 
         lesson.setOutlet(course.getOutlet());
@@ -143,8 +143,9 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
             List<Educator> educators = educatorsService.findByIds(educatorIds);
             attachEducatorsToLesson(educators, createdLesson);
         }
+        lessonRepository.flush();
 
-        return createdLesson;
+        return lessonViewRepository.findById(createdLesson.getId()).orElseThrow(() -> new ResourceNotFoundException("no lessons found"));
     }
 
 
@@ -224,7 +225,7 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
      * @return
      */
     @Transactional
-    public Lesson update(UUID lessonId, UpdateLessonRequestDTO updates) {
+    public LessonView update(UUID lessonId, UpdateLessonRequestDTO updates) {
         Lesson lesson = findById(lessonId);
         // model map to overlay the updates onto an existing lesson
         modelMapper.map(updates, lesson);
@@ -264,7 +265,8 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
                 detachEducatorFromLesson(educatorsService.findByIds(detachedEducatorIds), lesson);
             }
         }
-        return lessonRepository.save(lesson);
+        lessonRepository.save(lesson);
+        return lessonViewRepository.findById(lesson.getId()).orElseThrow(() -> new ResourceNotFoundException("no lesson found"));
     }
 
 }

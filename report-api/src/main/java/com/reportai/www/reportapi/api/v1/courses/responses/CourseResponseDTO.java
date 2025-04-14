@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import jakarta.validation.constraints.NotEmpty;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -37,17 +36,11 @@ public class CourseResponseDTO {
     @NotEmpty
     private Integer maxSize;
 
-    @DateTimeFormat
-    private LocalDate startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant courseStartTimestamptz;
 
-    @DateTimeFormat
-    private LocalDate endDate;
-
-    @DateTimeFormat
-    private LocalTime startTime;
-
-    @DateTimeFormat
-    private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant courseEndTimestamptz;
 
     @NotEmpty
     private List<LessonGenerationTemplateResponseDTO> lessonGenerationTemplates;

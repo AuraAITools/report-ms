@@ -8,8 +8,7 @@ import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import jakarta.validation.constraints.NotEmpty;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -41,17 +40,11 @@ public class ExpandedCourseResponse {
     @NotEmpty
     private Integer maxSize;
 
-    @DateTimeFormat
-    private LocalDate startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant courseStartTimestamptz;
 
-    @DateTimeFormat
-    private LocalDate endDate;
-
-    @DateTimeFormat
-    private LocalTime startTime;
-
-    @DateTimeFormat
-    private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant courseEndTimestamptz;
 
     @NotEmpty
     private List<LessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
