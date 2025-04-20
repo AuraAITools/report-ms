@@ -12,7 +12,6 @@ import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -72,7 +71,6 @@ public class OutletsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
-    @Transactional
     public ResponseEntity<List<OutletResponseDTO>> getOutletsForInstitution(@PathVariable UUID id) {
 
         Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();
@@ -87,7 +85,6 @@ public class OutletsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/outlets/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:read'")
-    @Transactional
     public ResponseEntity<List<ExpandedOutletsResponseDTO>> getExpandedOutletsForInstitution(@PathVariable UUID id) {
 
         Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();

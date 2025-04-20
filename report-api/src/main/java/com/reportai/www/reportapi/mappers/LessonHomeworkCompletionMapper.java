@@ -10,7 +10,7 @@ public class LessonHomeworkCompletionMapper {
     public static LessonHomeworkCompletion convert(CreateLessonHomeworkCompletionRequest createLessonHomeworkCompletionRequest) {
         return LessonHomeworkCompletion
                 .builder()
-                .rating(createLessonHomeworkCompletionRequest.getRating())
+                .completion(createLessonHomeworkCompletionRequest.getRating())
                 .build();
     }
 }

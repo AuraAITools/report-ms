@@ -9,10 +9,11 @@ import com.reportai.www.reportapi.entities.attachments.SubjectCourseAttachment;
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.entities.helpers.EntityRelationshipUtils;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
-import com.reportai.www.reportapi.entities.views.LessonView;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -30,12 +31,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 import org.modelmapper.internal.util.Assert;
 
 
 import static java.util.Collections.disjoint;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
@@ -44,11 +47,18 @@ import static java.util.Collections.disjoint;
 @Table(name = "Courses")
 public class Course extends TenantAwareBaseEntity {
 
-    @Column(nullable = false)
-    private Integer lessonNumberFrequency;
+    public enum LESSON_FREQUENCY {
+        WEEKLY,
+        FORTNIGHTLY,
+        MONTHLY
+    }
 
-    @Column(nullable = false)
-    private Integer lessonWeeklyFrequency;
+//    @Column(nullable = false)
+//    private Integer lessonNumberFrequency; // TODO: remove
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private LESSON_FREQUENCY lessonFrequency;
 
     // TODO: make embeddable entity?
     @OneToOne(cascade = CascadeType.ALL)
@@ -130,10 +140,5 @@ public class Course extends TenantAwareBaseEntity {
         lessons.forEach(lesson -> lesson.setCourse(this));
         return this;
     }
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.PERSIST)
-    @Builder.Default
-    @ToString.Exclude
-    private Set<LessonView> lessonsView = new HashSet<>();
 
 }

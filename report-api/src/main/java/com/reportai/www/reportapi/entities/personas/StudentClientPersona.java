@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.entities.personas;
 import com.reportai.www.reportapi.entities.Student;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
@@ -27,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@Audited
 @Table(name = "StudentClientPersonas")
 public class StudentClientPersona extends Persona {
     public enum RELATIONSHIP {

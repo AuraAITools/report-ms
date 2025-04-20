@@ -6,22 +6,24 @@ import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.attachments.EducatorLessonAttachment;
 import com.reportai.www.reportapi.entities.attachments.MaterialLessonAttachment;
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
-import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
+import com.reportai.www.reportapi.entities.base.AuditableEntity;
 import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.lessons.LessonPlan;
 import com.reportai.www.reportapi.entities.lessons.LessonPostponementRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,16 +31,21 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Subselect;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Immutable
-@Table(name = "lessons_view")
-public class LessonView extends TenantAwareBaseEntity {
+@Subselect("SELECT * FROM lessons_view")
+public class LessonView extends AuditableEntity {
+
+    @Id
+    private UUID Id;
 
     public enum LESSON_STATUS {
         COMPLETED,
@@ -125,4 +132,6 @@ public class LessonView extends TenantAwareBaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "lesson_plan_status")
     private LESSON_PLAN_STATUS lessonPlanStatus;
+
+    public String tenantId;
 }

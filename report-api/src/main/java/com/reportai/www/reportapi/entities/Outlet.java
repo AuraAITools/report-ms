@@ -8,7 +8,10 @@ import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.helpers.EntityRelationshipUtils;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.entities.personas.OutletAdminPersona;
+import com.reportai.www.reportapi.entities.views.LessonView;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
@@ -30,6 +33,7 @@ import lombok.experimental.SuperBuilder;
 import org.modelmapper.internal.util.Assert;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
@@ -92,7 +96,7 @@ public class Outlet extends TenantAwareBaseEntity {
     @ToString.Exclude
     private Set<Course> courses = new HashSet<>();
 
-    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
     private Set<OutletRoom> outletRooms = new HashSet<>();
@@ -102,5 +106,9 @@ public class Outlet extends TenantAwareBaseEntity {
     @ToString.Exclude
     private Set<Lesson> lessons = new HashSet<>();
 
+    @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<LessonView> lessonViews = new HashSet<>();
 
 }

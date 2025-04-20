@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.entities;
 
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -13,6 +14,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder

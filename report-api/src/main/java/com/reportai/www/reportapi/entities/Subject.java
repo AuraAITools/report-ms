@@ -5,9 +5,11 @@ import com.reportai.www.reportapi.entities.attachments.SubjectEducatorAttachment
 import com.reportai.www.reportapi.entities.attachments.SubjectLevelAttachment;
 import com.reportai.www.reportapi.entities.attachments.SubjectStudentAttachment;
 import com.reportai.www.reportapi.entities.attachments.SubjectTestGroupAttachment;
+import com.reportai.www.reportapi.entities.attachments.TopicSubjectAttachment;
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -23,6 +25,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
@@ -69,5 +72,10 @@ public class Subject extends TenantAwareBaseEntity {
     @ToString.Exclude
     @Builder.Default
     private Set<SubjectLevelAttachment> subjectLevelAttachments = new HashSet<>();
+
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @Builder.Default
+    private Set<TopicSubjectAttachment> topicSubjectAttachments = new HashSet<>();
 
 }

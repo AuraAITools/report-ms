@@ -1,8 +1,13 @@
 package com.reportai.www.reportapi.entities.base;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +27,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 @AllArgsConstructor
 @ToString
 public class AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID Id;
+
     @CreatedDate
     @Column(updatable = false)
     private Instant createdAt;
@@ -35,4 +45,17 @@ public class AuditableEntity {
 
     @LastModifiedBy
     private String updatedBy;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        AuditableEntity that = (AuditableEntity) object;
+        return Objects.equals(Id, that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Id);
+    }
 }

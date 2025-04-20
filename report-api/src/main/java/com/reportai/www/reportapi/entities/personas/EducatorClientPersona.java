@@ -2,6 +2,7 @@ package com.reportai.www.reportapi.entities.personas;
 
 import com.reportai.www.reportapi.entities.educators.Educator;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
+@Audited
 @Table(name = "EducatorClientPersonas")
 public class EducatorClientPersona extends Persona {
 

@@ -63,10 +63,9 @@ public class StrategyUtils {
 
         List<UserRepresentation> idpUserAccounts = usersResource.searchByEmail(requestedAccount.getEmail(), true);
 
-        // each email should only be unique
+        // each email should be unique
         Assert.isTrue(idpUserAccounts.size() < 2);
 
-        // TODO: look into this logic after database multitenancy change. might break
         // brand new user, create new keycloak user account and new tenant aware account
         if (idpUserAccounts.isEmpty()) {
             // create idpUserAccount in keycloak with tenant-ids as user attribute

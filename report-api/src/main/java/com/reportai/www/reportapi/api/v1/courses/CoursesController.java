@@ -5,11 +5,16 @@ import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO
 import com.reportai.www.reportapi.api.v1.courses.requests.UpdateCourseRequestDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.ExpandedCourseResponse;
+import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.courses.Course;
+import com.reportai.www.reportapi.entities.views.LessonView;
 import com.reportai.www.reportapi.mappers.CourseMappers;
+import com.reportai.www.reportapi.mappers.LessonMappers;
 import com.reportai.www.reportapi.services.courses.CoursesService;
+import com.reportai.www.reportapi.services.lessons.LessonsService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
+import com.reportai.www.reportapi.utils.LessonViewProjectionDecorator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -47,11 +52,17 @@ public class CoursesController {
 
     private final ModelMapper modelMapper;
 
+    private final LessonViewProjectionDecorator lessonViewProjectionDecorator;
+
+    private final LessonsService lessonsService;
+
     @Autowired
-    public CoursesController(CoursesService coursesService, OutletsService outletsService, ModelMapper modelMapper) {
+    public CoursesController(CoursesService coursesService, LessonsService lessonsService, OutletsService outletsService, ModelMapper modelMapper, LessonViewProjectionDecorator lessonViewProjectionDecorator) {
         this.coursesService = coursesService;
+        this.lessonsService = lessonsService;
         this.outletsService = outletsService;
         this.modelMapper = modelMapper;
+        this.lessonViewProjectionDecorator = lessonViewProjectionDecorator;
     }
 
     /**
@@ -72,6 +83,8 @@ public class CoursesController {
         createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectsToCourse(courseWithLevel.getId(), List.of(subjectId)));
         createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorsToCourse(courseWithLevel.getId(), List.of(educatorId)));
         Course resultantCourse = coursesService.findById(courseWithLevel.getId());
+        List<LessonsService.CreateLessonWithOutletRoomParams> createLessonWithOutletRoomParamsList = createCourseRequestDTO.getLessons().stream().map(lesson -> new LessonsService.CreateLessonWithOutletRoomParams(resultantCourse.getId(), LessonMappers.convert(lesson), lesson.getStudentIds(), lesson.getEducatorIds(), lesson.getOutletRoomId())).toList();
+        lessonsService.batchCreateLessonForCourse(createLessonWithOutletRoomParamsList);
         CourseResponseDTO courseResponseDTO = convert(resultantCourse);
         return new ResponseEntity<>(courseResponseDTO, HttpStatus.CREATED);
     }
@@ -89,7 +102,19 @@ public class CoursesController {
     @Transactional
     public ResponseEntity<List<ExpandedCourseResponse>> getAllExpandedCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         Collection<Course> courses = outletsService.getOutletCourses(outletId);
-        return new ResponseEntity<>(courses.stream().map(CourseMappers::convertExpanded).toList(), HttpStatus.OK);
+        List<ExpandedCourseResponse> expandedCourseResponses = courses.stream().map(course -> {
+            ExpandedCourseResponse expandedCourseResponse = CourseMappers.convertExpanded(course);
+            List<LessonResponseDTO> expandedLessonResponseDTOS = course
+                    .getLessons()
+                    .stream()
+                    .map(lesson -> {
+                        LessonView lessonView = lessonViewProjectionDecorator.project(lesson);
+                        return LessonMappers.convert(lessonView);
+                    }).toList();
+            expandedCourseResponse.setLessons(expandedLessonResponseDTOS);
+            return expandedCourseResponse;
+        }).toList();
+        return new ResponseEntity<>(expandedCourseResponses, HttpStatus.OK);
     }
 
     /**

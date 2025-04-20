@@ -34,11 +34,13 @@ public class CreateLessonRequestDTO {
     @FutureOrPresent
     private Instant lessonEndTimestamptz;
 
-
     @NotNull
     private List<UUID> educatorIds = new ArrayList<>();
 
     @NotNull
     private List<UUID> studentIds = new ArrayList<>();
+
+    @NotNull
+    private UUID outletRoomId;
 
 }

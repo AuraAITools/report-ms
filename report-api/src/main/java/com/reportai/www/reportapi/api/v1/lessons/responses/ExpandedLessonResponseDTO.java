@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.StudentResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
+import com.reportai.www.reportapi.api.v1.outletrooms.requests.OutletRoomResponseDTO;
 import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.views.LessonView;
 import jakarta.validation.constraints.NotEmpty;
@@ -55,4 +56,6 @@ public class ExpandedLessonResponseDTO {
 
     @NotNull
     private SubjectResponseDTO subject;
+
+    private OutletRoomResponseDTO outletRoom;
 }

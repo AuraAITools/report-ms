@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.api.v1.courses.responses;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.courses.Course;
 import jakarta.validation.constraints.NotEmpty;
 import java.time.Instant;
 import java.util.List;
@@ -19,10 +20,7 @@ public class CourseResponseDTO {
     private String id;
 
     @NotEmpty
-    private Integer lessonNumberFrequency;
-
-    @NotEmpty
-    private Integer lessonWeeklyFrequency;
+    private Course.LESSON_FREQUENCY lessonFrequency;
 
     @NotEmpty
     private Double price;

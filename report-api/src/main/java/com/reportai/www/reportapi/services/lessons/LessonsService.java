@@ -10,24 +10,24 @@ import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.educators.Educator;
 import com.reportai.www.reportapi.entities.helpers.Attachment;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
-import com.reportai.www.reportapi.entities.views.LessonView;
+import com.reportai.www.reportapi.entities.lessons.LessonHomeworkCompletion;
+import com.reportai.www.reportapi.entities.lessons.LessonParticipationReview;
+import com.reportai.www.reportapi.entities.lessons.StudentLessonAttendance;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.EducatorLessonAttachmentRepository;
 import com.reportai.www.reportapi.repositories.LessonRepository;
 import com.reportai.www.reportapi.repositories.StudentLessonRegistrationRepository;
-import com.reportai.www.reportapi.repositories.views.LessonViewRepository;
 import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.educators.EducatorsService;
+import com.reportai.www.reportapi.services.outlets.OutletRoomService;
 import com.reportai.www.reportapi.services.students.StudentsService;
 import com.reportai.www.reportapi.services.subjects.SubjectsService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,6 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
 
     private final LessonRepository lessonRepository;
 
-    private final LessonViewRepository lessonViewRepository;
     private final CoursesService coursesService;
 
     private final ModelMapper modelMapper;
@@ -56,9 +55,11 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
 
     private final EducatorLessonAttachmentRepository educatorLessonAttachmentRepository;
 
+    private final OutletRoomService outletRoomService;
+
 
     @Autowired
-    public LessonsService(LessonRepository lessonRepository, @Lazy CoursesService coursesService, EducatorsService educatorsService, StudentsService studentsService, SubjectsService subjectsService, StudentLessonRegistrationRepository studentLessonRegistrationRepository, EducatorLessonAttachmentRepository educatorLessonAttachmentRepository, LessonViewRepository lessonViewRepository) {
+    public LessonsService(LessonRepository lessonRepository, @Lazy CoursesService coursesService, EducatorsService educatorsService, StudentsService studentsService, SubjectsService subjectsService, StudentLessonRegistrationRepository studentLessonRegistrationRepository, EducatorLessonAttachmentRepository educatorLessonAttachmentRepository, OutletRoomService outletRoomService) {
         this.lessonRepository = lessonRepository;
         this.coursesService = coursesService;
         this.educatorsService = educatorsService;
@@ -66,7 +67,7 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
         this.subjectsService = subjectsService;
         this.studentLessonRegistrationRepository = studentLessonRegistrationRepository;
         this.educatorLessonAttachmentRepository = educatorLessonAttachmentRepository;
-        this.lessonViewRepository = lessonViewRepository;
+        this.outletRoomService = outletRoomService;
         this.modelMapper = new ModelMapper();
         this.modelMapper
                 .getConfiguration()
@@ -74,90 +75,133 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
                 .setSkipNullEnabled(true);// skip null values
         // TODO: refactor Converters and Configurers to be in separate files instead of in the constructor
         // Educators converter with null check
-        Converter<List<UUID>, List<Educator>> educatorIdsToEducatorsConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            List<UUID> educatorIds = context.getSource();
-            return educatorIds.stream()
-                    .map(educatorsService::findById)
-                    .collect(Collectors.toList());
-        };
-
-        // Students converter with null check
-        Converter<List<UUID>, List<Student>> studentIdsToStudentsConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            List<UUID> studentIds = context.getSource();
-            return studentIds.stream()
-                    .map(studentsService::findById)
-                    .collect(Collectors.toList());
-        };
-
-        // Subject converter with null check that properly looks up the subject
-        Converter<UUID, Subject> subjectIdToSubjectConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            UUID subjectId = context.getSource();
-            return subjectsService.findById(subjectId);
-        };
+//        Converter<List<UUID>, List<Educator>> educatorIdsToEducatorsConverter = context -> {
+//            if (context.getSource() == null) {
+//                this.lessonParticipationReviewRepository = lessonParticipationReviewRepository;
+//                this.lessonHomeworkCompletionRepository = lessonHomeworkCompletionRepository;
+//                return null;
+//            }
+//            List<UUID> educatorIds = context.getSource();
+//            return educatorIds.stream()
+//                    .map(educatorsService::findById)
+//                    .collect(Collectors.toList());
+//        };
+//
+//        // Students converter with null check
+//        Converter<List<UUID>, List<Student>> studentIdsToStudentsConverter = context -> {
+//            if (context.getSource() == null) {
+//                return null;
+//            }
+//            List<UUID> studentIds = context.getSource();
+//            return studentIds.stream()
+//                    .map(studentsService::findById)
+//                    .collect(Collectors.toList());
+//        };
+//
+//        // Subject converter with null check that properly looks up the subject
+//        Converter<UUID, Subject> subjectIdToSubjectConverter = context -> {
+//            if (context.getSource() == null) {
+//                return null;
+//            }
+//            UUID subjectId = context.getSource();
+//            return subjectsService.findById(subjectId);
+//        };
 //
 ////        FIXME: fix this
 //        this.modelMapper
 //                .typeMap(UpdateLessonRequestDTO.class, Lesson.class);
     }
 
+
     @Override
     public JpaRepository<Lesson, UUID> getRepository() {
         return lessonRepository;
     }
 
+
+    public record CreateLessonWithOutletRoomParams(UUID courseId, Lesson lesson, List<UUID> studentIds,
+                                                   List<UUID> educatorIds,
+                                                   UUID outletRoomId) {
+    }
+
     /**
-     * Creates a lesson for a course
+     * Creates a lesson with room booking
      *
-     * @param courseId
-     * @param lesson
-     * @param studentIds
-     * @param educatorIds
+     * @param createLessonWithOutletRoomParams
      * @return
      */
     @Transactional
-    public LessonView createLessonForCourse(@NonNull UUID courseId, Lesson lesson, List<UUID> studentIds, List<UUID> educatorIds) {
-        Course course = coursesService.findById(courseId);
+    public Lesson createLessonWithOutletRoom(CreateLessonWithOutletRoomParams createLessonWithOutletRoomParams) {
 
-        lesson.setOutlet(course.getOutlet());
-        lesson.setCourse(course);
+        Lesson createdLesson = createLessonWithEducatorsAndStudents(new CreateLessonParams(createLessonWithOutletRoomParams.courseId, createLessonWithOutletRoomParams.lesson, createLessonWithOutletRoomParams.studentIds, createLessonWithOutletRoomParams.educatorIds));
 
-        Lesson createdLesson = lessonRepository.save(lesson);
+        if (createLessonWithOutletRoomParams.outletRoomId != null) {
+            outletRoomService.bookRoom(createLessonWithOutletRoomParams.outletRoomId, createdLesson);
+        }
+        return createdLesson;
+    }
+
+    public record CreateLessonParams(UUID courseId, Lesson lesson, List<UUID> studentIds, List<UUID> educatorIds) {
+    }
+
+    /**
+     * Creates a lesson with educators and students under a course
+     *
+     * @param createLessonParams
+     * @return
+     */
+    @Transactional
+    public Lesson createLessonWithEducatorsAndStudents(CreateLessonParams createLessonParams) {
+        Course course = coursesService.findById(createLessonParams.courseId);
+        createLessonParams.lesson.setOutlet(course.getOutlet());
+        createLessonParams.lesson.setCourse(course);
+
+        Lesson createdLesson = lessonRepository.save(createLessonParams.lesson);
 
         // register students if it exists
-        if (studentIds != null && !studentIds.isEmpty()) {
-            List<Student> students = studentsService.findByIds(studentIds);
+        if (createLessonParams.studentIds != null && !createLessonParams.studentIds.isEmpty()) {
+            List<Student> students = studentsService.findByIds(createLessonParams.studentIds);
             registerStudentsToLesson(students, createdLesson);
         }
 
         // register educators if it exists
-        if (educatorIds != null && !educatorIds.isEmpty()) {
-            List<Educator> educators = educatorsService.findByIds(educatorIds);
+        if (createLessonParams.educatorIds != null && !createLessonParams.educatorIds.isEmpty()) {
+            List<Educator> educators = educatorsService.findByIds(createLessonParams.educatorIds);
             attachEducatorsToLesson(educators, createdLesson);
         }
-        lessonRepository.flush();
 
-        return lessonViewRepository.findById(createdLesson.getId()).orElseThrow(() -> new ResourceNotFoundException("no lessons found"));
+        return createdLesson;
     }
 
+    /**
+     * maybe better to use a single params object instead of multiple params
+     *
+     * @return
+     */
+    @Transactional
+    public List<Lesson> batchCreateLessonForCourse(List<CreateLessonWithOutletRoomParams> createLessonWithOutletRoomParamsList) {
+        return createLessonWithOutletRoomParamsList.stream().map(this::createLessonWithOutletRoom).toList();
+    }
 
     @Transactional
-    public void registerStudentsToLesson(List<Student> students, Lesson lesson) {
+    public List<Student> registerStudentsToLesson(List<Student> students, Lesson lesson) {
         List<StudentLessonRegistration> studentLessonRegistrations = students
                 .stream()
-                .map(student -> Attachment.createAndSync(student, lesson, new StudentLessonRegistration()))
+                .map(student -> {
+                    StudentLessonRegistration studentLessonRegistration = new StudentLessonRegistration().create(student, lesson);
+                    LessonParticipationReview lessonParticipationReview = createLessonParticipationReview(studentLessonRegistration);
+                    LessonHomeworkCompletion lessonHomeworkCompletion = createLessonHomeworkCompletion(studentLessonRegistration);
+                    StudentLessonAttendance studentLessonAttendance = createStudentLessonAttendance(studentLessonRegistration);
+                    studentLessonRegistration.setLessonParticipationReview(lessonParticipationReview);
+                    studentLessonRegistration.setLessonHomeworkCompletion(lessonHomeworkCompletion);
+                    studentLessonRegistration.setStudentLessonAttendance(studentLessonAttendance);
+                    return studentLessonRegistration;
+                })
                 .toList();
 
-        studentLessonRegistrationRepository.saveAll(studentLessonRegistrations).stream().map(StudentLessonRegistration::getStudent).toList();
+        return studentLessonRegistrationRepository.saveAll(studentLessonRegistrations).stream().map(StudentLessonRegistration::getStudent).toList();
     }
+
 
     @Transactional
     public void deregisterStudentsFromLesson(List<Student> students, Lesson lesson) {
@@ -213,8 +257,8 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
      * @return list of lessons
      */
     @Transactional
-    public List<LessonView> getLessonsInOutlet(@NonNull UUID outletId) {
-        return lessonViewRepository.findAllByOutletId(outletId);
+    public List<Lesson> getLessonsInOutlet(@NonNull UUID outletId) {
+        return lessonRepository.findAllByOutletId(outletId);
     }
 
     /**
@@ -225,7 +269,7 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
      * @return
      */
     @Transactional
-    public LessonView update(UUID lessonId, UpdateLessonRequestDTO updates) {
+    public Lesson update(UUID lessonId, UpdateLessonRequestDTO updates) {
         Lesson lesson = findById(lessonId);
         // model map to overlay the updates onto an existing lesson
         modelMapper.map(updates, lesson);
@@ -265,8 +309,32 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
                 detachEducatorFromLesson(educatorsService.findByIds(detachedEducatorIds), lesson);
             }
         }
-        lessonRepository.save(lesson);
-        return lessonViewRepository.findById(lesson.getId()).orElseThrow(() -> new ResourceNotFoundException("no lesson found"));
+        return lessonRepository.save(lesson);
+    }
+
+
+    private LessonParticipationReview createLessonParticipationReview(StudentLessonRegistration studentLessonRegistration) {
+        return LessonParticipationReview
+                .builder()
+                .participationType(null)
+                .studentLessonRegistration(studentLessonRegistration)
+                .build();
+    }
+
+    private LessonHomeworkCompletion createLessonHomeworkCompletion(StudentLessonRegistration studentLessonRegistration) {
+        return LessonHomeworkCompletion
+                .builder()
+                .studentLessonRegistration(studentLessonRegistration)
+                .completion(null)
+                .build();
+    }
+
+    private StudentLessonAttendance createStudentLessonAttendance(StudentLessonRegistration studentLessonRegistration) {
+        return StudentLessonAttendance
+                .builder()
+                .studentLessonRegistration(studentLessonRegistration)
+                .attended(false)
+                .build();
     }
 
 }

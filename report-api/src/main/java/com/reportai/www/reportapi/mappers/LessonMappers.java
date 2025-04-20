@@ -5,23 +5,28 @@ import com.reportai.www.reportapi.api.v1.lessons.responses.ExpandedLessonRespons
 import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.entities.views.LessonView;
-import java.util.UUID;
+import org.modelmapper.ModelMapper;
 
 public class LessonMappers {
+    private static final ModelMapper modelMapper = new ModelMapper();
+
     private LessonMappers() {
     }
 
-    public static Lesson convert(CreateLessonRequestDTO createLessonRequestDTO, UUID tenantId) {
+    public static Lesson convert(CreateLessonRequestDTO createLessonRequestDTO) {
 
         return Lesson.builder()
                 .lessonStartTimestamptz(createLessonRequestDTO.getLessonStartTimestamptz())
                 .lessonEndTimestamptz(createLessonRequestDTO.getLessonEndTimestamptz())
                 .name(createLessonRequestDTO.getName())
                 .description(createLessonRequestDTO.getDescription())
-                .tenantId(tenantId.toString())
                 .build();
     }
 
+    /**
+     * @param lesson
+     * @return
+     */
     public static LessonResponseDTO convert(LessonView lesson) {
         return LessonResponseDTO
                 .builder()

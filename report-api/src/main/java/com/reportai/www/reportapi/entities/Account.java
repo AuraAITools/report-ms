@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,18 +20,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 /**
  * This account is tenant aware, an account belongs to an institution
  * This means a single keycloak user account can be mapped to multiple TenantAwareAccounts
  */
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Accounts")
+@Table(name = "Accounts", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_tenant_email",
+                columnNames = {"tenant_id", "email"}
+        ),
+        @UniqueConstraint(
+                name = "uk_tenant_user",
+                columnNames = {"tenant_id", "user_id"}
+        )
+})
 public class Account extends TenantAwareBaseEntity {
 
     @Column(nullable = false)

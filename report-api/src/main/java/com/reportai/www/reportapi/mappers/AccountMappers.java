@@ -114,9 +114,6 @@ public class AccountMappers {
                                 .stream()
                                 .map(AccountMappers::convert)
                                 .toList())
-                /**
-                 * TODO: implement actions pending from account fetch from keycloak
-                 */
                 .pendingAccountActions(Collections.emptyList())
                 .build();
     }

@@ -3,6 +3,7 @@ package com.reportai.www.reportapi.entities.lessons;
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
 import com.reportai.www.reportapi.entities.base.TenantAwareBaseEntity;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -13,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
@@ -23,7 +25,6 @@ public class StudentLessonAttendance extends TenantAwareBaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     private StudentLessonRegistration studentLessonRegistration;
-
 
     private boolean attended;
 }

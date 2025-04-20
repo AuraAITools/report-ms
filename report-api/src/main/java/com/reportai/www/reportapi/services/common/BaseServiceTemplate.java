@@ -31,4 +31,8 @@ public interface BaseServiceTemplate<E extends TenantAwareBaseEntity, ID> {
         return entities;
     }
 
+    default List<E> getAll() {
+        return getRepository().findAll();
+    }
+
 }

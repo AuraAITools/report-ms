@@ -3,7 +3,9 @@ package com.reportai.www.reportapi.api.v1.courses.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.reportai.www.reportapi.api.v1.lessons.requests.CreateLessonRequestDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
+import com.reportai.www.reportapi.entities.courses.Course;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,11 +21,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreateCourseRequestDTO {
 
-    @NotNull
-    private Integer lessonNumberFrequency;
 
     @NotNull
-    private Integer lessonWeeklyFrequency;
+    private Course.LESSON_FREQUENCY lessonFrequency;
 
     @NotNull
     private Double price;
@@ -51,6 +51,12 @@ public class CreateCourseRequestDTO {
     @NotNull
     private UUID levelId;
 
+    private UUID outletRoomId;
+
+    private List<UUID> studentIds = new ArrayList<>();
+
     private List<UUID> educatorIds = new ArrayList<>();
+
+    private List<CreateLessonRequestDTO> lessons;
 
 }

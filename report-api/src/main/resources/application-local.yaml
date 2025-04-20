@@ -13,6 +13,8 @@ spring:
   jpa:
     hibernate.ddl-auto: none
     show-sql: true
+#    properties:
+#      hibernate.envers.default_schema: audit
 oauth2:
   security:
     resource-server:

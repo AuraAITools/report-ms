@@ -12,11 +12,14 @@ import com.reportai.www.reportapi.entities.helpers.EntityRelationshipUtils;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,12 +32,18 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
+@Audited
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Lessons")
+@Table(name = "Lessons", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_tenant_lesson_name",
+                columnNames = {"tenant_id", "name"}
+        )
+})
 public class Lesson extends TenantAwareBaseEntity {
 
     public enum LESSON_STATUS {
@@ -65,6 +74,7 @@ public class Lesson extends TenantAwareBaseEntity {
     @Builder.Default
     private String recap = "";
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private Subject subject;
@@ -83,6 +93,16 @@ public class Lesson extends TenantAwareBaseEntity {
     @Builder.Default
     @ToString.Exclude
     private Set<LessonPostponementRequest> lessonPostponementRequests = new HashSet<>();
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<LessonCancellationRequest> lessonCancellationRequests = new HashSet<>();
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<LessonQuiz> lessonQuizzes = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
@@ -106,7 +126,12 @@ public class Lesson extends TenantAwareBaseEntity {
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY)
     @Builder.Default
+    @ToString.Exclude
     private Set<MaterialLessonAttachment> materialLessonAttachments = new HashSet<>();
+
+    @OneToOne(mappedBy = "lesson")
+    @ToString.Exclude
+    private LessonOutletRoomBooking lessonOutletRoomBooking;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -136,6 +161,5 @@ public class Lesson extends TenantAwareBaseEntity {
                         outlet.getLessons()
                 );
     }
-
 
 }
