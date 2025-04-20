@@ -21,7 +21,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class AuditableEntity {
+public class AuditableEntityWithId extends BaseEntity {
 
     @CreatedDate
     @Column(updatable = false)

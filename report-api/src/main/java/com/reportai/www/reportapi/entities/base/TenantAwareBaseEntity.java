@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @ToString
 @EntityListeners(AuditingEntityListener.class) // TODO: look into hibernate envers to implement auditing
-public class TenantAwareBaseEntity extends AuditableEntity {
+public class TenantAwareBaseEntity extends AuditableEntityWithId {
 
     @TenantId
     public String tenantId;

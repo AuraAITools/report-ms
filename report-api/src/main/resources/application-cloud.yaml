@@ -5,6 +5,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+    liquibase-schema: liquibase
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}

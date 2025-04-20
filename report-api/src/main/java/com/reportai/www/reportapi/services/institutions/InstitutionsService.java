@@ -56,7 +56,7 @@ public class InstitutionsService {
         // set newly generated tenant id to create institution
         requestedInstitution.setId(UUID.fromString(tentativeTenantId));
         try {
-            Institution createdInstitution = institutionRepository.saveAndFlush(requestedInstitution);
+            Institution createdInstitution = institutionRepository.save(requestedInstitution);
 
             // create all institution roles
             allTenantAwareInstitutionRoles(createdInstitution.getId().toString(), createdInstitution.getName()).forEach(cr -> {
