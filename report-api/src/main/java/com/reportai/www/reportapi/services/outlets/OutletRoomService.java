@@ -4,10 +4,12 @@ import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.OutletRoom;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.entities.lessons.LessonOutletRoomBooking;
+import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.LessonOutletRoomBookingRepository;
 import com.reportai.www.reportapi.repositories.OutletRoomRepository;
 import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,11 @@ public class OutletRoomService implements BaseServiceTemplate<OutletRoom, UUID> 
     public LessonOutletRoomBooking bookRoom(UUID outletRoomId, Lesson lesson) {
         OutletRoom outletRoom = findById(outletRoomId);
 
+        // if outlet room is already booked at this timing, fail booking
+        List<LessonOutletRoomBooking> overlappingOutletRoomBookings = lessonOutletRoomBookingRepository.findOverlappingOutletRoomBookingsByTime(outletRoom.getId(), lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz());
+        if (!overlappingOutletRoomBookings.isEmpty()) {
+            throw new ResourceAlreadyExistsException("outlet room is already booked at this timing");
+        }
         LessonOutletRoomBooking lessonOutletRoomBooking = LessonOutletRoomBooking
                 .builder()
                 .outletRoom(outletRoom)

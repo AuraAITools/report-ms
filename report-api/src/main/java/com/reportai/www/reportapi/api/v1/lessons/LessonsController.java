@@ -18,7 +18,6 @@ import com.reportai.www.reportapi.utils.LessonViewProjectionDecorator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -51,20 +50,18 @@ public class LessonsController {
 
     private final LessonViewProjectionDecorator lessonViewProjectionDecorator;
 
-    private final EntityManager entityManager;
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public LessonsController(LessonViewRepository lessonViewRepository, LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository, LessonsService lessonService, CoursesService coursesService, LessonViewProjectionDecorator lessonViewProjectionDecorator, EntityManager entityManager) {
+    public LessonsController(LessonViewRepository lessonViewRepository, LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository, LessonsService lessonService, CoursesService coursesService, LessonViewProjectionDecorator lessonViewProjectionDecorator, ModelMapper modelMapper) {
         this.lessonViewRepository = lessonViewRepository;
         this.lessonOutletRoomBookingRepository = lessonOutletRoomBookingRepository;
         this.lessonService = lessonService;
         this.coursesService = coursesService;
         this.lessonViewProjectionDecorator = lessonViewProjectionDecorator;
-        this.entityManager = entityManager;
+        this.modelMapper = modelMapper;
     }
-
 
     @Operation(summary = "create lesson of course", description = "create a lesson in a course")
     @ApiResponse(responseCode = "200", description = "OK")

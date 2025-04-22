@@ -32,12 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Slf4j
 public class MaterialsController {
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     private final MaterialsService materialsService;
 
     @Autowired
-    public MaterialsController(MaterialsService materialsService) {
+    public MaterialsController(ModelMapper modelMapper, MaterialsService materialsService) {
+        this.modelMapper = modelMapper;
         this.materialsService = materialsService;
     }
 

@@ -33,12 +33,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class OutletRoomsController {
 
     private final OutletRoomService outletRoomService;
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public OutletRoomsController(OutletRoomService outletRoomService) {
+    public OutletRoomsController(OutletRoomService outletRoomService, ModelMapper modelMapper) {
         this.outletRoomService = outletRoomService;
-        modelMapper.createTypeMap(OutletRoom.class, OutletRoomResponseDTO.class)
+        this.modelMapper = modelMapper;
+        modelMapper.createTypeMap(OutletRoom.class, OutletRoomResponseDTO.class) // TODO: refactopr to another file
                 .addMapping(OutletRoom::getId, OutletRoomResponseDTO::setId);
     }
 

@@ -1,6 +1,7 @@
 package com.reportai.www.reportapi.repositories;
 
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,19 @@ public interface StudentLessonRegistrationRepository extends JpaRepository<Stude
 
     // This one is correct, but for consistency:
     List<StudentLessonRegistration> findAllByLesson_Id(UUID lessonId);
+
+    /**
+     * @param studentId
+     * @return
+     */
+    @Query("SELECT slr FROM StudentLessonRegistration slr " +
+            "WHERE slr.student.id = :studentId " +
+            "AND slr.lesson.lessonStartTimestamptz < :endTime " +
+            "AND slr.lesson.lessonEndTimestamptz > :startTime"
+    )
+    List<StudentLessonRegistration> findOverlappingLessonRegistrationsByStudentId(
+            @Param("studentId") UUID studentId, @Param("startTime") Instant startTime, @Param("endTime") Instant endTime
+    );
 
     @Modifying
     @Query("DELETE FROM StudentLessonRegistration slr WHERE slr.student.id IN :studentIds AND slr.lesson.id = :lessonId")

@@ -13,6 +13,7 @@ import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.entities.lessons.LessonHomeworkCompletion;
 import com.reportai.www.reportapi.entities.lessons.LessonParticipationReview;
 import com.reportai.www.reportapi.entities.lessons.StudentLessonAttendance;
+import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
 import com.reportai.www.reportapi.repositories.EducatorLessonAttachmentRepository;
 import com.reportai.www.reportapi.repositories.LessonRepository;
@@ -183,11 +184,21 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
         return createLessonWithOutletRoomParamsList.stream().map(this::createLessonWithOutletRoom).toList();
     }
 
+    //TODO: check if lesson timeslot for educators and students conflict
     @Transactional
     public List<Student> registerStudentsToLesson(List<Student> students, Lesson lesson) {
         List<StudentLessonRegistration> studentLessonRegistrations = students
                 .stream()
                 .map(student -> {
+
+                    // if student already has a lesson scheduled at this time fail registration
+                    List<StudentLessonRegistration> overlappingLessonRegistrations = studentLessonRegistrationRepository.findOverlappingLessonRegistrationsByStudentId(student.getId(), lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz());
+
+                    if (!overlappingLessonRegistrations.isEmpty()) {
+                        throw new ResourceAlreadyExistsException(String.format("student %s already has overlapping lesson", student.getName()));
+                    }
+
+
                     StudentLessonRegistration studentLessonRegistration = new StudentLessonRegistration().create(student, lesson);
                     LessonParticipationReview lessonParticipationReview = createLessonParticipationReview(studentLessonRegistration);
                     LessonHomeworkCompletion lessonHomeworkCompletion = createLessonHomeworkCompletion(studentLessonRegistration);
@@ -220,7 +231,16 @@ public class LessonsService implements BaseServiceTemplate<Lesson, UUID> {
     public void attachEducatorsToLesson(List<Educator> educators, Lesson lesson) {
         List<EducatorLessonAttachment> educatorLessonAttachments = educators
                 .stream()
-                .map(educator -> Attachment.createAndSync(educator, lesson, new EducatorLessonAttachment()))
+                .map(educator -> {
+                    // if educator has conflicting classes at that time fail attachment
+                    List<EducatorLessonAttachment> overlappingLessonAttachments = educatorLessonAttachmentRepository.findOverlappingLessonAttachmentsByEducatorId(educator.getId(), lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz());
+
+                    if (!overlappingLessonAttachments.isEmpty()) {
+                        throw new ResourceAlreadyExistsException(String.format("educator %s already teaching a lesson", educator.getName()));
+                    }
+
+                    return Attachment.createAndSync(educator, lesson, new EducatorLessonAttachment());
+                })
                 .toList();
         educatorLessonAttachmentRepository.saveAll(educatorLessonAttachments).stream().map(EducatorLessonAttachment::getEducator).toList();
     }
