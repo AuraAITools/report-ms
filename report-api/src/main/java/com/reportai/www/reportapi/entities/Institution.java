@@ -1,26 +1,18 @@
 package com.reportai.www.reportapi.entities;
 
-import com.reportai.www.reportapi.entities.base.NoIdTenantAwareBaseEntity;
-import com.reportai.www.reportapi.entities.personas.InstitutionAdminPersona;
-import jakarta.persistence.CascadeType;
+import com.reportai.www.reportapi.entities.base.NonGeneratedIdTenantAwareEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import org.hibernate.envers.Audited;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
@@ -30,8 +22,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Institutions")
-public class Institution extends NoIdTenantAwareBaseEntity {
+public class Institution extends NonGeneratedIdTenantAwareEntity {
 
+    // ID must remain non-generated
     @Id
     private UUID Id;
 
@@ -47,10 +40,5 @@ public class Institution extends NoIdTenantAwareBaseEntity {
     private String address;
 
     private String contactNumber;
-
-    @OneToMany(mappedBy = "institution", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @Builder.Default
-    private Set<InstitutionAdminPersona> institutionAdmins = new HashSet<>();
 
 }

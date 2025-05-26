@@ -5,12 +5,9 @@ import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO
 import com.reportai.www.reportapi.api.v1.courses.requests.UpdateCourseRequestDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.CourseResponseDTO;
 import com.reportai.www.reportapi.api.v1.courses.responses.ExpandedCourseResponse;
-import com.reportai.www.reportapi.api.v1.lessons.responses.LessonResponseDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.courses.Course;
-import com.reportai.www.reportapi.entities.views.LessonView;
-import com.reportai.www.reportapi.mappers.CourseMappers;
-import com.reportai.www.reportapi.mappers.LessonMappers;
+import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.services.courses.CoursesService;
 import com.reportai.www.reportapi.services.lessons.LessonsService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
@@ -39,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.reportai.www.reportapi.mappers.CourseMappers.convert;
 
+//TODO: refactor and maybe use projection for lesson view instead of an actual view
 @Tag(name = "Courses APIs", description = "APIs for managing a Courses resource. Courses must be created under an outlet")
 @RestController
 @RequestMapping("/api/v1")
@@ -77,48 +75,55 @@ public class CoursesController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:create'")
     @Transactional
     public ResponseEntity<CourseResponseDTO> createCourseForOutlet(@RequestBody @Valid CreateCourseRequestDTO createCourseRequestDTO, @PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        // TODO: if lessonGenerationTemplate array is not empty, generate lessons
-        Course createdCourse = coursesService.createCourseForOutlet(convert(createCourseRequestDTO, id), outletId);
-        Course courseWithLevel = coursesService.addLevelToCourse(createdCourse.getId(), createCourseRequestDTO.getLevelId());
-        createCourseRequestDTO.getSubjectIds().forEach(subjectId -> coursesService.addSubjectsToCourse(courseWithLevel.getId(), List.of(subjectId)));
-        createCourseRequestDTO.getEducatorIds().forEach(educatorId -> coursesService.addEducatorsToCourse(courseWithLevel.getId(), List.of(educatorId)));
-        Course resultantCourse = coursesService.findById(courseWithLevel.getId());
-        List<LessonsService.CreateLessonWithOutletRoomParams> createLessonWithOutletRoomParamsList = createCourseRequestDTO.getLessons().stream().map(lesson -> new LessonsService.CreateLessonWithOutletRoomParams(resultantCourse.getId(), LessonMappers.convert(lesson), lesson.getStudentIds(), lesson.getEducatorIds(), lesson.getOutletRoomId())).toList();
-        lessonsService.batchCreateLessonForCourse(createLessonWithOutletRoomParamsList);
-        CourseResponseDTO courseResponseDTO = convert(resultantCourse);
+
+        Course createdCourse = coursesService.createWithRelations(createCourseRequestDTO, outletId);
+        // INFO: batch create lessons
+        createCourseRequestDTO
+                .getLessons()
+                .forEach(createLessonRequestDTO -> { // for each generated lesson request
+                    Lesson lesson = modelMapper.map(createLessonRequestDTO, Lesson.class);
+                    lessonsService.create(lesson, outletId, createdCourse.getId());
+
+                    if (createLessonRequestDTO.getSubjectId() != null) {
+                        lessonsService.updateLessonSubject(lesson.getId(), createLessonRequestDTO.getSubjectId()); //TODO: include in DTO and FE
+                    }
+                    lessonsService.updateOutletRooms(lesson.getId(), createLessonRequestDTO.getOutletRoomId());
+                    lessonsService.updateStudentRegistrations(lesson.getId(), createLessonRequestDTO.getStudentIds());
+                    lessonsService.updateEducatorAttachments(lesson.getId(), createLessonRequestDTO.getEducatorIds());
+                });
+
+        CourseResponseDTO courseResponseDTO = convert(createdCourse);
         return new ResponseEntity<>(courseResponseDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
-    public ResponseEntity<List<CourseResponseDTO>> getAllCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<List<CourseResponseDTO>> getAllCoursesOfOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         Collection<Course> courses = outletsService.getOutletCourses(outletId);
-        return new ResponseEntity<>(courses.stream().map(CourseMappers::convert).toList(), HttpStatus.OK);
+        List<CourseResponseDTO> courseResponseDTOS = courses
+                .stream()
+                .map(course -> modelMapper.map(course, CourseResponseDTO.class))
+                .toList();
+        return new ResponseEntity<>(courseResponseDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/courses/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::courses:read'")
     @Transactional
-    public ResponseEntity<List<ExpandedCourseResponse>> getAllExpandedCourseForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+    public ResponseEntity<List<ExpandedCourseResponse>> getAllExpandedCoursesOfOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
         Collection<Course> courses = outletsService.getOutletCourses(outletId);
-        List<ExpandedCourseResponse> expandedCourseResponses = courses.stream().map(course -> {
-            ExpandedCourseResponse expandedCourseResponse = CourseMappers.convertExpanded(course);
-            List<LessonResponseDTO> expandedLessonResponseDTOS = course
-                    .getLessons()
-                    .stream()
-                    .map(lesson -> {
-                        LessonView lessonView = lessonViewProjectionDecorator.project(lesson);
-                        return LessonMappers.convert(lessonView);
-                    }).toList();
-            expandedCourseResponse.setLessons(expandedLessonResponseDTOS);
-            return expandedCourseResponse;
-        }).toList();
+        List<ExpandedCourseResponse> expandedCourseResponses = courses
+                .stream()
+                .map(course -> modelMapper.map(course, ExpandedCourseResponse.class))
+                .toList();
         return new ResponseEntity<>(expandedCourseResponses, HttpStatus.OK);
     }
 
+    // TODO: relook
+
     /**
-     * Creates a course in an institution
+     * updates a course in an institution
      * Also links the level, subjects and educators to the created course
      *
      * @param updateCourseRequestDTO
@@ -163,7 +168,7 @@ public class CoursesController {
                     return destination;
                 });
         customModelMapper.map(updateCourseRequestDTO, updates);
-        Course updatedCourse = coursesService.updateCourseForOutlet(courseId, updates);
+        Course updatedCourse = coursesService.update(courseId, updates);
         return new ResponseEntity<>(convert(updatedCourse), HttpStatus.OK);
     }
 

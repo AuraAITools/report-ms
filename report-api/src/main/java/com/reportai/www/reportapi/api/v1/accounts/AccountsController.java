@@ -1,35 +1,36 @@
 package com.reportai.www.reportapi.api.v1.accounts;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateBlankAccountRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateInstitutionAdminAccountRequestDTO;
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentClientRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateAccountParamsDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateAccountWithEducatorsRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateAccountWithInstitutionAdminRoleRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateAccountWithOutletAdminRoleRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateAccountWithStudentsRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateOutletAdminRoleRequestDTO;
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentsInAccountRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.AccountResponseDTO;
-import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorClientResponseDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.ExpandedAccountResponse;
-import com.reportai.www.reportapi.api.v1.accounts.responses.StudentClientResponseDTO;
+import com.reportai.www.reportapi.api.v1.educators.requests.CreateEducatorRequestDTO;
 import com.reportai.www.reportapi.entities.Account;
-import com.reportai.www.reportapi.entities.Institution;
-import com.reportai.www.reportapi.entities.personas.EducatorClientPersona;
-import com.reportai.www.reportapi.entities.personas.StudentClientPersona;
-import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
-import com.reportai.www.reportapi.mappers.AccountMappers;
-import com.reportai.www.reportapi.mappers.EducatorMappers;
-import com.reportai.www.reportapi.mappers.StudentMappers;
-import com.reportai.www.reportapi.repositories.EducatorClientPersonaRepository;
-import com.reportai.www.reportapi.repositories.InstitutionRepository;
-import com.reportai.www.reportapi.repositories.StudentClientPersonaRepository;
-import com.reportai.www.reportapi.repositories.specifications.TenantSpecification;
+import com.reportai.www.reportapi.entities.Student;
+import com.reportai.www.reportapi.entities.attachments.AccountEducatorAttachment;
+import com.reportai.www.reportapi.entities.educators.Educator;
+import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.services.accounts.TenantAwareAccountsService;
-import com.reportai.www.reportapi.services.accounts.creationstrategies.TenantAwareAccountCreationContext;
+import com.reportai.www.reportapi.services.educators.EducatorsService;
+import com.reportai.www.reportapi.services.students.StudentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Accounts APIs", description = "APIs for creating accounts in an institutions")
@@ -49,115 +51,241 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AccountsController {
     private final TenantAwareAccountsService tenantAwareAccountsService;
-    private final InstitutionRepository institutionRepository;
-    private final StudentClientPersonaRepository studentClientPersonaRepository;
-    private final EducatorClientPersonaRepository educatorClientPersonaRepository;
+    private final EducatorsService educatorsService;
+    private final StudentsService studentsService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public AccountsController(TenantAwareAccountsService tenantAwareAccountsService, InstitutionRepository institutionRepository, StudentClientPersonaRepository studentClientPersonaRepository, EducatorClientPersonaRepository educatorClientPersonaRepository) {
+    public AccountsController(TenantAwareAccountsService tenantAwareAccountsService, EducatorsService educatorsService, StudentsService studentsService, ModelMapper modelMapper) {
         this.tenantAwareAccountsService = tenantAwareAccountsService;
-        this.institutionRepository = institutionRepository;
-        this.studentClientPersonaRepository = studentClientPersonaRepository;
-        this.educatorClientPersonaRepository = educatorClientPersonaRepository;
+        this.educatorsService = educatorsService;
+        this.studentsService = studentsService;
+        this.modelMapper = modelMapper;
     }
 
-    //TODO: allow institution admin authority to create admin accounts for their institution too
-    @Operation(summary = "Creates an blank account and links institution-admin permissions for an institution", description = "Creates an admin account for the institution. This admin user can be used to add other accounts")
-    @ApiResponses({@ApiResponse(responseCode = "201", description = "created"), @ApiResponse(responseCode = "409", description = "existing account for institution account already exists"), @ApiResponse(responseCode = "500", description = "unexpected internal server error has occurred")})
-    @PostMapping("/institutions/{id}/accounts/institution-admins")
-//    @HasRole("'aura-admin'")
-    public ResponseEntity<AccountResponseDTO> createInstitutionAdminAccountForInstitution(@PathVariable UUID id, @RequestBody @Valid CreateInstitutionAdminAccountRequestDTO createInstitutionAdminAccountRequestDTO) {
-        Account account = AccountMappers.convert(createInstitutionAdminAccountRequestDTO);
-        account.setTenantId(id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.INSTITUTION_ADMIN, id, null, null);
-        return new ResponseEntity<>(AccountMappers.convert(createdAccount), HttpStatus.OK);
-    }
-
-    @Operation(summary = "Creates an blank account and links outlet-admin permissions for an institution", description = "link outlet-admin to base admin")
+    @Operation(summary = "create an account for a institution", description = "create an account with no roles for a institution. A user can add roles (student-client,educator, outlet-admin and institution admin) to this account later")
     @ApiResponse(responseCode = "200", description = "OK")
-    @PostMapping("/institutions/{id}/outlets/{outlet_id}/accounts/outlet-admins")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-link-outlet-admin'")
-    public ResponseEntity<AccountResponseDTO> createAccountAndAddOutletAdminRole(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @RequestBody CreateBlankAccountRequestDTO createBlankAccountRequestDTO) {
-        Account account = AccountMappers.convert(createBlankAccountRequestDTO, id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.OUTLET_ADMIN, id, List.of(outletId), null);
-        return new ResponseEntity<>(AccountMappers.convert(createdAccount), HttpStatus.OK);
+    @PostMapping("/institutions/{id}/accounts")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create'")
+    @Transactional
+    public ResponseEntity<ExpandedAccountResponse> createAccount(@PathVariable UUID id, @RequestBody @Valid CreateAccountParamsDTO createAccountParamsDTO) {
+        Account account = modelMapper.map(createAccountParamsDTO, Account.class);
+        tenantAwareAccountsService.createTenantAwareAccount(account, id);
+        modelMapper.map(account, ExpandedAccountResponse.class);
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
     }
 
-    @Operation(summary = "Creates an student client account and links permission to access report-mobile student dashboard feature", description = "Creates an student client account and links permission to access report-mobile student dashboard feature")
+    // Role Granting Operations
+    // =============================================================================
+    // These endpoints handle granting different roles to existing accounts.
+    // All operations are idempotent - granting an existing role will not cause errors.
+    //
+    // Available role types:
+    // - Institution Admin: Full access to institution resources
+    // - Outlet Admin: Access to specific outlet resources
+    // - Student Client: Access to student dashboard features
+    // - Educator Client: Access to educator dashboard features
+    //
+    // Note: Role assignments are managed through Keycloak and are tenant-aware
+    // =============================================================================
+    @Operation(summary = "grant institution admin role", description = "grant institution admin role")
     @ApiResponse(responseCode = "200", description = "OK")
-    @PostMapping("/institutions/{id}/accounts/student-clients")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::student-client-account:create'")
-    public ResponseEntity<StudentClientResponseDTO> createStudentClientAccountInInstitution(@PathVariable UUID id, @RequestBody @Valid CreateStudentClientRequestDTO createStudentClientRequestDTO) {
-        Account account = AccountMappers.convert(createStudentClientRequestDTO, id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.STUDENT_CLIENT, id, null, createStudentClientRequestDTO.getRelationship());
-        return new ResponseEntity<>(AccountMappers.convert(createdAccount, createStudentClientRequestDTO.getRelationship()), HttpStatus.OK);
-    }
-
-    @Operation(summary = "get student client details", description = "create an account for the clients of a institution.")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @GetMapping("/institutions/{id}/accounts/student-clients")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::student-clients:read'")
-    public ResponseEntity<List<StudentClientResponseDTO>> getStudentClientsAccountOfInstitution(@PathVariable UUID id) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("institution not found"));
-        List<StudentClientPersona> studentClientPersona = studentClientPersonaRepository.findAll(TenantSpecification.forTenant(id.toString()));
-        return new ResponseEntity<>(studentClientPersona.stream().map(StudentMappers::convert).toList(), HttpStatus.OK);
-    }
-
-    // TODO: get all student client accounts
-    @Operation(summary = "get institution details", description = "create an account for the clients of a institution.")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @GetMapping("/institutions/{id}/accounts/educator-clients")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::educator-clients:read'")
-    public ResponseEntity<List<EducatorClientResponseDTO>> getEducatorClientsAccountOfInstitution(@PathVariable UUID id) {
-        Institution institution = institutionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("institution not found"));
-        List<EducatorClientPersona> educatorClientPersona = educatorClientPersonaRepository.findAll(TenantSpecification.forTenant(id.toString()));
-        return new ResponseEntity<>(educatorClientPersona.stream().map(EducatorMappers::convert).toList(), HttpStatus.OK);
-    }
-
-
-    @Operation(summary = "Creates an educator client account and links permission to access report-mobile educator dashboard feature", description = "Creates an educator client account and links permission to access report-mobile educator dashboard feature")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @PostMapping("/institutions/{id}/accounts/educator-clients")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::educator-client-account:create'")
-    public ResponseEntity<AccountResponseDTO> createEducatorClientAccountInInstitution(@PathVariable UUID id, @RequestBody @Valid CreateBlankAccountRequestDTO createEducatorClientRequestDTO) {
-        Account account = AccountMappers.convert(createEducatorClientRequestDTO, id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.EDUCATOR_CLIENT, id, null, null);
-        return new ResponseEntity<>(AccountMappers.convert(createdAccount), HttpStatus.OK);
-    }
-
-    @Operation(summary = "create an outlet-admin on top of base account and link", description = "link outlet-admin to base admin")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @PatchMapping("/institutions/{id}/accounts/{account_id}/outlets/{outlet_id}/outlet-admins")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-link-outlet-admin'")
-    public ResponseEntity<Void> linkExistingAccountToOutletAdmin(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId, @PathVariable(name = "outlet_id") UUID outletId) {
-        tenantAwareAccountsService.grantOutletAdminInTenantAwareAccount(outletId, accountId);
+    @PatchMapping("/institutions/{id}/accounts/{account_id}/institution-admin-roles")
+    // TODO: add perms
+    public ResponseEntity<Void> addInstitutionAdminRoleToAccount(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId) {
+        tenantAwareAccountsService.grantInstitutionAdminRole(accountId);
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "create an blank account for a institution", description = "create an blank account for a institution. This blank account can later be linked to a client, student, parent, educator, outlet and institution admin")
-    @ApiResponse(responseCode = "201", description = "OK")
-    @PostMapping("/institutions/{id}/accounts")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create'")
-    public ResponseEntity<AccountResponseDTO> createBlankAccountForInstitution(@PathVariable UUID id, @RequestBody @Valid CreateBlankAccountRequestDTO createBlankAccountRequestDTO) {
-        Account account = AccountMappers.convert(createBlankAccountRequestDTO, id.toString());
-        Account createdAccount = tenantAwareAccountsService.createTenantAwareAccount(account, TenantAwareAccountCreationContext.AccountType.BLANK, id, null, null);
-        return new ResponseEntity<>(AccountMappers.convert(createdAccount), HttpStatus.CREATED);
+    @Operation(summary = "grant outlet admin role for requested outlets to account", description = "grant outlet admin role for requested outlets to account")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("/institutions/{id}/accounts/{account_id}/outlet-admin-roles")
+    // TODO: add perms
+    public ResponseEntity<Void> addOutletAdminRoleToAccount(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId, @RequestBody @Valid CreateOutletAdminRoleRequestDTO createOutletAdminRoleRequestDTO) {
+        tenantAwareAccountsService.grantOutletAdminRoles(accountId, createOutletAdminRoleRequestDTO.getOutletIds());
+        return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "get all account for a institution", description = "get all accounts for a institution. This blank account can later be linked to a client, student, parent, educator, outlet and institution admin")
-    @ApiResponse(responseCode = "201", description = "OK")
-    @GetMapping("/institutions/{id}/accounts")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:read'")
-    public ResponseEntity<List<ExpandedAccountResponse>> getAllAccountsForInstitution(@PathVariable UUID id) {
-        List<ExpandedAccountResponse> response = tenantAwareAccountsService
-                .getAllTenantAwareAccounts()
+    @Operation(summary = "add student client role to account", description = "add student client role to account")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("institutions/{id}/accounts/{account_id}/student-client-roles")
+    @Transactional
+    // TODO: add permission
+    public ResponseEntity<Void> addStudentClientRoleToAccount(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId) {
+        tenantAwareAccountsService.grantStudentRole(accountId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "add educator client role to account", description = "add educator client role to account")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PatchMapping("institutions/{id}/accounts/{account_id}/educator-client-roles") // TODO: add permissions
+    @Transactional
+    // TODO: add perms
+    public ResponseEntity<Void> addEducatorClientRoleToAccount(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId) {
+        tenantAwareAccountsService.grantEducatorRole(accountId);
+        return ResponseEntity.ok().build();
+    }
+
+
+    // =============================================================================
+    // Role Granting & Entity Association Operations
+    // =============================================================================
+    // These endpoints handle granting roles and adding associated entities
+    // (students/educators) to existing accounts.
+    //
+    // Operations:
+    // - Grant role to existing account
+    // - Link existing student(s) to student-client account
+    // - Link existing educator to educator-client account
+    //
+    // Common flows:
+    // 1. Student-client: Grant role -> Link student(s)
+    // 2. Educator-client: Grant role -> Link educator
+    //
+    // Note: Multiple students can be linked to one account (e.g. parent account)
+    //       However only 1 educator can be linked to one account
+    // =============================================================================
+
+    @Operation(summary = "create educator in an account", description = "creates educator in account and grants educator client role")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PostMapping("institutions/{id}/accounts/{account_id}/educators")
+    @Transactional
+    // TODO: add perms
+    public ResponseEntity<ExpandedAccountResponse> createEducatorInAccountAndGrantRole(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId, @RequestBody @Valid CreateEducatorRequestDTO createEducatorRequestDTO) {
+        List<AccountEducatorAttachment> accountEducatorAttachments = tenantAwareAccountsService.getAccountEducatorAttachments(accountId);
+        if (!accountEducatorAttachments.isEmpty()) {
+            throw new ResourceAlreadyExistsException("an educator is already attached to this account");
+        }
+        Educator educator = educatorsService.create(createEducatorRequestDTO);
+        tenantAwareAccountsService.attachEducatorToAccount(educator.getId(), accountId);
+        tenantAwareAccountsService.grantEducatorRole(accountId);
+        return new ResponseEntity<>(modelMapper.map(tenantAwareAccountsService.findById(accountId), ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    @Operation(summary = "create student in an account", description = "creates student in account and grants student client role, also sets relationship of student-client to student optionally")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PostMapping("institutions/{id}/accounts/{account_id}/students") // TODO: add permissions
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-student'")
+    @Transactional
+    // TODO: add perms
+    public ResponseEntity<ExpandedAccountResponse> createStudentsInAccountAndGrantRole(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId, @RequestBody @Valid CreateStudentsInAccountRequestDTO createStudentsInAccountRequestDTO) {
+        if (createStudentsInAccountRequestDTO.getRelationship() != null) {
+            tenantAwareAccountsService.setRelationship(accountId, createStudentsInAccountRequestDTO.getRelationship());
+        }
+        List<Student> students = createStudentsInAccountRequestDTO
+                .getStudents()
                 .stream()
-                .map(account -> {
-                    ExpandedAccountResponse expandedAccountResponse = AccountMappers.convertExpanded(account);
-                    expandedAccountResponse.setPendingAccountActions(tenantAwareAccountsService.getPendingActionsOfTenantAwareAccount(account.getId()));
-                    return expandedAccountResponse;
-                })
+                .map(studentsService::create)
+                .toList();
+        students.forEach(student -> tenantAwareAccountsService.attachStudentToAccount(student.getId(), accountId));
+        tenantAwareAccountsService.grantStudentRole(accountId);
+        return new ResponseEntity<>(modelMapper.map(tenantAwareAccountsService.findById(accountId), ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    // =============================================================================
+    // Combined Account Creation Operations
+    // =============================================================================
+    // These endpoints provide convenient shortcuts for common account setup patterns.
+    // Each endpoint combines multiple operations:
+    // 1. Create a new account
+    // 2. Grant appropriate role(s)
+    // 3. Create and link associated entities if any (student/educator)
+    //
+    // Available combinations:
+    // - Account + Institution Admin Role
+    // - Account + Outlet Admin Role + Outlet assignments
+    // - Account + Student Client Role + Student entity
+    // - Account + Educator Client Role + Educator entity
+    //
+    // Note: These operations are atomic - they will either complete fully or roll back
+    // =============================================================================
+
+
+    //TODO: allow institution admin authority to create admin accounts for their institution too
+    @Operation(summary = "Creates a account with institution-admin role for an institution", description = "Creates an account and also creates an institution-admin role for the account")
+    @ApiResponses({@ApiResponse(responseCode = "201", description = "created"), @ApiResponse(responseCode = "409", description = "existing account for institution account already exists"), @ApiResponse(responseCode = "500", description = "unexpected internal server error has occurred")})
+    @PostMapping("/institutions/{id}/accounts/institution-admins")
+//    @HasRole("'aura-admin'")
+    @Transactional
+    public ResponseEntity<ExpandedAccountResponse> createAccountWithInstitutionAdminRole(@PathVariable UUID id, @RequestBody @Valid CreateAccountWithInstitutionAdminRoleRequestDTO createAccountWithInstitutionAdminRoleRequestDTO) {
+        Account account = modelMapper.map(createAccountWithInstitutionAdminRoleRequestDTO, Account.class);
+        tenantAwareAccountsService.createTenantAwareAccount(account, id);
+        tenantAwareAccountsService.grantInstitutionAdminRole(account.getId());
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Creates an account with outlet-admin roles for specified outlets for an institution", description = "Creates an account with outlet-admin role for specified outlets for an institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PostMapping("/institutions/{id}/accounts/outlet-admins")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:create-link-outlet-admin'")
+    @Transactional
+    // TODO: rename permission
+    public ResponseEntity<ExpandedAccountResponse> createAccountWithOutletAdminRole(@PathVariable UUID id, @RequestBody @Valid CreateAccountWithOutletAdminRoleRequestDTO createAccountWithOutletAdminRoleRequestDTO) {
+        Account account = modelMapper.map(createAccountWithOutletAdminRoleRequestDTO, Account.class);
+        tenantAwareAccountsService.createTenantAwareAccount(account, id);
+        tenantAwareAccountsService.grantOutletAdminRoles(account.getId(), createAccountWithOutletAdminRoleRequestDTO.getOutletIds());
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Creates an account with student-client role for an institution", description = "Creates an account and also creates the student client role which allows access to report-mobile student dashboard feature")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PostMapping("/institutions/{id}/accounts/student-clients")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::student-client-account:create'")
+    @Transactional
+    // TODO: this will fail if outlets have not been created yet, test
+    public ResponseEntity<ExpandedAccountResponse> createAccountWithStudentClientRole(@PathVariable UUID id, @RequestBody @Valid CreateAccountWithStudentsRequestDTO createAccountWithStudentsRequestDTO) {
+        Account account = modelMapper.map(createAccountWithStudentsRequestDTO, Account.class);
+        List<Student> students = createAccountWithStudentsRequestDTO
+                .getStudents()
+                .stream()
+                .map(studentsService::create)
+                .toList();
+        tenantAwareAccountsService.createTenantAwareAccount(account, id);
+        students
+                .forEach(student -> tenantAwareAccountsService.attachStudentToAccount(student.getId(), account.getId()));
+        tenantAwareAccountsService.setRelationship(account.getId(), createAccountWithStudentsRequestDTO.getRelationship());
+        tenantAwareAccountsService.grantStudentRole(account.getId());
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Creates account and grant educator client role and creates educator", description = "Creates account and grant educator client role and creates educator")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @PostMapping("/institutions/{id}/accounts/educator-clients")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::educator-client-account:create'")
+    public ResponseEntity<ExpandedAccountResponse> createAccountWithEducatorClientRole(@PathVariable UUID id, @RequestBody @Valid CreateAccountWithEducatorsRequestDTO createAccountWithEducatorsRequestDTO) {
+        Account account = modelMapper.map(createAccountWithEducatorsRequestDTO, Account.class);
+        Educator educator = educatorsService.create(createAccountWithEducatorsRequestDTO.getEducator());
+        tenantAwareAccountsService.createTenantAwareAccount(account, id);
+        tenantAwareAccountsService.attachEducatorToAccount(educator.getId(), account.getId());
+        tenantAwareAccountsService.grantEducatorRole(account.getId());
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
+    @Operation(summary = "get all expanded account for a institution", description = "get all expanded accounts for a institution")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @GetMapping("/institutions/{id}/accounts/expand")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:read'")
+    public ResponseEntity<List<ExpandedAccountResponse>> getAllExpandedAccountsForInstitution(@PathVariable UUID id, @RequestParam(name = "email", required = false) @Email String email) {
+        Collection<Account> accounts = email == null ? tenantAwareAccountsService.getAllTenantAwareAccounts() : List.of(tenantAwareAccountsService.getAllTenantAwareAccountsByEmail(email));
+        List<ExpandedAccountResponse> response = accounts
+                .stream()
+                .map(account -> modelMapper.map(account, ExpandedAccountResponse.class))
                 .toList();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @Operation(summary = "get all account for a institution", description = "get all accounts for a institution")
+    @ApiResponse(responseCode = "201", description = "OK")
+    @GetMapping("/institutions/{id}/accounts")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:read'")
+    public ResponseEntity<List<AccountResponseDTO>> getAllAccountsForInstitution(@PathVariable UUID id, @RequestParam(name = "email", required = false) @Email String email) {
+
+        Collection<Account> accounts = email == null ? tenantAwareAccountsService.getAllTenantAwareAccounts() : List.of(tenantAwareAccountsService.getAllTenantAwareAccountsByEmail(email));
+        List<AccountResponseDTO> response = accounts
+                .stream()
+                .map(account -> modelMapper.map(account, AccountResponseDTO.class))
+                .toList();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

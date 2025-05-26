@@ -3,18 +3,31 @@ server:
 spring:
   config:
     activate:
-      on-profile: test
-  application:
-    name: report-api
-  jpa:
-    show-sql: true
+      on-profile: integration-test
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false # TODO: enable and use this, currently cannot create liquibase schema
+    liquibase-schema: liquibase
+    default-schema: liquibase
   datasource:
     username: sa
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb;TRACE_LEVEL_FILE=4
     driverClassName: org.h2.Driver
     password: password
+  jpa:
+    hibernate.ddl-auto: create
+    show-sql: true
+    properties.hibernate.format_sql: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/init.sql
+  application:
+    name: report-api
   h2:
     console.enabled: true
 oauth2:
   security:
-    enabled: false
+    resource-server:
+      jwk-set-uri: https://localhost:8080/fake/test/url
+    enabled: true

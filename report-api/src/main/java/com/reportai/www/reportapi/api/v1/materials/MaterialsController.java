@@ -63,14 +63,14 @@ public class MaterialsController {
     @GetMapping("/institutions/{id}/materials")
     @HasResourcePermission(permission = "'institutions::' + #id + '::materials:read'")
     public ResponseEntity<List<Material>> getAllMaterialsInInstitution(@PathVariable UUID id) {
-        Collection<Material> materials = materialsService.getAll();
+        Collection<Material> materials = materialsService.findAll();
         return new ResponseEntity<>(materials.stream().toList(), HttpStatus.OK);
     }
 
     @PatchMapping("/institutions/{id}/subjects/{topic_id}/materials/{material_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects::materials:attach'")
     public ResponseEntity<Void> linkMaterialToSubject(@PathVariable UUID id, @PathVariable(name = "topic_id") UUID topicId, @PathVariable(name = "material_id") UUID materialId) {
-        materialsService.attachMaterialToTopic(topicId, materialId);
+        materialsService.attachMaterialToTopic(materialId, topicId);
         return ResponseEntity.ok().build();
     }
 }

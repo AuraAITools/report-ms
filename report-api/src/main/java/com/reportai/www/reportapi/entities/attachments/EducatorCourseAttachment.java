@@ -4,7 +4,6 @@ import com.reportai.www.reportapi.entities.base.AttachmentTenantAwareBaseEntityT
 import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.educators.Educator;
 import jakarta.persistence.Entity;
-import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 
 @Entity
@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
                         columnNames = {"educator_id", "course_id"}
                 )
         })
-public class EducatorCourseAttachment extends AttachmentTenantAwareBaseEntityTemplate<Educator, Course, EducatorCourseAttachment> {
+public class EducatorCourseAttachment extends AttachmentTenantAwareBaseEntityTemplate<Educator, Course> {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "educator_id")

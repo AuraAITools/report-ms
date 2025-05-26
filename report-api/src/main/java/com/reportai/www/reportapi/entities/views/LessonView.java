@@ -6,7 +6,7 @@ import com.reportai.www.reportapi.entities.Subject;
 import com.reportai.www.reportapi.entities.attachments.EducatorLessonAttachment;
 import com.reportai.www.reportapi.entities.attachments.MaterialLessonAttachment;
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
-import com.reportai.www.reportapi.entities.base.AuditableEntityWithId;
+import com.reportai.www.reportapi.entities.base.AuditableEntityWithGeneratedId;
 import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.lessons.LessonPlan;
 import com.reportai.www.reportapi.entities.lessons.LessonPostponementRequest;
@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,7 +41,7 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 @Immutable
 @Subselect("SELECT * FROM lessons_view")
-public class LessonView extends AuditableEntityWithId {
+public class LessonView extends AuditableEntityWithGeneratedId {
 
     public enum LESSON_STATUS {
         COMPLETED,
@@ -80,30 +81,36 @@ public class LessonView extends AuditableEntityWithId {
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     @ToString.Exclude
+    @Builder.Default
     private Set<LessonPostponementRequest> lessonPostponementRequests = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     @ToString.Exclude
+    @Builder.Default
     private Set<LessonPlan> lessonPlans = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     @ToString.Exclude
+    @Builder.Default
     private Set<LessonObjective> lessonObjectives = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     @ToString.Exclude
+    @Builder.Default
     private Set<StudentLessonRegistration> studentLessonRegistrations = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     @ToString.Exclude
+    @Builder.Default
     private Set<EducatorLessonAttachment> educatorLessonAttachments = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
+    @Builder.Default
     private Set<MaterialLessonAttachment> materialLessonAttachments = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

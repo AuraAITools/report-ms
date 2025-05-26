@@ -40,4 +40,6 @@ public class UpdateLessonRequestDTO {
 
     private List<UUID> studentIds;
 
+    private UUID outletRoomId;
+
 }

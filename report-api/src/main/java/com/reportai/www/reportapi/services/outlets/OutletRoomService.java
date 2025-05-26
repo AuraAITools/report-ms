@@ -7,7 +7,7 @@ import com.reportai.www.reportapi.entities.lessons.LessonOutletRoomBooking;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.LessonOutletRoomBookingRepository;
 import com.reportai.www.reportapi.repositories.OutletRoomRepository;
-import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.common.ISimpleRead;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OutletRoomService implements BaseServiceTemplate<OutletRoom, UUID> {
+public class OutletRoomService implements ISimpleRead<OutletRoom> {
     private final OutletRoomRepository outletRoomRepository;
     private final LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository;
     private final OutletsService outletsService;

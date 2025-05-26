@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Institution Admin APIs", description = "APIs for administrators of institutions")
+@Tag(name = "Institution Admin APIs", description = "APIs for managing institutions resource")
 @RestController
 @RequestMapping("/api/v1")
 @Validated
@@ -36,9 +38,12 @@ public class InstitutionsController {
 
     private final InstitutionsService institutionsService;
 
+    private final ModelMapper modelMapper;
+
     @Autowired
-    public InstitutionsController(InstitutionsService institutionsService) {
+    public InstitutionsController(InstitutionsService institutionsService, ModelMapper modelMapper) {
         this.institutionsService = institutionsService;
+        this.modelMapper = modelMapper;
     }
 
     @Operation(summary = "get institution details", description = "create an account for the clients of a institution.")
@@ -46,8 +51,7 @@ public class InstitutionsController {
     @GetMapping("/institutions/{id}")
     @HasResourcePermission(permission = "'institutions::' + #id + ':read'")
     public ResponseEntity<InstitutionResponseDTO> getInstitution(@PathVariable UUID id) {
-        InstitutionResponseDTO institution = InstitutionMappers.convert(institutionsService.getCurrentInstitution());
-        return new ResponseEntity<>(institution, HttpStatus.OK);
+        return new ResponseEntity<>(modelMapper.map(institutionsService.getInstitutionFromContext(), InstitutionResponseDTO.class), HttpStatus.OK);
     }
 
     @Operation(summary = "patch details of a institution", description = "this endpoint is used to fully fill in institution details when onboarding")
@@ -56,18 +60,18 @@ public class InstitutionsController {
     @HasResourcePermission(permission = "'institutions::' + #id + ':update'")
     public ResponseEntity<InstitutionResponseDTO> updateInstitutionById(@PathVariable UUID id, @RequestBody @Valid PatchInstitutionRequestDTO patchInstitutionRequestDTO) {
         Institution incomingUpdate = InstitutionMappers.convert(patchInstitutionRequestDTO, id.toString());
-        Institution patchedInstitution = institutionsService.updateInstitution(id, incomingUpdate);
-        return new ResponseEntity<>(InstitutionMappers.convert(patchedInstitution), HttpStatus.OK);
+        institutionsService.update(incomingUpdate);
+        return new ResponseEntity<>(modelMapper.map(incomingUpdate, InstitutionResponseDTO.class), HttpStatus.OK);
     }
 
     @Operation(summary = "creates an institution", description = "creates an bare institution with no accounts. Please create an admin account on the institution to continue")
     @ApiResponses({@ApiResponse(responseCode = "201", description = "created"), @ApiResponse(responseCode = "500", description = "unexpected internal server error has occurred")})
     @PostMapping("/institutions")
     @HasRole("'aura-admin'")
+    @Transactional
     public ResponseEntity<InstitutionResponseDTO> createInstitution(@RequestBody @Valid CreateInstitutionRequestDTO createInstitutionRequestDTO) {
-        Institution institution = InstitutionMappers.convert(createInstitutionRequestDTO);
-        Institution createdInstitution = institutionsService.createInstitution(institution);
-        InstitutionResponseDTO institutionResponseDto = InstitutionMappers.convert(createdInstitution);
-        return new ResponseEntity<>(institutionResponseDto, HttpStatus.OK);
+        Institution institution = modelMapper.map(createInstitutionRequestDTO, Institution.class);
+        institutionsService.create(institution);
+        return new ResponseEntity<>(modelMapper.map(institution, InstitutionResponseDTO.class), HttpStatus.OK);
     }
 }

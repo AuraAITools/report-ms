@@ -2,7 +2,7 @@ package com.reportai.www.reportapi.api.v1.outletrooms;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
 import com.reportai.www.reportapi.api.v1.outletrooms.requests.CreateOutletRoomRequestDTO;
-import com.reportai.www.reportapi.api.v1.outletrooms.requests.OutletRoomResponseDTO;
+import com.reportai.www.reportapi.api.v1.outletrooms.response.OutletRoomResponseDTO;
 import com.reportai.www.reportapi.entities.OutletRoom;
 import com.reportai.www.reportapi.services.outlets.OutletRoomService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,8 +39,8 @@ public class OutletRoomsController {
     public OutletRoomsController(OutletRoomService outletRoomService, ModelMapper modelMapper) {
         this.outletRoomService = outletRoomService;
         this.modelMapper = modelMapper;
-        modelMapper.createTypeMap(OutletRoom.class, OutletRoomResponseDTO.class) // TODO: refactopr to another file
-                .addMapping(OutletRoom::getId, OutletRoomResponseDTO::setId);
+//        modelMapper.createTypeMap(OutletRoom.class, OutletRoomResponseDTO.class) // TODO: refactopr to another file
+//                .addMapping(OutletRoom::getId, OutletRoomResponseDTO::setId);
     }
 
 

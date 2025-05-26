@@ -3,7 +3,6 @@ package com.reportai.www.reportapi.entities.lessons;
 import com.reportai.www.reportapi.entities.attachments.StudentLessonRegistration;
 import com.reportai.www.reportapi.entities.base.AttachmentTenantAwareBaseEntityTemplate;
 import jakarta.persistence.Entity;
-import org.hibernate.envers.Audited;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -16,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.envers.Audited;
 
 /**
  * a lesson quiz registration from a student registered under a lesson registered for this quiz
@@ -34,7 +34,7 @@ import lombok.experimental.SuperBuilder;
                         columnNames = {"lesson_quiz_id", "student_lesson_registration_id"}
                 )
         })
-public class LessonQuizStudentLessonRegistrationAttachment extends AttachmentTenantAwareBaseEntityTemplate<LessonQuiz, StudentLessonRegistration, LessonQuizStudentLessonRegistrationAttachment> {
+public class LessonQuizStudentLessonRegistrationAttachment extends AttachmentTenantAwareBaseEntityTemplate<LessonQuiz, StudentLessonRegistration> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_quiz_id")

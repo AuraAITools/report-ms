@@ -29,11 +29,13 @@ public class CreateStudentRequestDTO {
     @NotNull
     private LocalDate dateOfBirth;
 
-    @NotEmpty
-    private String currentSchool;
+    @NotNull
+    private UUID schoolId;
 
     @NotNull
     private UUID levelId;
+
+    private UUID outletId;
 
     private List<UUID> courseIds = new ArrayList<>();
 }

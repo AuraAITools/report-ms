@@ -42,7 +42,7 @@ public class TopicsController {
     public ResponseEntity<TopicResponseDTO> createTopicInInstitution(@RequestBody CreateTopicRequestDTO topic, @PathVariable UUID id) {
         Topic newTopic = new Topic();
         modelMapper.map(topic, newTopic);
-        Topic createdTopic = topicsService.createTopic(newTopic);
+        Topic createdTopic = topicsService.create(newTopic);
         TopicResponseDTO topicResponseDTO = new TopicResponseDTO();
         modelMapper.map(createdTopic, topicResponseDTO);
         return new ResponseEntity<>(topicResponseDTO, HttpStatus.CREATED);

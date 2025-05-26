@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +33,12 @@ public class CreateLessonRequestDTO {
     @FutureOrPresent
     private Instant lessonEndTimestamptz;
 
-    @NotNull
     private List<UUID> educatorIds = new ArrayList<>();
 
-    @NotNull
     private List<UUID> studentIds = new ArrayList<>();
 
-    @NotNull
     private UUID outletRoomId;
+
+    private UUID subjectId;
 
 }

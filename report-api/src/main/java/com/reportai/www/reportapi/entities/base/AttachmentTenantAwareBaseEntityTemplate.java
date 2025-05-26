@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString
 @NoArgsConstructor
-public abstract class AttachmentTenantAwareBaseEntityTemplate<E, F, A extends AttachmentTenantAwareBaseEntityTemplate<E, F, A>> extends TenantAwareBaseEntity implements Attachment<E, F, A> {
+public abstract class AttachmentTenantAwareBaseEntityTemplate<E, F> extends TenantAwareBaseEntity implements Attachment<E, F> {
 
     @PreRemove
     public void preRemove() {

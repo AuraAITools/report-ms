@@ -38,7 +38,8 @@ public class TenantFilter extends OncePerRequestFilter {
                 TenantContext.setTenantId(tentativeTenantId);
                 log.info("institution context fired");
             } else {
-                throw new RuntimeException("no target tenant id found");
+                log.info("no tenant context fired");
+//                throw new RuntimeException("no target tenant id found");
             }
             filterChain.doFilter(request, response);
         } finally {

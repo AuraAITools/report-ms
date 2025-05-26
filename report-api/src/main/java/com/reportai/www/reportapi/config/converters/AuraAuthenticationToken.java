@@ -33,6 +33,8 @@ import static java.util.Collections.emptyList;
  * i.e. resource1::{id}:resource2::resource3:action-allowed-on-resource-3
  * NOTE: the prefix for an action is a ':' instead of a '::'
  * Also id is not mandatory if allowing an action to be performed on ALL resources
+ * <p>
+ * See if AuraAuthenticationToken (authentication object) is still required if we change to set keycloakUserPrincipal in a OncePerRequestFilter instead of in a Converter (current implementation)
  */
 public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
 
@@ -40,11 +42,15 @@ public class AuraAuthenticationToken extends AbstractOAuth2TokenAuthenticationTo
 
     private OutletRepository outletRepository;
 
-
     public AuraAuthenticationToken(KeycloakUserPrincipal keycloakUserPrincipal, Jwt jwt, OutletRepository outletRepository) {
         super(jwt, keycloakUserPrincipal, jwt, getAuthoritiesFromClaim(jwt, outletRepository));
         setAuthenticated(true);
     }
+
+//    @Override
+//    public boolean isAuthenticated() {
+//        return true;
+//    }
 
     @Transactional
     private static List<? extends GrantedAuthority> getAuthoritiesFromClaim(Jwt jwt, OutletRepository outletRepository) {

@@ -19,5 +19,5 @@ public class CreateLevelsRequestDTO {
     private String name;
 
     @Size(min = 1, message = "Subjects list cannot be empty if provided")
-    private List<UUID> subjects = new ArrayList<>();
+    private List<UUID> subjectIds = new ArrayList<>();
 }

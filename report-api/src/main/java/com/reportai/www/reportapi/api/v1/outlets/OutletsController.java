@@ -5,9 +5,7 @@ import com.reportai.www.reportapi.api.v1.outlets.requests.CreateOutletRequestDTO
 import com.reportai.www.reportapi.api.v1.outlets.requests.UpdateOutletRequestDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.ExpandedOutletsResponseDTO;
 import com.reportai.www.reportapi.api.v1.outlets.responses.OutletResponseDTO;
-import com.reportai.www.reportapi.contexts.requests.TenantContext;
 import com.reportai.www.reportapi.entities.Outlet;
-import com.reportai.www.reportapi.mappers.OutletMappers;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
-import static com.reportai.www.reportapi.mappers.OutletMappers.convert;
-
 @Tag(name = "Outlet APIs", description = "APIs for managing a Outlet resource")
 @RestController
 @RequestMapping("/api/v1")
@@ -40,22 +36,22 @@ import static com.reportai.www.reportapi.mappers.OutletMappers.convert;
 public class OutletsController {
 
     private final OutletsService outletsService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public OutletsController(OutletsService outletsService) {
+    public OutletsController(OutletsService outletsService, ModelMapper modelMapper) {
         this.outletsService = outletsService;
+        this.modelMapper = modelMapper;
     }
-
 
     @Operation(summary = "create a outlet for a institution", description = "create an outlet for a institution")
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
     public ResponseEntity<OutletResponseDTO> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
-        Outlet newOutlet = convert(createOutletRequestDTO, id.toString());
-        Outlet createdOutlet = outletsService.createOutletForInstitution(newOutlet, TenantContext.getTenantId());
-        OutletResponseDTO outletResponseDTO = convert(createdOutlet);
-        return new ResponseEntity<>(outletResponseDTO, HttpStatus.CREATED);
+        Outlet outlet = modelMapper.map(createOutletRequestDTO, Outlet.class);
+        outletsService.create(outlet);
+        return new ResponseEntity<>(modelMapper.map(outlet, OutletResponseDTO.class), HttpStatus.CREATED);
     }
 
     @Operation(summary = "update a outlet for a institution", description = "update an outlet for a institution")
@@ -64,7 +60,7 @@ public class OutletsController {
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:update'")
     public ResponseEntity<OutletResponseDTO> updateOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @Valid @RequestBody UpdateOutletRequestDTO updateOutletRequestDTO) {
         Outlet outlet = outletsService.update(outletId, updateOutletRequestDTO);
-        return new ResponseEntity<>(convert(outlet), HttpStatus.OK);
+        return new ResponseEntity<>(modelMapper.map(outlet, OutletResponseDTO.class), HttpStatus.OK);
     }
 
     @Operation(summary = "get all outlets for a institution", description = "get all outlets for a institution")
@@ -76,7 +72,7 @@ public class OutletsController {
         Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();
         List<OutletResponseDTO> outletsDto = outlets
                 .stream()
-                .map(OutletMappers::convert)
+                .map(outlet -> modelMapper.map(outlet, OutletResponseDTO.class))
                 .toList();
         return new ResponseEntity<>(outletsDto, HttpStatus.OK);
     }
@@ -90,7 +86,7 @@ public class OutletsController {
         Collection<Outlet> outlets = outletsService.getAllOutletsForInstitution();
         List<ExpandedOutletsResponseDTO> outletsDto = outlets
                 .stream()
-                .map(OutletMappers::convertExpanded)
+                .map(outlet -> modelMapper.map(outlet, ExpandedOutletsResponseDTO.class))
                 .toList();
         return new ResponseEntity<>(outletsDto, HttpStatus.OK);
     }

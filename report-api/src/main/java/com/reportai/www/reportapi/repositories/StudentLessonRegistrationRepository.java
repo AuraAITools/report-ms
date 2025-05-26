@@ -20,6 +20,51 @@ public interface StudentLessonRegistrationRepository extends JpaRepository<Stude
     List<StudentLessonRegistration> findAllByLesson_Id(UUID lessonId);
 
     /**
+     * Only registers new students from the incoming studentId list
+     *
+     * @param studentId incoming students
+     * @param lessonId
+     * @param tenantId
+     * @return
+     */
+    @Modifying
+    @Query(value = "INSERT INTO student_lesson_registrations (id, student_id, lesson_id, tenant_id, created_at, updated_at) " +
+            "SELECT gen_random_uuid(), s.id, :lessonId, :tenantId, NOW(), NOW() " +
+            "FROM students s " +
+            "WHERE s.id IN :studentIds " +
+            "AND NOT EXISTS (SELECT 1 FROM student_lesson_registrations slr " +
+            "                WHERE slr.student_id = s.id AND slr.lesson_id = :lessonId)", nativeQuery = true)
+    int registerNewStudentLessonRegistrations(@Param("studentIds") List<UUID> studentId,
+                                              @Param("lessonId") UUID lessonId,
+                                              @Param("tenantId") String tenantId);
+
+    /**
+     * Deletes all student lesson registrations for a lesson that are not in the incoming studentId list
+     *
+     * @param studentIds
+     * @param lessonId
+     * @param tenantId
+     * @return
+     */
+    @Modifying
+    @Query(value = "DELETE FROM student_lesson_registrations " +
+            "WHERE lesson_id = :lessonId " +
+            "AND tenant_id = :tenantId " +
+            "AND student_id NOT IN :studentIds", nativeQuery = true)
+    int deleteStudentLessonRegistrationsNotIn(@Param("studentIds") List<UUID> studentIds,
+                                              @Param("lessonId") UUID lessonId,
+                                              @Param("tenantId") String tenantId);
+//
+//    @Modifying
+//    @Query(value = "DELETE FROM student_lesson_registrations " +
+//            "WHERE lesson_id = :lessonId AND tenant_id = :tenantId",
+//            nativeQuery = true)
+//    int deleteAllStudentLessonRegistrationsOfLesson(@Param("lessonId") UUID lessonId,
+//                                                    @Param("tenantId") String tenantId);
+
+    void deleteAllByLesson_Id(UUID lessonId);
+
+    /**
      * @param studentId
      * @return
      */

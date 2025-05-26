@@ -9,7 +9,9 @@ import com.reportai.www.reportapi.api.v1.subjects.responses.SubjectResponseDTO;
 import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.courses.Course;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -44,19 +46,16 @@ public class ExpandedCourseResponse {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Instant courseEndTimestamptz;
 
-    @NotEmpty
-    private List<LessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
-
-    @NotEmpty
     private OutletResponseDTO outlet;
 
-    @NotEmpty
     private LevelsResponseDTO level;
 
-    @NotEmpty
-    private List<LessonResponseDTO> lessons;
+    @NotNull
+    @Builder.Default
+    private List<LessonResponseDTO> lessons = new ArrayList<>();
 
-    @NotEmpty
-    private List<SubjectResponseDTO> subjects;
+    @NotNull
+    @Builder.Default
+    private List<SubjectResponseDTO> subjects = new ArrayList<>();
 
 }

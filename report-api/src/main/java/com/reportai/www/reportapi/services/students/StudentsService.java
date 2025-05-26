@@ -1,106 +1,61 @@
 package com.reportai.www.reportapi.services.students;
 
+import com.reportai.www.reportapi.api.v1.accounts.requests.CreateStudentRequestDTO;
 import com.reportai.www.reportapi.api.v1.students.requests.UpdateStudentRequestDTO;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
+import com.reportai.www.reportapi.entities.School;
 import com.reportai.www.reportapi.entities.Student;
-import com.reportai.www.reportapi.entities.courses.Course;
-import com.reportai.www.reportapi.repositories.StudentClientPersonaRepository;
+import com.reportai.www.reportapi.entities.attachments.StudentOutletRegistration;
+import com.reportai.www.reportapi.entities.helpers.Attachment;
+import com.reportai.www.reportapi.exceptions.lib.ResourceNotFoundException;
+import com.reportai.www.reportapi.repositories.SchoolRepository;
+import com.reportai.www.reportapi.repositories.StudentOutletRegistrationRepository;
 import com.reportai.www.reportapi.repositories.StudentRepository;
-import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.common.ISimpleRead;
 import com.reportai.www.reportapi.services.courses.CoursesService;
-import com.reportai.www.reportapi.services.institutions.InstitutionsService;
 import com.reportai.www.reportapi.services.levels.LevelsService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
-import com.reportai.www.reportapi.services.subjects.SubjectsService;
 import jakarta.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.NonNull;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StudentsService implements BaseServiceTemplate<Student, UUID> {
+public class StudentsService implements ISimpleRead<Student> {
     private final StudentRepository studentRepository;
 
-    private final InstitutionsService institutionsService;
-
     private final LevelsService levelsService;
-
-    private final SubjectsService subjectsService;
-
-    private final StudentClientPersonaRepository studentClientPersonaRepository;
 
     private final ModelMapper modelMapper;
 
     private final CoursesService coursesService;
 
     private final OutletsService outletsService;
+    private final SchoolRepository schoolRepository;
+    private final StudentOutletRegistrationRepository studentOutletRegistrationRepository;
 
     @Autowired
-    public StudentsService(StudentRepository studentRepository, InstitutionsService institutionsService, LevelsService levelsService, SubjectsService subjectsService, StudentClientPersonaRepository studentClientPersonaRepository, @Lazy CoursesService coursesService, @Lazy OutletsService outletsService) {
+    public StudentsService(StudentRepository studentRepository, LevelsService levelsService, @Lazy CoursesService coursesService, @Lazy OutletsService outletsService,
+                           SchoolRepository schoolRepository,
+                           StudentOutletRegistrationRepository studentOutletRegistrationRepository,
+                           ModelMapper modelMapper) {
         this.studentRepository = studentRepository;
-        this.institutionsService = institutionsService;
         this.levelsService = levelsService;
-        this.subjectsService = subjectsService;
-        this.studentClientPersonaRepository = studentClientPersonaRepository;
         this.coursesService = coursesService;
         this.outletsService = outletsService;
-        this.modelMapper = new ModelMapper();
-        this.modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT)
-                .setSkipNullEnabled(true);// skip null values
-        Converter<List<UUID>, List<Course>> courseIdsToCoursesConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            List<UUID> courseIds = context.getSource();
-            return courseIds.stream()
-                    .map(coursesService::findById)
-                    .collect(Collectors.toList());
-        };
-
-        Converter<UUID, Level> levelIdToLevelConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            UUID levelId = context.getSource();
-            return levelsService.findById(levelId);
-        };
-
-        Converter<List<UUID>, List<Outlet>> outletIdsToOutletsConverter = context -> {
-            if (context.getSource() == null) {
-                return null;
-            }
-            List<UUID> outletIds = context.getSource();
-            return outletIds.stream()
-                    .map(outletsService::findById)
-                    .collect(Collectors.toList());
-        };
-
-        this.modelMapper
-                .typeMap(UpdateStudentRequestDTO.class, Student.class)
-//                .addMappings(mapper -> {
-//                    mapper.using(courseIdsToCoursesConverter)
-//                            .map(UpdateStudentRequestDTO::getCourseIds, Student::setCourses);
-//                })
-                .addMappings(mapper -> {
-                    mapper.using(levelIdToLevelConverter)
-                            .map(UpdateStudentRequestDTO::getLevelId, Student::setLevel);
-                });
-//                .addMappings(mapper -> {
-//                    mapper.using(outletIdsToOutletsConverter)
-//                            .map(UpdateStudentRequestDTO::getOutletIds, Student::setOutlets);
-//                });
+        this.modelMapper = modelMapper;
+        this.schoolRepository = schoolRepository;
+        this.studentOutletRegistrationRepository = studentOutletRegistrationRepository;
     }
+
 
     @Override
     public JpaRepository<Student, UUID> getRepository() {
@@ -111,12 +66,42 @@ public class StudentsService implements BaseServiceTemplate<Student, UUID> {
         return studentRepository.findAll();
     }
 
+    /**
+     * creates a new student in an institution
+     *
+     * @param createStudentRequestDTO
+     * @return
+     */
     @Transactional
-    public Student addLevel(@NonNull UUID studentId, @NonNull UUID levelId) {
-        Student student = findById(studentId);
-        Level level = levelsService.findById(levelId);
-        student.addLevel(level);
+    public Student create(@NonNull CreateStudentRequestDTO createStudentRequestDTO) {
+        Student student = modelMapper.map(createStudentRequestDTO, Student.class);
+        studentRepository.saveAndFlush(student);
+        Level level = levelsService.findById(createStudentRequestDTO.getLevelId());
+        School school = schoolRepository.findById(createStudentRequestDTO.getSchoolId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("School with id %s not found", createStudentRequestDTO.getSchoolId())));
+        Optional.ofNullable(createStudentRequestDTO.getOutletId())
+                .ifPresent((outletId) -> addStudentToOutlet(student.getId(), outletId));
+
+        Optional.ofNullable(createStudentRequestDTO.getCourseIds())
+                .ifPresent((courseIds) -> courseIds.forEach(courseId -> coursesService.registerStudentsToCourse(courseId, List.of(student.getId()))));
+        student.setLevel(level);
+        student.setSchool(school);
         return studentRepository.save(student);
+    }
+
+    /**
+     * adds a student to an outlet
+     *
+     * @param studentId
+     * @param outletId
+     * @return
+     */
+    @Transactional
+    public StudentOutletRegistration addStudentToOutlet(UUID studentId, UUID outletId) {
+        Student student = findById(studentId);
+        Outlet outlet = outletsService.findById(outletId);
+        StudentOutletRegistration studentOutletRegistration = Attachment.createAndSync(student, outlet, new StudentOutletRegistration());
+        return studentOutletRegistrationRepository.saveAndFlush(studentOutletRegistration);
     }
 
     @Transactional

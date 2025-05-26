@@ -2,20 +2,18 @@ server:
   port: 8080
   max-http-request-header-size=: 16KB
 spring:
+  liquibase:
+    enabled: false
   application:
     name: report-service
   profiles:
     active:
       - cloud
   jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
     show-sql: true
-  datasource:
-    username: sa
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    password: password
-  h2:
-    console.enabled: true
 # actuator
 management:
   endpoints:
@@ -36,6 +34,12 @@ management:
 #    info:
 #      env:
 #        enabled: true
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  enabled: true
 info:
   app:
     name: report-service

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,16 +44,16 @@ import org.hibernate.envers.Audited;
                         columnNames = {"student_id", "lesson_id"}
                 )
         })
-public class StudentLessonRegistration extends AttachmentTenantAwareBaseEntityTemplate<Student, Lesson, StudentLessonRegistration> {
+public class StudentLessonRegistration extends AttachmentTenantAwareBaseEntityTemplate<Student, Lesson> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinColumn(name = "student_id")
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinColumn(name = "lesson_id")
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -73,6 +74,7 @@ public class StudentLessonRegistration extends AttachmentTenantAwareBaseEntityTe
 
     @OneToMany(mappedBy = "studentLessonRegistration", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private Set<LessonQuizStudentLessonRegistrationAttachment> lessonQuizStudentLessonRegistrationAttachments = new HashSet<>();
 
     @OneToOne(mappedBy = "studentLessonRegistration", cascade = CascadeType.ALL)

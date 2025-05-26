@@ -1,11 +1,10 @@
 package com.reportai.www.reportapi.api.v1.educators;
 
 import com.reportai.www.reportapi.annotations.authorisation.HasResourcePermission;
-import com.reportai.www.reportapi.api.v1.accounts.requests.CreateEducatorRequestDTO;
 import com.reportai.www.reportapi.api.v1.accounts.responses.EducatorResponseDTO;
+import com.reportai.www.reportapi.api.v1.accounts.responses.ExpandedEducatorResponseDTO;
+import com.reportai.www.reportapi.api.v1.educators.requests.CreateEducatorRequestDTO;
 import com.reportai.www.reportapi.entities.educators.Educator;
-import com.reportai.www.reportapi.mappers.EducatorMappers;
-import com.reportai.www.reportapi.services.accounts.TenantAwareAccountsService;
 import com.reportai.www.reportapi.services.educators.EducatorsService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,31 +39,55 @@ public class EducatorsController {
 
     private final EducatorsService educatorsService;
 
-    private final TenantAwareAccountsService tenantAwareAccountsService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public EducatorsController(OutletsService outletsService, EducatorsService educatorsService, TenantAwareAccountsService tenantAwareAccountsService) {
+    public EducatorsController(OutletsService outletsService, EducatorsService educatorsService, ModelMapper modelMapper) {
         this.outletsService = outletsService;
         this.educatorsService = educatorsService;
-        this.tenantAwareAccountsService = tenantAwareAccountsService;
+        this.modelMapper = modelMapper;
     }
 
-    @Operation(summary = "creates a educator in a client account", description = "creates educator in an already created client account")
+    @Operation(summary = "creates a educator", description = "creates educator in an institution")
     @ApiResponse(responseCode = "200", description = "OK")
-    @PostMapping("/institutions/{id}/outlets/{outlet_id}/accounts/{account_id}/educators")
-    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::accounts::educators:create'")
+    @PostMapping("/institutions/{id}/educators")
     @Transactional
-    public ResponseEntity<EducatorResponseDTO> createEducatorInClientAccount(@PathVariable UUID id, @PathVariable("outlet_id") UUID outletId, @PathVariable("account_id") UUID accountId, @RequestBody @Valid CreateEducatorRequestDTO createEducatorRequestDTO) {
-        Educator newEducator = EducatorMappers.convert(createEducatorRequestDTO, id);
-        Educator createdEducator = tenantAwareAccountsService.createEducatorInTenantAwareAccountInOutlet(accountId, outletId, createEducatorRequestDTO.getLevelIds(), createEducatorRequestDTO.getSubjectIds(), newEducator);
-        return new ResponseEntity<>(EducatorMappers.convert(createdEducator), HttpStatus.OK);
+    public ResponseEntity<EducatorResponseDTO> createEducator(@PathVariable UUID id, @RequestBody @Valid CreateEducatorRequestDTO createEducatorRequestDTO) {
+        Educator educator = educatorsService.create(createEducatorRequestDTO);
+        return new ResponseEntity<>(modelMapper.map(educator, EducatorResponseDTO.class), HttpStatus.OK);
     }
+
 
     @GetMapping("/institutions/{id}/outlets/{outlet_id}/educators")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::educators:read'")
     @Transactional
     public ResponseEntity<List<EducatorResponseDTO>> getEducatorsFromOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
-        Collection<Educator> courses = outletsService.getOutletEducators(outletId);
-        return new ResponseEntity<>(courses.stream().map(EducatorMappers::convert).toList(), HttpStatus.OK);
+        Collection<Educator> educators = outletsService.getOutletEducators(outletId);
+        List<EducatorResponseDTO> educatorResponseDTOS = educators.stream().map(educator -> modelMapper.map(educator, EducatorResponseDTO.class)).toList();
+        return new ResponseEntity<>(educatorResponseDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping("/institutions/{id}/outlets/{outlet_id}/educators/expand")
+    @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::educators:read'")
+    @Transactional
+    public ResponseEntity<List<ExpandedEducatorResponseDTO>> getExpandedEducatorsFromOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId) {
+        Collection<Educator> educators = outletsService.getOutletEducators(outletId);
+        List<ExpandedEducatorResponseDTO> educatorResponseDTOS = educators.stream().map(educator -> modelMapper.map(educator, ExpandedEducatorResponseDTO.class)).toList();
+        return new ResponseEntity<>(educatorResponseDTOS, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/institutions/{id}/educators")
+    @Transactional// TODO: implement perms
+    public ResponseEntity<List<EducatorResponseDTO>> getEducatorsFromOutlet(@PathVariable UUID id) {
+        List<EducatorResponseDTO> educatorResponseDTOS = educatorsService.findAll().stream().map(educator -> modelMapper.map(educator, EducatorResponseDTO.class)).toList();
+        return new ResponseEntity<>(educatorResponseDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping("/institutions/{id}/educators/expand")
+    @Transactional// TODO: implement perms
+    public ResponseEntity<List<ExpandedEducatorResponseDTO>> getExpandedEducatorsFromOutlet(@PathVariable UUID id) {
+        List<ExpandedEducatorResponseDTO> educatorResponseDTOS = educatorsService.findAll().stream().map(educator -> modelMapper.map(educator, ExpandedEducatorResponseDTO.class)).toList();
+        return new ResponseEntity<>(educatorResponseDTOS, HttpStatus.OK);
     }
 }

@@ -53,9 +53,6 @@ public class Course extends TenantAwareBaseEntity {
         MONTHLY
     }
 
-//    @Column(nullable = false)
-//    private Integer lessonNumberFrequency; // TODO: remove
-
     @Enumerated(EnumType.STRING)
     @Column
     private LESSON_FREQUENCY lessonFrequency;

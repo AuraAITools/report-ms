@@ -32,7 +32,7 @@ import org.hibernate.envers.Audited;
                         columnNames = {"topic_id", "subject_id"}
                 )
         })
-public class TopicSubjectAttachment extends AttachmentTenantAwareBaseEntityTemplate<Topic, Subject, TopicSubjectAttachment> {
+public class TopicSubjectAttachment extends AttachmentTenantAwareBaseEntityTemplate<Topic, Subject> {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "topic_id")

@@ -49,9 +49,14 @@ public class KeycloakClientConfig {
     }
 
     @Bean
-    public ClientResource getKeycloakClientResource(RealmResource realmResource, KeycloakCredentials keycloakCredentials) {
+    public ClientResource getAuraApplicationClientResource(RealmResource realmResource, KeycloakCredentials keycloakCredentials) {
         ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(keycloakCredentials.getClientId()).getFirst();
         return realmResource.clients().get(clientRepresentation.getId());
+    }
+
+    @Bean
+    public ClientRepresentation getAuraApplicationClientRepresentation(ClientResource clientResource) {
+        return clientResource.toRepresentation();
     }
 
 }

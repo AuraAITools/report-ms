@@ -8,9 +8,8 @@ import java.util.Collection;
  *
  * @param <E> Type of the first entity in the relationship
  * @param <F> Type of the second entity in the relationship
- * @param <A> Type of the attachment (implementing class)
  */
-public interface Attachment<E, F, A extends Attachment<E, F, A>> {
+public interface Attachment<E, F> {
 
     /**
      * Get the first entity in the relationship
@@ -25,22 +24,23 @@ public interface Attachment<E, F, A extends Attachment<E, F, A>> {
     /**
      * Get the collection of attachments from the first entity
      */
-    Collection<A> getFirstEntityAttachments();
+
+    <A extends Attachment<E, F>> Collection<A> getFirstEntityAttachments();
 
     /**
      * Get the collection of attachments from the second entity
      */
-    Collection<A> getSecondEntityAttachments();
+    <A extends Attachment<E, F>> Collection<A> getSecondEntityAttachments();
 
     /**
      * Create a new instance of the attachment
      */
-    A create(E entity1, F entity2);
+    <A extends Attachment<E, F>> A create(E entity1, F entity2);
 
     /**
      * Sync this attachment with the related entities' collections
      */
-    default void syncWithRelatedEntities() {
+    default <A extends Attachment<E, F>> void syncWithRelatedEntities() {
         Collection<A> firstEntityAttachments = getFirstEntityAttachments();
         Collection<A> secondEntityAttachments = getSecondEntityAttachments();
 
@@ -62,7 +62,7 @@ public interface Attachment<E, F, A extends Attachment<E, F, A>> {
     /**
      * Remove this attachment from related entities' collections
      */
-    default void removeFromRelatedEntities() {
+    default <A extends Attachment<E, F>> void removeFromRelatedEntities() {
         Collection<A> firstEntityAttachments = getFirstEntityAttachments();
         Collection<A> secondEntityAttachments = getSecondEntityAttachments();
 
@@ -84,12 +84,13 @@ public interface Attachment<E, F, A extends Attachment<E, F, A>> {
     /**
      * Factory method to create an attachment and sync it with related entities
      */
-    static <E, F, A extends Attachment<E, F, A>> A createAndSync(E entity1, F entity2, A attachmentInstance) {
+    static <E, F, A extends Attachment<E, F>> A createAndSync(E entity1, F entity2, A attachmentInstance) {
         if (entity1 == null || entity2 == null) {
             throw new IllegalArgumentException("Entities cannot be null");
         }
 
-        A newAttachment = attachmentInstance.create(entity1, entity2);
+        @SuppressWarnings("unchecked")
+        A newAttachment = (A) attachmentInstance.create(entity1, entity2);
         newAttachment.syncWithRelatedEntities();
         return newAttachment;
     }

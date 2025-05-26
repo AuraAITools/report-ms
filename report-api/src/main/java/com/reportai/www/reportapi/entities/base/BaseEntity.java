@@ -4,6 +4,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,9 @@ public class BaseEntity extends AuditableEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID Id;
 
+    @Version
+    private Long version;
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
@@ -38,6 +42,6 @@ public class BaseEntity extends AuditableEntity {
     public int hashCode() {
         return Objects.hash(Id);
     }
-    
+
 
 }

@@ -1,22 +1,25 @@
 package com.reportai.www.reportapi.services.courses;
 
+import com.reportai.www.reportapi.api.v1.courses.requests.CreateCourseRequestDTO;
 import com.reportai.www.reportapi.entities.Level;
 import com.reportai.www.reportapi.entities.Outlet;
 import com.reportai.www.reportapi.entities.Student;
 import com.reportai.www.reportapi.entities.Subject;
+import com.reportai.www.reportapi.entities.attachments.EducatorCourseAttachment;
 import com.reportai.www.reportapi.entities.attachments.StudentCourseRegistration;
 import com.reportai.www.reportapi.entities.attachments.SubjectCourseAttachment;
 import com.reportai.www.reportapi.entities.courses.Course;
 import com.reportai.www.reportapi.entities.educators.Educator;
-import com.reportai.www.reportapi.entities.helpers.Attachment;
 import com.reportai.www.reportapi.entities.lessons.Lesson;
 import com.reportai.www.reportapi.exceptions.lib.ResourceAlreadyExistsException;
 import com.reportai.www.reportapi.repositories.CourseRepository;
 import com.reportai.www.reportapi.repositories.StudentCourseRegistrationRepository;
-import com.reportai.www.reportapi.repositories.SubjectCourseAttachmentRepository;
-import com.reportai.www.reportapi.services.common.BaseServiceTemplate;
+import com.reportai.www.reportapi.services.attachments.EducatorCourseAttachmentService;
+import com.reportai.www.reportapi.services.attachments.StudentCourseRegistrationService;
+import com.reportai.www.reportapi.services.attachments.SubjectCourseAttachmentService;
+import com.reportai.www.reportapi.services.common.ISimpleCreate;
+import com.reportai.www.reportapi.services.common.ISimpleRead;
 import com.reportai.www.reportapi.services.educators.EducatorsService;
-import com.reportai.www.reportapi.services.institutions.InstitutionsService;
 import com.reportai.www.reportapi.services.lessons.LessonsService;
 import com.reportai.www.reportapi.services.levels.LevelsService;
 import com.reportai.www.reportapi.services.outlets.OutletsService;
@@ -31,18 +34,18 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 
+import static com.reportai.www.reportapi.mappers.CourseMappers.convert;
 import static java.util.Collections.disjoint;
 
 @Service
-public class CoursesService implements BaseServiceTemplate<Course, UUID> {
+public class CoursesService implements ISimpleCreate<Course>, ISimpleRead<Course> {
 
     private final CourseRepository courseRepository;
-
-    private final InstitutionsService institutionsService;
 
     private final EducatorsService educatorsService;
 
@@ -57,15 +60,19 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
     private final LessonsService lessonsService;
 
     private final ModelMapper modelMapper;
-    private final SubjectCourseAttachmentRepository subjectCourseAttachmentRepository;
+
     private final StudentCourseRegistrationRepository studentCourseRegistrationRepository;
 
+    private final SubjectCourseAttachmentService subjectCourseAttachmentService;
+
+    private final StudentCourseRegistrationService studentCourseRegistrationService;
+
+    private final EducatorCourseAttachmentService educatorCourseAttachmentService;
+
     @Autowired
-    public CoursesService(CourseRepository courseRepository, InstitutionsService institutionsService, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService, ModelMapper modelMapper,
-                          SubjectCourseAttachmentRepository subjectCourseAttachmentRepository,
-                          StudentCourseRegistrationRepository studentCourseRegistrationRepository) {
+    public CoursesService(CourseRepository courseRepository, EducatorsService educatorsService, StudentsService studentsService, OutletsService outletsService, LevelsService levelsService, SubjectsService subjectsService, LessonsService lessonsService, ModelMapper modelMapper,
+                          StudentCourseRegistrationRepository studentCourseRegistrationRepository, @Lazy SubjectCourseAttachmentService subjectCourseAttachmentService, @Lazy StudentCourseRegistrationService studentCourseRegistrationService, @Lazy EducatorCourseAttachmentService educatorCourseAttachmentService) {
         this.courseRepository = courseRepository;
-        this.institutionsService = institutionsService;
         this.educatorsService = educatorsService;
         this.studentsService = studentsService;
         this.outletsService = outletsService;
@@ -73,8 +80,10 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
         this.subjectsService = subjectsService;
         this.lessonsService = lessonsService;
         this.modelMapper = modelMapper;
-        this.subjectCourseAttachmentRepository = subjectCourseAttachmentRepository;
         this.studentCourseRegistrationRepository = studentCourseRegistrationRepository;
+        this.subjectCourseAttachmentService = subjectCourseAttachmentService;
+        this.studentCourseRegistrationService = studentCourseRegistrationService;
+        this.educatorCourseAttachmentService = educatorCourseAttachmentService;
     }
 
     @Override
@@ -82,23 +91,28 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
         return this.courseRepository;
     }
 
-    // Courses
-    public Collection<Course> getAllCourses() {
-        return courseRepository.findAll();
-    }
-
     @Transactional
     public Course createCourseForOutlet(@NonNull Course course, @NonNull UUID outletId) {
-        Outlet outlet = outletsService.findById(outletId);
+        Outlet outlet = outletsService.getReference(outletId);
         course.addOutlet(outlet);
-        return courseRepository.save(course);
+        return ISimpleCreate.super.create(course);
+    }
+
+    // TODO: refactor pending
+    @Transactional
+    public Course createWithRelations(@NonNull CreateCourseRequestDTO createCourseRequestDTO, UUID outletId) {
+        Course createdCourse = createCourseForOutlet(convert(createCourseRequestDTO), outletId);
+        updateCourseLevel(createdCourse, createCourseRequestDTO.getLevelId());
+        createCourseRequestDTO.getSubjectIds().forEach(subjectId -> updateCourseSubjects(createdCourse, List.of(subjectId)));
+        createCourseRequestDTO.getEducatorIds().forEach(educatorId -> addEducatorsToCourse(createdCourse, List.of(educatorId)));
+        return createdCourse;
     }
 
 
     @Transactional
-    public Course updateCourseForOutlet(@NonNull UUID courseId, @NonNull Course updatedCourse) {
+    public Course update(@NonNull UUID courseId, @NonNull Course updates) {
         Course course = findById(courseId);
-        modelMapper.map(updatedCourse, course);
+        modelMapper.map(updates, course);
         return courseRepository.save(course);
     }
 
@@ -113,23 +127,20 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
                 .collect(Collectors.toSet());
 
         if (!disjoint(incomingRegistrations, existingRegisteredStudents)) {
-            throw new ResourceAlreadyExistsException("some incoming student registrations already exists");
+            throw new ResourceAlreadyExistsException("some incoming students are already registered to course");
         }
+
 
         List<StudentCourseRegistration> newlyCreatedStudentRegistrations = incomingRegistrations
                 .stream()
-                .map(student -> {
-                    StudentCourseRegistration studentCourseRegistration = new StudentCourseRegistration()
-                            .create(student, course);
-                    return Attachment.createAndSync(student, course, studentCourseRegistration);
-                })
+                .map(student -> studentCourseRegistrationService.attach(student.getId(), course.getId(), new StudentCourseRegistration()))
                 .toList();
 
         return studentCourseRegistrationRepository.saveAll(newlyCreatedStudentRegistrations);
     }
 
     @Transactional
-    public List<StudentCourseRegistration> deregisterStudentsToCourse(UUID courseId, List<UUID> studentIds) {
+    public void deregisterStudentsFromCourse(UUID courseId, List<UUID> studentIds) {
         Course course = findById(courseId);
         List<Student> studentToDeregister = studentsService.findByIds(studentIds);
         Set<Student> existingRegisteredStudents = course
@@ -142,46 +153,68 @@ public class CoursesService implements BaseServiceTemplate<Course, UUID> {
             throw new ResourceAlreadyExistsException("students are not registered to course");
         }
 
-        List<StudentCourseRegistration> deregistrations = course
+        course
                 .getStudentCourseRegistrations()
                 .stream()
                 .filter(studentRegistration -> studentToDeregister.contains(studentRegistration.getStudent()))
-                .toList();
-
-        studentCourseRegistrationRepository.deleteAll(deregistrations);
-        return deregistrations;
+                .forEach(studentRegistration -> studentCourseRegistrationService.detach(studentRegistration.getId()));
     }
 
 
+    /**
+     * Attach educators to course
+     *
+     * @param course
+     * @param educatorIds
+     * @return
+     */
     @Transactional
-    public Course addEducatorsToCourse(@NonNull UUID courseId, @NonNull List<UUID> educatorIds) {
-        List<Educator> educators = educatorsService.findByIds(educatorIds);
-        Course course = findById(courseId);
-//        course.addEducators(educators);
-        return courseRepository.save(course);
-    }
-
-
-    @Transactional
-    public Course addLevelToCourse(@NonNull UUID courseId, @NonNull UUID levelId) {
-        Level level = levelsService.findById(levelId);
-        Course course = findById(courseId);
-        course.addLevel(level);
-        return courseRepository.save(course);
-    }
-
-    @Transactional
-    public Course addSubjectsToCourse(@NonNull UUID courseId, @NonNull List<UUID> subjectIds) {
-        List<Subject> subjects = subjectsService.findByIds(subjectIds);
-        Course course = findById(courseId);
-        List<SubjectCourseAttachment> subjectCourseAttachments = subjects
+    public List<EducatorCourseAttachment> addEducatorsToCourse(@NonNull Course course, @NonNull List<UUID> educatorIds) {
+        List<Educator> incomingEducatorAttachments = educatorsService.findByIds(educatorIds);
+        Set<Educator> existingAttachedEducators = course
+                .getEducatorCourseAttachments()
                 .stream()
-                .map(subject -> Attachment.createAndSync(subject, course, new SubjectCourseAttachment()))
+                .map(EducatorCourseAttachment::getEducator)
+                .collect(Collectors.toSet());
+
+        if (!disjoint(incomingEducatorAttachments, existingAttachedEducators)) {
+            throw new ResourceAlreadyExistsException("some incoming students are already registered to course");
+        }
+
+
+        return incomingEducatorAttachments
+                .stream()
+                .map(educator -> educatorCourseAttachmentService.attach(educator.getId(), course.getId(), new EducatorCourseAttachment()))
                 .toList();
-        subjectCourseAttachmentRepository.saveAll(subjectCourseAttachments);
-        return course;
     }
 
+
+    /**
+     * Update the course level
+     *
+     * @param course  hibernate managed course entity
+     * @param levelId level id
+     * @return
+     */
+    @Transactional
+    public Level updateCourseLevel(@NonNull Course course, @NonNull UUID levelId) {
+        Level level = levelsService.getReference(levelId);
+        course.addLevel(level);
+        courseRepository.save(course);
+        return level;
+    }
+
+    // TODO: refactor to be accurate
+    @Transactional
+    public void updateCourseSubjects(@NonNull Course course, @NonNull List<UUID> subjectIds) {
+        List<Subject> subjects = subjectsService.findByIds(subjectIds);
+        for (Subject subject : subjects) {
+            // have to detach those not in the list and attach those in the list
+            subjectCourseAttachmentService.attach(subject.getId(), course.getId(), new SubjectCourseAttachment());
+        }
+    }
+
+    // TODO: refactor to be accurate
     @Transactional
     public Course addLessonsToCourse(@NonNull UUID courseId, @NonNull List<UUID> lessonIds) {
         Collection<Lesson> lessons = lessonsService.findByIds(lessonIds);

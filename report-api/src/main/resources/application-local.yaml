@@ -21,6 +21,11 @@ oauth2:
     resource-server:
       jwk-set-uri: ${JWK_SET_URI}
     enabled: true
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: TRACE
 # configurations for the backend keycloak client
 keycloak:
   client:

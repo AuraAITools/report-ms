@@ -16,4 +16,5 @@ public interface LevelRepository extends JpaRepository<Level, UUID>, JpaSpecific
 
     Optional<Level> findByNameAndTenantId(String name, String tenantId);
 
+    List<Level> findByNameIn(List<String> names);
 }

@@ -6,11 +6,14 @@ import com.reportai.www.reportapi.entities.PriceRecord;
 import com.reportai.www.reportapi.entities.courses.Course;
 import jakarta.validation.constraints.NotEmpty;
 import java.time.Instant;
-import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -40,6 +43,4 @@ public class CourseResponseDTO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Instant courseEndTimestamptz;
 
-    @NotEmpty
-    private List<LessonGenerationTemplateResponseDTO> lessonGenerationTemplates;
 }

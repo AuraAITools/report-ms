@@ -1,0 +1,4 @@
+INSERT INTO outlets (id, tenant_id, name, email, address, postal_code, contact_number, description, version, created_at, updated_at)
+VALUES
+('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'First Outlet', 'first@outlet.com', '123 Outlet Street, Singapore', '123456', '+65 8888 1111', 'First outlet description', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'Second Outlet', 'second@outlet.com', '456 Outlet Street, Singapore', '654321', '+65 8888 2222', 'Second outlet description', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

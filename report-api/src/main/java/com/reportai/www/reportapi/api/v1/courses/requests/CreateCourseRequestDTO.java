@@ -57,6 +57,6 @@ public class CreateCourseRequestDTO {
 
     private List<UUID> educatorIds = new ArrayList<>();
 
-    private List<CreateLessonRequestDTO> lessons;
+    private List<CreateLessonRequestDTO> lessons = new ArrayList<>();
 
 }
