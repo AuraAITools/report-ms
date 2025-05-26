@@ -6,6 +6,7 @@ import com.reportai.www.reportapi.api.v1.materials.response.MaterialResponseDTO;
 import com.reportai.www.reportapi.entities.Material;
 import com.reportai.www.reportapi.services.materials.MaterialsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +52,7 @@ public class MaterialsController {
      */
     @PostMapping("/institutions/{id}/materials")
     @HasResourcePermission(permission = "'institutions::' + #id + '::materials:create'")
+    @Transactional
     public ResponseEntity<MaterialResponseDTO> createMaterialInInstitution(@RequestBody CreateMaterialRequestDTO material, @PathVariable UUID id) {
         Material newMaterial = new Material();
         modelMapper.map(material, newMaterial);
@@ -69,6 +71,7 @@ public class MaterialsController {
 
     @PatchMapping("/institutions/{id}/subjects/{topic_id}/materials/{material_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects::materials:attach'")
+    @Transactional
     public ResponseEntity<Void> linkMaterialToSubject(@PathVariable UUID id, @PathVariable(name = "topic_id") UUID topicId, @PathVariable(name = "material_id") UUID materialId) {
         materialsService.attachMaterialToTopic(materialId, topicId);
         return ResponseEntity.ok().build();

@@ -58,6 +58,7 @@ public class InstitutionsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}")
     @HasResourcePermission(permission = "'institutions::' + #id + ':update'")
+    @Transactional
     public ResponseEntity<InstitutionResponseDTO> updateInstitutionById(@PathVariable UUID id, @RequestBody @Valid PatchInstitutionRequestDTO patchInstitutionRequestDTO) {
         Institution incomingUpdate = InstitutionMappers.convert(patchInstitutionRequestDTO, id.toString());
         institutionsService.update(incomingUpdate);

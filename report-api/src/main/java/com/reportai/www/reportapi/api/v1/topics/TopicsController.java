@@ -6,6 +6,7 @@ import com.reportai.www.reportapi.api.v1.topics.response.TopicResponseDTO;
 import com.reportai.www.reportapi.entities.Topic;
 import com.reportai.www.reportapi.services.topics.TopicsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,7 @@ public class TopicsController {
 
     @PostMapping("/institutions/{id}/topics")
     @HasResourcePermission(permission = "'institutions::' + #id + '::topics:create'")
+    @Transactional
     public ResponseEntity<TopicResponseDTO> createTopicInInstitution(@RequestBody CreateTopicRequestDTO topic, @PathVariable UUID id) {
         Topic newTopic = new Topic();
         modelMapper.map(topic, newTopic);
@@ -57,6 +59,7 @@ public class TopicsController {
 
     @PatchMapping("/institutions/{id}/subjects/{subject_id}/topics/{topic_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects::topics:attach'")
+    @Transactional
     public ResponseEntity<Void> linkTopicToSubject(@PathVariable UUID id, @PathVariable(name = "subject_id") UUID subjectId, @PathVariable(name = "topic_id") UUID topicId) {
         topicsService.attach(topicId, subjectId);
         return ResponseEntity.ok().build();

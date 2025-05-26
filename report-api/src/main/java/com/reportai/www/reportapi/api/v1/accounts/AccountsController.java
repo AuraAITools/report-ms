@@ -119,7 +119,6 @@ public class AccountsController {
     @Operation(summary = "add educator client role to account", description = "add educator client role to account")
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("institutions/{id}/accounts/{account_id}/educator-client-roles") // TODO: add permissions
-    @Transactional
     // TODO: add perms
     public ResponseEntity<Void> addEducatorClientRoleToAccount(@PathVariable UUID id, @PathVariable(name = "account_id") UUID accountId) {
         tenantAwareAccountsService.grantEducatorRole(accountId);
@@ -252,6 +251,7 @@ public class AccountsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/institutions/{id}/accounts/educator-clients")
     @HasResourcePermission(permission = "'institutions::' + #id + '::accounts::educator-client-account:create'")
+    @Transactional
     public ResponseEntity<ExpandedAccountResponse> createAccountWithEducatorClientRole(@PathVariable UUID id, @RequestBody @Valid CreateAccountWithEducatorsRequestDTO createAccountWithEducatorsRequestDTO) {
         Account account = modelMapper.map(createAccountWithEducatorsRequestDTO, Account.class);
         Educator educator = educatorsService.create(createAccountWithEducatorsRequestDTO.getEducator());
@@ -265,6 +265,7 @@ public class AccountsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/institutions/{id}/accounts/expand")
     @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:read'")
+    @Transactional
     public ResponseEntity<List<ExpandedAccountResponse>> getAllExpandedAccountsForInstitution(@PathVariable UUID id, @RequestParam(name = "email", required = false) @Email String email) {
         Collection<Account> accounts = email == null ? tenantAwareAccountsService.getAllTenantAwareAccounts() : List.of(tenantAwareAccountsService.getAllTenantAwareAccountsByEmail(email));
         List<ExpandedAccountResponse> response = accounts
@@ -278,6 +279,7 @@ public class AccountsController {
     @ApiResponse(responseCode = "201", description = "OK")
     @GetMapping("/institutions/{id}/accounts")
     @HasResourcePermission(permission = "'institutions::' + #id + '::accounts:read'")
+    @Transactional
     public ResponseEntity<List<AccountResponseDTO>> getAllAccountsForInstitution(@PathVariable UUID id, @RequestParam(name = "email", required = false) @Email String email) {
 
         Collection<Account> accounts = email == null ? tenantAwareAccountsService.getAllTenantAwareAccounts() : List.of(tenantAwareAccountsService.getAllTenantAwareAccountsByEmail(email));

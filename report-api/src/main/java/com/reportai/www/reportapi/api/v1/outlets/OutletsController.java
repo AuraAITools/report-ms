@@ -10,6 +10,7 @@ import com.reportai.www.reportapi.services.outlets.OutletsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +49,7 @@ public class OutletsController {
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:create'")
+    @Transactional
     public ResponseEntity<OutletResponseDTO> createOutletForInstitution(@PathVariable UUID id, @Valid @RequestBody CreateOutletRequestDTO createOutletRequestDTO) {
         Outlet outlet = modelMapper.map(createOutletRequestDTO, Outlet.class);
         outletsService.create(outlet);
@@ -58,6 +60,7 @@ public class OutletsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets:update'")
+    @Transactional
     public ResponseEntity<OutletResponseDTO> updateOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @Valid @RequestBody UpdateOutletRequestDTO updateOutletRequestDTO) {
         Outlet outlet = outletsService.update(outletId, updateOutletRequestDTO);
         return new ResponseEntity<>(modelMapper.map(outlet, OutletResponseDTO.class), HttpStatus.OK);
@@ -95,6 +98,7 @@ public class OutletsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}/outlets/{outlet_id}/students/{student_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + ':add-student")
+    @Transactional
     public ResponseEntity<Void> addStudentToOutlet(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @PathVariable(name = "student_id") UUID studentId) {
         outletsService.addStudent(studentId, outletId);
         return new ResponseEntity<>(HttpStatus.OK);

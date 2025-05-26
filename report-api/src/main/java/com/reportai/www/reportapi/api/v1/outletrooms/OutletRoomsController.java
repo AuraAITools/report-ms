@@ -8,6 +8,7 @@ import com.reportai.www.reportapi.services.outlets.OutletRoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -39,8 +40,6 @@ public class OutletRoomsController {
     public OutletRoomsController(OutletRoomService outletRoomService, ModelMapper modelMapper) {
         this.outletRoomService = outletRoomService;
         this.modelMapper = modelMapper;
-//        modelMapper.createTypeMap(OutletRoom.class, OutletRoomResponseDTO.class) // TODO: refactopr to another file
-//                .addMapping(OutletRoom::getId, OutletRoomResponseDTO::setId);
     }
 
 
@@ -48,6 +47,7 @@ public class OutletRoomsController {
     @ApiResponse(responseCode = "201", description = "CREATED")
     @PostMapping("/institutions/{id}/outlets/{outlet_id}/outlet-rooms")
     @HasResourcePermission(permission = "'institutions::' + #id + '::outlets::' + #outletId + '::outlet-rooms:create'")
+    @Transactional
     public ResponseEntity<OutletRoomResponseDTO> createOutletForInstitution(@PathVariable UUID id, @PathVariable(name = "outlet_id") UUID outletId, @RequestBody @Valid CreateOutletRoomRequestDTO createOutletRequestDTO) {
         OutletRoom outletRoom = new OutletRoom();
         modelMapper.map(createOutletRequestDTO, outletRoom);

@@ -72,6 +72,7 @@ public class SubjectsController {
     @ApiResponse(responseCode = "200", description = "OK")
     @PatchMapping("/institutions/{id}/subjects/{subject_id}")
     @HasResourcePermission(permission = "'institutions::' + #id + '::subjects:update'")
+    @Transactional
     public ResponseEntity<SubjectResponseDTO> updateSubjectForInstitution(@PathVariable UUID id, @PathVariable(name = "subject_id") UUID subjectId, @Valid @RequestBody UpdateSubjectRequestDTO updateSubjectRequestDTO) {
         Subject subject = subjectsService.updateSubjectForInstitution(subjectId, modelMapper.map(updateSubjectRequestDTO, Subject.class));
         return new ResponseEntity<>(modelMapper.map(subject, SubjectResponseDTO.class), HttpStatus.OK);
