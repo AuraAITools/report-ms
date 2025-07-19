@@ -290,4 +290,13 @@ public class AccountsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "get all accounts of user for a institution", description = "get all accounts for a keycloak user in institution")
+    @ApiResponse(responseCode = "201", description = "OK")
+    @GetMapping("/institutions/{id}/users/{user_id}/accounts")// TODO: add permission
+    @Transactional
+    public ResponseEntity<ExpandedAccountResponse> getExpandedAccountOfIDPUser(@PathVariable UUID id, @PathVariable(name = "user_id") String userId) {
+        Account account = tenantAwareAccountsService.getAccountOfUser(userId);
+        return new ResponseEntity<>(modelMapper.map(account, ExpandedAccountResponse.class), HttpStatus.OK);
+    }
+
 }

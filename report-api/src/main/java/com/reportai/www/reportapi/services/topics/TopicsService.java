@@ -15,7 +15,6 @@ import com.reportai.www.reportapi.services.levels.LevelsService;
 import com.reportai.www.reportapi.services.subjects.SubjectsService;
 import jakarta.transaction.Transactional;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -425,10 +424,11 @@ public class TopicsService implements ISimpleRead<Topic>, ISimpleCreate<Topic> {
     }
 
 
-    public Collection<Topic> getAllTopicsFromInstitution() {
+    public List<Topic> getAllTopics() {
         return topicRepository.findAll();
     }
 
+    @Transactional
     public TopicSubjectAttachment attach(UUID topicId, UUID subjectId) {
         Topic topic = findById(topicId);
         Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> new ResourceNotFoundException("subject not found"));
