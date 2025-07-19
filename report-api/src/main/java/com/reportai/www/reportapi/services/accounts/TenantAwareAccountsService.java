@@ -324,6 +324,12 @@ public class TenantAwareAccountsService implements ISimpleRead<Account> {
         return userAccountInIdp.getRequiredActions();
     }
 
+    @Transactional
+    public Account getAccountOfUser(String userId) {
+        Objects.requireNonNull(userId, "userId cannot be null");
+        return accountRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Account not found for user with id: " + userId));
+    }
+
     /**
      * grant roles on idp to user (keycloak)
      * this method is idempotent and does not throw an error if the roles are already granted
