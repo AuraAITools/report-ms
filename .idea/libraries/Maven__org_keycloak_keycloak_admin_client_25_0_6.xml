@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: org.keycloak:keycloak-admin-client:25.0.6" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.keycloak" artifactId="keycloak-admin-client" version="25.0.6" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/keycloak/keycloak-admin-client/25.0.6/keycloak-admin-client-25.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/keycloak/keycloak-admin-client/25.0.6/keycloak-admin-client-25.0.6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/keycloak/keycloak-admin-client/25.0.6/keycloak-admin-client-25.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
