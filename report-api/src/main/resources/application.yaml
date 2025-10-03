@@ -14,6 +14,9 @@ spring:
       hibernate:
         generate_statistics: true
     show-sql: true
+  threads:
+    virtual:
+      enabled: true
 # actuator
 management:
   endpoints:
