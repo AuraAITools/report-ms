@@ -1,5 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: classpath:db/changelog/changes/public/db.changelog-baseline.sql
-  - include:
-      file: classpath:db/changelog/changes/audit/db.changelog-baseline.sql
