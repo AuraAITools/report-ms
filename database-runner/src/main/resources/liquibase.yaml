@@ -1,0 +1,10 @@
+changeLogFile: db/changelog/changelog-master.yaml
+url: jdbc:postgresql://localhost:5434/aura
+username: postgres
+password: password
+driver: org.postgresql.Driver
+referenceUrl: hibernate:spring:com.aura.details.tables?dialect=org.hibernate.dialect.PostgreSQLDialect
+diffChangeLogFile: src/main/resources/db/generated/diff/${maven.build.timestamp}_changelog.sql
+outputChangeLogFile: src/main/resources/db/generated/changelog-baseline.sql
+verbose: true
+logging: debug

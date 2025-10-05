@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - include:
+      file: public/changelog-baseline.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: audit/changelog-baseline.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/seed-templates.sql
+      relativeToChangeLogFile: true

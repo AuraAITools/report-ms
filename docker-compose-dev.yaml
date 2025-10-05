@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18.0
+    container_name: postgres-dev
+    ports:
+      - 5434:5432
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5" # max number of log files to rotate
+        max-size: "15m" # max size of log files
+    environment:
+      POSTGRES_DB: aura
+      POSTGRES_USER: postgres # TBC
+      POSTGRES_PASSWORD: password #TBC
+      PGDATA: /var/lib/postgresql/aura-data-dev
+    volumes:
+      - aura-pgdata-dev:/var/lib/postgresql/aura-data-dev
+volumes:
+  aura-pgdata-dev:
+    name: aura-pgdata-dev
