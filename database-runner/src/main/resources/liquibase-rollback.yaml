@@ -1,0 +1,7 @@
+# must be relative path
+changeLogFile: db/changelog/changelog-master.yaml
+url: ${DB_URL}
+username: ${DB_USERNAME}
+password: ${DB_PASSWORD}
+driver: org.postgresql.Driver
+changeLogSchemaName: liquibase

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: database-runner
+  liquibase:
+    liquibase-schema: liquibase
+    enabled: false

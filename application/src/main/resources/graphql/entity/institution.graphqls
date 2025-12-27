@@ -1,0 +1,49 @@
+type InstitutionResponse implements Auditable @connection{
+    id: ID!
+    name: String!
+    email: String!
+    contactNumber: String!
+    address: String!
+    uen: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+interface Auditable {
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateInstitutionInput {
+    name: String! @Size(min: 1, max: 10, message: "name must be at least 1 character with maximum of 10 characters")
+    email: String!
+    contactNumber: String!
+    address: String!
+    uen: String!
+}
+
+input InstitutionSearchInput {
+    name: String
+    email: String
+    contactNumber: String
+    address: String
+    uen: String
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input SortInput {
+    field: String!
+    direction: SortDirection!
+}
+
+enum SortDirection {
+    ASCENDING
+    DESCENDING
+}

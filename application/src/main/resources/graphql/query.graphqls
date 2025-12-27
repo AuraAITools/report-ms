@@ -1,0 +1,4 @@
+type Query {
+    fetchInstitution(id: ID): InstitutionResponse
+    institution(search: InstitutionSearchInput, sort: SortInput, first: Int, after: String, last: Int, before: String): InstitutionResponseConnection!
+}

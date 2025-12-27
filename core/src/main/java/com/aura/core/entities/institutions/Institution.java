@@ -1,0 +1,26 @@
+package com.aura.core.entities.institutions;
+
+import java.time.Instant;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Institution {
+    private UUID id;
+    private String name;
+    private String email;
+    private String uen;
+    private String address;
+    private String contactNumber;
+    private Instant createdAt;
+    private String createdBy;
+    private Instant updatedAt;
+    private String updatedBy;
+    private String tenantId;
+}
