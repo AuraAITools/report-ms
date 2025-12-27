@@ -28,7 +28,7 @@ jobs:
     # needs: test
     defaults:
       run:
-        working-directory: ./report-api
+        working-directory: .
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
