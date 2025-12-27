@@ -19,7 +19,7 @@ public class GQLConfig {
 
     // import extended graphql types
     @Bean
-    public RuntimeWiringConfigurer runtimeWiringConfigurer() {
+    RuntimeWiringConfigurer runtimeWiringConfigurer() {
         ValidationSchemaWiring schemaWiring = new ValidationSchemaWiring(
                 ValidationRules
                         .newValidationRules()
@@ -36,13 +36,13 @@ public class GQLConfig {
     }
 
     @Bean
-    public RequestHeaderInterceptor requestHeaderInterceptor() {
+    RequestHeaderInterceptor requestHeaderInterceptor() {
         return new RequestHeaderInterceptor();
     }
 
     @Bean
     @Primary
-    public CursorStrategy<ScrollPosition> scrollPositionCursorStrategy() {
+    CursorStrategy<ScrollPosition> scrollPositionCursorStrategy() {
         return new ScrollPositionCursorStrategy(new CleanJsonKeysetCursorStrategy());
     }
 }

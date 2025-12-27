@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RepositoryConfig {
     @Bean
-    public InstitutionRepository getInstitutionRepository(JpaInstitutionRepository jpaRepository) {
+    InstitutionRepository institutionRepository(JpaInstitutionRepository jpaRepository) {
         return new InstitutionRepositoryImpl(jpaRepository);
     }
 }

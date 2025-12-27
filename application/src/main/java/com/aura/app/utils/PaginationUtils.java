@@ -1,7 +1,11 @@
 package com.aura.app.utils;
 
+import com.aura.app.codegen.types.SortInput;
+import com.aura.app.dto.PageParametersDto;
+import com.aura.core.utils.KeysetPaginationCriteria;
 import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.PaginationCriteria;
+import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -15,11 +19,20 @@ import graphql.relay.DefaultPageInfo;
 import graphql.relay.Edge;
 import graphql.relay.PageInfo;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.graphql.data.query.ScrollSubrange;
+
+
+import static com.aura.app.utils.SortUtil.resolveDirection;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 
 public class PaginationUtils {
     private PaginationUtils() {
@@ -75,5 +88,29 @@ public class PaginationUtils {
         }
 
         return keyset;
+    }
+
+    public static <T> PageParametersDto getPageParametersDto(T searchInputs, SortInput sortInput, ScrollSubrange scrollSubrange, Function<T, Map<String, Object>> searchFilterMapperFn) {
+        ScrollPosition scrollPosition = scrollSubrange.position().orElse(ScrollPosition.keyset());
+        Optional<T> optionalSearchInputs = ofNullable(searchInputs);
+        Optional<SortInput> optionalSortInput = ofNullable(sortInput);
+
+        int limit = scrollSubrange.count().orElse(10);
+
+        // only keyset pagination is supported
+        if (!(scrollPosition instanceof KeysetScrollPosition keysetScrollPosition))
+            throw new UnsupportedOperationException("Only Keyset Cursor Pagination is supported");
+
+        // if search input is present, search
+        Map<String, Object> searchFilters = optionalSearchInputs.map(searchFilterMapperFn).orElse(Collections.emptyMap());
+        SearchCriteria searchCriteria = new SearchCriteria(searchFilters);
+
+        // if sort input is present, sort
+        List<SortCriteria> sortCriteriasList = optionalSortInput
+                .map(input -> new SortCriteria(input.getField(), resolveDirection(input.getDirection())))
+                .map(SortUtil::defaultSortsWith).orElse(emptyList());
+
+        KeysetPaginationCriteria keysetPaginationCriteria = new KeysetPaginationCriteria(limit, PaginationUtils.mapDirection(keysetScrollPosition.getDirection()), keysetScrollPosition.getKeys());
+        return new PageParametersDto(searchCriteria, sortCriteriasList, keysetPaginationCriteria);
     }
 }

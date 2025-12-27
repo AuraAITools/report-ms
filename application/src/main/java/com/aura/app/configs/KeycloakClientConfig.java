@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Profile;
 public class KeycloakClientConfig {
 
     @Bean
-    public KeycloakIdentityService getKeycloakRemoteIdentityService(InstitutionRepository institutionRepository, ClientResource clientResource) {
+    KeycloakIdentityService getKeycloakRemoteIdentityService(InstitutionRepository institutionRepository, ClientResource clientResource) {
         return new KeycloakIdentityService(institutionRepository, clientResource);
     }
 
     @Bean
-    public Keycloak getKeycloakClient(KeycloakCredentials keycloakCredentials) {
+    Keycloak getKeycloakClient(KeycloakCredentials keycloakCredentials) {
         return KeycloakBuilder
                 .builder()
                 .clientId(keycloakCredentials.getClientId())
@@ -41,28 +41,28 @@ public class KeycloakClientConfig {
 
     @Bean
     @ConfigurationProperties(prefix = "keycloak.client")
-    public KeycloakCredentials getKeycloakCredentials() {
+    KeycloakCredentials getKeycloakCredentials() {
         return new KeycloakCredentials();
     }
 
     @Bean
-    public RealmResource getKeycloakRealmResource(Keycloak keycloak, KeycloakCredentials keycloakCredentials) {
+    RealmResource getKeycloakRealmResource(Keycloak keycloak, KeycloakCredentials keycloakCredentials) {
         return keycloak.realm(keycloakCredentials.getRealm());
     }
 
     @Bean
-    public UsersResource getUsersResource(RealmResource realmResource) {
+    UsersResource getUsersResource(RealmResource realmResource) {
         return realmResource.users();
     }
 
     @Bean
-    public ClientResource getAuraApplicationClientResource(RealmResource realmResource, KeycloakCredentials keycloakCredentials) {
+    ClientResource getAuraApplicationClientResource(RealmResource realmResource, KeycloakCredentials keycloakCredentials) {
         ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(keycloakCredentials.getClientId()).getFirst();
         return realmResource.clients().get(clientRepresentation.getId());
     }
 
     @Bean
-    public ClientRepresentation getAuraApplicationClientRepresentation(ClientResource clientResource) {
+    ClientRepresentation getAuraApplicationClientRepresentation(ClientResource clientResource) {
         return clientResource.toRepresentation();
     }
 

@@ -1,7 +1,10 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.commons.QueryService;
+import com.aura.core.entities.institutions.Institution;
 import com.aura.core.institutions.onboarding.TenantInitialDataLoader;
+import com.aura.core.institutions.services.InstitutionQueryServiceImpl;
 import com.aura.core.institutions.services.OnboardingInstitutionService;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.details.institutions.onboarding.OnboardingServiceImpl;
@@ -24,12 +27,17 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceConfig {
     @Bean
-    public TenantInitialDataLoader tenantInitialDataLoader(JpaSchoolTemplateRepository jpaSchoolTemplateRepository, JpaSchoolRepository jpaSchoolRepository, JpaLevelTemplateRepository jpaLevelTemplateRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectTemplateRepository jpaSubjectTemplateRepository, JpaSubjectRepository jpaSubjectRepository, JpaSubjectLevelLinkTemplateRepository jpaSubjectLevelLinkTemplateRepository, JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository, JpaTopicTemplateRepository jpaTopicTemplateRepository, JpaTopicRepository jpaTopicRepository, JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository, JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
+    TenantInitialDataLoader tenantInitialDataLoader(JpaSchoolTemplateRepository jpaSchoolTemplateRepository, JpaSchoolRepository jpaSchoolRepository, JpaLevelTemplateRepository jpaLevelTemplateRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectTemplateRepository jpaSubjectTemplateRepository, JpaSubjectRepository jpaSubjectRepository, JpaSubjectLevelLinkTemplateRepository jpaSubjectLevelLinkTemplateRepository, JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository, JpaTopicTemplateRepository jpaTopicTemplateRepository, JpaTopicRepository jpaTopicRepository, JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository, JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
         return new TenantInitialDataLoaderImpl(jpaSchoolTemplateRepository, jpaSchoolRepository, jpaLevelTemplateRepository, jpaLevelRepository, jpaSubjectTemplateRepository, jpaSubjectRepository, jpaSubjectLevelLinkTemplateRepository, jpaSubjectLevelLinkRepository, jpaTopicTemplateRepository, jpaTopicRepository, jpaTopicSubjectLinkTemplateRepository, jpaTopicSubjectLinkRepository);
     }
 
     @Bean
-    public OnboardingInstitutionService onboardInstitutionService(InstitutionRepository institutionRepository, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
+    OnboardingInstitutionService onboardInstitutionService(InstitutionRepository institutionRepository, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
         return new OnboardingServiceImpl(institutionRepository, identityService, tenantInitialDataLoader);
+    }
+
+    @Bean
+    QueryService<Institution> institutionQueryService(InstitutionRepository institutionRepository) {
+        return new InstitutionQueryServiceImpl(institutionRepository);
     }
 }
