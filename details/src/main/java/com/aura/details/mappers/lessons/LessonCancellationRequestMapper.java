@@ -1,7 +1,6 @@
 package com.aura.details.mappers.lessons;
 
 import com.aura.core.entities.lessons.LessonCancellationRequest;
-import com.aura.details.mappers.lessons.LessonMapper;
 import com.aura.details.tables.lessons.LessonCancellationRequestTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

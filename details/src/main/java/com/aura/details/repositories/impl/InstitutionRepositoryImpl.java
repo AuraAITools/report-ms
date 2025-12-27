@@ -10,8 +10,8 @@ import com.aura.core.utils.SortCriteria;
 import com.aura.core.utils.SortDirection;
 import com.aura.details.mappers.institutions.InstitutionMapper;
 import com.aura.details.repositories.jpa.institutions.JpaInstitutionRepository;
+import com.aura.details.repositories.specifications.InstitutionSpecifications;
 import com.aura.details.tables.institutions.InstitutionTable;
-import com.aura.details.utils.SearchUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,7 +60,7 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<InstitutionTable> searchSpecifications = SearchUtils.buildSearchSpecification(searchCriteria);
+        Specification<InstitutionTable> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
 
         Window<InstitutionTable> windowResults = jpaRepository.findBy(
                 searchSpecifications,

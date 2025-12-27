@@ -1,6 +1,6 @@
 package com.aura.details.institutions.onboarding;
 
-import com.aura.core.institutions.onboarding.TenantInitialDataLoader;
+import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
 import com.aura.details.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.repositories.jpa.levels.JpaLevelTemplateRepository;
 import com.aura.details.repositories.jpa.links.JpaSubjectLevelLinkRepository;
