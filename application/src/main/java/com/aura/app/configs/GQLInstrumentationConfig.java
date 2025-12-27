@@ -10,17 +10,17 @@ import org.springframework.context.annotation.Bean;
 //@Configuration
 public class GQLInstrumentationConfig {
     @Bean
-    public Instrumentation instrumentation() {
+    Instrumentation instrumentation() {
         return new TracingInstrumentation();
     }
 
     @Bean
-    public Instrumentation maxQueryExecutionInstrumentation() {
+    Instrumentation maxQueryExecutionInstrumentation() {
         return new MaxQueryComplexityInstrumentation(20);// each query can have max 20 fields
     }
 
     @Bean
-    public Instrumentation maxQueryDepthInstrumentation() {
+    Instrumentation maxQueryDepthInstrumentation() {
         return new MaxQueryComplexityInstrumentation(5); // max depth of query response -> client can expand up to 5 nesting response
     }
 }

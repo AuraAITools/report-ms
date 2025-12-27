@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class CoreConfig {
 
     @Bean
-    public AuthorizationValidator authorizationValidator() {
+    AuthorizationValidator authorizationValidator() {
         return new AuthorizationValidatorImpl();
     }
 
