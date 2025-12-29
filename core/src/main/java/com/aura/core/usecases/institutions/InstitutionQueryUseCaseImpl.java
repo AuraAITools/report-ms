@@ -1,4 +1,4 @@
-package com.aura.core.services.institutions;
+package com.aura.core.usecases.institutions;
 
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.repositories.InstitutionRepository;
@@ -8,10 +8,10 @@ import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
 
-public class InstitutionQueryServiceImpl implements InstitutionQueryService {
+public class InstitutionQueryUseCaseImpl implements InstitutionQueryUseCase {
     InstitutionRepository institutionRepository;
 
-    public InstitutionQueryServiceImpl(InstitutionRepository institutionRepository) {
+    public InstitutionQueryUseCaseImpl(InstitutionRepository institutionRepository) {
         this.institutionRepository = institutionRepository;
     }
 

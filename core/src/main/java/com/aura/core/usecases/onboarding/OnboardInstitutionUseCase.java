@@ -1,8 +1,8 @@
-package com.aura.core.services.institutions;
+package com.aura.core.usecases.onboarding;
 
 import com.aura.core.entities.institutions.Institution;
 
-public interface OnboardingInstitutionService {
+public interface OnboardInstitutionUseCase {
 
     Institution onboard(Institution institution);
 }

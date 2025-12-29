@@ -1,6 +1,6 @@
 package com.aura.details.institutions.onboarding;
 
-import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
+import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.details.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.repositories.jpa.levels.JpaLevelTemplateRepository;
 import com.aura.details.repositories.jpa.links.JpaSubjectLevelLinkRepository;
@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: abstract repositories and move to core
 public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
 
     private final JpaSchoolTemplateRepository jpaSchoolTemplateRepository;

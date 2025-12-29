@@ -1,12 +1,9 @@
-package com.aura.details.institutions.onboarding;
+package com.aura.core.usecases.onboarding;
 
 import com.aura.core.clients.IdentityService;
 import com.aura.core.entities.accounts.TenantAwareRole;
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.repositories.InstitutionRepository;
-import com.aura.core.services.institutions.onboarding.OnboardingStrategy;
-import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +22,6 @@ public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy 
         this.tenantInitialDataLoader = tenantInitialDataLoader;
     }
 
-    @Transactional
     @Override
     public Institution onboard() {
         UUID tenantId = UUID.randomUUID();

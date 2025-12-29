@@ -9,7 +9,7 @@ import com.aura.app.dto.PageParametersDto;
 import com.aura.app.utils.PaginationUtils;
 import com.aura.core.auth.User;
 import com.aura.core.entities.levels.Level;
-import com.aura.core.services.institutions.onboarding.LevelQueryService;
+import com.aura.core.usecases.levels.LevelQueryUseCase;
 import com.aura.core.utils.PagedResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.relay.Connection;
@@ -31,13 +31,13 @@ import static com.aura.core.utils.AuthUtils.hasAnyRoles;
 @Slf4j
 @Controller
 public class LevelsGqlController {
-    private final LevelQueryService levelQueryService;
+    private final LevelQueryUseCase levelQueryUseCase;
     private final ObjectMapper objectMapper;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
 
-    public LevelsGqlController(LevelQueryService levelQueryService, ObjectMapper objectMapper, CursorStrategy<ScrollPosition> cursorStrategy) {
-        this.levelQueryService = levelQueryService;
+    public LevelsGqlController(LevelQueryUseCase levelQueryUseCase, ObjectMapper objectMapper, CursorStrategy<ScrollPosition> cursorStrategy) {
+        this.levelQueryUseCase = levelQueryUseCase;
         this.objectMapper = objectMapper;
         this.cursorStrategy = cursorStrategy;
     }
@@ -52,7 +52,7 @@ public class LevelsGqlController {
     ) {
         if (!hasAnyRoles(user, INSTITUTION_ADMIN)) throw new AccessDeniedException("not authorized");
         PageParametersDto pageParametersDto = PaginationUtils.getPageParametersDto(searchInputs, sortInput, scrollSubrange, (searchInputParameters) -> mapToSearchFilters(searchInputParameters, objectMapper));
-        PagedResult<Level> pagedResult = levelQueryService.queryPageBy(user.getCurrentTenantAccessed(), pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
+        PagedResult<Level> pagedResult = levelQueryUseCase.queryPageBy(user.getCurrentTenantAccessed(), pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
         return buildConnection(pagedResult, pageParametersDto.sortCriteriasList(), LevelMapper.INSTANCE::mapToDto, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
     }
 }

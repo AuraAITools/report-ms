@@ -1,13 +1,24 @@
 # report-ms
 
-microservice for Aura
+Microservice for Aura
 
-This project follows clean architecture
+This project follows `clean architecture`
 
-- **core**: domain entities & use cases
-- **details**: contains implementation details. this includes implementation of core abstractions/interfaces, and
-  adapters for using certain technologies (i.e. springdata, keycloak). DB migrations are found here too
+- **core**: core module should contain mostly abstractions. classes should be pure and have no reliance on external
+  technologies (i.e. spring) as much as possible.
+    - domain entities
+    - use cases: use cases should contain business logic
+- **details**: contains implementation details and adapters.
+    - technolgy-specific implementation of **core** abstractions/interfaces using certain technologies (i.e. springdata,
+      keycloak)
+    - services that orchestrate use cases
+    - when using ORM, table entities & mappers between table & domain entities
 - **application**: contains runtime configurations, web gateways
+    - configurations of beans
+    - web APIs: GraphQL, REST
+    - DTOs for the web APIs
+    - DTO mappers for web APIs
+    - ...everything spring-framework! or whichever framework we decide to use next time! we are future proof!
 - **database-runner** spring application that performs db migration with liquibase
 
 Note:
