@@ -25,6 +25,7 @@ public class WebSecurityConfig {
 
 
     // TODO: add scopes and userinfo into security context
+    // TODO: modularise filterchains
     @Bean
     SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         http

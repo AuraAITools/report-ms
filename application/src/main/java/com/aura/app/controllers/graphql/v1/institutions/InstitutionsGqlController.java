@@ -10,10 +10,10 @@ import com.aura.app.controllers.graphql.v1.institutions.mappers.InstitutionMappe
 import com.aura.app.dto.PageParametersDto;
 import com.aura.app.utils.PaginationUtils;
 import com.aura.core.auth.User;
-import com.aura.core.commons.QueryService;
 import com.aura.core.entities.institutions.Institution;
-import com.aura.core.services.institutions.OnboardingInstitutionService;
+import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.utils.PagedResult;
+import com.aura.details.services.OnboardingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.relay.Connection;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +35,14 @@ import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
 @Slf4j
 @Controller
 public class InstitutionsGqlController {
-    private final OnboardingInstitutionService onboardingInstitutionService;
-    private final QueryService<Institution> institutionQueryService;
+    private final OnboardingService onboardingService;
+    private final InstitutionQueryUseCase institutionQueryUseCase;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
     private final ObjectMapper objectMapper;
 
-    public InstitutionsGqlController(OnboardingInstitutionService onboardingInstitutionService, QueryService<Institution> institutionQueryService, CursorStrategy<ScrollPosition> cursorStrategy) {
-        this.onboardingInstitutionService = onboardingInstitutionService;
-        this.institutionQueryService = institutionQueryService;
+    public InstitutionsGqlController(OnboardingService onboardingService, InstitutionQueryUseCase institutionQueryUseCase, CursorStrategy<ScrollPosition> cursorStrategy) {
+        this.onboardingService = onboardingService;
+        this.institutionQueryUseCase = institutionQueryUseCase;
         this.cursorStrategy = cursorStrategy;
         this.objectMapper = new ObjectMapper();
     }
@@ -51,7 +51,7 @@ public class InstitutionsGqlController {
     public InstitutionResponse createInstitution(@Argument(value = DgsConstants.MUTATION.CREATEINSTITUTION_INPUT_ARGUMENT.CreateInstitutionInput) CreateInstitutionInput createInstitutionInput, @ContextValue(name = "user") User user) {
         if (!user.isTechnicalUser()) throw new AccessDeniedException("not authorized to create institution");
         Institution institution = InstitutionMapper.INSTANCE.from(createInstitutionInput);
-        Institution onboardedInstitution = onboardingInstitutionService.onboard(institution);
+        Institution onboardedInstitution = onboardingService.onboard(institution);
         return InstitutionMapper.INSTANCE.from(onboardedInstitution);
     }
 
@@ -67,7 +67,7 @@ public class InstitutionsGqlController {
         // use keyset cursor pagination
         PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, (searchInputParameters) -> mapToSearchFilters(searchInputParameters, objectMapper));
 
-        PagedResult<Institution> pagedResult = institutionQueryService.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
+        PagedResult<Institution> pagedResult = institutionQueryUseCase.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
 
         return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), InstitutionMapper.INSTANCE::from, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
     }

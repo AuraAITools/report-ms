@@ -1,4 +1,4 @@
-package com.aura.core.services.institutions.onboarding;
+package com.aura.core.usecases.onboarding;
 
 import com.aura.core.entities.institutions.Institution;
 

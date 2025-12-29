@@ -6,6 +6,6 @@ import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
 
-public interface QueryService<T> {
+public interface QueryUseCase<T> {
     PagedResult<T> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria);
 }

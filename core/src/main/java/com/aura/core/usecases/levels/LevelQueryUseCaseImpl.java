@@ -1,18 +1,17 @@
-package com.aura.core.services.levels;
+package com.aura.core.usecases.levels;
 
 import com.aura.core.entities.levels.Level;
 import com.aura.core.repositories.LevelRepository;
-import com.aura.core.services.institutions.onboarding.LevelQueryService;
 import com.aura.core.utils.KeysetPaginationCriteria;
 import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
 
-public class LevelQueryServiceImpl implements LevelQueryService {
+public class LevelQueryUseCaseImpl implements LevelQueryUseCase {
     private final LevelRepository levelRepository;
 
-    public LevelQueryServiceImpl(LevelRepository levelRepository) {
+    public LevelQueryUseCaseImpl(LevelRepository levelRepository) {
         this.levelRepository = levelRepository;
     }
 

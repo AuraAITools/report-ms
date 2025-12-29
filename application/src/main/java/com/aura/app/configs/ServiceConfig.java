@@ -1,15 +1,13 @@
 package com.aura.app.configs;
 
-import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
-import com.aura.core.services.institutions.InstitutionQueryService;
-import com.aura.core.services.institutions.InstitutionQueryServiceImpl;
-import com.aura.core.services.institutions.OnboardingInstitutionService;
-import com.aura.core.services.institutions.onboarding.LevelQueryService;
-import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
-import com.aura.core.services.levels.LevelQueryServiceImpl;
-import com.aura.details.institutions.onboarding.OnboardingServiceImpl;
+import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
+import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
+import com.aura.core.usecases.levels.LevelQueryUseCase;
+import com.aura.core.usecases.levels.LevelQueryUseCaseImpl;
+import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
+import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.repositories.jpa.levels.JpaLevelTemplateRepository;
@@ -23,6 +21,7 @@ import com.aura.details.repositories.jpa.subjects.JpaSubjectTemplateRepository;
 import com.aura.details.repositories.jpa.topics.JpaTopicRepository;
 import com.aura.details.repositories.jpa.topics.JpaTopicSubjectLinkTemplateRepository;
 import com.aura.details.repositories.jpa.topics.JpaTopicTemplateRepository;
+import com.aura.details.services.OnboardingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,18 +33,18 @@ public class ServiceConfig {
     }
 
     @Bean
-    OnboardingInstitutionService onboardInstitutionService(InstitutionRepository institutionRepository, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
-        return new OnboardingServiceImpl(institutionRepository, identityService, tenantInitialDataLoader);
+    OnboardingService onboardingService(OnboardInstitutionUseCase onboardInstitutionUseCase) {
+        return new OnboardingService(onboardInstitutionUseCase);
     }
 
     @Bean
-    InstitutionQueryService institutionQueryService(InstitutionRepository institutionRepository) {
-        return new InstitutionQueryServiceImpl(institutionRepository);
+    InstitutionQueryUseCase institutionQueryService(InstitutionRepository institutionRepository) {
+        return new InstitutionQueryUseCaseImpl(institutionRepository);
     }
 
 
     @Bean
-    LevelQueryService levelQueryService(LevelRepository levelRepository) {
-        return new LevelQueryServiceImpl(levelRepository);
+    LevelQueryUseCase levelQueryService(LevelRepository levelRepository) {
+        return new LevelQueryUseCaseImpl(levelRepository);
     }
 }

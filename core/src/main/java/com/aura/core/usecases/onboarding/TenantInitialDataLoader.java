@@ -1,4 +1,4 @@
-package com.aura.core.services.institutions.onboarding;
+package com.aura.core.usecases.onboarding;
 
 /**
  * Loads initial default data for tenant
