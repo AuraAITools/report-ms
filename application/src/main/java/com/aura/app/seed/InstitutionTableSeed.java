@@ -1,7 +1,7 @@
 package com.aura.app.seed;
 
-import com.aura.details.repositories.jpa.institutions.JpaInstitutionRepository;
-import com.aura.details.tables.institutions.InstitutionTable;
+import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
+import com.aura.details.springdata.tables.institutions.InstitutionTable;
 import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.Date;

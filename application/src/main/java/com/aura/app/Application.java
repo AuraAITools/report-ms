@@ -21,9 +21,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         )
 )
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.aura.app", "com.aura.details.tables"})
-@EntityScan(basePackages = "com.aura.details.tables")
-@EnableJpaRepositories(basePackages = "com.aura.details.repositories.jpa")
+@ComponentScan(basePackages = {"com.aura.app"})
+@EntityScan(basePackages = "com.aura.details.springdata.tables")
+@EnableJpaRepositories(basePackages = "com.aura.details.springdata.repositories.jpa")
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
