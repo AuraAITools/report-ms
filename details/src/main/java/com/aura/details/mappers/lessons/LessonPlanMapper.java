@@ -1,7 +1,6 @@
 package com.aura.details.mappers.lessons;
 
 import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.details.mappers.lessons.LessonMapper;
 import com.aura.details.tables.lessons.LessonPlanTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

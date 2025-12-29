@@ -3,7 +3,6 @@ package com.aura.details.mappers.tests;
 import com.aura.core.entities.tests.TestResult;
 import com.aura.details.mappers.students.StudentMapper;
 import com.aura.details.mappers.subjects.SubjectMapper;
-import com.aura.details.mappers.tests.TestMapper;
 import com.aura.details.tables.tests.TestResultTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,7 +1,6 @@
 package com.aura.details.mappers.tests;
 
 import com.aura.core.entities.tests.Test;
-import com.aura.details.mappers.tests.TestGroupMapper;
 import com.aura.details.tables.tests.TestTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

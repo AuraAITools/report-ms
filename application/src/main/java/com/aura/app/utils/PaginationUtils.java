@@ -7,6 +7,7 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.PaginationCriteria;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -43,7 +44,7 @@ public class PaginationUtils {
         return direction == ScrollPosition.Direction.FORWARD ? PaginationCriteria.PaginationDirection.FORWARD : PaginationCriteria.PaginationDirection.BACKWARD;
     }
 
-    public static <T, R> Connection<R> buildConnection(PagedResult<T> pagedResult, List<SortCriteria> sortCriteriasList, Function<T, R> mapFn, Function<Map<String, Object>, String> cursorProvider) {
+    public static <T, R> Connection<R> buildConnection(PagedResult<T> pagedResult, List<SortCriteria> sortCriteriasList, Function<T, R> mapToResponseDtoFn, Function<Map<String, Object>, String> cursorProvider) {
 
         List<T> edgeContentList = pagedResult.getItems();
         List<Edge<R>> edges = new ArrayList<>();
@@ -52,7 +53,7 @@ public class PaginationUtils {
         for (int i = 0; i < edgeContentList.size(); i++) {
             T edgeContent = edgeContentList.get(i);
             Map<String, Object> keyset = extractKeysetFromEntity(edgeContent, sortCriteriasList);
-            R destination = mapFn.apply(edgeContent);
+            R destination = mapToResponseDtoFn.apply(edgeContent);
             ConnectionCursor cursor = new DefaultConnectionCursor(cursorProvider.apply(keyset));
             if (i == 0) startCursor = cursor;
             if (i == edgeContentList.size() - 1) endCursor = cursor;
@@ -112,5 +113,10 @@ public class PaginationUtils {
 
         KeysetPaginationCriteria keysetPaginationCriteria = new KeysetPaginationCriteria(limit, PaginationUtils.mapDirection(keysetScrollPosition.getDirection()), keysetScrollPosition.getKeys());
         return new PageParametersDto(searchCriteria, sortCriteriasList, keysetPaginationCriteria);
+    }
+
+    public static Map<String, Object> mapToSearchFilters(Object object, ObjectMapper mapper) {
+        return mapper.convertValue(object, new TypeReference<Map<String, Object>>() {
+        });
     }
 }

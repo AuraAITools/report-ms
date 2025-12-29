@@ -1,7 +1,6 @@
 package com.aura.app.configs;
 
 import com.aura.app.cursor.CleanJsonKeysetCursorStrategy;
-import com.aura.app.interceptors.RequestHeaderInterceptor;
 import graphql.scalars.ExtendedScalars;
 import graphql.validation.rules.OnValidationErrorStrategy;
 import graphql.validation.rules.ValidationRules;
@@ -33,11 +32,6 @@ public class GQLConfig {
                 .scalar(ExtendedScalars.DateTime)
                 .directiveWiring(schemaWiring)
                 .build();
-    }
-
-    @Bean
-    RequestHeaderInterceptor requestHeaderInterceptor() {
-        return new RequestHeaderInterceptor();
     }
 
     @Bean

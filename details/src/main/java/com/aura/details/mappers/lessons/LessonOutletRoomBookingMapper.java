@@ -1,7 +1,6 @@
 package com.aura.details.mappers.lessons;
 
 import com.aura.core.entities.lessons.LessonOutletRoomBooking;
-import com.aura.details.mappers.lessons.LessonMapper;
 import com.aura.details.mappers.outlets.OutletRoomMapper;
 import com.aura.details.tables.lessons.LessonOutletRoomBookingTable;
 import org.mapstruct.Mapper;

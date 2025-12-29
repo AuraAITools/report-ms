@@ -2,9 +2,9 @@ package com.aura.details.institutions.onboarding;
 
 import com.aura.core.clients.IdentityService;
 import com.aura.core.entities.institutions.Institution;
-import com.aura.core.institutions.onboarding.TenantInitialDataLoader;
-import com.aura.core.institutions.services.OnboardingInstitutionService;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.services.institutions.OnboardingInstitutionService;
+import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
 
 public class OnboardingServiceImpl implements OnboardingInstitutionService {
     private final InstitutionRepository institutionRepository;

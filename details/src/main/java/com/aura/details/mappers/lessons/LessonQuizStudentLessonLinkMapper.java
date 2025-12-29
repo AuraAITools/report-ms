@@ -1,7 +1,6 @@
 package com.aura.details.mappers.lessons;
 
 import com.aura.core.entities.lessons.LessonQuizStudentLessonLink;
-import com.aura.details.mappers.lessons.LessonQuizMapper;
 import com.aura.details.tables.lessons.LessonQuizStudentLessonLinkTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

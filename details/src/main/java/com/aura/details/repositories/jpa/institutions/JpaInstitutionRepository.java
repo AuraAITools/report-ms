@@ -8,14 +8,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaInstitutionRepository extends JpaRepository<InstitutionTable, UUID>, JpaSpecificationExecutor<InstitutionTable> {
     Window<InstitutionTable> findAllBy(ScrollPosition scrollPosition, Limit limit, Sort sort);
-
-    @Procedure("onboard_tenant")
-    void loadInitialDataForTenant(String tenantId);
 }
 

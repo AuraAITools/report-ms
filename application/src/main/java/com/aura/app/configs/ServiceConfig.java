@@ -1,12 +1,14 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
-import com.aura.core.commons.QueryService;
-import com.aura.core.entities.institutions.Institution;
-import com.aura.core.institutions.onboarding.TenantInitialDataLoader;
-import com.aura.core.institutions.services.InstitutionQueryServiceImpl;
-import com.aura.core.institutions.services.OnboardingInstitutionService;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.repositories.LevelRepository;
+import com.aura.core.services.institutions.InstitutionQueryService;
+import com.aura.core.services.institutions.InstitutionQueryServiceImpl;
+import com.aura.core.services.institutions.OnboardingInstitutionService;
+import com.aura.core.services.institutions.onboarding.LevelQueryService;
+import com.aura.core.services.institutions.onboarding.TenantInitialDataLoader;
+import com.aura.core.services.levels.LevelQueryServiceImpl;
 import com.aura.details.institutions.onboarding.OnboardingServiceImpl;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.repositories.jpa.levels.JpaLevelRepository;
@@ -37,7 +39,13 @@ public class ServiceConfig {
     }
 
     @Bean
-    QueryService<Institution> institutionQueryService(InstitutionRepository institutionRepository) {
+    InstitutionQueryService institutionQueryService(InstitutionRepository institutionRepository) {
         return new InstitutionQueryServiceImpl(institutionRepository);
+    }
+
+
+    @Bean
+    LevelQueryService levelQueryService(LevelRepository levelRepository) {
+        return new LevelQueryServiceImpl(levelRepository);
     }
 }
