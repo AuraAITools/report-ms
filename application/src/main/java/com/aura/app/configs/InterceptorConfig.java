@@ -16,7 +16,7 @@ public class InterceptorConfig {
 
     @Bean
     @Order(2)
-    UserRequestContextInterceptor correlationIdInterceptor2() {
+    UserRequestContextInterceptor userRequestContextInterceptor() {
         return new UserRequestContextInterceptor();
     }
 }
