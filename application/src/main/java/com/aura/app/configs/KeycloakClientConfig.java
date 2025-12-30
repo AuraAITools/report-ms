@@ -1,6 +1,5 @@
 package com.aura.app.configs;
 
-import com.aura.core.repositories.InstitutionRepository;
 import com.aura.details.keycloak.client.KeycloakCredentials;
 import com.aura.details.keycloak.client.KeycloakIdentityService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,8 @@ import org.springframework.context.annotation.Profile;
 public class KeycloakClientConfig {
 
     @Bean
-    KeycloakIdentityService getKeycloakRemoteIdentityService(InstitutionRepository institutionRepository, ClientResource clientResource) {
-        return new KeycloakIdentityService(institutionRepository, clientResource);
+    KeycloakIdentityService getKeycloakRemoteIdentityService(ClientResource clientResource, UsersResource usersResource) {
+        return new KeycloakIdentityService(clientResource, usersResource);
     }
 
     @Bean

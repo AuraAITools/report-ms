@@ -1,4 +1,2 @@
 type Query {
-    getInstitutionByPage(search: InstitutionSearchInput, sort: SortInput, first: Int, after: String, last: Int, before: String): InstitutionResponseConnection!
-    getLevelByPage(search: LevelSearchInput, sort: SortInput, first: Int, after: String, last: Int, before: String): LevelResponseConnection!
 }

@@ -19,13 +19,13 @@ import static org.springframework.util.StringUtils.hasText;
 
 public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
     private static final String X_TENANT_ID = "x-tenant-id";
-    private static final String AURA_ADMIN = "AURA_ADMIN";
+    private static final String AGGREGATE = "*";
 
     private static String validateTenantId(String tenantId) {
         if (!hasText(tenantId)) throw new AccessDeniedException("tenant id cannot be empty");
 
         boolean isUUID = UUIDUtils.isUUid(tenantId);
-        if (!isUUID && !AURA_ADMIN.equals(tenantId)) {
+        if (!isUUID && !AGGREGATE.equals(tenantId)) {
             throw new AccessDeniedException("invalid tenant-id");
         }
         return tenantId;
@@ -36,7 +36,7 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
         if (!(principal instanceof Jwt jwt)) throw new AccessDeniedException("Invalid principal type");
         User currentUser = UserMapper.from(jwt);
 
-        // if aura_admin, set current tenantId = AURA_ADMIN
+        // set tenantId
         currentUser.setCurrentTenantAccessed(tenantId);
         return currentUser;
     }
@@ -55,7 +55,7 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
         targetTenantId
                 .map(UserRequestContextInterceptor::validateTenantId)
                 .map(UserRequestContextInterceptor::extractUserRequestContext)
-                .ifPresentOrElse((user) -> populateGQLContext(request, user)
+                .ifPresentOrElse(user -> populateGQLContext(request, user)
                         , () -> {
                             throw new AccessDeniedException("no target tenant/institution selected");
                         });

@@ -1,4 +1,0 @@
-interface Response {
-    success: Int!
-    message: String
-}

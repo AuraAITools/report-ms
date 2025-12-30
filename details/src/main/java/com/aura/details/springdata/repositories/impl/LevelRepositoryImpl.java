@@ -18,6 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 
+
+import static com.aura.details.springdata.specifications.TenantSpecification.whereTenantId;
+
 public class LevelRepositoryImpl implements LevelRepository {
     JpaLevelRepository jpaLevelRepository;
 
@@ -39,7 +42,37 @@ public class LevelRepositoryImpl implements LevelRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<LevelTable> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria, tenantId);
+        Specification<LevelTable> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
+
+        Window<LevelTable> windowResults = jpaLevelRepository.findBy(
+                searchSpecifications.and(whereTenantId(tenantId)),
+                fluentQuery -> fluentQuery
+                        .sortBy(sort)
+                        .limit(pageSize)
+                        .scroll(scrollPosition)
+        );
+
+        boolean hasPreviousPage = !keysetPaginationCriteria.getKeyset().isEmpty();
+        return new PagedResult<>(
+                windowResults.getContent().stream().map(LevelMapper.INSTANCE::toDomainEntity).toList(),
+                new PageInfo(hasPreviousPage, windowResults.hasNext()));
+    }
+
+    @Override
+    public PagedResult<Level> findAllBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
+        ScrollPosition scrollPosition = keysetPaginationCriteria.isForward()
+                ? ScrollPosition.forward(keysetPaginationCriteria.getKeyset())
+                : ScrollPosition.backward(keysetPaginationCriteria.getKeyset());
+
+        int pageSize = keysetPaginationCriteria.getPageSize();
+
+        Sort sort = Sort.by(orderedSortCriterias.stream()
+                .map(osc -> new Sort.Order(
+                        osc.getDirection() == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
+                        osc.getField()))
+                .toList());
+
+        Specification<LevelTable> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
 
         Window<LevelTable> windowResults = jpaLevelRepository.findBy(
                 searchSpecifications,
@@ -54,4 +87,5 @@ public class LevelRepositoryImpl implements LevelRepository {
                 windowResults.getContent().stream().map(LevelMapper.INSTANCE::toDomainEntity).toList(),
                 new PageInfo(hasPreviousPage, windowResults.hasNext()));
     }
+
 }

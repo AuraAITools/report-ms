@@ -1,4 +1,4 @@
-package com.aura.core.commons;
+package com.aura.core.usecases.commons;
 
 import com.aura.core.utils.KeysetPaginationCriteria;
 import com.aura.core.utils.PagedResult;

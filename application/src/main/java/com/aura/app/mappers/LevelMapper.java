@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.levels;
+package com.aura.app.mappers;
 
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.core.entities.levels.Level;

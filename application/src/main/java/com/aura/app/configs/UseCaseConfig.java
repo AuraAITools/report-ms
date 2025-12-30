@@ -1,7 +1,10 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.usecases.accounts.CreateAccountUseCase;
+import com.aura.core.usecases.accounts.CreateAccountUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
@@ -14,5 +17,10 @@ public class UseCaseConfig {
     @Bean
     OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
         return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, identityService, tenantInitialDataLoader);
+    }
+
+    @Bean
+    CreateAccountUseCase createAccountUseCase(AccountRepository accountRepository, IdentityService identityService) {
+        return new CreateAccountUseCaseImpl(accountRepository, identityService);
     }
 }

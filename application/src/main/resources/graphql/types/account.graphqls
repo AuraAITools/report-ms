@@ -1,0 +1,22 @@
+type AccountResponse implements Auditable @connection{
+    id: ID!
+    firstName: String!
+    lastName: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateAccountInput {
+    email: String!
+    firstName: String!
+    lastName: String!
+    contact: Int!
+    relationship: RELATIONSHIP!
+}
+
+enum RELATIONSHIP {
+    PARENT
+    SELF
+}

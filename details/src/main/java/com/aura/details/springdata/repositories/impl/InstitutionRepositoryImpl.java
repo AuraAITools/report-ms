@@ -20,6 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 
+
+import static com.aura.details.springdata.specifications.TenantSpecification.whereTenantId;
+
 public class InstitutionRepositoryImpl implements InstitutionRepository {
     public final JpaInstitutionRepository jpaRepository;
 
@@ -77,4 +80,34 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
         );
     }
 
+    @Override
+    public PagedResult<Institution> findAllByTenantId(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
+        ScrollPosition scrollPosition = keysetPaginationCriteria.isForward()
+                ? ScrollPosition.forward(keysetPaginationCriteria.getKeyset())
+                : ScrollPosition.backward(keysetPaginationCriteria.getKeyset());
+
+        int pageSize = keysetPaginationCriteria.getPageSize();
+
+        Sort sort = Sort.by(orderedSortCriterias.stream()
+                .map(osc -> new Sort.Order(
+                        osc.getDirection() == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
+                        osc.getField()))
+                .toList());
+
+        Specification<InstitutionTable> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
+
+        Window<InstitutionTable> windowResults = jpaRepository.findBy(
+                searchSpecifications.and(whereTenantId(tenantId)),
+                fluentQuery -> fluentQuery
+                        .sortBy(sort)
+                        .limit(pageSize)
+                        .scroll(scrollPosition)
+        );
+
+        boolean hasPreviousPage = !keysetPaginationCriteria.getKeyset().isEmpty();
+        return new PagedResult<>(
+                windowResults.getContent().stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList(),
+                new PageInfo(hasPreviousPage, windowResults.hasNext())
+        );
+    }
 }
