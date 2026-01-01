@@ -5,17 +5,13 @@ import com.aura.details.springdata.tables.levels.LevelTable;
 import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 
-
-import static com.aura.details.springdata.specifications.TenantSpecification.whereTenantId;
-
 public class LevelSpecification {
     private LevelSpecification() {
     }
 
-    public static Specification<LevelTable> buildLevelSearchSpecification(SearchCriteria searchCriteria, String tenantId) {
+    public static Specification<LevelTable> buildLevelSearchSpecification(SearchCriteria searchCriteria) {
         Map<String, Object> filters = searchCriteria.getFilters();
         Specification<LevelTable> spec = Specification.anyOf();
-        spec = spec.and(whereTenantId(tenantId));
         if (filters.containsKey("name") && filters.get("name") != null && filters.get("name") instanceof String name) {
             spec = spec.or(nameIsLike(name));
         }

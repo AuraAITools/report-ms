@@ -1,0 +1,3 @@
+extend type Query {
+    getLevelByPage(search: LevelSearchInput, sort: SortInput, first: Int, after: String, last: Int, before: String): LevelResponseConnection!
+}

@@ -20,7 +20,6 @@ public interface AccountMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
     AccountTable toTableEntity(Account account);
 }
 

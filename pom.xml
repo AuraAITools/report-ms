@@ -8,6 +8,11 @@
     <packaging>pom</packaging>
     <name>Aura Parent</name>
     <description>Parent POM for Aura</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.7</version>
+    </parent>
     <modules>
         <module>core</module>
         <module>details</module>
@@ -41,14 +46,6 @@
     <!-- dependency management does not actually add depedencies, it just standardises version in child pom   -->
     <dependencyManagement>
         <dependencies>
-            <!-- BOMS -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>

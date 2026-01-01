@@ -38,7 +38,7 @@ public class User {
     }
 
     public boolean isTechnicalUser() {
-        return tenantRoles.stream().anyMatch((role) -> TECHNICAL_USER.equals(role.getRoleType()));
+        return tenantRoles.stream().anyMatch(role -> TECHNICAL_USER.equals(role.getRoleType()));
     }
 
 

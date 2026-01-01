@@ -1,3 +1,2 @@
 type Mutation {
-    createInstitution(createInstitutionInput: CreateInstitutionInput): InstitutionResponse
 }

@@ -1,0 +1,4 @@
+extend type Mutation {
+    createAccount(createAccountInput: CreateAccountInput): AccountResponse
+    createInstitutionAdminAccount(createAccountInput: CreateAccountInput): AccountResponse
+}

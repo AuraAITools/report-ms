@@ -6,6 +6,7 @@ import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.SortInput;
 import com.aura.app.controllers.graphql.v1.institutions.exceptions.AccessDeniedException;
 import com.aura.app.dto.PageParametersDto;
+import com.aura.app.mappers.LevelMapper;
 import com.aura.app.utils.PaginationUtils;
 import com.aura.core.auth.User;
 import com.aura.core.entities.levels.Level;
@@ -25,8 +26,11 @@ import org.springframework.stereotype.Controller;
 
 import static com.aura.app.utils.PaginationUtils.buildConnection;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
+import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
 import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
 import static com.aura.core.utils.AuthUtils.hasAnyRoles;
+import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
+import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Slf4j
 @Controller
@@ -50,9 +54,18 @@ public class LevelsGqlController {
             ScrollSubrange scrollSubrange,
             @ContextValue(name = "user") User user
     ) {
-        if (!hasAnyRoles(user, INSTITUTION_ADMIN)) throw new AccessDeniedException("not authorized");
         PageParametersDto pageParametersDto = PaginationUtils.getPageParametersDto(searchInputs, sortInput, scrollSubrange, (searchInputParameters) -> mapToSearchFilters(searchInputParameters, objectMapper));
-        PagedResult<Level> pagedResult = levelQueryUseCase.queryPageBy(user.getCurrentTenantAccessed(), pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
+        PagedResult<Level> pagedResult;
+        if (isAggregateQuery(user)) {
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN))
+                throw new AccessDeniedException("You do not have permission to perform aggregate operation");
+            pagedResult = levelQueryUseCase.queryPageBy(pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
+        } else {
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN) && !hasAnyRoles(user, INSTITUTION_ADMIN))
+                throw new AccessDeniedException("unauthorized to access API");
+            pagedResult = levelQueryUseCase.queryPageBy(user.getCurrentTenantAccessed(), pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
+        }
+
         return buildConnection(pagedResult, pageParametersDto.sortCriteriasList(), LevelMapper.INSTANCE::mapToDto, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
     }
 }

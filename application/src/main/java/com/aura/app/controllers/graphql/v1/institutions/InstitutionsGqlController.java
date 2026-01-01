@@ -6,8 +6,8 @@ import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.app.codegen.types.InstitutionSearchInput;
 import com.aura.app.codegen.types.SortInput;
 import com.aura.app.controllers.graphql.v1.institutions.exceptions.AccessDeniedException;
-import com.aura.app.controllers.graphql.v1.institutions.mappers.InstitutionMapper;
 import com.aura.app.dto.PageParametersDto;
+import com.aura.app.mappers.InstitutionMapper;
 import com.aura.app.utils.PaginationUtils;
 import com.aura.core.auth.User;
 import com.aura.core.entities.institutions.Institution;
@@ -27,10 +27,14 @@ import org.springframework.graphql.data.query.ScrollSubrange;
 import org.springframework.stereotype.Controller;
 
 
+import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTION_INPUT_ARGUMENT.CreateInstitutionInput;
 import static com.aura.app.utils.PaginationUtils.getPageParametersDto;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
 import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
+import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
+import static com.aura.core.utils.AuthUtils.hasAnyRoles;
 import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
+import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Slf4j
 @Controller
@@ -47,14 +51,17 @@ public class InstitutionsGqlController {
         this.objectMapper = new ObjectMapper();
     }
 
+    // Available to: aura admin
     @MutationMapping(name = DgsConstants.MUTATION.CreateInstitution)
-    public InstitutionResponse createInstitution(@Argument(value = DgsConstants.MUTATION.CREATEINSTITUTION_INPUT_ARGUMENT.CreateInstitutionInput) CreateInstitutionInput createInstitutionInput, @ContextValue(name = "user") User user) {
-        if (!user.isTechnicalUser()) throw new AccessDeniedException("not authorized to create institution");
+    public InstitutionResponse createInstitution(@Argument(value = CreateInstitutionInput) CreateInstitutionInput createInstitutionInput, @ContextValue(name = "user") User user) {
+        if (!isAggregateQuery(user) || !hasAnyTechnicalUserRole(user, AURA_ADMIN))
+            throw new AccessDeniedException("Access denied");
         Institution institution = InstitutionMapper.INSTANCE.from(createInstitutionInput);
         Institution onboardedInstitution = onboardingService.onboard(institution);
         return InstitutionMapper.INSTANCE.from(onboardedInstitution);
     }
 
+    // Available to: aura-admin & tenant
     @QueryMapping(name = DgsConstants.QUERY.GetInstitutionByPage)
     public Connection<InstitutionResponse> getInstitutionByPage(
             @Argument(name = "search") InstitutionSearchInput searchInputs,
@@ -62,13 +69,19 @@ public class InstitutionsGqlController {
             // ScrollSubrange auto-parses first, last, before, after arguments
             ScrollSubrange scrollSubrange,
             @ContextValue(name = "user") User user) {
-        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN))
-            throw new AccessDeniedException("not authorized to get institution");
-        // use keyset cursor pagination
-        PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, (searchInputParameters) -> mapToSearchFilters(searchInputParameters, objectMapper));
 
-        PagedResult<Institution> pagedResult = institutionQueryUseCase.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
+        PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, searchInputParameters -> mapToSearchFilters(searchInputParameters, objectMapper));
 
-        return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), InstitutionMapper.INSTANCE::from, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
+        if (isAggregateQuery(user)) {
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN))
+                throw new AccessDeniedException("not authorized for aggregate query");
+            PagedResult<Institution> pagedResult = institutionQueryUseCase.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
+            return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), InstitutionMapper.INSTANCE::from, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
+        }
+
+        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN) && !hasAnyRoles(user, INSTITUTION_ADMIN))
+            throw new AccessDeniedException("not authorized for institution");
+        PagedResult<Institution> pagedResult = institutionQueryUseCase.queryPageBy(user.getCurrentTenantAccessed(), pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
+        return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), InstitutionMapper.INSTANCE::from, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
     }
 }

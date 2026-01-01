@@ -61,4 +61,8 @@ public class AuthUtils {
                 .stream()
                 .anyMatch(authorizedRoles::contains);
     }
+
+    public static boolean isAggregateQuery(User user) {
+        return "*".equals(user.getCurrentTenantAccessed());
+    }
 }

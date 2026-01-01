@@ -1,7 +1,9 @@
 package com.aura.app.configs;
 
+import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
+import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
 import com.aura.core.usecases.levels.LevelQueryUseCase;
@@ -9,6 +11,8 @@ import com.aura.core.usecases.levels.LevelQueryUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
+import com.aura.details.services.AccountService;
+import com.aura.details.services.OnboardingService;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelTemplateRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLevelLinkRepository;
@@ -21,7 +25,6 @@ import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectTemplateR
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicSubjectLinkTemplateRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicTemplateRepository;
-import com.aura.details.services.OnboardingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,5 +49,10 @@ public class ServiceConfig {
     @Bean
     LevelQueryUseCase levelQueryService(LevelRepository levelRepository) {
         return new LevelQueryUseCaseImpl(levelRepository);
+    }
+
+    @Bean
+    AccountService accountService(CreateAccountUseCase createAccountUseCase, IdentityService identityService) {
+        return new AccountService(createAccountUseCase, identityService);
     }
 }

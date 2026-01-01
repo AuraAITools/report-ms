@@ -19,4 +19,9 @@ public class InstitutionQueryUseCaseImpl implements InstitutionQueryUseCase {
     public PagedResult<Institution> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
         return institutionRepository.findAllBy(keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
     }
+
+    @Override
+    public PagedResult<Institution> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
+        return institutionRepository.findAllByTenantId(tenantId, keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
+    }
 }
