@@ -11,6 +11,8 @@ import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.CreateOutletUseCaseImpl;
+import com.aura.core.usecases.outlets.OutletQueryUseCase;
+import com.aura.core.usecases.outlets.OutletQueryUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,5 +32,10 @@ public class UseCaseConfig {
     @Bean
     CreateOutletUseCase createOutletUseCase(OutletRepository outletRepository) {
         return new CreateOutletUseCaseImpl(outletRepository);
+    }
+
+    @Bean
+    OutletQueryUseCase outletQueryUseCase(OutletRepository outletRepository) {
+        return new OutletQueryUseCaseImpl(outletRepository);
     }
 }
