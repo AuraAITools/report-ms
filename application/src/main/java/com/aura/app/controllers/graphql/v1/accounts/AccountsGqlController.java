@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.accounts;
 
-import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.AccountResponse;
 import com.aura.app.codegen.types.CreateAccountInput;
 import com.aura.app.mappers.AccountMapper;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Controller;
 
 
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.CreateAccount;
+import static com.aura.app.codegen.DgsConstants.MUTATION.CreateInstitutionAdminAccount;
 import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
 import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
 import static com.aura.core.utils.AuthUtils.hasAnyRoles;
@@ -31,7 +32,7 @@ public class AccountsGqlController {
         this.accountService = accountService;
     }
 
-    @MutationMapping(name = DgsConstants.MUTATION.CreateAccount)
+    @MutationMapping(name = CreateAccount)
     public AccountResponse createAccount(@Argument(value = CreateAccountInput) CreateAccountInput createAccountInput, @ContextValue(name = "user") User user) {
         if (isAggregateQuery(user))
             throw new UnsupportedOperationException("aggregate operation unsupported for this API");
@@ -42,7 +43,7 @@ public class AccountsGqlController {
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
 
-    @MutationMapping(name = DgsConstants.MUTATION.CreateInstitutionAdminAccount)
+    @MutationMapping(name = CreateInstitutionAdminAccount)
     public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateAccountInput createAccountInput, @ContextValue(name = "user") User user) {
         if (isAggregateQuery(user))
             throw new RuntimeException("aggregate operation unsupported for this API");

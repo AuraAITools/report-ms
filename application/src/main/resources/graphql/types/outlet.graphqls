@@ -1,0 +1,22 @@
+type OutletResponse implements Auditable @connection{
+    id: ID!
+    name: String!
+    address: String!
+    postalCode: Int!
+    contactNumber: Int!
+    description: String!
+    email: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateOutletInput {
+    name: String!
+    address: String!
+    postalCode: Int!
+    contactNumber: Int!
+    description: String!
+    email: String!
+}

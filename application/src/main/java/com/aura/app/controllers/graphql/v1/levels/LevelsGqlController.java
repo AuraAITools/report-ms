@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.levels;
 
-import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.InstitutionSearchInput;
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.SortInput;
@@ -24,6 +23,7 @@ import org.springframework.graphql.data.query.ScrollSubrange;
 import org.springframework.stereotype.Controller;
 
 
+import static com.aura.app.codegen.DgsConstants.QUERY.GetLevelByPage;
 import static com.aura.app.utils.PaginationUtils.buildConnection;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
 import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
@@ -46,7 +46,7 @@ public class LevelsGqlController {
         this.cursorStrategy = cursorStrategy;
     }
 
-    @QueryMapping(name = DgsConstants.QUERY.GetLevelByPage)
+    @QueryMapping(name = GetLevelByPage)
     public Connection<LevelResponse> getLevelByPage(
             @Argument(name = "search") InstitutionSearchInput searchInputs,
             @Argument(name = "sort") SortInput sortInput,

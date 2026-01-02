@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Outlet {
+    private String id;
+
     private String name;
 
     private String address;
@@ -25,5 +27,6 @@ public class Outlet {
 
     private String email;
 
+    private String tenantId;
 
 }
