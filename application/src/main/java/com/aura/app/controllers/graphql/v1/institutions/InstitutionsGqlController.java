@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.institutions;
 
-import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.app.codegen.types.InstitutionSearchInput;
@@ -28,6 +27,8 @@ import org.springframework.stereotype.Controller;
 
 
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTION_INPUT_ARGUMENT.CreateInstitutionInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.CreateInstitution;
+import static com.aura.app.codegen.DgsConstants.QUERY.GetInstitutionByPage;
 import static com.aura.app.utils.PaginationUtils.getPageParametersDto;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
 import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
@@ -52,7 +53,7 @@ public class InstitutionsGqlController {
     }
 
     // Available to: aura admin
-    @MutationMapping(name = DgsConstants.MUTATION.CreateInstitution)
+    @MutationMapping(name = CreateInstitution)
     public InstitutionResponse createInstitution(@Argument(value = CreateInstitutionInput) CreateInstitutionInput createInstitutionInput, @ContextValue(name = "user") User user) {
         if (!isAggregateQuery(user) || !hasAnyTechnicalUserRole(user, AURA_ADMIN))
             throw new AccessDeniedException("Access denied");
@@ -62,7 +63,7 @@ public class InstitutionsGqlController {
     }
 
     // Available to: aura-admin & tenant
-    @QueryMapping(name = DgsConstants.QUERY.GetInstitutionByPage)
+    @QueryMapping(name = GetInstitutionByPage)
     public Connection<InstitutionResponse> getInstitutionByPage(
             @Argument(name = "search") InstitutionSearchInput searchInputs,
             @Argument(name = "sort") SortInput sortInput,

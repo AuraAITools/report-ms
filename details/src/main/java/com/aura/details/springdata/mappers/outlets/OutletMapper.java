@@ -12,18 +12,17 @@ public interface OutletMapper {
 
     Outlet toDomainEntity(OutletTable outletTable);
 
+    @Mapping(target = "Id", source = "id")
     @Mapping(target = "studentOutletLinks", ignore = true)
     @Mapping(target = "outletEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "outletRoomTables", ignore = true)
     @Mapping(target = "lessons", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
     OutletTable toTableEntity(Outlet outlet);
 }
 
