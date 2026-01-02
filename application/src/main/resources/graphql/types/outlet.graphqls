@@ -20,3 +20,16 @@ input CreateOutletInput {
     description: String!
     email: String!
 }
+
+input OutletSearchInput {
+    name: String
+    address: String
+    postalCode: String
+    contactNumber: String
+    description: String
+    email: String
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}

@@ -11,6 +11,7 @@ import com.aura.core.usecases.levels.LevelQueryUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.core.usecases.outlets.CreateOutletUseCase;
+import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.services.AccountService;
 import com.aura.details.services.OnboardingService;
@@ -59,7 +60,7 @@ public class ServiceConfig {
     }
 
     @Bean
-    OutletService outletService(CreateOutletUseCase createOutletUseCase) {
-        return new OutletService(createOutletUseCase);
+    OutletService outletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase) {
+        return new OutletService(createOutletUseCase, outletQueryUseCase);
     }
 }
