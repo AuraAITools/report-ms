@@ -3,7 +3,6 @@ package com.aura.core.entities.schools;
 import com.aura.core.entities.students.Student;
 import java.time.Instant;
 import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class School {
-    private UUID id;
+    private String id;
     private Long version;
     private Instant createdAt;
     private String createdBy;

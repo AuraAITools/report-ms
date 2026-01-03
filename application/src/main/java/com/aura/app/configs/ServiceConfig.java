@@ -4,6 +4,7 @@ import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
+import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
 import com.aura.core.usecases.levels.LevelQueryUseCase;
@@ -14,6 +15,7 @@ import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.services.AccountService;
+import com.aura.details.services.CourseService;
 import com.aura.details.services.OnboardingService;
 import com.aura.details.services.OutletService;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
@@ -62,5 +64,10 @@ public class ServiceConfig {
     @Bean
     OutletService outletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase) {
         return new OutletService(createOutletUseCase, outletQueryUseCase);
+    }
+
+    @Bean
+    CourseService courseService(CreateCourseUseCase createCourseUseCase) {
+        return new CourseService(createCourseUseCase);
     }
 }

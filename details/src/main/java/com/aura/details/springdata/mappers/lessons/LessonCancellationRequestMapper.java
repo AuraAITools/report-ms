@@ -12,13 +12,7 @@ public interface LessonCancellationRequestMapper {
 
     LessonCancellationRequest toDomainEntity(LessonCancellationRequestTable lessonCancellationRequestTable);
 
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     LessonCancellationRequestTable toTableEntity(LessonCancellationRequest lessonCancellationRequest);
 }
 

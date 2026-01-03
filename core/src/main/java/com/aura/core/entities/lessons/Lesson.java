@@ -8,24 +8,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Lesson {
 
+    private String id;
+    private Long version;
+    private Instant createdAt;
+    private String createdBy;
+    private Instant updatedAt;
+    private String updatedBy;
+    private String tenantId;
     private String name;
     private Instant lessonStartTimestamptz;
     private Instant lessonEndTimestamptz;
     private String description = "";
     private String recap = "";
     private Subject subject;
-    private Set<LessonPostponementRequest> lessonPostponementRequestTables = new HashSet<>();
+    private Set<LessonPostponementRequest> lessonPostponementRequests = new HashSet<>();
     private Set<LessonCancellationRequest> lessonCancellationRequests = new HashSet<>();
-    private Set<LessonQuiz> lessonQuizzTables = new HashSet<>();
+    private Set<LessonQuiz> lessonQuizzes = new HashSet<>();
 
     public enum LESSON_STATUS {
         COMPLETED,

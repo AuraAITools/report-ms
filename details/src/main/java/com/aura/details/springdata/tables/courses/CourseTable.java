@@ -65,9 +65,9 @@ public class CourseTable extends TenantBaseTable {
     @JoinColumn(nullable = false)
     @ToString.Exclude
     private OutletTable outlet;
+
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     @Builder.Default
-
     @ToString.Exclude
     private Set<SubjectCourseLinkTable> subjectCourseLinks = new HashSet<>();
 

@@ -11,6 +11,11 @@ import org.mapstruct.factory.Mappers;
 public interface OutletMapper {
     public static OutletMapper INSTANCE = Mappers.getMapper(OutletMapper.class);
 
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     Outlet toDomainEntity(CreateOutletInput createOutletInput, String tenantId);
 

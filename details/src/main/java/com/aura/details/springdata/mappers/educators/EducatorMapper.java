@@ -24,13 +24,7 @@ public interface EducatorMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "educatorLessonLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     EducatorTable toTableEntity(Educator educator);
 }
 

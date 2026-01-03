@@ -29,9 +29,9 @@ public interface StudentLessonLinkMapper {
     @Mapping(target = "student.level.courses", ignore = true)
     @Mapping(target = "student.level.students", ignore = true)
     @Mapping(target = "student.school.students", ignore = true)
-    @Mapping(target = "lesson.lessonPostponementRequestTables", ignore = true)
+    @Mapping(target = "lesson.lessonPostponementRequests", ignore = true)
     @Mapping(target = "lesson.lessonCancellationRequests", ignore = true)
-    @Mapping(target = "lesson.lessonQuizzTables", ignore = true)
+    @Mapping(target = "lesson.lessonQuizzes", ignore = true)
     @Mapping(target = "lesson.subject.subjectCourseLinks", ignore = true)
     @Mapping(target = "lesson.subject.lessons", ignore = true)
     @Mapping(target = "lesson.subject.subjectStudentLinks", ignore = true)
@@ -48,13 +48,7 @@ public interface StudentLessonLinkMapper {
     @Mapping(target = "lessonParticipationReview", ignore = true)
     @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
     @Mapping(target = "lessonTopicProficiency", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     StudentLessonLinkTable toTableEntity(StudentLessonLink studentLessonLink);
 }
 

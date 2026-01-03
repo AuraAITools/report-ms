@@ -14,13 +14,7 @@ public interface TestResultMapper {
 
     TestResult toDomainEntity(TestResultTable testResultTable);
 
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     TestResultTable toTableEntity(TestResult testResult);
 }
 

@@ -52,7 +52,7 @@ CREATE TABLE public."educator_course_links" ("created_at" TIMESTAMP WITH TIME ZO
 CREATE TABLE public."educator_lesson_links" ("created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "version" BIGINT, "educator_id" UUID, "id" UUID NOT NULL, "lesson_id" UUID, "created_by" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "updated_by" VARCHAR(255), CONSTRAINT "educator_lesson_links_pkey" PRIMARY KEY ("id"));
 
 -- changeset kevin:1766810234582-17
-CREATE TABLE public."institutions" ("created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "id" UUID NOT NULL, "address" VARCHAR(255), "contact_number" VARCHAR(255), "created_by" VARCHAR(255), "email" VARCHAR(255) NOT NULL, "name" VARCHAR(255) NOT NULL, "random" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "uen" VARCHAR(255), "updated_by" VARCHAR(255), CONSTRAINT "institutions_pkey" PRIMARY KEY ("id"));
+CREATE TABLE public."institutions" ("created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "id" UUID NOT NULL, "address" VARCHAR(255), "contact_number" VARCHAR(255), "created_by" VARCHAR(255), "email" VARCHAR(255) NOT NULL, "name" VARCHAR(255) NOT NULL, "tenant_id" VARCHAR(255) NOT NULL, "uen" VARCHAR(255), "updated_by" VARCHAR(255), CONSTRAINT "institutions_pkey" PRIMARY KEY ("id"));
 
 -- changeset kevin:1766810234582-18
 CREATE TABLE public."invoices" ("cost" FLOAT8 NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "version" BIGINT, "id" UUID NOT NULL, "created_by" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "updated_by" VARCHAR(255), CONSTRAINT "invoices_pkey" PRIMARY KEY ("id"));
