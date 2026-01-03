@@ -1,0 +1,19 @@
+type LessonResponse implements Auditable{
+    name: String!
+    lessonStartTimestamptz: Long!
+    lessonEndTimestamptz: Long!
+    description: String
+    recap: String
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateStandaloneLessonInput {
+    name: String!
+    lessonStartTimestamptz: DateTime!
+    lessonEndTimestamptz: DateTime!
+    description: String
+    outletId: ID!
+}

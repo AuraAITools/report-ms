@@ -1,14 +1,16 @@
 package com.aura.core.entities.lessons;
 
+import com.aura.core.entities.courses.Course;
+import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.entities.subjects.Subject;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -33,6 +35,8 @@ public class Lesson {
     private Set<LessonPostponementRequest> lessonPostponementRequests = new HashSet<>();
     private Set<LessonCancellationRequest> lessonCancellationRequests = new HashSet<>();
     private Set<LessonQuiz> lessonQuizzes = new HashSet<>();
+    private Course course;
+    private Outlet outlet;
 
     public enum LESSON_STATUS {
         COMPLETED,

@@ -1,23 +1,22 @@
 package com.aura.details.springdata.mappers.lessons;
 
 import com.aura.core.entities.lessons.Lesson;
+import com.aura.details.springdata.mappers.outlets.OutletMapper;
 import com.aura.details.springdata.mappers.subjects.SubjectMapper;
 import com.aura.details.springdata.tables.lessons.LessonTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {SubjectMapper.class})
+@Mapper(uses = {SubjectMapper.class, OutletMapper.class})
 public interface LessonMapper {
     LessonMapper INSTANCE = Mappers.getMapper(LessonMapper.class);
 
     @Mapping(target = "lessonPostponementRequests", source = "lessonPostponementRequestTables")
-    @Mapping(target = "lessonCancellationRequests", ignore = false)
     @Mapping(target = "lessonQuizzes", source = "lessonQuizzTables")
     Lesson toDomainEntity(LessonTable lessonTable);
 
     @Mapping(target = "lessonPostponementRequestTables", source = "lessonPostponementRequests")
-    @Mapping(target = "lessonCancellationRequests", ignore = false)
     @Mapping(target = "lessonQuizzTables", source = "lessonQuizzes")
     @Mapping(target = "lessonPlans", ignore = true)
     @Mapping(target = "lessonObjectives", ignore = true)
@@ -26,7 +25,6 @@ public interface LessonMapper {
     @Mapping(target = "studentLessonRegistrations", ignore = true)
     @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "outlet", ignore = true)
     @Mapping(target = "Id", source = "id")
     LessonTable toTableEntity(Lesson lesson);
 }
