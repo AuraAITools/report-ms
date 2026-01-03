@@ -25,7 +25,7 @@ public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy 
     @Override
     public Institution onboard() {
         UUID tenantId = UUID.randomUUID();
-        institution.setId(tenantId);
+        institution.setId(tenantId.toString());
         institution.setTenantId(tenantId.toString());
         Institution createdInstitution = institutionRepository.save(institution);
         tenantInitialDataLoader.loadInitialDataForTenant(createdInstitution.getId().toString());

@@ -1,6 +1,10 @@
 package com.aura.core.entities.accounts;
 
+import com.aura.core.entities.links.AccountEducatorLink;
+import com.aura.core.entities.links.AccountStudentLink;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Account {
 
     private String id;
+    private Long version;
 
     private String userId;
 
@@ -29,6 +34,8 @@ public class Account {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
+    private Set<AccountStudentLink> accountStudentLinks = new HashSet<>();
+    private Set<AccountEducatorLink> accountEducatorLinks = new HashSet<>();
 
     public enum RELATIONSHIP {
         PARENT,

@@ -10,16 +10,13 @@ import org.mapstruct.factory.Mappers;
 public interface AccountMapper {
     AccountMapper INSTANCE = Mappers.getMapper(AccountMapper.class);
 
+    @Mapping(target = "accountStudentLinks", ignore = true)
+    @Mapping(target = "accountEducatorLinks", ignore = true)
     Account toDomainEntity(AccountTable accountTable);
 
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "Id", source = "id")
     AccountTable toTableEntity(Account account);
 }
 

@@ -18,11 +18,6 @@ public interface OutletMapper {
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "outletRoomTables", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
     OutletTable toTableEntity(Outlet outlet);
 }
 

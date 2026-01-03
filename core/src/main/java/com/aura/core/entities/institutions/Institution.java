@@ -1,7 +1,6 @@
 package com.aura.core.entities.institutions;
 
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Institution {
-    private UUID id;
+    private String id;
     private String name;
     private String email;
     private String uen;

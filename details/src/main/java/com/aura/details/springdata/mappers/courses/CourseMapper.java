@@ -21,20 +21,13 @@ public interface CourseMapper {
     @Mapping(target = "level.levelEducatorLinks", ignore = true)
     @Mapping(target = "level.courses", ignore = true)
     @Mapping(target = "level.students", ignore = true)
-    @Mapping(target = "priceRecord", ignore = true)
     Course toDomainEntity(CourseTable courseTable);
 
     @Mapping(target = "subjectCourseLinks", ignore = true)
     @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "educatorCourseLinks", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     CourseTable toTableEntity(Course course);
 }
 

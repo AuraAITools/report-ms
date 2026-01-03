@@ -1,12 +1,13 @@
 package com.aura.details.springdata.mappers.tests;
 
 import com.aura.core.entities.tests.TestGroup;
+import com.aura.details.springdata.mappers.utils.UUIDStringMapper;
 import com.aura.details.springdata.tables.tests.TestGroupTable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(uses = {UUIDStringMapper.class})
 public interface TestGroupMapper {
     TestGroupMapper INSTANCE = Mappers.getMapper(TestGroupMapper.class);
 
@@ -16,13 +17,7 @@ public interface TestGroupMapper {
 
     @Mapping(target = "tests", ignore = true)
     @Mapping(target = "subjectTestGroupLinks", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id", qualifiedByName = "toUuid")
     TestGroupTable toTableEntity(TestGroup testGroup);
 }
 

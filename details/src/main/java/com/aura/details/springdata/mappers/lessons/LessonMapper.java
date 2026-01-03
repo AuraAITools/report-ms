@@ -11,26 +11,23 @@ import org.mapstruct.factory.Mappers;
 public interface LessonMapper {
     LessonMapper INSTANCE = Mappers.getMapper(LessonMapper.class);
 
-    @Mapping(target = "lessonPostponementRequestTables", ignore = true)
-    @Mapping(target = "lessonCancellationRequests", ignore = true)
-    @Mapping(target = "lessonQuizzTables", ignore = true)
+    @Mapping(target = "lessonPostponementRequests", source = "lessonPostponementRequestTables")
+    @Mapping(target = "lessonCancellationRequests", ignore = false)
+    @Mapping(target = "lessonQuizzes", source = "lessonQuizzTables")
     Lesson toDomainEntity(LessonTable lessonTable);
 
-    @Mapping(target = "lessonPostponementRequestTables", ignore = true)
-    @Mapping(target = "lessonCancellationRequests", ignore = true)
-    @Mapping(target = "lessonQuizzTables", ignore = true)
+    @Mapping(target = "lessonPostponementRequestTables", source = "lessonPostponementRequests")
+    @Mapping(target = "lessonCancellationRequests", ignore = false)
+    @Mapping(target = "lessonQuizzTables", source = "lessonQuizzes")
     @Mapping(target = "lessonPlans", ignore = true)
     @Mapping(target = "lessonObjectives", ignore = true)
     @Mapping(target = "educatorLessonLinks", ignore = true)
     @Mapping(target = "materialLessonLinks", ignore = true)
+    @Mapping(target = "studentLessonRegistrations", ignore = true)
+    @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "outlet", ignore = true)
+    @Mapping(target = "Id", source = "id")
     LessonTable toTableEntity(Lesson lesson);
 }
 

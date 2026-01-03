@@ -44,6 +44,4 @@ public class InstitutionTable extends AuditMetadata {
     @Column(nullable = false)
     private String tenantId;
 
-    private String random;
-
 }

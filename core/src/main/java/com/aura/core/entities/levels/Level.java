@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Level {
 
-    private UUID id;
+    private String id;
     private Long version;
     private Instant createdAt;
     private String createdBy;

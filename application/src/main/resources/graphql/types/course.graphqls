@@ -1,0 +1,51 @@
+input CreateCourseInput {
+    lessonFrequency: LessonFrequency!
+    priceRecord: CreatePriceRecordInput!
+    name: String!
+    maxSize: Int!
+    courseStartTimestamptz: DateTime!
+    courseEndTimestamptz: DateTime!
+    outletId:ID!
+}
+
+input CreatePriceRecordInput {
+    price: Float
+    frequency: PriceFrequency
+}
+
+type CourseResponse implements Auditable @connection{
+    id: ID!
+    lessonFrequency: LessonFrequency
+    priceRecord: PriceRecordResponse
+    name: String
+    maxSize: Int
+    courseStartTimestamptz: Long
+    courseEndTimestamptz: Long
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+enum LessonFrequency {
+    WEEKLY
+    FORTNIGHTLY
+    MONTHLY
+}
+
+type PriceRecordResponse {
+    id: ID!
+    price: Float
+    frequency: PriceFrequency
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+enum PriceFrequency {
+    MONTHLY
+    WEEKLY
+    PER_LESSON
+    TOTAL
+}

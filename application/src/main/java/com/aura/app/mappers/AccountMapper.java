@@ -11,6 +11,9 @@ import org.mapstruct.factory.Mappers;
 public interface AccountMapper {
     AccountMapper INSTANCE = Mappers.getMapper(AccountMapper.class);
 
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "accountStudentLinks", ignore = true)
+    @Mapping(target = "accountEducatorLinks", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

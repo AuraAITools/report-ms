@@ -52,7 +52,7 @@ CREATE TABLE audit."educator_course_links_aud" ("rev" INTEGER NOT NULL, "revtype
 CREATE TABLE audit."educator_lesson_links_aud" ("rev" INTEGER NOT NULL, "revtype" SMALLINT, "educator_id" UUID, "id" UUID NOT NULL, "lesson_id" UUID, CONSTRAINT "educator_lesson_links_aud_pkey" PRIMARY KEY ("rev", "id"));
 
 -- changeset kevin:1766810291486-17
-CREATE TABLE audit."institutions_aud" ("rev" INTEGER NOT NULL, "revtype" SMALLINT, "id" UUID NOT NULL, "address" VARCHAR(255), "contact_number" VARCHAR(255), "email" VARCHAR(255), "name" VARCHAR(255), "random" VARCHAR(255), "tenant_id" VARCHAR(255), "uen" VARCHAR(255), CONSTRAINT "institutions_aud_pkey" PRIMARY KEY ("rev", "id"));
+CREATE TABLE audit."institutions_aud" ("rev" INTEGER NOT NULL, "revtype" SMALLINT, "id" UUID NOT NULL, "address" VARCHAR(255), "contact_number" VARCHAR(255), "email" VARCHAR(255), "name" VARCHAR(255), "tenant_id" VARCHAR(255), "uen" VARCHAR(255), CONSTRAINT "institutions_aud_pkey" PRIMARY KEY ("rev", "id"));
 
 -- changeset kevin:1766810291486-18
 CREATE TABLE audit."invoices_aud" ("cost" FLOAT8, "rev" INTEGER NOT NULL, "revtype" SMALLINT, "id" UUID NOT NULL, CONSTRAINT "invoices_aud_pkey" PRIMARY KEY ("rev", "id"));

@@ -28,13 +28,7 @@ public interface SubjectMapper {
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "subjectLevelLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "Id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", ignore = true)
-    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "Id", source = "id")
     SubjectTable toTableEntity(Subject subject);
 }
 

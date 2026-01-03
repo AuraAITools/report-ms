@@ -3,21 +3,20 @@ package com.aura.core.entities.lessons;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class LessonQuiz {
 
-    private UUID id;
+    private String id;
     private Long version;
     private Instant createdAt;
     private String createdBy;
