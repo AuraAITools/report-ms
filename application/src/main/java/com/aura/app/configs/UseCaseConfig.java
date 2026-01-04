@@ -4,11 +4,14 @@ import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCaseImpl;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
+import com.aura.core.usecases.lessons.CreateLessonUseCase;
+import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
@@ -45,5 +48,10 @@ public class UseCaseConfig {
     @Bean
     CreateCourseUseCase createCourseUseCase(CourseRepository courseRepository, OutletRepository outletRepository) {
         return new CreateCourseUseCaseImpl(courseRepository, outletRepository);
+    }
+
+    @Bean
+    CreateLessonUseCase createLessonUseCase(LessonRepository lessonRepository, OutletRepository outletRepository) {
+        return new CreateLessonUseCaseImpl(lessonRepository, outletRepository);
     }
 }
