@@ -10,7 +10,8 @@ import org.mapstruct.factory.Mappers;
 public interface UserIdentityMapper {
     UserIdentityMapper INSTANCE = Mappers.getMapper(UserIdentityMapper.class);
 
-    UserIdentity toUserIdentity(UserRepresentation userRepresentation);
+    @Mapping(target = "roles", source = "clientRoles")
+    UserIdentity toUserIdentity(UserRepresentation userRepresentation); // TODO: find a way to map clientRoles to roles
 
     @Mapping(target = "userProfileMetadata", ignore = true)
     @Mapping(target = "totp", ignore = true)

@@ -6,9 +6,17 @@ type AccountResponse implements Auditable @connection{
     createdBy: ID
     updatedAt: Long
     updatedBy: ID
+    relationship: RELATIONSHIP
 }
 
-input CreateAccountInput {
+input CreateInstitutionAdminAccountInput {
+    email: String!
+    firstName: String!
+    lastName: String!
+    contact: Int!
+}
+
+input CreateParentAccountInput {
     email: String!
     firstName: String!
     lastName: String!

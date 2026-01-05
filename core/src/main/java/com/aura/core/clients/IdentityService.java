@@ -8,9 +8,9 @@ public interface IdentityService {
 
     List<UserIdentity> findByEmail(String email);
 
-    UserIdentity createUserIdentity(UserIdentity userIdentity, String tenantId);
+    UserIdentity createUserIdentityAndTagToTenant(UserIdentity userIdentity, String tenantId);
 
-    void addTenantToUser(String userId, String tenantId);
+    void tagTenantToUser(String userId, String tenantId);
 
     void assignRolesToUser(String userId, String... roles);
 

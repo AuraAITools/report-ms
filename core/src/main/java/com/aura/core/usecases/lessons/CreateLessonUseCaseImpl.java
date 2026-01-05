@@ -13,6 +13,13 @@ public class CreateLessonUseCaseImpl implements CreateLessonUseCase {
         this.outletRepository = outletRepository;
     }
 
+    // TODO: add educators to lesson
+    // TODO: add students to lesson
+    // TODO: add lesson level
+    // TODO: add lesson subjects
+    // TODO: attach materials
+    // TODO: attach lesson plan
+    // TODO: attach lesson review
     @Override
     public Lesson createStandaloneLesson(Lesson lesson, String outletId) {
         return outletRepository.findById(outletId).map(outlet -> {

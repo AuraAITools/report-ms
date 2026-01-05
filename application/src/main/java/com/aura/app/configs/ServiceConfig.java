@@ -4,6 +4,7 @@ import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
+import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
@@ -59,8 +60,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    AccountService accountService(CreateAccountUseCase createAccountUseCase, IdentityService identityService) {
-        return new AccountService(createAccountUseCase, identityService);
+    AccountService accountService(CreateAccountUseCase createAccountUseCase, CreateParentAccountUseCase createParentAccountUseCase, IdentityService identityService) {
+        return new AccountService(createAccountUseCase, createParentAccountUseCase, identityService);
     }
 
     @Bean
