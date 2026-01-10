@@ -6,8 +6,10 @@ import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
+import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
-import com.aura.core.usecases.accounts.CreateAccountUseCaseImpl;
+import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
+import com.aura.core.usecases.accounts.CreateParentAccountUseCaseImpl;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
@@ -32,8 +34,14 @@ public class UseCaseConfig {
 
     @Bean
     CreateAccountUseCase createAccountUseCase(AccountRepository accountRepository, IdentityService identityService) {
-        return new CreateAccountUseCaseImpl(accountRepository, identityService);
+        return new CreateAccountAndTagToTenantUseCaseImpl(accountRepository, identityService);
     }
+
+    @Bean
+    CreateParentAccountUseCase createParentAccountUseCase(CreateAccountAndTagToTenantUseCaseImpl createAccountAndTagToTenantUseCase, AccountRepository accountRepository, IdentityService identityService) {
+        return new CreateParentAccountUseCaseImpl(createAccountAndTagToTenantUseCase, accountRepository, identityService);
+    }
+
 
     @Bean
     CreateOutletUseCase createOutletUseCase(OutletRepository outletRepository) {

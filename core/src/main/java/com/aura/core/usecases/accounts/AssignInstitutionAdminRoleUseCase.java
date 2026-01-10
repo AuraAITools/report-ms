@@ -3,7 +3,8 @@ package com.aura.core.usecases.accounts;
 import com.aura.core.clients.IdentityService;
 
 
-import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
+import static com.aura.core.usecases.onboarding.RoleTypes.INSTITUTION_ADMIN_ROLE;
+
 
 public class AssignInstitutionAdminRoleUseCase implements AssignRoleUseCase {
     private final IdentityService identityService;
@@ -18,7 +19,7 @@ public class AssignInstitutionAdminRoleUseCase implements AssignRoleUseCase {
 
     @Override
     public void assignRole() {
-        String institutionAdminRole = String.format("%s_%s", tenantId, INSTITUTION_ADMIN);
+        String institutionAdminRole = String.format("%s_%s", tenantId, INSTITUTION_ADMIN_ROLE);
         identityService.assignRolesToUser(userId, institutionAdminRole);
     }
 }

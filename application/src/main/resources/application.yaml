@@ -12,6 +12,8 @@ spring:
   jpa:
     properties:
       hibernate:
+        jdbc:
+          batch_size: 50
         generate_statistics: true
     show-sql: true
   threads:

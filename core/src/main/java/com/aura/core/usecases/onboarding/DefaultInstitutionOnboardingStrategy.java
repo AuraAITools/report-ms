@@ -7,12 +7,14 @@ import com.aura.core.repositories.InstitutionRepository;
 import java.util.List;
 import java.util.UUID;
 
+
+import static com.aura.core.usecases.onboarding.RoleTypes.DEFAULT_ROLES;
+
 public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy {
     private final Institution institution;
     private final InstitutionRepository institutionRepository;
     private final IdentityService identityService;
     private final TenantInitialDataLoader tenantInitialDataLoader;
-    private final List<String> ALL_INSTITUTION_ROLES = List.of("institution-admin", "student-report-mobile", "educator-report-mobile");
 
 
     public DefaultInstitutionOnboardingStrategy(InstitutionRepository institutionRepository, Institution institution, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
@@ -29,7 +31,7 @@ public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy 
         institution.setTenantId(tenantId.toString());
         Institution createdInstitution = institutionRepository.save(institution);
         tenantInitialDataLoader.loadInitialDataForTenant(createdInstitution.getId().toString());
-        List<TenantAwareRole> tenantAwareRoles = ALL_INSTITUTION_ROLES.stream().map(rolename -> {
+        List<TenantAwareRole> tenantAwareRoles = DEFAULT_ROLES.stream().map(rolename -> {
                     TenantAwareRole role = TenantAwareRole
                             .builder()
                             .name(rolename)

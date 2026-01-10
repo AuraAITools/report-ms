@@ -26,8 +26,8 @@ import org.springframework.stereotype.Controller;
 import static com.aura.app.codegen.DgsConstants.QUERY.GetLevelByPage;
 import static com.aura.app.utils.PaginationUtils.buildConnection;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
-import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
-import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
+import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
+import static com.aura.core.usecases.onboarding.RoleTypes.INSTITUTION_ADMIN_ROLE;
 import static com.aura.core.utils.AuthUtils.hasAnyRoles;
 import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
 import static com.aura.core.utils.AuthUtils.isAggregateQuery;
@@ -57,11 +57,11 @@ public class LevelsGqlController {
         PageParametersDto pageParametersDto = PaginationUtils.getPageParametersDto(searchInputs, sortInput, scrollSubrange, (searchInputParameters) -> mapToSearchFilters(searchInputParameters, objectMapper));
         PagedResult<Level> pagedResult;
         if (isAggregateQuery(user)) {
-            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN))
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE))
                 throw new AccessDeniedException("You do not have permission to perform aggregate operation");
             pagedResult = levelQueryUseCase.queryPageBy(pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
         } else {
-            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN) && !hasAnyRoles(user, INSTITUTION_ADMIN))
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE) && !hasAnyRoles(user, INSTITUTION_ADMIN_ROLE))
                 throw new AccessDeniedException("unauthorized to access API");
             pagedResult = levelQueryUseCase.queryPageBy(user.getCurrentTenantAccessed(), pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
         }

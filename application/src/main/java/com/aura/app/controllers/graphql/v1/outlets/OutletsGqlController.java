@@ -29,8 +29,8 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEOUTLET_INPUT_ARGU
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateOutlet;
 import static com.aura.app.utils.PaginationUtils.getPageParametersDto;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
-import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
-import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
+import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
+import static com.aura.core.usecases.onboarding.RoleTypes.INSTITUTION_ADMIN_ROLE;
 import static com.aura.core.utils.AuthUtils.hasAnyRoles;
 import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
 import static com.aura.core.utils.AuthUtils.isAggregateQuery;
@@ -64,13 +64,13 @@ public class OutletsGqlController {
         PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, searchInputParameters -> mapToSearchFilters(searchInputParameters, objectMapper));
 
         if (isAggregateQuery(user)) {
-            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN))
+            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE))
                 throw new AccessDeniedException("not authorized for aggregate query");
             PagedResult<Outlet> pagedResult = outletService.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
             return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), OutletMapper.INSTANCE::toDto, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
         }
 
-        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN) && !hasAnyRoles(user, INSTITUTION_ADMIN))
+        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE) && !hasAnyRoles(user, INSTITUTION_ADMIN_ROLE))
             throw new AccessDeniedException("not authorized for institution");
         PagedResult<Outlet> pagedResult = outletService.queryPageBy(user.getCurrentTenantAccessed(), pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
         return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), OutletMapper.INSTANCE::toDto, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));

@@ -19,4 +19,5 @@ public class UserIdentity {
     private Long createdTimestamp;
     private List<IdentityCredential> credentials;
     private List<String> requiredActions;
+    private Map<String, List<String>> roles; // key is tenant-id, value is list of roles
 }

@@ -25,6 +25,11 @@
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
         </dependency>
+        <!-- Google guava utility -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
         <!-- annotations helper -->
         <dependency>
             <groupId>org.mapstruct</groupId>

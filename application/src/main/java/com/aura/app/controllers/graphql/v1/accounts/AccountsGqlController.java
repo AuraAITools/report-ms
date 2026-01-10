@@ -1,7 +1,11 @@
 package com.aura.app.controllers.graphql.v1.accounts;
 
+import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.AccountResponse;
-import com.aura.app.codegen.types.CreateAccountInput;
+import com.aura.app.codegen.types.CreateInstitutionAdminAccountInput;
+import com.aura.app.codegen.types.CreateParentAccountInput;
+import com.aura.app.exceptions.AggregateOperationUnsupportedException;
+import com.aura.app.exceptions.UnauthorisedException;
 import com.aura.app.mappers.AccountMapper;
 import com.aura.core.auth.User;
 import com.aura.core.entities.accounts.Account;
@@ -13,11 +17,11 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 
 
-import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
-import static com.aura.app.codegen.DgsConstants.MUTATION.CreateAccount;
+import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTIONADMINACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateInstitutionAdminAccount;
-import static com.aura.core.auth.RoleTypes.AURA_ADMIN;
-import static com.aura.core.auth.RoleTypes.INSTITUTION_ADMIN;
+import static com.aura.app.codegen.DgsConstants.MUTATION.CreateParentAccount;
+import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
+import static com.aura.core.usecases.onboarding.RoleTypes.INSTITUTION_ADMIN_ROLE;
 import static com.aura.core.utils.AuthUtils.hasAnyRoles;
 import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
 import static com.aura.core.utils.AuthUtils.isAggregateQuery;
@@ -32,26 +36,25 @@ public class AccountsGqlController {
         this.accountService = accountService;
     }
 
-    @MutationMapping(name = CreateAccount)
-    public AccountResponse createAccount(@Argument(value = CreateAccountInput) CreateAccountInput createAccountInput, @ContextValue(name = "user") User user) {
+    @MutationMapping(name = CreateInstitutionAdminAccount)
+    public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateInstitutionAdminAccountInput createAccountInput, @ContextValue(name = "user") User user) {
         if (isAggregateQuery(user))
-            throw new UnsupportedOperationException("aggregate operation unsupported for this API");
-        if (!hasAnyRoles(user, INSTITUTION_ADMIN))
-            throw new RuntimeException("unauthorized to create account");
+            throw new AggregateOperationUnsupportedException("aggregate operation unsupported for this API");
+        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE) && !hasAnyRoles(user, INSTITUTION_ADMIN_ROLE))
+            throw new UnauthorisedException("unauthorized access admin apis");
         Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput, user.getCurrentTenantAccessed());
-        Account createdAccount = accountService.createAccount(account);
+        Account createdAccount = accountService.createAccountWithInstitutionAdminRole(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
 
-    @MutationMapping(name = CreateInstitutionAdminAccount)
-    public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateAccountInput createAccountInput, @ContextValue(name = "user") User user) {
+    @MutationMapping(name = CreateParentAccount)
+    public AccountResponse createParentAccount(@Argument(value = DgsConstants.MUTATION.CREATEPARENTACCOUNT_INPUT_ARGUMENT.CreateParentAccountInput) CreateParentAccountInput createParentAccountInput, @ContextValue(name = "user") User user) {
         if (isAggregateQuery(user))
-            throw new RuntimeException("aggregate operation unsupported for this API");
-        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN) && !hasAnyRoles(user, INSTITUTION_ADMIN))
-            throw new RuntimeException("unauthorized access admin apis");
-        Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput, user.getCurrentTenantAccessed());
-        Account createdAccount = accountService.createAccount(account);
-        accountService.assignInstitutionAdminRole(user.getCurrentTenantAccessed(), createdAccount.getUserId());
+            throw new AggregateOperationUnsupportedException("aggregate operation unsupported for this API");
+        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE) && !hasAnyRoles(user, INSTITUTION_ADMIN_ROLE))
+            throw new UnauthorisedException("unauthorized access admin apis");
+        Account account = AccountMapper.INSTANCE.toDomainEntity(createParentAccountInput, user.getCurrentTenantAccessed());
+        Account createdAccount = accountService.createParentAccount(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
 
