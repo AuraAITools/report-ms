@@ -68,7 +68,7 @@ public class OutletTable extends TenantBaseTable {
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
-    private Set<OutletRoomTable> outletRoomTables = new HashSet<>();
+    private Set<OutletRoomTable> outletRoom = new HashSet<>();
 
     @OneToMany(mappedBy = "outlet", fetch = FetchType.LAZY)
     @Builder.Default

@@ -88,4 +88,9 @@ public class LevelRepositoryImpl implements LevelRepository {
                 new PageInfo(hasPreviousPage, windowResults.hasNext()));
     }
 
+    @Override
+    public Level findByNameAndTenantId(String name, String tenantId) {
+        LevelTable levelTable = jpaLevelRepository.findByNameAndTenantId(name, tenantId);
+        return LevelMapper.INSTANCE.toDomainEntity(levelTable);
+    }
 }

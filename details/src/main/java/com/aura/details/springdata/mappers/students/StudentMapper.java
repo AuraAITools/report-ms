@@ -12,6 +12,8 @@ import org.mapstruct.factory.Mappers;
 public interface StudentMapper {
     StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
 
+    @Mapping(target = "school", ignore = true)
+    @Mapping(target = "level", ignore = true)
     @Mapping(target = "subjectStudentLinks", ignore = true)
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "studentLessonLinks", ignore = true)
@@ -20,6 +22,8 @@ public interface StudentMapper {
     @Mapping(target = "studentOutletLinks", ignore = true)
     Student toDomainEntity(StudentTable studentTable);
 
+    @Mapping(target = "school", ignore = true)
+    @Mapping(target = "level", ignore = true)
     @Mapping(target = "subjectStudentLinks", ignore = true)
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "studentLessonLinks", ignore = true)
@@ -28,5 +32,6 @@ public interface StudentMapper {
     @Mapping(target = "studentOutletLinks", ignore = true)
     @Mapping(target = "Id", source = "id")
     StudentTable toTableEntity(Student student);
+
 }
 

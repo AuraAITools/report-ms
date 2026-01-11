@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaLevelRepository extends JpaRepository<LevelTable, UUID>, JpaSpecificationExecutor<LevelTable> {
+    LevelTable findByNameAndTenantId(String name, String tenantId);
 }
 

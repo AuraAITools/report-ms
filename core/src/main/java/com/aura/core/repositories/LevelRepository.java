@@ -12,4 +12,5 @@ public interface LevelRepository {
 
     PagedResult<Level> findAllBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria);
 
+    Level findByNameAndTenantId(String name, String tenantId);
 }

@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaSchoolRepository extends JpaRepository<SchoolTable, UUID>, JpaSpecificationExecutor<SchoolTable> {
+    SchoolTable findByNameAndTenantId(String name, String tenantId);
 }
 

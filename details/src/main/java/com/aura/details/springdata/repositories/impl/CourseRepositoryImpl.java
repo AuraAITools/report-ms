@@ -23,8 +23,8 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Optional<Course> findById(UUID id) {
-        Optional<CourseTable> course = jpaCourseRepository.findById(id);
-        return course.map(CourseMapper.INSTANCE::toDomainEntity);
+    public Course findById(String id) {
+        Optional<CourseTable> course = jpaCourseRepository.findById(UUID.fromString(id));
+        return course.map(CourseMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 }

@@ -10,14 +10,19 @@ import org.mapstruct.factory.Mappers;
 public interface OutletMapper {
     OutletMapper INSTANCE = Mappers.getMapper(OutletMapper.class);
 
-    Outlet toDomainEntity(OutletTable outletTable);
-
-    @Mapping(target = "Id", source = "id")
     @Mapping(target = "studentOutletLinks", ignore = true)
     @Mapping(target = "outletEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
-    @Mapping(target = "outletRoomTables", ignore = true)
+    @Mapping(target = "outletRoom", ignore = true)
     @Mapping(target = "lessons", ignore = true)
+    Outlet toDomainEntity(OutletTable outletTable);
+
+    @Mapping(target = "studentOutletLinks", ignore = true)
+    @Mapping(target = "outletEducatorLinks", ignore = true)
+    @Mapping(target = "courses", ignore = true)
+    @Mapping(target = "outletRoom", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "Id", source = "id")
     OutletTable toTableEntity(Outlet outlet);
 }
 

@@ -6,12 +6,17 @@ import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
+import com.aura.core.repositories.StudentRepository;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCaseImpl;
+import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
+import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCaseImpl;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
+import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
+import com.aura.core.usecases.courses.EnrollStudentToCourseUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
@@ -21,6 +26,10 @@ import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.CreateOutletUseCaseImpl;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCaseImpl;
+import com.aura.core.usecases.students.TagStudentToLevelUseCase;
+import com.aura.core.usecases.students.TagStudentToLevelUseCaseImpl;
+import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
+import com.aura.core.usecases.students.TagStudentToSchoolUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,6 +51,10 @@ public class UseCaseConfig {
         return new CreateParentAccountUseCaseImpl(createAccountAndTagToTenantUseCase, accountRepository, identityService);
     }
 
+    @Bean
+    CreateStudentsInParentAccountUseCase createStudentsInParentAccountUseCase(StudentRepository studentRepository, AccountRepository accountRepository) {
+        return new CreateStudentsInParentAccountUseCaseImpl(studentRepository, accountRepository);
+    }
 
     @Bean
     CreateOutletUseCase createOutletUseCase(OutletRepository outletRepository) {
@@ -61,5 +74,20 @@ public class UseCaseConfig {
     @Bean
     CreateLessonUseCase createLessonUseCase(LessonRepository lessonRepository, OutletRepository outletRepository) {
         return new CreateLessonUseCaseImpl(lessonRepository, outletRepository);
+    }
+
+    @Bean
+    TagStudentToSchoolUseCase tagStudentToSchoolUseCase(StudentRepository studentRepository) {
+        return new TagStudentToSchoolUseCaseImpl(studentRepository);
+    }
+
+    @Bean
+    TagStudentToLevelUseCase tagStudentToLevelUseCase(StudentRepository studentRepository) {
+        return new TagStudentToLevelUseCaseImpl(studentRepository);
+    }
+
+    @Bean
+    EnrollStudentToCourseUseCase enrollStudentToCourseUseCase(StudentRepository studentRepository, CourseRepository courseRepository) {
+        return new EnrollStudentToCourseUseCaseImpl(studentRepository, courseRepository);
     }
 }

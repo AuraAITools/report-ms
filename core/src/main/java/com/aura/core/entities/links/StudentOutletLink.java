@@ -4,10 +4,10 @@ import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.entities.students.Student;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
