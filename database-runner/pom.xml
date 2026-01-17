@@ -17,6 +17,10 @@
         <java.version>24</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
         <!--  Tables in details is used to generate changelog diffs -->
         <dependency>
             <groupId>com.aura</groupId>

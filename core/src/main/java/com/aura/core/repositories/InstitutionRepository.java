@@ -6,12 +6,12 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
-import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 public interface InstitutionRepository {
     Institution save(Institution institution);
 
-    Optional<Institution> findById(String id);
+    @Nullable Institution findById(String id);
 
     List<Institution> findAll();
 

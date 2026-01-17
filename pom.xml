@@ -43,6 +43,9 @@
         <javafaker.version>1.0.2</javafaker.version>
         <spring-framework.version>6.2.12</spring-framework.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <jspecify.version>1.0.0</jspecify.version>
+        <error-prone.version>2.46.0</error-prone.version>
+        <nullaway.version>0.12.15</nullaway.version>
     </properties>
     <!-- dependency management does not actually add depedencies, it just standardises version in child pom   -->
     <dependencyManagement>
@@ -53,6 +56,11 @@
                 <version>7.31.0</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
             </dependency>
             <!--  only runtime dependencies -->
             <!-- compile & runtime dependencies -->

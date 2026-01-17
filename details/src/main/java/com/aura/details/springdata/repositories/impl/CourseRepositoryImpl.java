@@ -7,6 +7,7 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.tables.courses.CourseTable;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 public class CourseRepositoryImpl implements CourseRepository {
     private final JpaCourseRepository jpaCourseRepository;
@@ -23,8 +24,8 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Optional<Course> findById(UUID id) {
-        Optional<CourseTable> course = jpaCourseRepository.findById(id);
-        return course.map(CourseMapper.INSTANCE::toDomainEntity);
+    public @Nullable Course findById(String id) {
+        Optional<CourseTable> course = jpaCourseRepository.findById(UUID.fromString(id));
+        return course.map(CourseMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 }

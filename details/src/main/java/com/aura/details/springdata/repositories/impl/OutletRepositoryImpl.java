@@ -15,6 +15,7 @@ import com.aura.details.springdata.tables.outlets.OutletTable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
@@ -31,9 +32,9 @@ public class OutletRepositoryImpl implements OutletRepository {
     }
 
     @Override
-    public Optional<Outlet> findById(String id) {
+    public @Nullable Outlet findById(String id) {
         Optional<OutletTable> outletTable = jpaOutletRepository.findById(UUID.fromString(id));
-        return outletTable.map(OutletMapper.INSTANCE::toDomainEntity);
+        return outletTable.map(OutletMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 
     @Override

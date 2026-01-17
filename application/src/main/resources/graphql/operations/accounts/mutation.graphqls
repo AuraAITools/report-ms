@@ -1,4 +1,5 @@
 extend type Mutation {
     createInstitutionAdminAccount(createAccountInput: CreateInstitutionAdminAccountInput): AccountResponse
     createParentAccount(createParentAccountInput: CreateParentAccountInput): AccountResponse
+    createStudentsInParentAccount(createStudentInputs: [CreateStudentInput]): [StudentResponse]
 }

@@ -61,7 +61,7 @@ public class LessonTable extends TenantBaseTable {
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
-    private Set<LessonPostponementRequestTable> lessonPostponementRequestTables = new HashSet<>();
+    private Set<LessonPostponementRequestTable> lessonPostponementRequests = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
@@ -71,7 +71,7 @@ public class LessonTable extends TenantBaseTable {
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
-    private Set<LessonQuizTable> lessonQuizzTables = new HashSet<>();
+    private Set<LessonQuizTable> lessonQuizzes = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default

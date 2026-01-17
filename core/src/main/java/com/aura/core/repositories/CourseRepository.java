@@ -1,11 +1,11 @@
 package com.aura.core.repositories;
 
 import com.aura.core.entities.courses.Course;
-import java.util.Optional;
-import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 public interface CourseRepository {
     Course save(Course course);
 
-    Optional<Course> findById(UUID id);
+    @Nullable Course findById(String id);
+
 }
