@@ -14,6 +14,6 @@ public class TagStudentToSchoolUseCaseImpl implements TagStudentToSchoolUseCase 
     @Override
     public School tagStudentToSchool(String studentId, String schoolName) {
         Student student = studentRepository.findById(studentId);
-        return studentRepository.tagStudentToSchoolByName(student.getId(), schoolName, student.getTenantId());
+        return studentRepository.tagStudentToSchool(student.getId(), schoolName, student.getTenantId());
     }
 }

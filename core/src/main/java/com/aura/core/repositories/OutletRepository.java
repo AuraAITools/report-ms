@@ -6,10 +6,10 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
-import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 public interface OutletRepository {
-    Optional<Outlet> findById(String id);
+    @Nullable Outlet findById(String id);
 
     Outlet save(Outlet outlet);
 

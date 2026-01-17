@@ -15,6 +15,6 @@ public class TagStudentToLevelUseCaseImpl implements TagStudentToLevelUseCase {
     @Override
     public Level tagStudentToLevel(String studentId, String levelName) {
         Student student = studentRepository.findById(studentId);
-        return studentRepository.tagStudentToLevelByName(student.getId(), levelName, student.getTenantId());
+        return studentRepository.tagStudentToLevel(student.getId(), levelName, student.getTenantId());
     }
 }

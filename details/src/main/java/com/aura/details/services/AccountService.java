@@ -68,7 +68,7 @@ public class AccountService {
 
 
         var courses = createStudentAccountParams.studentCourseEnrollmentParams().stream()
-                .map(param -> enrollStudentToCourseUseCase.enroll(student.getId(), param.courseId()))
+                .map(param -> enrollStudentToCourseUseCase.enroll(student.getId(), param.courseId(), createStudentAccountParams.tenantId()))
                 .toList();
         return CreatedStudentResult
                 .builder()
@@ -81,6 +81,7 @@ public class AccountService {
 
     @Builder
     public record CreateStudentAccountParams(Student student, String levelId, String schoolId, String accountId,
+                                             String tenantId,
                                              List<CreateStudentCourseEnrollmentParams> studentCourseEnrollmentParams) {
     }
 

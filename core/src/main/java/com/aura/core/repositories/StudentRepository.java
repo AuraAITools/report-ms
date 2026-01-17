@@ -5,18 +5,19 @@ import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public interface StudentRepository {
     Student save(Student student);
 
-    Student findById(String id);
+    @Nullable Student findById(String id);
 
     List<Student> saveAll(List<Student> students);
 
-    Level tagStudentToLevelByName(String studentId, String levelName, String tenantId);
+    Level tagStudentToLevel(String studentId, String levelId, String tenantId);
 
-    School tagStudentToSchoolByName(String studentId, String schoolName, String tenantId);
+    School tagStudentToSchool(String studentId, String schoolId, String tenantId);
 
-    Course createStudentCourseLink(String studentId, String courseId);
+    Course createStudentCourseLink(String studentId, String courseId, String tenantId);
 
 }

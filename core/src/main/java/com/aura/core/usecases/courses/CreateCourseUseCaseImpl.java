@@ -4,6 +4,9 @@ import com.aura.core.entities.courses.Course;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.OutletRepository;
 
+
+import static java.util.Optional.ofNullable;
+
 public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
     private final CourseRepository courseRepository;
     private final OutletRepository outletRepository;
@@ -15,9 +18,11 @@ public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
 
     @Override
     public Course createCourseInOutlet(Course course) {
-        return outletRepository.findById(course.getOutlet().getId()).map(outlet -> {
-            course.setOutlet(outlet);
-            return courseRepository.save(course);
-        }).orElseThrow(() -> new RuntimeException("Outlet not found"));
+        return ofNullable(outletRepository.findById(course.getOutlet().getId()))
+                .map(outlet -> {
+                    course.setOutlet(outlet);
+                    return courseRepository.save(course);
+                })
+                .orElseThrow(() -> new RuntimeException("Outlet not found"));
     }
 }

@@ -13,6 +13,7 @@ import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.specifications.LevelSpecification;
 import com.aura.details.springdata.tables.levels.LevelTable;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
@@ -89,7 +90,7 @@ public class LevelRepositoryImpl implements LevelRepository {
     }
 
     @Override
-    public Level findByNameAndTenantId(String name, String tenantId) {
+    public @Nullable Level findByNameAndTenantId(String name, String tenantId) {
         LevelTable levelTable = jpaLevelRepository.findByNameAndTenantId(name, tenantId);
         return LevelMapper.INSTANCE.toDomainEntity(levelTable);
     }

@@ -15,6 +15,7 @@ import com.aura.details.springdata.tables.institutions.InstitutionTable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
@@ -38,9 +39,9 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
     }
 
     @Override
-    public Optional<Institution> findById(String id) {
+    public @Nullable Institution findById(String id) {
         Optional<InstitutionTable> optionalInstitutionTable = jpaRepository.findById(UUID.fromString(id));
-        return optionalInstitutionTable.map(InstitutionMapper.INSTANCE::toDomainEntity);
+        return optionalInstitutionTable.map(InstitutionMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 
     @Override

@@ -5,7 +5,7 @@ type StudentResponse implements Auditable{
     dateOfBirth: Date
     level: LevelResponse!
     school: SchoolResponse!
-    courses: [CourseResponse]!
+    courses: [CourseResponse!]!
     createdAt: Long
     createdBy: ID
     updatedAt: Long
@@ -20,7 +20,7 @@ input CreateStudentInput {
     dateOfBirth: Date
     levelId: ID!
     schoolId: ID!
-    courseEnrollments: [StudentCourseEnrollmentInput]
+    courseEnrollments: [StudentCourseEnrollmentInput!]!
 }
 
 input StudentCourseEnrollmentInput {
