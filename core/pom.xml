@@ -18,6 +18,10 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
             <scope>test</scope>
@@ -25,15 +29,29 @@
     </dependencies>
     <build>
         <plugins>
+            <!-- null safety build time check -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <release>${java.version}</release>
-                    <!-- processes annotations -->
+                    <!--                    TODO: figure out how to fail build on null safety static check-->
+                    <!--                    <fork>true</fork>-->
+                    <!--                    <compilerArgs>-->
+                    <!--                        <arg>-XDcompilePolicy=simple</arg>-->
+                    <!--                        <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>-->
+                    <!--                    </compilerArgs>-->
                     <annotationProcessorPaths>
+                        <!--                        <path>-->
+                        <!--                            <groupId>com.google.errorprone</groupId>-->
+                        <!--                            <artifactId>error_prone_core</artifactId>-->
+                        <!--                            <version>${error-prone.version}</version>-->
+                        <!--                        </path>-->
+                        <!--                        <path>-->
+                        <!--                            <groupId>com.uber.nullaway</groupId>-->
+                        <!--                            <artifactId>nullaway</artifactId>-->
+                        <!--                            <version>${nullaway.version}</version>-->
+                        <!--                        </path>-->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>

@@ -46,7 +46,7 @@ public interface StudentMapper {
     List<AccountService.CreateStudentCourseEnrollmentParams> toParams(List<StudentCourseEnrollmentInput> studentCourseEnrollmentInputs);
 
     @Mapping(target = "enrollmentDateTime", source = "startDate")
-// TODO: might need to convert localDate to instant 
+// TODO: might need to convert localDate to instant
     AccountService.CreateStudentCourseEnrollmentParams toParams(StudentCourseEnrollmentInput studentCourseEnrollmentInput);
 
     @Mapping(target = "updatedBy", source = "student.updatedBy")
