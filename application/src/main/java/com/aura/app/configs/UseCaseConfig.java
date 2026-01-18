@@ -3,12 +3,15 @@ package com.aura.app.configs;
 import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
+import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
+import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
+import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
@@ -17,6 +20,14 @@ import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCaseImpl;
+import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
+import com.aura.core.usecases.courses.TagEducatorToCourseUseCaseImpl;
+import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCase;
+import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCaseImpl;
+import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
+import com.aura.core.usecases.educators.TagEducatorToLevelUseCaseImpl;
+import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
+import com.aura.core.usecases.educators.TagEducatorToSubjectUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
@@ -90,4 +101,30 @@ public class UseCaseConfig {
     EnrollStudentToCourseUseCase enrollStudentToCourseUseCase(StudentRepository studentRepository, CourseRepository courseRepository) {
         return new EnrollStudentToCourseUseCaseImpl(studentRepository, courseRepository);
     }
+
+    @Bean
+    CreateEducatorInAccountUseCase createEducatorInAccountUseCase(AccountRepository accountRepository, EducatorRepository educatorRepository, IdentityService identityService) {
+        return new CreateEducatorInAccountUseCaseImpl(accountRepository, educatorRepository, identityService);
+    }
+
+    @Bean
+    EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase(EducatorRepository educatorRepository) {
+        return new EnrollEducatorToOutletUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToCourseUseCase tagEducatorToCourseUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToCourseUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToLevelUseCase tagEducatorToLevelUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToLevelUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToSubjectUseCase tagEducatorToSubjectUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToSubjectUseCaseImpl(educatorRepository);
+    }
+
 }

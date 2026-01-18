@@ -1,23 +1,15 @@
 package com.aura.app.mappers;
 
-import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.CreateStudentInput;
 import com.aura.app.codegen.types.StudentCourseEnrollmentInput;
 import com.aura.app.codegen.types.StudentResponse;
-import com.aura.core.entities.links.StudentCourseLink;
 import com.aura.core.entities.students.Student;
 import com.aura.details.services.AccountService;
 import com.aura.details.springdata.mappers.schools.SchoolMapper;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-
-
-import static java.util.Optional.ofNullable;
 
 @Mapper(uses = {DateToEpochMapper.class, CourseMapper.class, LevelMapper.class, SchoolMapper.class})
 public interface StudentMapper {
@@ -46,7 +38,6 @@ public interface StudentMapper {
     List<AccountService.CreateStudentCourseEnrollmentParams> toParams(List<StudentCourseEnrollmentInput> studentCourseEnrollmentInputs);
 
     @Mapping(target = "enrollmentDateTime", source = "startDate")
-// TODO: might need to convert localDate to instant
     AccountService.CreateStudentCourseEnrollmentParams toParams(StudentCourseEnrollmentInput studentCourseEnrollmentInput);
 
     @Mapping(target = "updatedBy", source = "student.updatedBy")
@@ -62,13 +53,5 @@ public interface StudentMapper {
     @Mapping(target = "courses", source = "courses")
     StudentResponse toDto(AccountService.CreatedStudentResult createdStudentResult);
 
-    default List<CourseResponse> mapStudentCourseLinks(Set<StudentCourseLink> studentCourseLinks) {
-        return ofNullable(studentCourseLinks)
-                .map(scl -> scl.stream()
-                        .map(StudentCourseLink::getCourse)
-                        .filter(Objects::nonNull)
-                        .map(CourseMapper.INSTANCE::toDto)
-                        .toList())
-                .orElse(Collections.emptyList());
-    }
+
 }

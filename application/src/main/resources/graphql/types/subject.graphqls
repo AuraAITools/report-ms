@@ -1,0 +1,8 @@
+type SubjectResponse implements Auditable @connection{
+    id: ID!
+    name: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}

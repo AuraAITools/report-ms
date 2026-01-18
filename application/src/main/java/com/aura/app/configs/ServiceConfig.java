@@ -1,13 +1,19 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
+import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
+import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
+import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCase;
+import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
+import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
@@ -63,8 +69,30 @@ public class ServiceConfig {
     }
 
     @Bean
-    AccountService accountService(CreateAccountUseCase createAccountUseCase, CreateParentAccountUseCase createParentAccountUseCase, CreateStudentsInParentAccountUseCase createStudentsInParentAccountUseCase, TagStudentToLevelUseCase tagStudentToLevelUseCase, TagStudentToSchoolUseCase tagStudentToSchoolUseCase, EnrollStudentToCourseUseCase enrollStudentToCourseUseCase, IdentityService identityService) {
-        return new AccountService(createAccountUseCase, createParentAccountUseCase, createStudentsInParentAccountUseCase, tagStudentToLevelUseCase, tagStudentToSchoolUseCase, enrollStudentToCourseUseCase, identityService);
+    AccountService accountService(CreateAccountUseCase createAccountUseCase,
+                                  CreateParentAccountUseCase createParentAccountUseCase,
+                                  CreateStudentsInParentAccountUseCase createStudentsInParentAccountUseCase,
+                                  TagStudentToLevelUseCase tagStudentToLevelUseCase,
+                                  TagStudentToSchoolUseCase tagStudentToSchoolUseCase,
+                                  EnrollStudentToCourseUseCase enrollStudentToCourseUseCase,
+                                  CreateEducatorInAccountUseCase createEducatorInAccountUseCase,
+                                  TagEducatorToCourseUseCase tagEducatorToCourseUseCase,
+                                  TagEducatorToLevelUseCase tagEducatorToLevelUseCase,
+                                  TagEducatorToSubjectUseCase tagEducatorToSubjectUseCase,
+                                  EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase,
+                                  AccountRepository accountRepository,
+                                  IdentityService identityService) {
+        return new AccountService(createAccountUseCase,
+                createParentAccountUseCase,
+                createStudentsInParentAccountUseCase,
+                tagStudentToLevelUseCase,
+                tagStudentToSchoolUseCase,
+                enrollStudentToCourseUseCase,
+                createEducatorInAccountUseCase,
+                tagEducatorToCourseUseCase,
+                tagEducatorToLevelUseCase,
+                tagEducatorToSubjectUseCase,
+                enrollEducatorToOutletUseCase, accountRepository, identityService);
     }
 
     @Bean
