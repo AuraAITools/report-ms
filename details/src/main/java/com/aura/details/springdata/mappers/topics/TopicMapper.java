@@ -20,7 +20,6 @@ public interface TopicMapper {
     @Mapping(target = "lessonObjectiveTopicLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
     @Mapping(target = "lessonPlanTopicLinks", ignore = true)
-    @Mapping(target = "Id", source = "id")
     TopicTable toTableEntity(Topic topic);
 }
 

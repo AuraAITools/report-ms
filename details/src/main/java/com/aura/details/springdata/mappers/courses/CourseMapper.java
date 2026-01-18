@@ -27,7 +27,6 @@ public interface CourseMapper {
     @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "educatorCourseLinks", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "Id", source = "id")
     CourseTable toTableEntity(Course course);
 }
 

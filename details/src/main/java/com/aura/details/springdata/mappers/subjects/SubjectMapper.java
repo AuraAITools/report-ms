@@ -28,7 +28,6 @@ public interface SubjectMapper {
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "subjectLevelLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
-    @Mapping(target = "Id", source = "id")
     SubjectTable toTableEntity(Subject subject);
 }
 

@@ -20,7 +20,6 @@ public interface LevelMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "students", ignore = true)
-    @Mapping(target = "Id", source = "id")
     LevelTable toTableEntity(Level level);
 }
 

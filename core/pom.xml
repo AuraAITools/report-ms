@@ -9,9 +9,9 @@
         <version>1.0.0</version>
     </parent>
     <packaging>jar</packaging>
+    <groupId>com.aura.core</groupId>
     <artifactId>core</artifactId>
     <description>contains domain entities and use cases</description>
-    <version>1.0.0</version>
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>

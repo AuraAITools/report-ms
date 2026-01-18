@@ -14,7 +14,6 @@ public interface SchoolMapper {
     School toDomainEntity(SchoolTable schoolTable);
 
     @Mapping(target = "students", ignore = true)
-    @Mapping(target = "Id", source = "id")
     SchoolTable toTableEntity(School school);
 }
 

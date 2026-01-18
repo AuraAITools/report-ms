@@ -29,5 +29,6 @@ core/target/
 application/target/
 details/target/
 database-runner/target/
+component-tests/target/
 **/.env
 .DS_Store

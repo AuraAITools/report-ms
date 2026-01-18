@@ -15,7 +15,6 @@ public interface PriceRecordMapper {
     PriceRecord toDomainEntity(PriceRecordTable priceRecordTable);
 
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "Id", source = "id")
     PriceRecordTable toTableEntity(PriceRecord priceRecord);
 }
 

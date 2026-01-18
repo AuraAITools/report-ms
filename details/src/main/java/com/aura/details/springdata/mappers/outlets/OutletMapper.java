@@ -22,7 +22,6 @@ public interface OutletMapper {
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "outletRoom", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "Id", source = "id")
     OutletTable toTableEntity(Outlet outlet);
 }
 

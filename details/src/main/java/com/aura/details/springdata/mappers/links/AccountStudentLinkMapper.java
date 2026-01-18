@@ -5,7 +5,6 @@ import com.aura.details.springdata.mappers.accounts.AccountMapper;
 import com.aura.details.springdata.mappers.students.StudentMapper;
 import com.aura.details.springdata.tables.links.AccountStudentLinkTable;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = {StudentMapper.class, AccountMapper.class})
@@ -15,6 +14,6 @@ public interface AccountStudentLinkMapper {
 
     AccountStudentLink toDomain(AccountStudentLinkTable table);
 
-    @Mapping(target = "Id", source = "id")
+
     AccountStudentLinkTable toTable(AccountStudentLink domain);
 }

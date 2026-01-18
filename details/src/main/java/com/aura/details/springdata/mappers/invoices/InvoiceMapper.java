@@ -3,7 +3,6 @@ package com.aura.details.springdata.mappers.invoices;
 import com.aura.core.entities.invoices.Invoice;
 import com.aura.details.springdata.tables.invoices.InvoiceTable;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -12,7 +11,7 @@ public interface InvoiceMapper {
 
     Invoice toDomainEntity(InvoiceTable invoiceTable);
 
-    @Mapping(target = "Id", source = "id")
+
     InvoiceTable toTableEntity(Invoice invoice);
 }
 
