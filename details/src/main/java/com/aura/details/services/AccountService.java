@@ -92,5 +92,4 @@ public class AccountService {
     @Builder
     public record CreatedStudentResult(Student student, Level level, School school, List<Course> courses) {
     }
-
 }
