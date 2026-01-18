@@ -9,8 +9,13 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = {DateToEpochMapper.class})
 public interface OutletMapper {
-    public static OutletMapper INSTANCE = Mappers.getMapper(OutletMapper.class);
+    OutletMapper INSTANCE = Mappers.getMapper(OutletMapper.class);
 
+    @Mapping(target = "studentOutletLinks", ignore = true)
+    @Mapping(target = "outletRoom", ignore = true)
+    @Mapping(target = "outletEducatorLinks", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "courses", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

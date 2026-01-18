@@ -21,14 +21,14 @@ public class CreateEducatorInAccountUseCaseImpl implements CreateEducatorInAccou
     }
 
     @Override
-    public Account createEducator(String accountId, Educator educator) {
+    public Educator createEducator(String accountId, Educator educator) {
         Account account = ofNullable(accountRepository.findById(accountId)).orElseThrow(() -> new RuntimeException("account does not exists"));
         Educator createdEducator = educatorRepository.save(educator);
-        accountRepository.linkAccountToEducator(accountId, educator.getId()); // throws unique constraint exception if already linked
+        accountRepository.linkAccountToEducator(accountId, createdEducator.getId()); // throws unique constraint exception if already linked
 
         var assignEducatorRoleUseCase = new AssignEducatorRoleUseCaseImpl(identityService, createdEducator.getTenantId(), account.getUserId());
         assignEducatorRoleUseCase.assignRole();
         // TODO: send email to educator
-        return account;
+        return createdEducator;
     }
 }

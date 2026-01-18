@@ -20,6 +20,14 @@ import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCaseImpl;
+import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
+import com.aura.core.usecases.courses.TagEducatorToCourseUseCaseImpl;
+import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCase;
+import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCaseImpl;
+import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
+import com.aura.core.usecases.educators.TagEducatorToLevelUseCaseImpl;
+import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
+import com.aura.core.usecases.educators.TagEducatorToSubjectUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
@@ -97,6 +105,26 @@ public class UseCaseConfig {
     @Bean
     CreateEducatorInAccountUseCase createEducatorInAccountUseCase(AccountRepository accountRepository, EducatorRepository educatorRepository, IdentityService identityService) {
         return new CreateEducatorInAccountUseCaseImpl(accountRepository, educatorRepository, identityService);
+    }
+
+    @Bean
+    EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase(EducatorRepository educatorRepository) {
+        return new EnrollEducatorToOutletUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToCourseUseCase tagEducatorToCourseUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToCourseUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToLevelUseCase tagEducatorToLevelUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToLevelUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    TagEducatorToSubjectUseCase tagEducatorToSubjectUseCase(EducatorRepository educatorRepository) {
+        return new TagEducatorToSubjectUseCaseImpl(educatorRepository);
     }
 
 }

@@ -77,7 +77,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public AccountEducatorLink linkAccountToEducator(String accountId, String educatorId) {
         AccountTable accountTable = jpaAccountRepository.findById(UUID.fromString(accountId)).orElseThrow(() -> new RuntimeException("account not found"));
-        EducatorTable educatorTable = jpaEducatorRepository.findById(UUID.fromString(accountId)).orElseThrow(() -> new RuntimeException("educator not found"));
+        EducatorTable educatorTable = jpaEducatorRepository.findById(UUID.fromString(educatorId)).orElseThrow(() -> new RuntimeException("educator not found"));
         AccountEducatorLinkTable accountEducatorLinkTable = AccountEducatorLinkTable
                 .builder()
                 .account(accountTable)

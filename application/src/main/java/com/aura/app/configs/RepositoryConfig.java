@@ -26,10 +26,15 @@ import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaAccountEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaAccountStudentLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaEducatorCourseLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentCourseLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
+import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -56,8 +61,16 @@ public class RepositoryConfig {
     }
 
     @Bean
-    EducatorRepository educatorRepository(JpaEducatorRepository jpaEducatorRepository) {
-        return new EducatorRepositoryImpl(jpaEducatorRepository);
+    EducatorRepository educatorRepository(JpaEducatorRepository jpaEducatorRepository, JpaCourseRepository jpaCourseRepository,
+                                          JpaOutletRepository jpaOutletRepository,
+                                          JpaLevelRepository jpaLevelRepository,
+                                          JpaSubjectRepository jpaSubjectRepository,
+                                          JpaEducatorCourseLinkRepository jpaEducatorCourseLinkRepository,
+                                          JpaOutletEducatorLinkRepository jpaOutletEducatorLinkRepository,
+                                          JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository,
+                                          JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository) {
+        return new EducatorRepositoryImpl(jpaEducatorRepository, jpaCourseRepository, jpaOutletRepository, jpaLevelRepository,
+                jpaSubjectRepository, jpaEducatorCourseLinkRepository, jpaOutletEducatorLinkRepository, jpaLevelEducatorLinkRepository, jpaSubjectEducatorLinkRepository);
     }
 
     @Bean
