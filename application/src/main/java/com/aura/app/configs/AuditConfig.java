@@ -2,7 +2,7 @@ package com.aura.app.configs;
 
 import com.aura.app.audit.AuditorAwareImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
+import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

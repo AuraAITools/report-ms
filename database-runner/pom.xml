@@ -12,9 +12,6 @@
     <artifactId>database-runner</artifactId>
     <name>database-runner</name>
     <description>database runner for db migration</description>
-    <properties>
-        <java.version>24</java.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.jspecify</groupId>

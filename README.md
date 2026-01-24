@@ -45,4 +45,10 @@ mvn spring-boot:run -pl application
 
 ## Dependencies
 
-Java jdk 24
+Java jdk 25
+
+### Dev Dependencies
+
+SdkMan
+To standardise JDK versions. use `sdk env` to switch to correct sdk in `.sdkmanrc`
+if JDK is not installed, use `sdk env install`
