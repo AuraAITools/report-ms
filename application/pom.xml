@@ -9,17 +9,17 @@
         <version>1.0.0</version>
     </parent>
     <packaging>jar</packaging>
+    <groupId>com.aura.app</groupId>
     <artifactId>application</artifactId>
-    <version>1.0.0</version>
     <description>aura application containing app runtime and configurations</description>
     <dependencies>
         <dependency>
-            <groupId>com.aura</groupId>
+            <groupId>com.aura.core</groupId>
             <artifactId>core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.aura</groupId>
+            <groupId>com.aura.details</groupId>
             <artifactId>details</artifactId>
             <version>1.0.0</version>
         </dependency>

@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    show-sql: true
+  graphql:
+    graphiql:
+      enabled: true # graphql client
+#    properties:
+#      hibernate.envers.default_schema: audit
+oauth2:
+  security:
+    enabled: true
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: TRACE
+# configurations for the backend keycloak client
+keycloak:
+  client:
+    serverUrl: ${KEYCLOAK_CLIENT_SERVER_URL}
+    realm: ${KEYCLOAK_CLIENT_REALM}
+    clientId: ${KEYCLOAK_CLIENT_ID}
+    clientSecret: ${KEYCLOAK_CLIENT_SECRET}

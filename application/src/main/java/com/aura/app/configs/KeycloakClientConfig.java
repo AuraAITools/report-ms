@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Profile;
 
 @Slf4j
 @Configuration
-@Profile({"local", "cloud"})
+@Profile({"local", "cloud", "component-test"}) // TODO: make this a toggle in application.yaml instead
 public class KeycloakClientConfig {
 
     @Bean

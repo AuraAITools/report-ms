@@ -24,6 +24,5 @@ public interface EducatorMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "educatorLessonLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    @Mapping(target = "Id", source = "id")
     EducatorTable toTableEntity(Educator domain);
 }

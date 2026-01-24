@@ -23,14 +23,14 @@ public class BaseTable extends AuditMetadata {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID Id;
+    UUID id;
 
     @Version
     Long version;
 
     @Override
     public int hashCode() {
-        return Objects.hash(Id);
+        return Objects.hash(id);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class BaseTable extends AuditMetadata {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         BaseTable that = (BaseTable) object;
-        return Objects.equals(Id, that.getId());
+        return Objects.equals(id, that.getId());
     }
 
 

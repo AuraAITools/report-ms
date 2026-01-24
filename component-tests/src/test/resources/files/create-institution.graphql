@@ -1,0 +1,14 @@
+mutation CreateInstitution($input: CreateInstitutionInput!) {
+    createInstitution(createInstitutionInput: $input) {
+        id
+        name
+        email
+        contactNumber
+        address
+        uen
+        createdAt
+        createdBy
+        updatedAt
+        updatedBy
+    }
+}

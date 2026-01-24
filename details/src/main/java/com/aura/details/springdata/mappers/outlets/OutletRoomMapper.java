@@ -14,7 +14,6 @@ public interface OutletRoomMapper {
     OutletRoom toDomainEntity(OutletRoomTable outletRoomTable);
 
     @Mapping(target = "lessonOutletRoomBookings", ignore = true)
-    @Mapping(target = "Id", source = "id")
     OutletRoomTable toTableEntity(OutletRoom outletRoom);
 }
 

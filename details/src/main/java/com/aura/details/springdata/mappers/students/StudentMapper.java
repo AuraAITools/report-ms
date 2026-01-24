@@ -30,7 +30,6 @@ public interface StudentMapper {
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "studentOutletLinks", ignore = true)
-    @Mapping(target = "Id", source = "id")
     StudentTable toTableEntity(Student student);
 
 }

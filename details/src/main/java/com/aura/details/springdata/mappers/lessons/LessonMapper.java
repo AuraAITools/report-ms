@@ -27,7 +27,6 @@ public interface LessonMapper {
     Lesson toDomainEntity(LessonTable lessonTable);
 
 
-    @Mapping(target = "Id", source = "id")
     @Mapping(target = "subject", ignore = true)
     @Mapping(target = "lessonPostponementRequests", ignore = true)
     @Mapping(target = "lessonCancellationRequests", ignore = true)

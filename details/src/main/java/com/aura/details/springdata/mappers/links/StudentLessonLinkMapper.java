@@ -30,7 +30,6 @@ public interface StudentLessonLinkMapper {
     @Mapping(target = "lessonParticipationReview", ignore = true)
     @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
     @Mapping(target = "lessonTopicProficiency", ignore = true)
-    @Mapping(target = "Id", source = "id")
     StudentLessonLinkTable toTableEntity(StudentLessonLink studentLessonLink);
 }
 

@@ -16,7 +16,6 @@ public interface AccountMapper {
 
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    @Mapping(target = "Id", source = "id")
     AccountTable toTableEntity(Account account);
 }
 

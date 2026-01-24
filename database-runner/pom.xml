@@ -10,7 +10,6 @@
     <groupId>com.aura.database</groupId>
     <packaging>jar</packaging>
     <artifactId>database-runner</artifactId>
-    <version>1.0.0</version>
     <name>database-runner</name>
     <description>database runner for db migration</description>
     <properties>
@@ -23,7 +22,7 @@
         </dependency>
         <!--  Tables in details is used to generate changelog diffs -->
         <dependency>
-            <groupId>com.aura</groupId>
+            <groupId>com.aura.details</groupId>
             <artifactId>details</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -74,14 +73,18 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
+                <executions>
+                    <!-- repackage modules & generate standalone fat jar -->
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
