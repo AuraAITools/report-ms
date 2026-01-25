@@ -9,6 +9,7 @@ import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.SchoolRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.core.repositories.TopicRepository;
 import com.aura.details.springdata.repositories.impl.AccountRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.CourseRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EducatorRepositoryImpl;
@@ -18,6 +19,7 @@ import com.aura.details.springdata.repositories.impl.LevelRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.OutletRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.SchoolRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.StudentRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.TopicRepositoryImpl;
 import com.aura.details.springdata.repositories.jpa.accounts.JpaAccountRepository;
 import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.educators.JpaEducatorRepository;
@@ -35,6 +37,7 @@ import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
+import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -91,5 +94,10 @@ public class RepositoryConfig {
     @Bean
     SchoolRepository schoolRepository(JpaSchoolRepository jpaSchoolRepository) {
         return new SchoolRepositoryImpl(jpaSchoolRepository);
+    }
+
+    @Bean
+    TopicRepository topicRepository(JpaTopicRepository jpaRepository) {
+        return new TopicRepositoryImpl(jpaRepository);
     }
 }
