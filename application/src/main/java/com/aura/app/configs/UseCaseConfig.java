@@ -8,6 +8,7 @@ import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.core.repositories.TopicRepository;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -41,6 +42,8 @@ import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCaseImpl;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCaseImpl;
+import com.aura.core.usecases.topics.CreateTopicUseCase;
+import com.aura.core.usecases.topics.CreateTopicUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -127,4 +130,9 @@ public class UseCaseConfig {
         return new TagEducatorToSubjectUseCaseImpl(educatorRepository);
     }
 
+
+    @Bean
+    CreateTopicUseCase createTopicUseCase(TopicRepository topicRepository) {
+        return new CreateTopicUseCaseImpl(topicRepository);
+    }
 }
