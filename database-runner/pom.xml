@@ -6,6 +6,7 @@
         <groupId>com.aura</groupId>
         <artifactId>parent</artifactId>
         <version>1.0.0</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <groupId>com.aura.database</groupId>
     <packaging>jar</packaging>
