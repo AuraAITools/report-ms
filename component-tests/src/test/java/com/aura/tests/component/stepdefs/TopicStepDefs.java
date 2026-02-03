@@ -4,11 +4,11 @@ import com.aura.app.codegen.types.TopicResponse;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 
-import java.util.Map;
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +25,7 @@ public class TopicStepDefs {
     public void userCreatesATopicWithName(String topicName) {
         String graphqlQuery = findGraphqlQueryFromFiles("create-topic.graphql");
 
-        Map<String, Object> variables = Map.of("input", topicName);
+        Map<String, Object> variables = Map.of("input", Map.of("name", topicName));
 
         TopicResponse topicResponse = testContext
                 .getGraphQLClient()
@@ -43,9 +43,9 @@ public class TopicStepDefs {
                 .build();
 
         assertThat(topicResponse)
-            .usingRecursiveComparison()
-            .ignoringFields("id", "createdAt", "updatedAt")
-            .isEqualTo(expectedResponse);
+                .usingRecursiveComparison()
+                .ignoringFields("id", "createdAt", "updatedAt")
+                .isEqualTo(expectedResponse);
     }
 
     @Then("the topic {string} should be created successfully")

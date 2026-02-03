@@ -1,7 +1,8 @@
 type TopicResponse implements Auditable {
+    id: ID!
     name: String!
-    createdAt: Long!
-    createdBy: ID!
+    createdAt: Long
+    createdBy: ID
     updatedAt: Long
     updatedBy: ID
 }
