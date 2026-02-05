@@ -1,3 +1,7 @@
+input CreateSubjectInput {
+    name: String!
+}
+
 type SubjectResponse implements Auditable @connection{
     id: ID!
     name: String!
