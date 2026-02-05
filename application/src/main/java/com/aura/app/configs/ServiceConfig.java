@@ -26,6 +26,7 @@ import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
+import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.services.AccountService;
@@ -120,7 +121,7 @@ public class ServiceConfig {
     }
 
     @Bean
-    SubjectService subjectService(CreateSubjectUseCase createSubjectUseCase) {
-        return new SubjectService(createSubjectUseCase);
+    SubjectService subjectService(CreateSubjectUseCase createSubjectUseCase, CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase) {
+        return new SubjectService(createSubjectUseCase, createTopicSubjectLinksUseCase);
     }
 }

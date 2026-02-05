@@ -45,6 +45,8 @@ import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCaseImpl;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
 import com.aura.core.usecases.subjects.CreateSubjectUseCaseImpl;
+import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
+import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCaseImpl;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCaseImpl;
 import org.springframework.context.annotation.Bean;
@@ -142,5 +144,10 @@ public class UseCaseConfig {
     @Bean
     CreateSubjectUseCase createSubjectUseCase(SubjectRepository subjectRepository) {
         return new CreateSubjectUseCaseImpl(subjectRepository);
+    }
+
+    @Bean
+    CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase(SubjectRepository subjectRepository) {
+        return new CreateTopicSubjectLinksUseCaseImpl(subjectRepository);
     }
 }

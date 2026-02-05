@@ -2,12 +2,15 @@ package com.aura.app.mappers;
 
 import com.aura.app.codegen.types.CreateSubjectInput;
 import com.aura.app.codegen.types.SubjectResponse;
+import com.aura.app.codegen.types.SubjectResponseWithTopics;
 import com.aura.core.entities.subjects.Subject;
+import com.aura.core.entities.topics.Topic;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, TopicMapper.class})
 public interface SubjectMapper {
 
     SubjectMapper INSTANCE = Mappers.getMapper(SubjectMapper.class);
@@ -29,4 +32,6 @@ public interface SubjectMapper {
     Subject toDomain(CreateSubjectInput createSubjectInput, String tenantId);
 
     SubjectResponse toDto(Subject subject);
+
+    SubjectResponseWithTopics toDto(Subject subject, List<Topic> topics);
 }
