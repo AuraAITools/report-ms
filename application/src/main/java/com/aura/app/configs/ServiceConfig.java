@@ -25,6 +25,7 @@ import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
+import com.aura.core.usecases.subjects.CreateSubjectUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.services.AccountService;
@@ -32,6 +33,7 @@ import com.aura.details.services.CourseService;
 import com.aura.details.services.LessonService;
 import com.aura.details.services.OnboardingService;
 import com.aura.details.services.OutletService;
+import com.aura.details.services.SubjectService;
 import com.aura.details.services.TopicService;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelTemplateRepository;
@@ -115,5 +117,10 @@ public class ServiceConfig {
     @Bean
     TopicService topicService(CreateTopicUseCase createTopicUseCase) {
         return new TopicService(createTopicUseCase);
+    }
+
+    @Bean
+    SubjectService subjectService(CreateSubjectUseCase createSubjectUseCase) {
+        return new SubjectService(createSubjectUseCase);
     }
 }

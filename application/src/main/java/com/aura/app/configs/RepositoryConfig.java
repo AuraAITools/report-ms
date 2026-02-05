@@ -9,6 +9,7 @@ import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.SchoolRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
 import com.aura.details.springdata.repositories.impl.AccountRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.CourseRepositoryImpl;
@@ -19,6 +20,7 @@ import com.aura.details.springdata.repositories.impl.LevelRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.OutletRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.SchoolRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.StudentRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.SubjectRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.TopicRepositoryImpl;
 import com.aura.details.springdata.repositories.jpa.accounts.JpaAccountRepository;
 import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
@@ -99,5 +101,10 @@ public class RepositoryConfig {
     @Bean
     TopicRepository topicRepository(JpaTopicRepository jpaRepository) {
         return new TopicRepositoryImpl(jpaRepository);
+    }
+
+    @Bean
+    SubjectRepository subjectRepository(JpaSubjectRepository jpaSubjectRepository) {
+        return new SubjectRepositoryImpl(jpaSubjectRepository);
     }
 }
