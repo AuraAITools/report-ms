@@ -10,3 +10,18 @@ type SubjectResponse implements Auditable @connection{
     updatedAt: Long
     updatedBy: ID
 }
+
+type SubjectResponseWithTopics {
+    id: ID!
+    name: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+    topics: [TopicResponse!]!
+}
+
+input CreateSubjectTopicLinksInput {
+    id: ID!,
+    topicIds: [ID!]! @Size(min: 1)
+}

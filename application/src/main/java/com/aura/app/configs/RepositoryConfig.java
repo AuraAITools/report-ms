@@ -35,6 +35,7 @@ import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRe
 import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaTopicSubjectLinkRepository;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
@@ -104,7 +105,9 @@ public class RepositoryConfig {
     }
 
     @Bean
-    SubjectRepository subjectRepository(JpaSubjectRepository jpaSubjectRepository) {
-        return new SubjectRepositoryImpl(jpaSubjectRepository);
+    SubjectRepository subjectRepository(JpaSubjectRepository jpaSubjectRepository,
+                                        JpaTopicRepository jpaTopicRepository,
+                                        JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
+        return new SubjectRepositoryImpl(jpaSubjectRepository, jpaTopicRepository, jpaTopicSubjectLinkRepository);
     }
 }
