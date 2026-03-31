@@ -44,58 +44,58 @@ public class CourseTable extends TenantBaseTable {
     @Enumerated(EnumType.STRING)
     @Column
     private LESSON_FREQUENCY lessonFrequency;
-
     // TODO: make embeddable entity?
     @OneToOne(cascade = CascadeType.ALL)
     @ToString.Exclude
     private PriceRecordTable priceRecord;
-
     private String name;
-
     @Column(nullable = false)
     private Integer maxSize;
-
     @Column(nullable = false)
     private Instant courseStartTimestamptz;
-
     @Column(nullable = false)
     private Instant courseEndTimestamptz;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     @ToString.Exclude
     private OutletTable outlet;
-
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     @Builder.Default
     @ToString.Exclude
     private Set<SubjectCourseLinkTable> subjectCourseLinks = new HashSet<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private LevelTable level;
-
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
 
     private Set<StudentCourseLinkTable> studentCourseLinks = new HashSet<>();
-
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
     private Set<EducatorCourseLinkTable> educatorCourseLinks = new HashSet<>();
-
     @OneToMany(mappedBy = "course", cascade = CascadeType.PERSIST)
     @Builder.Default
     @ToString.Exclude
     private Set<LessonTable> lessons = new HashSet<>();
 
-
     public enum LESSON_FREQUENCY {
         WEEKLY,
         FORTNIGHTLY,
         MONTHLY
+    }
+
+    // TODO: scheduling
+    public class Schedule {
+        private ScheduleType scheduleType;
+
+        public enum ScheduleType {
+            FIXED,
+            RECURRING
+        }
+
+        
     }
 
 }

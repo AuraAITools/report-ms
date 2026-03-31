@@ -16,7 +16,9 @@ import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
+import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
+import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
 import com.aura.core.usecases.levels.LevelQueryUseCase;
 import com.aura.core.usecases.levels.LevelQueryUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
@@ -111,8 +113,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    LessonService lessonService(CreateLessonUseCase createLessonUseCase) {
-        return new LessonService(createLessonUseCase);
+    LessonService lessonService(CreateLessonUseCase createLessonUseCase, AddEducatorsToLessonUseCase addEducatorsToLessonUseCase, LinkLessonsToCourseUseCase linkLessonsToCourseUseCase) {
+        return new LessonService(createLessonUseCase, addEducatorsToLessonUseCase, linkLessonsToCourseUseCase);
     }
 
     @Bean

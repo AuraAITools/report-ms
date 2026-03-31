@@ -1,0 +1,9 @@
+mutation CreateInstitutionAdminAccount($input: CreateInstitutionAdminAccountInput!) {
+    createInstitutionAdminAccount(createAccountInput: $input) {
+        id
+        firstName
+        lastName
+        createdBy
+        updatedBy
+    }
+}

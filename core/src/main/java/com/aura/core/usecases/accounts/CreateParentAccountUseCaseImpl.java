@@ -9,23 +9,16 @@ import com.aura.core.repositories.AccountRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 
 import static com.aura.core.clients.UserIdentityAttributeKeys.TENANT_ID_ATTR_KEY;
 
+@RequiredArgsConstructor
 public class CreateParentAccountUseCaseImpl implements CreateParentAccountUseCase {
-
     private final CreateAccountAndTagToTenantUseCaseImpl createAccountAndTagToTenantUseCase;
-
     private final AccountRepository accountRepository;
-
     private final IdentityService identityService;
-
-    public CreateParentAccountUseCaseImpl(CreateAccountAndTagToTenantUseCaseImpl createAccountAndTagToTenantUseCase, AccountRepository accountRepository, IdentityService identityService) {
-        this.createAccountAndTagToTenantUseCase = createAccountAndTagToTenantUseCase;
-        this.accountRepository = accountRepository;
-        this.identityService = identityService;
-    }
 
     public Account createParentAccount(Account account) {
         try {

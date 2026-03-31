@@ -5,6 +5,8 @@ import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.entities.subjects.Subject;
+import java.util.List;
+import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 public interface EducatorRepository {
@@ -21,4 +23,5 @@ public interface EducatorRepository {
 
     Subject createSubjectEducatorLink(String educatorId, String subjectId, String tenantId);
 
+    List<Educator> findByIds(List<UUID> educatorIds);
 }

@@ -5,20 +5,16 @@ import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.EducatorRepository;
+import lombok.RequiredArgsConstructor;
 
 
 import static java.util.Optional.ofNullable;
 
+@RequiredArgsConstructor
 public class CreateEducatorInAccountUseCaseImpl implements CreateEducatorInAccountUseCase {
     private final AccountRepository accountRepository;
     private final EducatorRepository educatorRepository;
     private final IdentityService identityService;
-
-    public CreateEducatorInAccountUseCaseImpl(AccountRepository accountRepository, EducatorRepository educatorRepository, IdentityService identityService) {
-        this.accountRepository = accountRepository;
-        this.educatorRepository = educatorRepository;
-        this.identityService = identityService;
-    }
 
     @Override
     public Educator createEducator(String accountId, Educator educator) {

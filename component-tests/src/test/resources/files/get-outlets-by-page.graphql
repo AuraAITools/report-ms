@@ -1,0 +1,11 @@
+query GetOutletsByPage($first: Int) {
+    getOutletsByPage(first: $first) {
+        edges {
+            node {
+                id
+                name
+                email
+            }
+        }
+    }
+}

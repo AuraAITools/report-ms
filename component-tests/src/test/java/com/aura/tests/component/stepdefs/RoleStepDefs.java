@@ -3,6 +3,7 @@ package com.aura.tests.component.stepdefs;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
+import io.cucumber.java.en.And;
 import org.keycloak.admin.client.Keycloak;
 
 
@@ -34,6 +35,15 @@ public class RoleStepDefs {
                     headers.set("x-tenant-id", "*");
                 }).build();
 
+        testContext.setGraphQLClient(graphqlClient);
+    }
+
+    @And("user switches to the institution tenant")
+    public void userSwitchesToInstitutionTenant() {
+        var graphqlClient = testContext.getGraphQLClient()
+                .mutate()
+                .headers(headers -> headers.set("x-tenant-id", testContext.getInstitutionId()))
+                .build();
         testContext.setGraphQLClient(graphqlClient);
     }
 

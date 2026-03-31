@@ -1,0 +1,12 @@
+mutation CreateSubjectTopicLinks($input: CreateSubjectTopicLinksInput!) {
+    createSubjectTopicLinks(createSubjectTopicLinksInput: $input) {
+        id
+        name
+        createdBy
+        updatedBy
+        topics {
+            id
+            name
+        }
+    }
+}

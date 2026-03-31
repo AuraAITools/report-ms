@@ -7,14 +7,12 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.tables.courses.CourseTable;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+@RequiredArgsConstructor
 public class CourseRepositoryImpl implements CourseRepository {
     private final JpaCourseRepository jpaCourseRepository;
-
-    public CourseRepositoryImpl(JpaCourseRepository jpaCourseRepository) {
-        this.jpaCourseRepository = jpaCourseRepository;
-    }
 
     @Override
     public Course save(Course course) {

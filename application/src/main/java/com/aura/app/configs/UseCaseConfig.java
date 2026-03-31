@@ -3,6 +3,7 @@ package com.aura.app.configs;
 import com.aura.core.clients.IdentityService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
+import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -30,8 +31,12 @@ import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
 import com.aura.core.usecases.educators.TagEducatorToLevelUseCaseImpl;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCaseImpl;
+import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
+import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
+import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
@@ -93,6 +98,18 @@ public class UseCaseConfig {
     @Bean
     CreateLessonUseCase createLessonUseCase(LessonRepository lessonRepository, OutletRepository outletRepository) {
         return new CreateLessonUseCaseImpl(lessonRepository, outletRepository);
+    }
+
+    @Bean
+    LinkLessonsToCourseUseCase linkLessonsToCourseUseCase(LessonRepository lessonRepository, CourseRepository courseRepository) {
+        return new LinkLessonsToCourseUseCaseImpl(lessonRepository, courseRepository);
+    }
+
+    @Bean
+    AddEducatorsToLessonUseCase addEducatorsToLessonUseCase(EducatorLessonLinkRepository educatorLessonLinkRepository,
+                                                            LessonRepository lessonRepository,
+                                                            EducatorRepository educatorRepository) {
+        return new AddEducatorsToLessonUseCaseImpl(educatorLessonLinkRepository, lessonRepository, educatorRepository);
     }
 
     @Bean

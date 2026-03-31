@@ -15,6 +15,7 @@ import com.aura.core.utils.PagedResult;
 import com.aura.details.services.OutletService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.relay.Connection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
@@ -36,16 +37,11 @@ import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
 import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Controller
+@RequiredArgsConstructor
 public class OutletsGqlController {
     private final OutletService outletService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final CursorStrategy<ScrollPosition> cursorStrategy;
-
-    public OutletsGqlController(OutletService outletService, CursorStrategy<ScrollPosition> cursorStrategy) {
-        this.outletService = outletService;
-        this.objectMapper = new ObjectMapper();
-        this.cursorStrategy = cursorStrategy;
-    }
 
     @MutationMapping(CreateOutlet)
     public OutletResponse createOutlet(@Argument(name = CreateOutletInput) CreateOutletInput createOutletInput, @ContextValue(name = "user") User user) {

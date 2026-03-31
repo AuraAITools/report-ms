@@ -1,0 +1,10 @@
+mutation CreateCourse($input: CreateCourseInput!) {
+    createCourse(createCourseInput: $input) {
+        id
+        name
+        maxSize
+        lessonFrequency
+        createdBy
+        updatedBy
+    }
+}
