@@ -21,24 +21,16 @@ import com.aura.details.springdata.tables.schools.SchoolTable;
 import com.aura.details.springdata.tables.students.StudentTable;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+@RequiredArgsConstructor
 public class StudentRepositoryImpl implements StudentRepository {
-
     private final JpaStudentRepository jpaStudentRepository;
     private final JpaLevelRepository jpaLevelRepository;
     private final JpaSchoolRepository jpaSchoolRepository;
     private final JpaStudentCourseLinkRepository jpaStudentCourseLinkRepository;
     private final JpaCourseRepository jpaCourseRepository;
-
-
-    public StudentRepositoryImpl(JpaStudentRepository jpaStudentRepository, JpaLevelRepository jpaLevelRepository, JpaSchoolRepository jpaSchoolRepository, JpaStudentCourseLinkRepository jpaStudentCourseLinkRepository, JpaCourseRepository jpaCourseRepository) {
-        this.jpaStudentRepository = jpaStudentRepository;
-        this.jpaLevelRepository = jpaLevelRepository;
-        this.jpaSchoolRepository = jpaSchoolRepository;
-        this.jpaStudentCourseLinkRepository = jpaStudentCourseLinkRepository;
-        this.jpaCourseRepository = jpaCourseRepository;
-    }
 
     @Override
     public Student save(Student student) {

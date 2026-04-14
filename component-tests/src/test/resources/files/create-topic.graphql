@@ -1,5 +1,8 @@
 mutation CreateTopic($input: TopicInput!) {
     createTopic(topicInput: $input) {
+        id
         name
+        createdBy
+        updatedBy
     }
 }

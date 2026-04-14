@@ -2,16 +2,14 @@ package com.aura.core.usecases.courses;
 
 import com.aura.core.entities.courses.Course;
 import com.aura.core.repositories.EducatorRepository;
+import lombok.RequiredArgsConstructor;
 
 
 import static java.util.Optional.ofNullable;
 
+@RequiredArgsConstructor
 public class TagEducatorToCourseUseCaseImpl implements TagEducatorToCourseUseCase {
     private final EducatorRepository educatorRepository;
-
-    public TagEducatorToCourseUseCaseImpl(EducatorRepository educatorRepository) {
-        this.educatorRepository = educatorRepository;
-    }
 
     @Override
     public Course tag(String educatorId, String courseId) {

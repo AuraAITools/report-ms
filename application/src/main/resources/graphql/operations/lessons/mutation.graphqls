@@ -1,3 +1,4 @@
 extend type Mutation {
-    createStandaloneLesson(createStandaloneLesson:CreateStandaloneLessonInput): LessonResponse
+    createStandaloneLesson(createStandaloneLesson:CreateStandaloneLessonInput): LessonResponse!
+    createLesson(createLesson:CreateLessonInput): LessonResponse!
 }

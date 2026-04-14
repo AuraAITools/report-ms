@@ -6,6 +6,10 @@ spring:
     driverClassName: org.postgresql.Driver
   jpa:
     show-sql: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog-master.yaml
+    liquibase-schema: liquibase
   graphql:
     graphiql:
       enabled: true # graphql client

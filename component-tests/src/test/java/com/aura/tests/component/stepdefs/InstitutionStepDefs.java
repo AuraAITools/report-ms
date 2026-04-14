@@ -3,35 +3,31 @@ package com.aura.tests.component.stepdefs;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.tests.component.contexts.TestContext;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@RequiredArgsConstructor
 public class InstitutionStepDefs {
-    private TestContext testContext;
 
-    private JdbcTemplate jdbcTemplate;
+    private final TestContext testContext;
+    private final JdbcTemplate jdbcTemplate;
 
-    public InstitutionStepDefs(TestContext testContext, JdbcTemplate jdbcTemplate) {
-        this.testContext = testContext;
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @When("user onboards a institution with details:")
+    @When("user onboards an institution with details:")
     public void onboardToInstitution(CreateInstitutionInput createInstitutionInput) {
         String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
 
-        //build variable
         Map<String, Object> variables = Map.of("input", createInstitutionInput);
-        // GQL client
         var institutionResponse = testContext
                 .getGraphQLClient()
                 .mutate()
@@ -54,29 +50,55 @@ public class InstitutionStepDefs {
         assertThat(institutionResponse)
                 .usingRecursiveComparison()
                 .ignoringFields("id", "createdAt", "updatedAt")
-                .isEqualTo(expectedResponse)
-        ;
+                .isEqualTo(expectedResponse);
     }
 
-    // TODO: make tests better
-    @Then("^institution should be created$")
+    @And("an institution is onboarded")
+    public void anInstitutionIsOnboarded() {
+        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
+        CreateInstitutionInput input = CreateInstitutionInput.newBuilder()
+                .name("testing123")
+                .email("testgg@gmail.com")
+                .contactNumber("96228693")
+                .address("address")
+                .uen("test")
+                .build();
+        InstitutionResponse institution = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(graphqlQuery)
+                .variables(Map.of("input", input))
+                .retrieveSync("createInstitution")
+                .toEntity(InstitutionResponse.class);
+        testContext.setInstitutionId(institution.getId());
+    }
+
+    @When("user tries to onboard the same institution again")
+    public void userTriesToOnboardTheSameInstitutionAgain() {
+        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
+        CreateInstitutionInput input = CreateInstitutionInput.newBuilder()
+                .name("testing123")
+                .email("testgg@gmail.com")
+                .contactNumber("96228693")
+                .address("address")
+                .uen("test")
+                .build();
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(graphqlQuery)
+                    .variables(Map.of("input", input))
+                    .retrieveSync("createInstitution")
+                    .toEntity(InstitutionResponse.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
+
+    @Then("institution should be created")
     public void institutionIsCreated() {
-        String sql = """
-                SELECT * FROM institutions;
-                """;
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
-        assertThat(results)
-                .isNotNull()
-                .hasSize(1);
+        List<Map<String, Object>> results = jdbcTemplate.queryForList("SELECT * FROM institutions");
+        assertThat(results).isNotNull().hasSize(1);
     }
-
-    // TODO:
-    @Then("default initial data should be loaded")
-    public void initialDataIsLoaded() {
-        String sql = """
-                SELECT COUNT(*) subject_level_links
-                """;
-        log.info("initial data should be loaded");
-    }
-
 }

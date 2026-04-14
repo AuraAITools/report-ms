@@ -29,9 +29,12 @@ import com.aura.details.springdata.tables.links.OutletEducatorLinkTable;
 import com.aura.details.springdata.tables.links.SubjectEducatorLinkTable;
 import com.aura.details.springdata.tables.outlets.OutletTable;
 import com.aura.details.springdata.tables.subjects.SubjectTable;
+import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+@RequiredArgsConstructor
 public class EducatorRepositoryImpl implements EducatorRepository {
     private final JpaEducatorRepository jpaEducatorRepository;
     private final JpaCourseRepository jpaCourseRepository;
@@ -42,18 +45,6 @@ public class EducatorRepositoryImpl implements EducatorRepository {
     private final JpaOutletEducatorLinkRepository jpaOutletEducatorLinkRepository;
     private final JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository;
     private final JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository;
-
-    public EducatorRepositoryImpl(JpaEducatorRepository jpaEducatorRepository, JpaCourseRepository jpaCourseRepository, JpaOutletRepository jpaOutletRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectRepository jpaSubjectRepository, JpaEducatorCourseLinkRepository jpaEducatorCourseLinkRepository, JpaOutletEducatorLinkRepository jpaOutletEducatorLinkRepository, JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository, JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository) {
-        this.jpaEducatorRepository = jpaEducatorRepository;
-        this.jpaCourseRepository = jpaCourseRepository;
-        this.jpaOutletRepository = jpaOutletRepository;
-        this.jpaLevelRepository = jpaLevelRepository;
-        this.jpaSubjectRepository = jpaSubjectRepository;
-        this.jpaEducatorCourseLinkRepository = jpaEducatorCourseLinkRepository;
-        this.jpaOutletEducatorLinkRepository = jpaOutletEducatorLinkRepository;
-        this.jpaLevelEducatorLinkRepository = jpaLevelEducatorLinkRepository;
-        this.jpaSubjectEducatorLinkRepository = jpaSubjectEducatorLinkRepository;
-    }
 
     @Override
     public @Nullable Educator findById(String id) {
@@ -121,5 +112,10 @@ public class EducatorRepositoryImpl implements EducatorRepository {
                 .build();
         jpaSubjectEducatorLinkRepository.save(subjectEducatorLinkTable);
         return SubjectMapper.INSTANCE.toDomainEntity(subjectTable);
+    }
+
+    @Override
+    public List<Educator> findByIds(List<UUID> educatorIds) {
+        return jpaEducatorRepository.findAllById(educatorIds).stream().map(EducatorMapper.INSTANCE::toDomainEntity).toList();
     }
 }

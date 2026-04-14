@@ -1,0 +1,13 @@
+mutation CreateOutlet($input: CreateOutletInput!) {
+    createOutlet(createOutletInput: $input) {
+        id
+        name
+        address
+        postalCode
+        contactNumber
+        description
+        email
+        createdBy
+        updatedBy
+    }
+}

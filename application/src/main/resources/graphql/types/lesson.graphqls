@@ -1,4 +1,5 @@
 type LessonResponse implements Auditable{
+    id: ID!
     name: String!
     lessonStartTimestamptz: Long!
     lessonEndTimestamptz: Long!
@@ -8,6 +9,13 @@ type LessonResponse implements Auditable{
     createdBy: ID
     updatedAt: Long
     updatedBy: ID
+    # new
+    outlet: OutletResponse!
+    course: CourseResponse
+    educators: [EducatorResponse!]!
+    students: [StudentResponse!]!
+    levels: [LevelResponse!]!
+    subjects: [SubjectResponse!]!
 }
 
 input CreateStandaloneLessonInput {
@@ -16,4 +24,17 @@ input CreateStandaloneLessonInput {
     lessonEndTimestamptz: DateTime!
     description: String
     outletId: ID!
+}
+
+input CreateLessonInput {
+    name: String!
+    lessonStartTimestamptz: DateTime!
+    lessonEndTimestamptz: DateTime!
+    description: String
+    outletId: ID!
+    courseId: ID
+    educatorIds: [ID!]
+    studentIds: [ID!]
+    levelIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 level")
+    subjectIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 subject")
 }

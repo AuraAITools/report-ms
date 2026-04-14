@@ -15,6 +15,7 @@ import com.aura.details.springdata.tables.outlets.OutletTable;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
@@ -24,12 +25,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 import static com.aura.details.springdata.specifications.TenantSpecification.whereTenantId;
 
+@RequiredArgsConstructor
 public class OutletRepositoryImpl implements OutletRepository {
     private final JpaOutletRepository jpaOutletRepository;
-
-    public OutletRepositoryImpl(JpaOutletRepository jpaOutletRepository) {
-        this.jpaOutletRepository = jpaOutletRepository;
-    }
 
     @Override
     public @Nullable Outlet findById(String id) {

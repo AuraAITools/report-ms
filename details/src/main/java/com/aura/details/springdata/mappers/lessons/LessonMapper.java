@@ -38,7 +38,6 @@ public interface LessonMapper {
     @Mapping(target = "materialLessonLinks", ignore = true)
     @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "outlet", ignore = true)
     LessonTable toTableEntity(Lesson lesson);
 }
 

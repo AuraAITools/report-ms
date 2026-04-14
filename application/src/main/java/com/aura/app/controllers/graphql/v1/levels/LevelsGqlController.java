@@ -13,6 +13,7 @@ import com.aura.core.usecases.levels.LevelQueryUseCase;
 import com.aura.core.utils.PagedResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.relay.Connection;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -34,17 +35,11 @@ import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class LevelsGqlController {
     private final LevelQueryUseCase levelQueryUseCase;
     private final ObjectMapper objectMapper;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
-
-
-    public LevelsGqlController(LevelQueryUseCase levelQueryUseCase, ObjectMapper objectMapper, CursorStrategy<ScrollPosition> cursorStrategy) {
-        this.levelQueryUseCase = levelQueryUseCase;
-        this.objectMapper = objectMapper;
-        this.cursorStrategy = cursorStrategy;
-    }
 
     @QueryMapping(name = GetLevelByPage)
     public Connection<LevelResponse> getLevelByPage(

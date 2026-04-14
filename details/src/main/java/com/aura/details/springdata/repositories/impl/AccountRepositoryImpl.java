@@ -19,26 +19,16 @@ import com.aura.details.springdata.tables.links.AccountStudentLinkTable;
 import com.aura.details.springdata.tables.students.StudentTable;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+@RequiredArgsConstructor
 public class AccountRepositoryImpl implements AccountRepository {
     private final JpaAccountRepository jpaAccountRepository;
-
     private final JpaAccountStudentLinkRepository jpaAccountStudentLinkRepository;
-
     private final JpaAccountEducatorLinkRepository jpaAccountEducatorLinkRepository;
-
     private final JpaStudentRepository jpaStudentRepository;
-
     private final JpaEducatorRepository jpaEducatorRepository;
-
-    public AccountRepositoryImpl(JpaAccountRepository jpaAccountRepository, JpaAccountStudentLinkRepository jpaAccountStudentLinkRepository, JpaAccountEducatorLinkRepository jpaAccountEducatorLinkRepository, JpaStudentRepository jpaStudentRepository, JpaEducatorRepository jpaEducatorRepository) {
-        this.jpaAccountRepository = jpaAccountRepository;
-        this.jpaAccountStudentLinkRepository = jpaAccountStudentLinkRepository;
-        this.jpaAccountEducatorLinkRepository = jpaAccountEducatorLinkRepository;
-        this.jpaStudentRepository = jpaStudentRepository;
-        this.jpaEducatorRepository = jpaEducatorRepository;
-    }
 
     @Override
     public Account save(Account account) {

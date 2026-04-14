@@ -16,6 +16,7 @@ import com.aura.core.auth.User;
 import com.aura.core.entities.accounts.Account;
 import com.aura.details.services.AccountService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
@@ -39,13 +40,10 @@ import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class AccountsGqlController {
 
     private final AccountService accountService;
-
-    public AccountsGqlController(AccountService accountService) {
-        this.accountService = accountService;
-    }
 
     @MutationMapping(name = CreateInstitutionAdminAccount)
     public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateInstitutionAdminAccountInput createAccountInput, @ContextValue(name = "user") User user) {

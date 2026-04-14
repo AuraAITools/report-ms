@@ -1,0 +1,10 @@
+query GetLevelsByPage($first: Int) {
+    getLevelByPage(first: $first) {
+        edges {
+            node {
+                id
+                name
+            }
+        }
+    }
+}

@@ -8,16 +8,12 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class OutletService {
     private final CreateOutletUseCase createOutletUseCase;
-
     private final OutletQueryUseCase outletQueryUseCase;
-
-    public OutletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase) {
-        this.createOutletUseCase = createOutletUseCase;
-        this.outletQueryUseCase = outletQueryUseCase;
-    }
 
     public Outlet createOutlet(Outlet outlet) {
         return createOutletUseCase.createOutlet(outlet);

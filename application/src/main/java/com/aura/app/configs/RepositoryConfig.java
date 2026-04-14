@@ -2,6 +2,7 @@ package com.aura.app.configs;
 
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
+import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -13,6 +14,7 @@ import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
 import com.aura.details.springdata.repositories.impl.AccountRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.CourseRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.EducatorLessonLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EducatorRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.InstitutionRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonRepositoryImpl;
@@ -31,6 +33,7 @@ import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaAccountEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaAccountStudentLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorCourseLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaEducatorLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentCourseLinkRepository;
@@ -109,5 +112,10 @@ public class RepositoryConfig {
                                         JpaTopicRepository jpaTopicRepository,
                                         JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
         return new SubjectRepositoryImpl(jpaSubjectRepository, jpaTopicRepository, jpaTopicSubjectLinkRepository);
+    }
+
+    @Bean
+    EducatorLessonLinkRepository educatorLessonLinkRepository(JpaEducatorLessonLinkRepository jpaEducatorLessonLinkRepository) {
+        return new EducatorLessonLinkRepositoryImpl(jpaEducatorLessonLinkRepository);
     }
 }

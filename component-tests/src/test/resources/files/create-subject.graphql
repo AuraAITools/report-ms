@@ -1,0 +1,8 @@
+mutation CreateSubject($input: CreateSubjectInput!) {
+    createSubject(createSubjectInput: $input) {
+        id
+        name
+        createdBy
+        updatedBy
+    }
+}

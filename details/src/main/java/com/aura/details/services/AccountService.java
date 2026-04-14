@@ -28,10 +28,12 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
 
 import static java.util.Optional.ofNullable;
 
+@RequiredArgsConstructor
 public class AccountService {
     private final CreateAccountUseCase createAccountUseCase;
     private final CreateParentAccountUseCase createParentAccountUseCase;
@@ -46,22 +48,6 @@ public class AccountService {
     private final EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase;
     private final AccountRepository accountRepository;
     private final IdentityService identityService;
-
-    public AccountService(CreateAccountUseCase createAccountUseCase, CreateParentAccountUseCase createParentAccountUseCase, CreateStudentsInParentAccountUseCase createStudentsInParentAccountUseCase, TagStudentToLevelUseCase tagStudentToLevelUseCase, TagStudentToSchoolUseCase tagStudentToSchoolUseCase, EnrollStudentToCourseUseCase enrollStudentToCourseUseCase, CreateEducatorInAccountUseCase createEducatorInAccountUseCase, TagEducatorToCourseUseCase tagEducatorToCourseUseCase, TagEducatorToLevelUseCase tagEducatorToLevelUseCase, TagEducatorToSubjectUseCase tagEducatorToSubjectUseCase, EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase, AccountRepository accountRepository, IdentityService identityService) {
-        this.createAccountUseCase = createAccountUseCase;
-        this.createParentAccountUseCase = createParentAccountUseCase;
-        this.createStudentsInParentAccountUseCase = createStudentsInParentAccountUseCase;
-        this.tagStudentToLevelUseCase = tagStudentToLevelUseCase;
-        this.tagStudentToSchoolUseCase = tagStudentToSchoolUseCase;
-        this.enrollStudentToCourseUseCase = enrollStudentToCourseUseCase;
-        this.createEducatorInAccountUseCase = createEducatorInAccountUseCase;
-        this.tagEducatorToCourseUseCase = tagEducatorToCourseUseCase;
-        this.tagEducatorToLevelUseCase = tagEducatorToLevelUseCase;
-        this.tagEducatorToSubjectUseCase = tagEducatorToSubjectUseCase;
-        this.enrollEducatorToOutletUseCase = enrollEducatorToOutletUseCase;
-        this.accountRepository = accountRepository;
-        this.identityService = identityService;
-    }
 
     @Transactional
     public Account createAccountWithInstitutionAdminRole(Account account) {

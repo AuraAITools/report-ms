@@ -6,22 +6,18 @@ import com.aura.core.clients.UserIdentity;
 import com.aura.core.entities.accounts.Account;
 import com.aura.core.repositories.AccountRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Creates account & tags it to a tenant
  */
+@RequiredArgsConstructor
 public class CreateAccountAndTagToTenantUseCaseImpl implements CreateAccountUseCase {
     private static final String CREDENTIAL_TYPE = "password";
     private static final String DEFAULT_PASSWORD_VALUE = "password";
     private static final List<String> DEFAULT_REQUIRED_ACTIONS = List.of("VERIFY_EMAIL", "UPDATE_PASSWORD");
     private final AccountRepository accountRepository;
     private final IdentityService identityService;
-
-
-    public CreateAccountAndTagToTenantUseCaseImpl(AccountRepository accountRepository, IdentityService identityService) {
-        this.accountRepository = accountRepository;
-        this.identityService = identityService;
-    }
 
     /**
      * throws UserAccountNotCreatedException user cannot be created

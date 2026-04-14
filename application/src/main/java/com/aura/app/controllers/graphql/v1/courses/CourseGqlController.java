@@ -9,6 +9,7 @@ import com.aura.details.services.CourseService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 
 
@@ -16,17 +17,14 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CREATECOURSE_INPUT_ARGU
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateCourse;
 
 @Controller
+@RequiredArgsConstructor
 public class CourseGqlController {
     private final CourseService courseService;
-
-    public CourseGqlController(CourseService courseService) {
-        this.courseService = courseService;
-    }
 
     @MutationMapping(CreateCourse)
     public CourseResponse createCourse(@Argument(name = CreateCourseInput) CreateCourseInput createCourseInput, @ContextValue(name = "user") User user) {
         Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput, user.getCurrentTenantAccessed());
-        Course createdCourse = courseService.createCourseInOutlet(newCourse);
+        Course createdCourse = courseService.createCourseInOutlet(newCourse, createCourseInput.getOutletId());
         return CourseMapper.INSTANCE.toDto(createdCourse);
     }
 }

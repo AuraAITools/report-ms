@@ -7,13 +7,11 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class LevelQueryUseCaseImpl implements LevelQueryUseCase {
     private final LevelRepository levelRepository;
-
-    public LevelQueryUseCaseImpl(LevelRepository levelRepository) {
-        this.levelRepository = levelRepository;
-    }
 
     @Override
     public PagedResult<Level> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
