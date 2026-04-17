@@ -872,64 +872,187 @@
         "policyEnforcementMode": "ENFORCING",
         "resources": [
           {
-            "name": "Default Resource",
-            "type": "urn:local-next-client:resources:default",
+            "name": "institution",
+            "type": "urn:aura:institution",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"},
+              {"name": "delegate"}
             ]
           },
           {
-            "name": "institution resource",
-            "type": "urn:local-next-client:resources:institutions",
+            "name": "outlet",
+            "type": "urn:aura:outlet",
             "ownerManagedAccess": false,
-            "displayName": "institution resource",
             "attributes": {},
-            "uris": [
-              "/api/institutions"
-            ],
+            "uris": [],
             "scopes": [
-              {
-                "name": "read"
-              }
-            ],
-            "icon_uri": ""
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"},
+              {"name": "delegate"}
+            ]
+          },
+          {
+            "name": "course",
+            "type": "urn:aura:course",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"}
+            ]
+          },
+          {
+            "name": "lesson",
+            "type": "urn:aura:lesson",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"}
+            ]
+          },
+          {
+            "name": "subject",
+            "type": "urn:aura:subject",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"}
+            ]
+          },
+          {
+            "name": "topic",
+            "type": "urn:aura:topic",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"}
+            ]
+          },
+          {
+            "name": "account",
+            "type": "urn:aura:account",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "create"},
+              {"name": "view"},
+              {"name": "manage"},
+              {"name": "delete"}
+            ]
+          },
+          {
+            "name": "level",
+            "type": "urn:aura:level",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [],
+            "scopes": [
+              {"name": "view"}
+            ]
           }
         ],
         "policies": [
           {
-            "name": "test",
-            "description": "test",
+            "name": "aura-admin-policy",
+            "description": "Grants access to users with aura-admin role",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "fetchRoles": "false",
-              "roles": "[]"
+              "roles": "[{\"id\":\"aura-application-client/aura-admin\",\"required\":true}]"
             }
           },
           {
-            "name": "test permission",
-            "description": "",
-            "type": "scope",
+            "name": "institution-admin-policy",
+            "description": "Grants access to users with institution-admin role",
+            "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "defaultResourceType": "urn:local-next-client:resources:institutions",
-              "applyPolicies": "[\"test\"]",
-              "scopes": "[\"read\"]"
+              "roles": "[{\"id\":\"aura-application-client/institution-admin\",\"required\":true}]"
+            }
+          },
+          {
+            "name": "aura-admin-all-access",
+            "description": "Aura admin can access all resources with all scopes",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"institution\",\"outlet\",\"course\",\"lesson\",\"subject\",\"topic\",\"account\",\"level\"]",
+              "scopes": "[\"create\",\"view\",\"manage\",\"delete\",\"delegate\"]",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "institution-admin-resource-access",
+            "description": "Institution admin can CRUD outlets, courses, lessons, subjects, topics, accounts",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"outlet\",\"course\",\"lesson\",\"subject\",\"topic\",\"account\"]",
+              "scopes": "[\"create\",\"view\",\"manage\",\"delete\",\"delegate\"]",
+              "applyPolicies": "[\"institution-admin-policy\"]"
+            }
+          },
+          {
+            "name": "institution-admin-institution-view",
+            "description": "Institution admin can view their own institution",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"institution\"]",
+              "scopes": "[\"view\"]",
+              "applyPolicies": "[\"institution-admin-policy\"]"
+            }
+          },
+          {
+            "name": "institution-admin-level-view",
+            "description": "Institution admin can view levels",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"level\"]",
+              "scopes": "[\"view\"]",
+              "applyPolicies": "[\"institution-admin-policy\"]"
             }
           }
         ],
         "scopes": [
-          {
-            "name": "read",
-            "iconUri": "",
-            "displayName": "read"
-          }
+          {"name": "create"},
+          {"name": "view"},
+          {"name": "manage"},
+          {"name": "delete"},
+          {"name": "delegate"}
         ],
-        "decisionStrategy": "UNANIMOUS"
+        "decisionStrategy": "AFFIRMATIVE"
       }
     },
     {

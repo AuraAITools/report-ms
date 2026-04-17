@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.topics;
 
+import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.TopicInput;
 import com.aura.app.codegen.types.TopicResponse;
 import com.aura.app.mappers.TopicMapper;
@@ -20,6 +21,7 @@ public class TopicsGqlController {
 
     private final TopicService topicService;
 
+    @ProtectedOperation(resource = "topic", scope = "create")
     @MutationMapping(CreateTopic)
     public TopicResponse createTopic(@Argument TopicInput topicInput, @ContextValue(name = "user") User user) {
         Topic topicToBeCreated = TopicMapper.INSTANCE.toDomainEntity(topicInput, user.getCurrentTenantAccessed());

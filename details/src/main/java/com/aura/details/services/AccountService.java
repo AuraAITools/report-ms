@@ -10,9 +10,6 @@ import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.repositories.AccountRepository;
-import com.aura.core.usecases.accounts.AssignInstitutionAdminRoleUseCase;
-import com.aura.core.usecases.accounts.AssignParentRoleUseCase;
-import com.aura.core.usecases.accounts.AssignRoleUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
@@ -51,18 +48,12 @@ public class AccountService {
 
     @Transactional
     public Account createAccountWithInstitutionAdminRole(Account account) {
-        Account createdAccount = createAccountUseCase.createAccount(account);
-        AssignRoleUseCase assignRoleUseCase = new AssignInstitutionAdminRoleUseCase(identityService, createdAccount.getTenantId(), createdAccount.getUserId());
-        assignRoleUseCase.assignRole();
-        return createdAccount;
+        return createAccountUseCase.createAccount(account);
     }
 
     @Transactional
     public Account createParentAccount(Account account) {
-        Account createdAccount = createParentAccountUseCase.createParentAccount(account);
-        AssignRoleUseCase assignRoleUseCase = new AssignParentRoleUseCase(identityService, createdAccount.getTenantId(), createdAccount.getUserId());
-        assignRoleUseCase.assignRole();
-        return createdAccount;
+        return createParentAccountUseCase.createParentAccount(account);
     }
 
     @Transactional

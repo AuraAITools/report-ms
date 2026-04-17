@@ -22,11 +22,7 @@ public class CreateParentAccountUseCaseImpl implements CreateParentAccountUseCas
 
     public Account createParentAccount(Account account) {
         try {
-            Account createdAccount = createAccountAndTagToTenantUseCase.createAccount(account);
-            AssignRoleUseCase assignRoleUseCase = new AssignParentRoleUseCase(identityService, createdAccount.getTenantId(), createdAccount.getUserId());
-            assignRoleUseCase.assignRole();
-            return createdAccount;
-            // TODO: send welcome email for parent
+            return createAccountAndTagToTenantUseCase.createAccount(account);
         } catch (UserIdentityAlreadyExistsException _) {
             List<UserIdentity> foundUserIdentities = identityService.findByEmail(account.getEmail());
             if (foundUserIdentities.size() > 1)
@@ -42,25 +38,10 @@ public class CreateParentAccountUseCaseImpl implements CreateParentAccountUseCas
             if (!tenantIdsTaggedToUserIdentity.contains(account.getTenantId())) {
                 Account savedAccount = accountRepository.save(account);
                 identityService.tagTenantToUser(userIdentity.getId(), account.getTenantId());
-                new AssignParentRoleUseCase(identityService, account.getTenantId(), userIdentity.getId()).assignRole();
-                // TODO: send welcome email for parent
                 return savedAccount;
             }
 
-
-            // if user already has a parent account
-            // TODO: fix
-//            if (hasParentRole(userIdentity)) {
-//                String msg = String.format("user with email %s already tagged to tenant with id %s", account.getEmail(), account.getTenantId());
-//                throw new ParentAccountAlreadyExists(msg);
-//            }
-
-            Account savedAccount = accountRepository.save(account);
-            new AssignParentRoleUseCase(identityService, account.getTenantId(), userIdentity.getId()).assignRole();
-            // TODO: send welcome email
-            return savedAccount;
-
-
+            return accountRepository.save(account);
         }
     }
 

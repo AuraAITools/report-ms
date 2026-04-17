@@ -2,7 +2,6 @@ package com.aura.details.keycloak.client;
 
 import com.aura.core.clients.IdentityService;
 import com.aura.core.clients.UserIdentity;
-import com.aura.core.entities.accounts.TenantAwareRole;
 import com.aura.core.exceptions.UnexpectedTechnicalException;
 import com.aura.core.exceptions.UserIdentityAlreadyExistsException;
 import com.aura.core.exceptions.UserIdentityNotCreatedException;
@@ -32,19 +31,6 @@ public class KeycloakIdentityService implements IdentityService {
     public KeycloakIdentityService(ClientResource clientResource, UsersResource usersResource) {
         this.clientResource = clientResource;
         this.usersResource = usersResource;
-    }
-
-    @Override
-    public void createDefaultTenantAwareRoles(List<TenantAwareRole> roles) {
-        // create all institution roles
-        roles.forEach(role -> {
-            RoleRepresentation clientRole = new RoleRepresentation();
-            clientRole.setClientRole(true);
-            clientRole.setDescription(role.getTenantId());
-            clientRole.setName(String.format("%s_%s", role.getTenantId(), role.getName()));
-            log.info("creating client role {} for tenant {}", clientRole.getName(), role.getTenantId());
-            clientResource.roles().create(clientRole);
-        });
     }
 
     @Override
