@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.courses;
 
+import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.CreateCourseInput;
 import com.aura.app.mappers.CourseMapper;
@@ -21,6 +22,7 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateCourse;
 public class CourseGqlController {
     private final CourseService courseService;
 
+    @ProtectedOperation(resource = "course", scope = "create")
     @MutationMapping(CreateCourse)
     public CourseResponse createCourse(@Argument(name = CreateCourseInput) CreateCourseInput createCourseInput, @ContextValue(name = "user") User user) {
         Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput, user.getCurrentTenantAccessed());

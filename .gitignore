@@ -32,3 +32,4 @@ database-runner/target/
 component-tests/target/
 **/.env
 .DS_Store
+docs

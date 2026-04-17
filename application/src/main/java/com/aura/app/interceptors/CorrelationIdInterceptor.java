@@ -2,16 +2,15 @@ package com.aura.app.interceptors;
 
 import java.util.Map;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 public class CorrelationIdInterceptor implements WebGraphQlInterceptor {
-    private static final Logger log = LoggerFactory.getLogger(CorrelationIdInterceptor.class);
     private final String X_CORRELATION_ID = "x-correlation-id";
 
     @Override

@@ -1,6 +1,7 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
@@ -103,8 +104,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    OutletService outletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase) {
-        return new OutletService(createOutletUseCase, outletQueryUseCase);
+    OutletService outletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase, ResourceAuthorizationService resourceAuthorizationService) {
+        return new OutletService(createOutletUseCase, outletQueryUseCase, resourceAuthorizationService);
     }
 
     @Bean

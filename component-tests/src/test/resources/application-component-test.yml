@@ -13,6 +13,9 @@ spring:
   graphql:
     graphiql:
       enabled: true # graphql client
+  mvc:
+    async:
+      request-timeout: 120000
 #    properties:
 #      hibernate.envers.default_schema: audit
 oauth2:

@@ -1,28 +1,20 @@
 package com.aura.core.usecases.onboarding;
 
-import com.aura.core.clients.IdentityService;
-import com.aura.core.entities.accounts.TenantAwareRole;
+import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.repositories.InstitutionRepository;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
-
-import static com.aura.core.usecases.onboarding.RoleTypes.DEFAULT_ROLES;
-
+@RequiredArgsConstructor
 public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy {
+    private static final String INSTITUTION_RESOURCE_TYPE = "urn:aura:institution";
+
     private final Institution institution;
     private final InstitutionRepository institutionRepository;
-    private final IdentityService identityService;
     private final TenantInitialDataLoader tenantInitialDataLoader;
-
-
-    public DefaultInstitutionOnboardingStrategy(InstitutionRepository institutionRepository, Institution institution, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
-        this.institution = institution;
-        this.institutionRepository = institutionRepository;
-        this.identityService = identityService;
-        this.tenantInitialDataLoader = tenantInitialDataLoader;
-    }
+    private final ResourceAuthorizationService resourceAuthorizationService;
 
     @Override
     public Institution onboard() {
@@ -31,17 +23,12 @@ public class DefaultInstitutionOnboardingStrategy implements OnboardingStrategy 
         institution.setTenantId(tenantId.toString());
         Institution createdInstitution = institutionRepository.save(institution);
         tenantInitialDataLoader.loadInitialDataForTenant(createdInstitution.getId().toString());
-        List<TenantAwareRole> tenantAwareRoles = DEFAULT_ROLES.stream().map(rolename -> {
-                    TenantAwareRole role = TenantAwareRole
-                            .builder()
-                            .name(rolename)
-                            .tenantId(institution.getId().toString())
-                            .description(institution.getId().toString())
-                            .build();
-                    return role;
-                })
-                .toList();
-        identityService.createDefaultTenantAwareRoles(tenantAwareRoles);
+        resourceAuthorizationService.registerResource(
+                "institution:" + createdInstitution.getId(),
+                INSTITUTION_RESOURCE_TYPE,
+                null,
+                Set.of("view", "manage", "delegate", "create")
+        );
         return createdInstitution;
     }
 }

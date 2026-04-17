@@ -62,6 +62,12 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 - Domain entities: `X` (e.g., `Course`)
 - Use case impls: `XUseCaseImpl`
 
+**Coding style:**
+
+- Use `@RequiredArgsConstructor` for dependency injection instead of manual constructors when possible
+- Use `@Slf4j` for logging instead of `LoggerFactory.getLogger(...)` 
+- For `@Entity` classes: use `@Getter @Setter @NoArgsConstructor` instead of `@Data` — `@Data` generates `equals`/`hashCode` which causes JPA issues with lazy-loaded proxies and detached entities
+
 **Rules:**
 
 - No `@Component`, `@Service`, or Spring imports in `core/`
@@ -69,6 +75,24 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 - All tables extend `TenantBaseTable` (provides `tenantId` for multi-tenancy)
 - Date/time: stored as `Instant` in DB, exposed as epoch milliseconds (`Long`) in GraphQL
 - Controllers get the auth user via `@ContextValue("user") User user`
+
+**Authorization:**
+
+- Authorization is handled by Keycloak server-side policy enforcement — never check roles in controllers
+- Annotate every controller method with `@ProtectedOperation(resource = "...", scope = "...")`
+- The `KeycloakAuthorizationInterceptor` (Order 3) calls Keycloak's token endpoint to evaluate permissions
+- Resources, policies, and permissions are configured in Keycloak (see `realm-import.json` for test config)
+- UMA resources are registered dynamically when entities are created (e.g., `outlet:{id}` on outlet creation)
+- Tenant isolation remains via `x-tenant-id` header + `TenantSpecification` as defense-in-depth
+
+**Testing requirements:**
+
+- Every concrete implementation class (services, repository impls, Keycloak clients) must have unit tests using JUnit
+  5 +
+  Mockito + AssertJ. Place them in the same module's `src/test/java/` mirroring the source package.
+- After completing a logical flow end-to-end (e.g., a new use case wired through controller → service → repository),
+  write a Cucumber component test that exercises the full flow including side effects.
+- Run tests and ensure they pass before considering the work done.
 
 ## GraphQL Schema & Codegen
 

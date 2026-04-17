@@ -1,11 +1,11 @@
 package com.aura.app.controllers.graphql.v1.outlets;
 
+import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.CreateOutletInput;
 import com.aura.app.codegen.types.OutletResponse;
 import com.aura.app.codegen.types.OutletSearchInput;
 import com.aura.app.codegen.types.SortInput;
-import com.aura.app.controllers.graphql.v1.institutions.exceptions.AccessDeniedException;
 import com.aura.app.dto.PageParametersDto;
 import com.aura.app.mappers.OutletMapper;
 import com.aura.app.utils.PaginationUtils;
@@ -30,11 +30,6 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEOUTLET_INPUT_ARGU
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateOutlet;
 import static com.aura.app.utils.PaginationUtils.getPageParametersDto;
 import static com.aura.app.utils.PaginationUtils.mapToSearchFilters;
-import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
-import static com.aura.core.usecases.onboarding.RoleTypes.INSTITUTION_ADMIN_ROLE;
-import static com.aura.core.utils.AuthUtils.hasAnyRoles;
-import static com.aura.core.utils.AuthUtils.hasAnyTechnicalUserRole;
-import static com.aura.core.utils.AuthUtils.isAggregateQuery;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,6 +38,7 @@ public class OutletsGqlController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
+    @ProtectedOperation(resource = "outlet", scope = "create")
     @MutationMapping(CreateOutlet)
     public OutletResponse createOutlet(@Argument(name = CreateOutletInput) CreateOutletInput createOutletInput, @ContextValue(name = "user") User user) {
         Outlet outletToBeCreated = OutletMapper.INSTANCE.toDomainEntity(createOutletInput, user.getCurrentTenantAccessed());
@@ -50,6 +46,7 @@ public class OutletsGqlController {
         return OutletMapper.INSTANCE.toDto(outlet);
     }
 
+    @ProtectedOperation(resource = "outlet", scope = "view")
     @QueryMapping(DgsConstants.QUERY.GetOutletsByPage)
     public Connection<OutletResponse> getOutletsByPage(
             @Argument(name = "search") OutletSearchInput searchInputs,
@@ -59,15 +56,11 @@ public class OutletsGqlController {
 
         PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, searchInputParameters -> mapToSearchFilters(searchInputParameters, objectMapper));
 
-        if (isAggregateQuery(user)) {
-            if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE))
-                throw new AccessDeniedException("not authorized for aggregate query");
+        if ("*".equals(user.getCurrentTenantAccessed())) {
             PagedResult<Outlet> pagedResult = outletService.queryPageBy(pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
             return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), OutletMapper.INSTANCE::toDto, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
         }
 
-        if (!hasAnyTechnicalUserRole(user, AURA_ADMIN_ROLE) && !hasAnyRoles(user, INSTITUTION_ADMIN_ROLE))
-            throw new AccessDeniedException("not authorized for institution");
         PagedResult<Outlet> pagedResult = outletService.queryPageBy(user.getCurrentTenantAccessed(), pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
         return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), OutletMapper.INSTANCE::toDto, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
 

@@ -1,6 +1,7 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
@@ -61,8 +62,8 @@ import org.springframework.context.annotation.Configuration;
 public class UseCaseConfig {
 
     @Bean
-    OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository, IdentityService identityService, TenantInitialDataLoader tenantInitialDataLoader) {
-        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, identityService, tenantInitialDataLoader);
+    OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository, TenantInitialDataLoader tenantInitialDataLoader, ResourceAuthorizationService resourceAuthorizationService) {
+        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader, resourceAuthorizationService);
     }
 
     @Bean
@@ -128,8 +129,8 @@ public class UseCaseConfig {
     }
 
     @Bean
-    CreateEducatorInAccountUseCase createEducatorInAccountUseCase(AccountRepository accountRepository, EducatorRepository educatorRepository, IdentityService identityService) {
-        return new CreateEducatorInAccountUseCaseImpl(accountRepository, educatorRepository, identityService);
+    CreateEducatorInAccountUseCase createEducatorInAccountUseCase(AccountRepository accountRepository, EducatorRepository educatorRepository) {
+        return new CreateEducatorInAccountUseCaseImpl(accountRepository, educatorRepository);
     }
 
     @Bean

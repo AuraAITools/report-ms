@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lessons;
 
+import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.CreateLessonInput;
 import com.aura.app.codegen.types.CreateStandaloneLessonInput;
@@ -23,6 +24,7 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateStandaloneLesson;
 public class LessonsGqlController {
     private final LessonService lessonService;
 
+    @ProtectedOperation(resource = "lesson", scope = "create")
     @MutationMapping(CreateStandaloneLesson)
     public LessonResponse createStandaloneLesson(@Argument(name = DgsConstants.MUTATION.CREATESTANDALONELESSON_INPUT_ARGUMENT.CreateStandaloneLesson) CreateStandaloneLessonInput createStandaloneLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createStandaloneLessonInput, user.getCurrentTenantAccessed());
@@ -30,6 +32,7 @@ public class LessonsGqlController {
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
+    @ProtectedOperation(resource = "lesson", scope = "create")
     @MutationMapping(CreateLesson)
     public LessonResponse createLesson(@Argument(name = DgsConstants.MUTATION.CREATELESSON_INPUT_ARGUMENT.CreateLesson) CreateLessonInput createLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInput, user.getCurrentTenantAccessed());

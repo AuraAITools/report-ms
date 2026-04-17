@@ -2,6 +2,8 @@ package com.aura.app.configs;
 
 import com.aura.details.keycloak.client.KeycloakCredentials;
 import com.aura.details.keycloak.client.KeycloakIdentityService;
+import com.aura.details.keycloak.client.KeycloakPolicyEnforcementService;
+import com.aura.details.keycloak.client.KeycloakResourceAuthorizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -13,6 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Configuration
@@ -22,6 +25,11 @@ public class KeycloakClientConfig {
     @Bean
     KeycloakIdentityService getKeycloakRemoteIdentityService(ClientResource clientResource, UsersResource usersResource) {
         return new KeycloakIdentityService(clientResource, usersResource);
+    }
+
+    @Bean
+    KeycloakResourceAuthorizationService keycloakResourceAuthorizationService(ClientResource clientResource) {
+        return new KeycloakResourceAuthorizationService(clientResource);
     }
 
     @Bean
@@ -63,6 +71,17 @@ public class KeycloakClientConfig {
     @Bean
     ClientRepresentation getAuraApplicationClientRepresentation(ClientResource clientResource) {
         return clientResource.toRepresentation();
+    }
+
+    @Bean
+    KeycloakPolicyEnforcementService keycloakPolicyEnforcementService(KeycloakCredentials keycloakCredentials) {
+        String tokenEndpoint = keycloakCredentials.getServerUrl()
+                + "/realms/" + keycloakCredentials.getRealm()
+                + "/protocol/openid-connect/token";
+        RestClient restClient = RestClient.builder()
+                .baseUrl(tokenEndpoint)
+                .build();
+        return new KeycloakPolicyEnforcementService(restClient, keycloakCredentials.getClientId());
     }
 
 }
