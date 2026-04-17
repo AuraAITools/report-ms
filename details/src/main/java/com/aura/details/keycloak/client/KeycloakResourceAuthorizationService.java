@@ -4,19 +4,16 @@ import com.aura.core.clients.ResourceAuthorizationService;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.keycloak.representations.idm.authorization.ScopeRepresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
+@RequiredArgsConstructor
 public class KeycloakResourceAuthorizationService implements ResourceAuthorizationService {
-    private final Logger log = LoggerFactory.getLogger(KeycloakResourceAuthorizationService.class);
     private final ClientResource clientResource;
-
-    public KeycloakResourceAuthorizationService(ClientResource clientResource) {
-        this.clientResource = clientResource;
-    }
 
     @Override
     public void registerResource(String name, String type, String ownerId, Set<String> scopes) {

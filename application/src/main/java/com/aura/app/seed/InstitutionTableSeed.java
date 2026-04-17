@@ -10,20 +10,18 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 //@Component
 //@Profile({"local"})
+@RequiredArgsConstructor
 public class InstitutionTableSeed implements ApplicationRunner {
 
     private final JpaInstitutionRepository repository;
     private final Faker faker = new Faker();
-
-    public InstitutionTableSeed(JpaInstitutionRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     @Transactional

@@ -1,21 +1,17 @@
 package com.aura.details.keycloak.client;
 
 import com.aura.core.clients.PolicyEnforcementService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
+@RequiredArgsConstructor
 public class KeycloakPolicyEnforcementService implements PolicyEnforcementService {
-    private final Logger log = LoggerFactory.getLogger(KeycloakPolicyEnforcementService.class);
     private final RestClient restClient;
     private final String audience;
-
-    public KeycloakPolicyEnforcementService(RestClient restClient, String audience) {
-        this.restClient = restClient;
-        this.audience = audience;
-    }
 
     @Override
     public boolean isAuthorized(String accessToken, String resource, String scope) {

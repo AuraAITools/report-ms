@@ -11,27 +11,23 @@ import jakarta.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 import static com.aura.core.clients.UserIdentityAttributeKeys.TENANT_ID_ATTR_KEY;
 
+@Slf4j
+@RequiredArgsConstructor
 public class KeycloakIdentityService implements IdentityService {
-    private final Logger log = LoggerFactory.getLogger(KeycloakIdentityService.class);
     private final ClientResource clientResource;
     private final UsersResource usersResource;
-
-    public KeycloakIdentityService(ClientResource clientResource, UsersResource usersResource) {
-        this.clientResource = clientResource;
-        this.usersResource = usersResource;
-    }
 
     @Override
     public List<UserIdentity> findByEmail(String email) {

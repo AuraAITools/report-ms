@@ -31,8 +31,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 
 // TODO: abstract repositories and move to core
+@RequiredArgsConstructor
 public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
 
     private final JpaSchoolTemplateRepository jpaSchoolTemplateRepository;
@@ -47,22 +49,6 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
     private final JpaTopicRepository jpaTopicRepository;
     private final JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository;
     private final JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository;
-
-
-    public TenantInitialDataLoaderImpl(JpaSchoolTemplateRepository jpaSchoolTemplateRepository, JpaSchoolRepository jpaSchoolRepository, JpaLevelTemplateRepository jpaLevelTemplateRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectTemplateRepository jpaSubjectTemplateRepository, JpaSubjectRepository jpaSubjectRepository, JpaSubjectLevelLinkTemplateRepository jpaSubjectLevelLinkTemplateRepository, JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository, JpaTopicTemplateRepository jpaTopicTemplateRepository, JpaTopicRepository jpaTopicRepository, JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository, JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
-        this.jpaSchoolTemplateRepository = jpaSchoolTemplateRepository;
-        this.jpaSchoolRepository = jpaSchoolRepository;
-        this.jpaLevelTemplateRepository = jpaLevelTemplateRepository;
-        this.jpaLevelRepository = jpaLevelRepository;
-        this.jpaSubjectTemplateRepository = jpaSubjectTemplateRepository;
-        this.jpaSubjectRepository = jpaSubjectRepository;
-        this.jpaSubjectLevelLinkTemplateRepository = jpaSubjectLevelLinkTemplateRepository;
-        this.jpaSubjectLevelLinkRepository = jpaSubjectLevelLinkRepository;
-        this.jpaTopicTemplateRepository = jpaTopicTemplateRepository;
-        this.jpaTopicRepository = jpaTopicRepository;
-        this.jpaTopicSubjectLinkTemplateRepository = jpaTopicSubjectLinkTemplateRepository;
-        this.jpaTopicSubjectLinkRepository = jpaTopicSubjectLinkRepository;
-    }
 
     private static SubjectTable mapToSubject(SubjectTemplateTable subjectTemplateTable, String tenantId) {
         return SubjectTable
