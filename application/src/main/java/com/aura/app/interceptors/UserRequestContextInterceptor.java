@@ -1,6 +1,6 @@
 package com.aura.app.interceptors;
 
-import com.aura.app.controllers.graphql.v1.institutions.exceptions.AccessDeniedException;
+import com.aura.app.exceptions.AccessDeniedBusinessException;
 import com.aura.app.utils.UserMapper;
 import com.aura.core.auth.User;
 import com.aura.core.utils.UUIDUtils;
@@ -19,25 +19,26 @@ import static org.springframework.util.StringUtils.hasText;
 
 public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
     private static final String X_TENANT_ID = "x-tenant-id";
-    private static final String AGGREGATE = "*";
-
     private static String validateTenantId(String tenantId) {
-        if (!hasText(tenantId)) throw new AccessDeniedException("tenant id cannot be empty");
+        if (!hasText(tenantId)) throw new AccessDeniedBusinessException("tenant id cannot be empty");
 
-        boolean isUUID = UUIDUtils.isUUid(tenantId);
-        if (!isUUID && !AGGREGATE.equals(tenantId)) {
-            throw new AccessDeniedException("invalid tenant-id");
+        if (!UUIDUtils.isUUid(tenantId)) {
+            throw new AccessDeniedBusinessException("invalid tenant-id");
         }
         return tenantId;
     }
 
     private static User extractUserRequestContext(String tenantId) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof Jwt jwt)) throw new AccessDeniedException("Invalid principal type");
+        if (!(principal instanceof Jwt jwt)) throw new AccessDeniedBusinessException("Invalid principal type");
         User currentUser = UserMapper.from(jwt);
 
-        // set tenantId
         currentUser.setCurrentTenantAccessed(tenantId);
+
+        if (!currentUser.accessToCurrentTenantIsAllowed()) {
+            throw new AccessDeniedBusinessException("user does not have access to the requested tenant");
+        }
+
         return currentUser;
     }
 
@@ -57,7 +58,7 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
                 .map(UserRequestContextInterceptor::extractUserRequestContext)
                 .ifPresentOrElse(user -> populateGQLContext(request, user)
                         , () -> {
-                            throw new AccessDeniedException("no target tenant/institution selected");
+                            throw new AccessDeniedBusinessException("no target tenant/institution selected");
                         });
         return chain.next(request);
     }

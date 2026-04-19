@@ -17,6 +17,4 @@ Feature: Keycloak Authorization Configuration
   Scenario: Keycloak has the required policies
     Given user has "aura-admin" role
     Then Keycloak should have a "aura-admin-policy" policy of type "role"
-    And Keycloak should have a "institution-admin-policy" policy of type "role"
     And Keycloak should have a "aura-admin-all-access" policy of type "scope"
-    And Keycloak should have a "institution-admin-resource-access" policy of type "scope"

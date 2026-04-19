@@ -7,6 +7,7 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public class InstitutionQueryUseCaseImpl implements InstitutionQueryUseCase {
     InstitutionRepository institutionRepository;
@@ -16,8 +17,8 @@ public class InstitutionQueryUseCaseImpl implements InstitutionQueryUseCase {
     }
 
     @Override
-    public PagedResult<Institution> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
-        return institutionRepository.findAllBy(keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
+    public @Nullable Institution findById(String id) {
+        return institutionRepository.findById(id);
     }
 
     @Override

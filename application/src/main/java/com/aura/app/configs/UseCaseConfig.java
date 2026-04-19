@@ -1,6 +1,7 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.clients.GroupAuthorizationService;
 import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
@@ -62,8 +63,12 @@ import org.springframework.context.annotation.Configuration;
 public class UseCaseConfig {
 
     @Bean
-    OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository, TenantInitialDataLoader tenantInitialDataLoader, ResourceAuthorizationService resourceAuthorizationService) {
-        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader, resourceAuthorizationService);
+    OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository,
+                                                          TenantInitialDataLoader tenantInitialDataLoader,
+                                                          ResourceAuthorizationService resourceAuthorizationService,
+                                                          GroupAuthorizationService groupAuthorizationService) {
+        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader,
+                resourceAuthorizationService, groupAuthorizationService);
     }
 
     @Bean

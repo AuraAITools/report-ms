@@ -8,7 +8,6 @@ import com.aura.app.codegen.types.CreateParentAccountInput;
 import com.aura.app.codegen.types.CreateStudentInput;
 import com.aura.app.codegen.types.EducatorResponse;
 import com.aura.app.codegen.types.StudentResponse;
-import com.aura.app.exceptions.AggregateOperationUnsupportedException;
 import com.aura.app.mappers.AccountMapper;
 import com.aura.app.mappers.EducatorMapper;
 import com.aura.app.mappers.StudentMapper;
@@ -43,7 +42,6 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateInstitutionAdminAccount)
     public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateInstitutionAdminAccountInput createAccountInput, @ContextValue(name = "user") User user) {
-        rejectAggregateQuery(user);
         Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput, user.getCurrentTenantAccessed());
         Account createdAccount = accountService.createAccountWithInstitutionAdminRole(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
@@ -52,7 +50,6 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateParentAccount)
     public AccountResponse createParentAccount(@Argument(value = CreateParentAccountInput) CreateParentAccountInput createParentAccountInput, @ContextValue(name = "user") User user) {
-        rejectAggregateQuery(user);
         Account account = AccountMapper.INSTANCE.toDomainEntity(createParentAccountInput, user.getCurrentTenantAccessed());
         Account createdAccount = accountService.createParentAccount(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
@@ -61,7 +58,6 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateStudentsInParentAccount)
     public List<StudentResponse> createStudentsInParentAccount(@Argument(value = CreateStudentInputs) List<CreateStudentInput> createStudentInputs, @ContextValue(name = "user") User user) {
-        rejectAggregateQuery(user);
         List<AccountService.CreateStudentAccountParams> createStudentAccountParams = createStudentInputs.stream()
                 .map(csi -> StudentMapper.INSTANCE.toParams(csi, user.getCurrentTenantAccessed())).toList();
         var createdStudentResults = accountService.addStudentsToParentAccount(createStudentAccountParams);
@@ -71,15 +67,8 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateEducatorsInAccount)
     public List<EducatorResponse> createEducatorsInAccount(@Argument(value = CreateEducatorInputs) List<CreateEducatorInput> createEducatorInputs, @ContextValue(name = "user") User user) {
-        rejectAggregateQuery(user);
         var params = createEducatorInputs.stream().map(cei -> EducatorMapper.INSTANCE.toParams(cei, user.getCurrentTenantAccessed())).toList();
         List<AccountService.CreatedEducatorResult> results = accountService.createAndLinkEducatorsToAccount(params);
         return results.stream().map(EducatorMapper.INSTANCE::toDto).toList();
-    }
-
-    private static void rejectAggregateQuery(User user) {
-        if ("*".equals(user.getCurrentTenantAccessed())) {
-            throw new AggregateOperationUnsupportedException("aggregate operation unsupported for this API");
-        }
     }
 }

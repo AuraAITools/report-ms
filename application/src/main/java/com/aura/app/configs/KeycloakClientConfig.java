@@ -3,6 +3,7 @@ package com.aura.app.configs;
 import com.aura.details.keycloak.client.KeycloakCredentials;
 import com.aura.details.keycloak.client.KeycloakIdentityService;
 import com.aura.details.keycloak.client.KeycloakPolicyEnforcementService;
+import com.aura.details.keycloak.client.KeycloakGroupAuthorizationService;
 import com.aura.details.keycloak.client.KeycloakResourceAuthorizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -30,6 +31,13 @@ public class KeycloakClientConfig {
     @Bean
     KeycloakResourceAuthorizationService keycloakResourceAuthorizationService(ClientResource clientResource) {
         return new KeycloakResourceAuthorizationService(clientResource);
+    }
+
+    @Bean
+    KeycloakGroupAuthorizationService keycloakGroupAuthorizationService(ClientResource clientResource,
+                                                                          RealmResource realmResource,
+                                                                          UsersResource usersResource) {
+        return new KeycloakGroupAuthorizationService(clientResource, realmResource.groups(), usersResource);
     }
 
     @Bean

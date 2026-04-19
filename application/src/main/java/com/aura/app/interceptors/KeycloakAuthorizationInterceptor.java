@@ -1,7 +1,7 @@
 package com.aura.app.interceptors;
 
 import com.aura.app.annotations.ProtectedOperation;
-import com.aura.app.controllers.graphql.v1.institutions.exceptions.AccessDeniedException;
+import com.aura.app.exceptions.AccessDeniedBusinessException;
 import com.aura.core.clients.PolicyEnforcementService;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -45,15 +45,15 @@ public class KeycloakAuthorizationInterceptor implements WebGraphQlInterceptor {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof Jwt jwt)) {
-            throw new AccessDeniedException("invalid principal for authorization check");
+            throw new AccessDeniedBusinessException("invalid principal for authorization check");
         }
 
         String accessToken = jwt.getTokenValue();
-        String resource = resolveResource(permission, request.getVariables());
+        String resource = resolveResource(permission, request.getVariables(), request);
         boolean authorized = policyEnforcementService.isAuthorized(
                 accessToken, resource, permission.scope());
         if (!authorized) {
-            throw new AccessDeniedException(
+            throw new AccessDeniedBusinessException(
                     "not authorized for " + resource + "#" + permission.scope());
         }
 
@@ -77,14 +77,25 @@ public class KeycloakAuthorizationInterceptor implements WebGraphQlInterceptor {
         return afterBrace.substring(0, endIndex).trim();
     }
 
-    private String resolveResource(ProtectedOperation permission, Map<String, Object> variables) {
+    private static final String TENANT_PARAM = "$tenant";
+    private static final String X_TENANT_ID = "x-tenant-id";
+
+    private String resolveResource(ProtectedOperation permission, Map<String, Object> variables,
+                                   WebGraphQlRequest request) {
         String resourceIdParam = permission.resourceIdParam();
         if (resourceIdParam.isEmpty()) {
             return permission.resource();
         }
-        String resourceId = resolveVariable(variables, resourceIdParam);
+
+        String resourceId;
+        if (TENANT_PARAM.equals(resourceIdParam)) {
+            resourceId = request.getHeaders().getFirst(X_TENANT_ID);
+        } else {
+            resourceId = resolveVariable(variables, resourceIdParam);
+        }
+
         if (resourceId == null) {
-            log.warn("could not resolve resourceIdParam '{}' from variables, falling back to type-level check",
+            log.warn("could not resolve resourceIdParam '{}', falling back to type-level check",
                     resourceIdParam);
             return permission.resource();
         }
