@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-import static com.aura.core.entities.accounts.TenantAwareRole.ROLE_TYPE.TECHNICAL_USER;
 
 @Data
 @Builder
@@ -36,10 +35,5 @@ public class User {
     public boolean accessToCurrentTenantIsAllowed() {
         return tenantIds.contains(currentTenantAccessed);
     }
-
-    public boolean isTechnicalUser() {
-        return tenantRoles.stream().anyMatch(role -> TECHNICAL_USER.equals(role.getRoleType()));
-    }
-
 
 }

@@ -987,16 +987,6 @@
             }
           },
           {
-            "name": "institution-admin-policy",
-            "description": "Grants access to users with institution-admin role",
-            "type": "role",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "roles": "[{\"id\":\"aura-application-client/institution-admin\",\"required\":true}]"
-            }
-          },
-          {
             "name": "aura-admin-all-access",
             "description": "Aura admin can access all resources with all scopes",
             "type": "scope",
@@ -1006,42 +996,6 @@
               "resources": "[\"institution\",\"outlet\",\"course\",\"lesson\",\"subject\",\"topic\",\"account\",\"level\"]",
               "scopes": "[\"create\",\"view\",\"manage\",\"delete\",\"delegate\"]",
               "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "institution-admin-resource-access",
-            "description": "Institution admin can CRUD outlets, courses, lessons, subjects, topics, accounts",
-            "type": "scope",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "resources": "[\"outlet\",\"course\",\"lesson\",\"subject\",\"topic\",\"account\"]",
-              "scopes": "[\"create\",\"view\",\"manage\",\"delete\",\"delegate\"]",
-              "applyPolicies": "[\"institution-admin-policy\"]"
-            }
-          },
-          {
-            "name": "institution-admin-institution-view",
-            "description": "Institution admin can view their own institution",
-            "type": "scope",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "resources": "[\"institution\"]",
-              "scopes": "[\"view\"]",
-              "applyPolicies": "[\"institution-admin-policy\"]"
-            }
-          },
-          {
-            "name": "institution-admin-level-view",
-            "description": "Institution admin can view levels",
-            "type": "scope",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "resources": "[\"level\"]",
-              "scopes": "[\"view\"]",
-              "applyPolicies": "[\"institution-admin-policy\"]"
             }
           }
         ],

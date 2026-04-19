@@ -1,5 +1,6 @@
 package com.aura.details.services;
 
+import com.aura.core.clients.GroupAuthorizationService;
 import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.usecases.outlets.CreateOutletUseCase;
@@ -14,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,12 +29,14 @@ class OutletServiceTest {
     private OutletQueryUseCase outletQueryUseCase;
     @Mock
     private ResourceAuthorizationService resourceAuthorizationService;
+    @Mock
+    private GroupAuthorizationService groupAuthorizationService;
 
     private OutletService outletService;
 
     @BeforeEach
     void setUp() {
-        outletService = new OutletService(createOutletUseCase, outletQueryUseCase, resourceAuthorizationService);
+        outletService = new OutletService(createOutletUseCase, outletQueryUseCase, resourceAuthorizationService, groupAuthorizationService);
     }
 
     @Test

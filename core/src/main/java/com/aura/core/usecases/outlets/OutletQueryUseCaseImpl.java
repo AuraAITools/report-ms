@@ -14,11 +14,6 @@ public class OutletQueryUseCaseImpl implements OutletQueryUseCase {
     private final OutletRepository outletRepository;
 
     @Override
-    public PagedResult<Outlet> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
-        return outletRepository.queryPageBy(keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
-    }
-
-    @Override
     public PagedResult<Outlet> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
         return outletRepository.queryPageBy(tenantId, keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
     }

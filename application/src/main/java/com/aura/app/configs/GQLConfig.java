@@ -2,6 +2,7 @@ package com.aura.app.configs;
 
 import com.aura.app.cursor.CleanJsonKeysetCursorStrategy;
 import graphql.scalars.ExtendedScalars;
+import org.springframework.graphql.execution.DataFetcherExceptionResolver;
 import graphql.validation.rules.OnValidationErrorStrategy;
 import graphql.validation.rules.ValidationRules;
 import graphql.validation.schemawiring.ValidationSchemaWiring;
@@ -32,6 +33,11 @@ public class GQLConfig {
                 .scalar(ExtendedScalars.DateTime)
                 .directiveWiring(schemaWiring)
                 .build();
+    }
+
+    @Bean
+    DataFetcherExceptionResolver graphQlExceptionResolver() {
+        return new GraphQlExceptionResolver();
     }
 
     @Bean

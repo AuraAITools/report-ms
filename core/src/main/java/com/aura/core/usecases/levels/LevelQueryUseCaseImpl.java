@@ -17,9 +17,4 @@ public class LevelQueryUseCaseImpl implements LevelQueryUseCase {
     public PagedResult<Level> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
         return levelRepository.findAllBy(tenantId, keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
     }
-
-    @Override
-    public PagedResult<Level> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
-        return levelRepository.findAllBy(keysetPaginationCriteria, orderedSortCriterias, searchCriteria);
-    }
 }

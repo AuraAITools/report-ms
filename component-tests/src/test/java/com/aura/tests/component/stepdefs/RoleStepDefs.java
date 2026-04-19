@@ -47,4 +47,13 @@ public class RoleStepDefs {
         testContext.setGraphQLClient(graphqlClient);
     }
 
+    @And("user switches to a non-existent tenant")
+    public void userSwitchesToNonExistentTenant() {
+        var graphqlClient = testContext.getGraphQLClient()
+                .mutate()
+                .headers(headers -> headers.set("x-tenant-id", "00000000-0000-0000-0000-000000000000"))
+                .build();
+        testContext.setGraphQLClient(graphqlClient);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.aura.details.services;
 
+import com.aura.core.clients.GroupAuthorizationService;
 import com.aura.core.clients.IdentityService;
 import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.courses.Course;
@@ -45,10 +46,14 @@ public class AccountService {
     private final EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase;
     private final AccountRepository accountRepository;
     private final IdentityService identityService;
+    private final GroupAuthorizationService groupAuthorizationService;
 
     @Transactional
     public Account createAccountWithInstitutionAdminRole(Account account) {
-        return createAccountUseCase.createAccount(account);
+        Account createdAccount = createAccountUseCase.createAccount(account);
+        String groupName = "institution:" + account.getTenantId() + ":admin";
+        groupAuthorizationService.addUserToGroup(createdAccount.getUserId(), groupName);
+        return createdAccount;
     }
 
     @Transactional

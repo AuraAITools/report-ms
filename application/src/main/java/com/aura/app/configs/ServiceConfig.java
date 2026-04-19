@@ -1,6 +1,7 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
+import com.aura.core.clients.GroupAuthorizationService;
 import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
@@ -89,7 +90,8 @@ public class ServiceConfig {
                                   TagEducatorToSubjectUseCase tagEducatorToSubjectUseCase,
                                   EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase,
                                   AccountRepository accountRepository,
-                                  IdentityService identityService) {
+                                  IdentityService identityService,
+                                  GroupAuthorizationService groupAuthorizationService) {
         return new AccountService(createAccountUseCase,
                 createParentAccountUseCase,
                 createStudentsInParentAccountUseCase,
@@ -100,12 +102,17 @@ public class ServiceConfig {
                 tagEducatorToCourseUseCase,
                 tagEducatorToLevelUseCase,
                 tagEducatorToSubjectUseCase,
-                enrollEducatorToOutletUseCase, accountRepository, identityService);
+                enrollEducatorToOutletUseCase, accountRepository, identityService,
+                groupAuthorizationService);
     }
 
     @Bean
-    OutletService outletService(CreateOutletUseCase createOutletUseCase, OutletQueryUseCase outletQueryUseCase, ResourceAuthorizationService resourceAuthorizationService) {
-        return new OutletService(createOutletUseCase, outletQueryUseCase, resourceAuthorizationService);
+    OutletService outletService(CreateOutletUseCase createOutletUseCase,
+                                OutletQueryUseCase outletQueryUseCase,
+                                ResourceAuthorizationService resourceAuthorizationService,
+                                GroupAuthorizationService groupAuthorizationService) {
+        return new OutletService(createOutletUseCase, outletQueryUseCase,
+                resourceAuthorizationService, groupAuthorizationService);
     }
 
     @Bean

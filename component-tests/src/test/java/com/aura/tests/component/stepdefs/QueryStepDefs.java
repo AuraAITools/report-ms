@@ -5,6 +5,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.graphql.client.FieldAccessException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,27 +17,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QueryStepDefs {
 
     private final TestContext testContext;
+    private Map<String, Object> lastInstitutionResponse;
 
-    @When("user queries institutions by page")
-    public void userQueriesInstitutionsByPage() {
-        String query = findGraphqlQueryFromFiles("get-institutions-by-page.graphql");
+    @When("user queries their institution")
+    public void userQueriesTheirInstitution() {
+        String query = findGraphqlQueryFromFiles("get-institution.graphql");
 
-        Map<String, Object> response = testContext.getGraphQLClient()
-                .mutate().build()
-                .document(query)
-                .variables(Map.of("first", 10))
-                .retrieveSync("getInstitutionByPage")
-                .toEntity(Map.class);
-
-        assertThat(response).isNotNull();
-        List<?> edges = (List<?>) response.get("edges");
-        assertThat(edges).isNotNull().isNotEmpty();
-        testContext.setLastQuerySucceeded(true);
+        try {
+            lastInstitutionResponse = testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .retrieveSync("getInstitution")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var extensions = errors.getFirst().getExtensions();
+                if (extensions != null && extensions.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(extensions.get("error_code").toString());
+                }
+            }
+        }
     }
 
-    @Then("at least one institution should be returned")
-    public void atLeastOneInstitutionShouldBeReturned() {
-        assertThat(testContext.isLastQuerySucceeded()).isTrue();
+    @Then("the institution should be returned with correct details")
+    public void theInstitutionShouldBeReturnedWithCorrectDetails() {
+        assertThat(lastInstitutionResponse).isNotNull();
+        assertThat(lastInstitutionResponse).containsKey("id");
+        assertThat(lastInstitutionResponse).containsKey("name");
+        assertThat(lastInstitutionResponse).containsKey("email");
+        assertThat(lastInstitutionResponse.get("id")).isEqualTo(testContext.getInstitutionId());
+    }
+
+    @Then("the request should fail with error code {string}")
+    public void theRequestShouldFailWithErrorCode(String errorCode) {
+        assertThat(testContext.isRequestFailed()).isTrue();
+        assertThat(testContext.getLastErrorMessage()).isEqualTo(errorCode);
     }
 
     @When("user queries levels by page")

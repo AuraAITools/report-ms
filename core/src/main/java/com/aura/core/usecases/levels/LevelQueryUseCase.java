@@ -1,8 +1,7 @@
 package com.aura.core.usecases.levels;
 
 import com.aura.core.entities.levels.Level;
-import com.aura.core.usecases.commons.QueryUseCase;
 import com.aura.core.usecases.commons.TenantAwareQueryUseCase;
 
-public interface LevelQueryUseCase extends TenantAwareQueryUseCase<Level>, QueryUseCase<Level> {
+public interface LevelQueryUseCase extends TenantAwareQueryUseCase<Level> {
 }
