@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.lessons;
+package com.aura.app.controllers.graphql.v1.tenant.lessons;
 
 import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.DgsConstants;

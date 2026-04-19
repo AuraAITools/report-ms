@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.courses;
+package com.aura.app.controllers.graphql.v1.tenant.courses;
 
 import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.CourseResponse;

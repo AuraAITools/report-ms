@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.subjects;
+package com.aura.app.controllers.graphql.v1.tenant.subjects;
 
 import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.CreateSubjectInput;
