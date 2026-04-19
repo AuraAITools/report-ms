@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.topics;
+package com.aura.app.controllers.graphql.v1.tenant.topics;
 
 import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.TopicInput;

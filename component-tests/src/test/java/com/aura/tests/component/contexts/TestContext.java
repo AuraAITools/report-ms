@@ -10,6 +10,7 @@ import org.springframework.graphql.client.HttpSyncGraphQlClient;
 public class TestContext {
 
     private HttpSyncGraphQlClient graphQLClient;
+    private HttpSyncGraphQlClient platformGraphQLClient;
 
     // IDs for chaining scenarios
     private String institutionId;
@@ -29,7 +30,8 @@ public class TestContext {
     private boolean requestFailed;
     private String lastErrorMessage;
 
-    public TestContext(HttpSyncGraphQlClient graphQLClient) {
+    public TestContext(HttpSyncGraphQlClient graphQLClient, HttpSyncGraphQlClient platformGraphQLClient) {
         this.graphQLClient = graphQLClient;
+        this.platformGraphQLClient = platformGraphQLClient;
     }
 }

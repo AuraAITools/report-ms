@@ -1,6 +1,9 @@
 package com.aura.app.configs;
 
 import com.aura.app.cursor.CleanJsonKeysetCursorStrategy;
+import graphql.analysis.MaxQueryComplexityInstrumentation;
+import graphql.execution.instrumentation.Instrumentation;
+import graphql.execution.instrumentation.tracing.TracingInstrumentation;
 import graphql.scalars.ExtendedScalars;
 import org.springframework.graphql.execution.DataFetcherExceptionResolver;
 import graphql.validation.rules.OnValidationErrorStrategy;
@@ -15,7 +18,7 @@ import org.springframework.graphql.data.query.ScrollPositionCursorStrategy;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 
 @Configuration
-public class GQLConfig {
+public class TenantGraphQLConfig {
 
     // import extended graphql types
     @Bean
@@ -45,4 +48,20 @@ public class GQLConfig {
     CursorStrategy<ScrollPosition> scrollPositionCursorStrategy() {
         return new ScrollPositionCursorStrategy(new CleanJsonKeysetCursorStrategy());
     }
+
+    // TODO: enable when ready
+//    @Bean
+//    Instrumentation instrumentation() {
+//        return new TracingInstrumentation();
+//    }
+//
+//    @Bean
+//    Instrumentation maxQueryExecutionInstrumentation() {
+//        return new MaxQueryComplexityInstrumentation(20);// each query can have max 20 fields
+//    }
+//
+//    @Bean
+//    Instrumentation maxQueryDepthInstrumentation() {
+//        return new MaxQueryComplexityInstrumentation(5); // max depth of query response -> client can expand up to 5 nesting response
+//    }
 }

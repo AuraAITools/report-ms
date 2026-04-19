@@ -451,6 +451,15 @@
           "view-users"
         ]
       }
+    },
+    {
+      "id": "a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6",
+      "name": "aura-admin",
+      "path": "/aura-admin",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {}
     }
   ],
   "defaultRole": {
@@ -528,7 +537,6 @@
           "view-users"
         ],
         "aura-application-client": [
-          "aura-admin",
           "uma_protection"
         ],
         "account": [
@@ -537,7 +545,9 @@
         ]
       },
       "notBefore": 0,
-      "groups": []
+      "groups": [
+        "/aura-admin"
+      ]
     },
     {
       "id": "d635e46f-f3cd-46ad-b016-66d6f0bc735b",
@@ -851,6 +861,22 @@
             "claim.name": "clientAddress",
             "jsonType.label": "String"
           }
+        },
+        {
+          "id": "b2c4e8f1-7a3d-4e5b-9c6f-1d2e3f4a5b6c",
+          "name": "group-membership-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "groups",
+            "jsonType.label": "String"
+          }
         }
       ],
       "defaultClientScopes": [
@@ -870,131 +896,103 @@
       "authorizationSettings": {
         "allowRemoteResourceManagement": true,
         "policyEnforcementMode": "ENFORCING",
-        "resources": [
-          {
-            "name": "institution",
-            "type": "urn:aura:institution",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"},
-              {"name": "delegate"}
-            ]
-          },
-          {
-            "name": "outlet",
-            "type": "urn:aura:outlet",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"},
-              {"name": "delegate"}
-            ]
-          },
-          {
-            "name": "course",
-            "type": "urn:aura:course",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"}
-            ]
-          },
-          {
-            "name": "lesson",
-            "type": "urn:aura:lesson",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"}
-            ]
-          },
-          {
-            "name": "subject",
-            "type": "urn:aura:subject",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"}
-            ]
-          },
-          {
-            "name": "topic",
-            "type": "urn:aura:topic",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"}
-            ]
-          },
-          {
-            "name": "account",
-            "type": "urn:aura:account",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "create"},
-              {"name": "view"},
-              {"name": "manage"},
-              {"name": "delete"}
-            ]
-          },
-          {
-            "name": "level",
-            "type": "urn:aura:level",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [],
-            "scopes": [
-              {"name": "view"}
-            ]
-          }
-        ],
+        "resources": [],
         "policies": [
           {
             "name": "aura-admin-policy",
-            "description": "Grants access to users with aura-admin role",
-            "type": "role",
+            "description": "Grants access to users in the aura-admin group",
+            "type": "group",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "roles": "[{\"id\":\"aura-application-client/aura-admin\",\"required\":true}]"
+              "groups": "[{\"id\":\"a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6\",\"extendChildren\":false}]"
             }
           },
           {
-            "name": "aura-admin-all-access",
-            "description": "Aura admin can access all resources with all scopes",
-            "type": "scope",
+            "name": "aura-admin-institution-access",
+            "description": "Aura admin can access all institution resources",
+            "type": "resource",
             "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
+            "decisionStrategy": "UNANIMOUS",
             "config": {
-              "resources": "[\"institution\",\"outlet\",\"course\",\"lesson\",\"subject\",\"topic\",\"account\",\"level\"]",
-              "scopes": "[\"create\",\"view\",\"manage\",\"delete\",\"delegate\"]",
+              "defaultResourceType": "urn:aura:institution",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-outlet-access",
+            "description": "Aura admin can access all outlet resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:outlet",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-course-access",
+            "description": "Aura admin can access all course resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:course",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-lesson-access",
+            "description": "Aura admin can access all lesson resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:lesson",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-subject-access",
+            "description": "Aura admin can access all subject resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:subject",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-topic-access",
+            "description": "Aura admin can access all topic resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:topic",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-account-access",
+            "description": "Aura admin can access all account resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:account",
+              "applyPolicies": "[\"aura-admin-policy\"]"
+            }
+          },
+          {
+            "name": "aura-admin-level-access",
+            "description": "Aura admin can access all level resources",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:aura:level",
               "applyPolicies": "[\"aura-admin-policy\"]"
             }
           }

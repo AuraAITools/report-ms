@@ -28,14 +28,19 @@ public class RoleStepDefs {
             default -> throw new RuntimeException(String.format("Role %s is not supported", role));
         };
 
-        var graphqlClient = testContext.getGraphQLClient()
+        // Set auth on platform client (no x-tenant-id needed)
+        var platformClient = testContext.getPlatformGraphQLClient()
                 .mutate()
-                .headers(headers -> {
-                    headers.setBearerAuth(token);
-                    headers.set("x-tenant-id", "*");
-                }).build();
+                .headers(headers -> headers.setBearerAuth(token))
+                .build();
+        testContext.setPlatformGraphQLClient(platformClient);
 
-        testContext.setGraphQLClient(graphqlClient);
+        // Set auth on tenant client (x-tenant-id will be set later when institution is created)
+        var tenantClient = testContext.getGraphQLClient()
+                .mutate()
+                .headers(headers -> headers.setBearerAuth(token))
+                .build();
+        testContext.setGraphQLClient(tenantClient);
     }
 
     @And("user switches to the institution tenant")

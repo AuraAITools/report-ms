@@ -150,6 +150,25 @@
                             <disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>platform-codegen</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaPaths>
+                                <param>src/main/resources/graphql-platform</param>
+                            </schemaPaths>
+                            <packageName>com.aura.app.codegen.platform</packageName>
+                            <addGeneratedAnnotation>true</addGeneratedAnnotation>
+                            <typeMapping>
+                                <Long>java.lang.Long</Long>
+                                <Date>java.time.LocalDate</Date>
+                                <DateTime>java.time.LocalDateTime</DateTime>
+                            </typeMapping>
+                            <disableDatesInGeneratedAnnotation>true</disableDatesInGeneratedAnnotation>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

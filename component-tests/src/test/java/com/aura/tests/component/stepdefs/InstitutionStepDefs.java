@@ -36,7 +36,7 @@ public class InstitutionStepDefs {
 
         Map<String, Object> variables = Map.of("input", createInstitutionInput);
         var institutionResponse = testContext
-                .getGraphQLClient()
+                .getPlatformGraphQLClient()
                 .mutate()
                 .build()
                 .document(graphqlQuery)
@@ -71,7 +71,7 @@ public class InstitutionStepDefs {
                 .address("address")
                 .uen("test")
                 .build();
-        InstitutionResponse institution = testContext.getGraphQLClient()
+        InstitutionResponse institution = testContext.getPlatformGraphQLClient()
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of("input", input))
@@ -91,7 +91,7 @@ public class InstitutionStepDefs {
                 .uen("test")
                 .build();
         try {
-            testContext.getGraphQLClient()
+            testContext.getPlatformGraphQLClient()
                     .mutate().build()
                     .document(graphqlQuery)
                     .variables(Map.of("input", input))

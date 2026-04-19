@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import reactor.core.publisher.Mono;
@@ -29,15 +30,13 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
     }
 
     private static User extractUserRequestContext(String tenantId) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof Jwt jwt)) throw new AccessDeniedBusinessException("Invalid principal type");
+        Jwt jwt = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getPrincipal)
+                .filter(Jwt.class::isInstance)
+                .map(Jwt.class::cast)
+                .orElseThrow(() -> new AccessDeniedBusinessException("Invalid principal type"));
         User currentUser = UserMapper.from(jwt);
-
         currentUser.setCurrentTenantAccessed(tenantId);
-
-        if (!currentUser.accessToCurrentTenantIsAllowed()) {
-            throw new AccessDeniedBusinessException("user does not have access to the requested tenant");
-        }
 
         return currentUser;
     }
@@ -52,6 +51,10 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
 
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
+        if (isIntrospectionQuery(request)) {
+            return chain.next(request);
+        }
+
         Optional<String> targetTenantId = ofNullable(request.getHeaders().getFirst(X_TENANT_ID));
         targetTenantId
                 .map(UserRequestContextInterceptor::validateTenantId)
@@ -61,5 +64,10 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
                             throw new AccessDeniedBusinessException("no target tenant/institution selected");
                         });
         return chain.next(request);
+    }
+
+    private static boolean isIntrospectionQuery(WebGraphQlRequest request) {
+        String document = request.getDocument();
+        return document.contains("__schema") || document.contains("__type");
     }
 }
