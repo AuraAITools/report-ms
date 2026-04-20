@@ -14,9 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.data.method.annotation.support.AnnotatedControllerConfigurer;
-import org.springframework.graphql.execution.DataFetcherExceptionResolver;
 import org.springframework.graphql.execution.DefaultExecutionGraphQlService;
 import org.springframework.graphql.execution.GraphQlSource;
 import org.springframework.graphql.server.WebGraphQlHandler;
@@ -32,13 +30,13 @@ import static org.springframework.web.servlet.function.RequestPredicates.POST;
 public class PlatformGraphQlConfig {
 
     @Bean
-    AnnotatedControllerConfigurer platformControllerConfigurer() {
-        return new AnnotatedControllerConfigurer();
-    }
+    RouterFunction<ServerResponse> platformGraphQlRouterFunction(ApplicationContext applicationContext,
+                                                                   ResourcePatternResolver resourcePatternResolver,
+                                                                   PolicyEnforcementService policyEnforcementService) throws IOException {
+        AnnotatedControllerConfigurer controllerConfigurer = new AnnotatedControllerConfigurer();
+        controllerConfigurer.setApplicationContext(applicationContext);
+        controllerConfigurer.afterPropertiesSet();
 
-    @Bean
-    GraphQlSource platformGraphQlSource(AnnotatedControllerConfigurer platformControllerConfigurer,
-                                         ResourcePatternResolver resourcePatternResolver) throws IOException {
         ValidationSchemaWiring schemaWiring = new ValidationSchemaWiring(
                 ValidationRules.newValidationRules()
                         .onValidationErrorStrategy(OnValidationErrorStrategy.RETURN_NULL)
@@ -46,7 +44,7 @@ public class PlatformGraphQlConfig {
         );
 
         Resource[] schemas = resourcePatternResolver.getResources("classpath:graphql-platform/**/*.graphqls");
-        return GraphQlSource.schemaResourceBuilder()
+        GraphQlSource graphQlSource = GraphQlSource.schemaResourceBuilder()
                 .schemaResources(schemas)
                 .exceptionResolvers(List.of(new GraphQlExceptionResolver()))
                 .configureRuntimeWiring(wiringBuilder -> wiringBuilder
@@ -54,35 +52,20 @@ public class PlatformGraphQlConfig {
                         .scalar(ExtendedScalars.Date)
                         .scalar(ExtendedScalars.DateTime)
                         .directiveWiring(schemaWiring))
-                .configureRuntimeWiring(platformControllerConfigurer)
+                .configureRuntimeWiring(controllerConfigurer)
                 .build();
-    }
 
-    @Bean
-    ExecutionGraphQlService platformExecutionGraphQlService(GraphQlSource platformGraphQlSource) {
-        return new DefaultExecutionGraphQlService(platformGraphQlSource);
-    }
+        DefaultExecutionGraphQlService executionService = new DefaultExecutionGraphQlService(graphQlSource);
 
-    @Bean
-    WebGraphQlHandler platformWebGraphQlHandler(ExecutionGraphQlService platformExecutionGraphQlService,
-                                                 PolicyEnforcementService policyEnforcementService,
-                                                 ApplicationContext applicationContext) {
         List<WebGraphQlInterceptor> interceptors = List.of(
                 new CorrelationIdInterceptor(),
                 new KeycloakAuthorizationInterceptor(policyEnforcementService, applicationContext)
         );
-        return WebGraphQlHandler.builder(platformExecutionGraphQlService)
+        WebGraphQlHandler webGraphQlHandler = WebGraphQlHandler.builder(executionService)
                 .interceptors(interceptors)
                 .build();
-    }
 
-    @Bean
-    GraphQlHttpHandler platformGraphQlHttpHandler(WebGraphQlHandler platformWebGraphQlHandler) {
-        return new GraphQlHttpHandler(platformWebGraphQlHandler);
-    }
-
-    @Bean
-    RouterFunction<ServerResponse> platformGraphQlRouterFunction(GraphQlHttpHandler platformGraphQlHttpHandler) {
-        return RouterFunctions.route(POST("/platform/graphql"), platformGraphQlHttpHandler::handleRequest);
+        GraphQlHttpHandler handler = new GraphQlHttpHandler(webGraphQlHandler);
+        return RouterFunctions.route(POST("/platform/graphql"), handler::handleRequest);
     }
 }

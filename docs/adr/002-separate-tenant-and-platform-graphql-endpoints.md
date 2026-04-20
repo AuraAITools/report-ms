@@ -26,7 +26,7 @@ POST /platform/graphql     (no x-tenant-id header required)
   → KeycloakAuthorizationInterceptor (group-based: aura-admin)
   → Platform schema + controllers
 
-POST /graphql               (x-tenant-id: <uuid> required)
+POST /tenant/graphql        (x-tenant-id: <uuid> required)
   → CorrelationIdInterceptor
   → UserRequestContextInterceptor (validates tenant access)
   → KeycloakAuthorizationInterceptor (UMA instance-level)
@@ -35,23 +35,23 @@ POST /graphql               (x-tenant-id: <uuid> required)
 
 ### How It Works
 
-Each endpoint has a fully independent GraphQL pipeline, manually wired in Spring:
+The tenant endpoint uses Spring Boot's auto-configured GraphQL stack. The platform endpoint is a fully manual pipeline built inside a single `RouterFunction` bean — no intermediate beans (`GraphQlSource`, `ExecutionGraphQlService`, `GraphQlHttpHandler`) are exposed, which prevents conflicts with auto-configuration.
 
-| Component | Tenant (`/graphql`) | Platform (`/platform/graphql`) |
+| Component | Tenant (`/tenant/graphql`) | Platform (`/platform/graphql`) |
 |-----------|--------------------|-----------------------------|
-| Config class | `TenantGraphQLConfig` (Spring Boot auto-configured) | `PlatformGraphQlConfig` (manually wired) |
-| Schema location | `graphql/` (auto-discovered) | `graphql-platform/**/*.graphqls` (pattern-matched) |
-| Interceptors | `UserRequestContextInterceptor` → `KeycloakAuthorizationInterceptor` | `KeycloakAuthorizationInterceptor` only |
+| Config class | `TenantGraphQLConfig` (Spring Boot auto-configured) | `PlatformGraphQlConfig` (single `RouterFunction` bean) |
+| Schema location | `classpath:graphql-tenant/` (configured via `spring.graphql.schema.locations`) | `classpath:graphql-platform/**/*.graphqls` (pattern-matched via `ResourcePatternResolver`) |
+| Interceptors | Auto-wired `WebGraphQlInterceptor` beans (via `InterceptorConfig`) | Manually wired inline: `CorrelationIdInterceptor` + `KeycloakAuthorizationInterceptor` |
 | Auth strategy | UMA instance-level (evaluates permissions on specific resources) | Group-based (aura-admin group membership) |
 | Requires `x-tenant-id` | Yes (valid UUID) | No |
-| Controllers | `controllers/graphql/v1/tenant/` | `controllers/graphql/v1/platform/` |
+| Controllers | `controllers/graphql/v1/` (auto-discovered via `@Controller`) | `controllers/graphql/v1/platform/` (auto-discovered — schema isolation prevents cross-registration) |
 
 ### Authorization Strategy Per Endpoint
 
 | Endpoint | Who can access | How it's enforced |
 |----------|---------------|-------------------|
 | `/platform/graphql` | aura-admin only | `@ProtectedOperation` evaluated via Keycloak — aura-admin has wildcard policy on all resource types |
-| `/graphql` | institution-admins, outlet-admins | `@ProtectedOperation` evaluated via Keycloak UMA — instance-level group policies on specific resources (see ADR-001) |
+| `/tenant/graphql` | institution-admins, outlet-admins | `@ProtectedOperation` evaluated via Keycloak UMA — instance-level group policies on specific resources (see ADR-001) |
 
 Platform operations don't need UMA resource evaluation — the `aura-admin-all-access` policy grants access to all resource types. Tenant operations use instance-level group policies created dynamically when resources are provisioned.
 
@@ -60,67 +60,148 @@ Platform operations don't need UMA resource evaluation — the `aura-admin-all-a
 Each endpoint has its own schema namespace. Operations defined in the platform schema are invisible on the tenant endpoint, and vice versa:
 
 ```
-graphql-platform/           # Platform endpoint schemas
-  schema.graphqls            # type Query { ... } type Mutation { ... }
-  institution.graphqls       # Platform-specific institution operations
+graphql-platform/               # Platform endpoint schemas
+  query.graphqls                 # type Query { _ping: String }
+  mutation.graphqls              # type Mutation {}
+  scalar.graphqls                # shared scalar definitions
+  types/
+    institution.graphqls         # platform-specific types
+  operations/
+    institutions/
+      mutation.graphqls          # extend type Mutation { createInstitution(...) }
 
-graphql/                     # Tenant endpoint schemas (auto-discovered by Spring Boot)
-  types/                     # Shared input/output types
-  operations/                # Tenant-scoped queries and mutations
+graphql-tenant/                  # Tenant endpoint schemas
+  query.graphqls                 # type Query {}
+  mutation.graphqls              # type Mutation {}
+  scalar.graphqls
+  directive.graphqls
+  types/                         # domain types (outlet, course, account, etc.)
+  operations/                    # extend type Query/Mutation per domain
+    outlets/
+    accounts/
+    courses/
+    ...
 ```
 
 ### Shared Configuration
 
-Both endpoints share the same cross-cutting concerns:
+Both endpoints share the same cross-cutting concerns, configured independently:
 - **Scalars:** `ExtendedScalars.Date`, `ExtendedScalars.GraphQLLong`, `ExtendedScalars.DateTime`
 - **Validation:** `ValidationSchemaWiring` for directive-based input validation
 - **Exception handling:** `GraphQlExceptionResolver` for consistent error response format
 - **Correlation IDs:** `CorrelationIdInterceptor` for request tracing
 
-These are configured independently in each config class (not shared beans) because the platform endpoint bypasses Spring Boot's GraphQL auto-configuration.
+The tenant endpoint gets these via auto-configured beans (`TenantGraphQLConfig`). The platform endpoint configures them inline in `PlatformGraphQlConfig`.
+
+## Implementation Details
+
+### Why No Intermediate Beans for Platform
+
+The platform pipeline is built entirely inside a single `RouterFunction<ServerResponse>` bean. No `GraphQlSource`, `ExecutionGraphQlService`, `WebGraphQlHandler`, or `GraphQlHttpHandler` beans are exposed. This is critical because:
+
+1. **Spring Boot's `GraphQlAutoConfiguration`** uses `@ConditionalOnMissingBean` — if any `GraphQlSource` or `GraphQlHttpHandler` bean exists, the auto-configured tenant stack won't be created.
+2. **`AnnotatedControllerConfigurer`** implements `RuntimeWiringConfigurer` — if registered as a bean, Spring Boot auto-wires it into the tenant's `GraphQlSource`, causing all controllers (including platform ones) to be registered into the tenant schema.
+3. By keeping everything inline, the platform pipeline is completely invisible to Spring Boot's auto-configuration.
+
+### Controller Discovery
+
+Both the auto-configured `AnnotatedControllerConfigurer` (tenant) and the inline one (platform) scan all `@Controller` beans. However, **schema isolation** prevents cross-contamination:
+- A platform controller with `@MutationMapping("createInstitution")` won't match any field in the tenant schema — it shows as an "unmapped registration" in the inspection log but causes no harm.
+- A tenant controller with `@MutationMapping("createOutlet")` won't match any field in the platform schema.
+
+### Introspection
+
+Both endpoints support GraphQL introspection. The `UserRequestContextInterceptor` skips introspection queries (containing `__schema` or `__type`) so Postman can fetch the tenant schema without an `x-tenant-id` header.
+
+### Configuration
+
+```yaml
+# application.yaml
+spring:
+  graphql:
+    path: /tenant/graphql
+    schema:
+      locations:
+        - classpath:graphql-tenant/
+        - classpath:graphql-tenant/types/
+        - classpath:graphql-tenant/operations/outlets/
+        - classpath:graphql-tenant/operations/accounts/
+        # ... all subdirectories listed explicitly
+```
+
+Schema subdirectories must be listed explicitly because Spring Boot's `schema.locations` scans each directory for `.graphqls` files but doesn't recurse automatically.
+
+## How to Add a New Endpoint or Extend Existing Ones
+
+### Adding a New Operation to an Existing Endpoint
+
+**Tenant endpoint (`/tenant/graphql`):**
+1. Add schema file in `graphql-tenant/operations/<domain>/mutation.graphqls` or `query.graphqls` using `extend type Mutation { ... }` or `extend type Query { ... }`
+2. Add the subdirectory to `spring.graphql.schema.locations` in `application.yaml` (if it's a new subdirectory)
+3. Add type definitions in `graphql-tenant/types/<domain>.graphqls`
+4. Create controller in `controllers/graphql/v1/<domain>/` with `@Controller`
+5. Run `mvn generate-sources -f application/pom.xml` to regenerate codegen types
+
+**Platform endpoint (`/platform/graphql`):**
+1. Add schema file in `graphql-platform/operations/<domain>/mutation.graphqls` or `query.graphqls`
+2. Add type definitions in `graphql-platform/types/<domain>.graphqls`
+3. Create controller in `controllers/graphql/v1/platform/<domain>/` with `@Controller`
+4. No YAML changes needed — `ResourcePatternResolver` with `classpath:graphql-platform/**/*.graphqls` auto-discovers all files
+
+### Adding a Third GraphQL Endpoint
+
+If a new audience needs its own endpoint (e.g., `/public/graphql` for unauthenticated access):
+
+1. Create `PublicGraphQlConfig.java` following the `PlatformGraphQlConfig` pattern
+2. Build the entire pipeline inside a single `RouterFunction<ServerResponse>` bean — do NOT expose `GraphQlSource`, `GraphQlHttpHandler`, or `AnnotatedControllerConfigurer` as beans
+3. Create schema files in a new directory (e.g., `graphql-public/`)
+4. Create controllers in a new package (e.g., `controllers/graphql/v1/public/`)
+5. Wire appropriate interceptors (e.g., rate limiting but no auth)
+
+**Key rule:** Only the primary tenant endpoint uses Spring Boot auto-configuration. All additional endpoints must be fully inline to avoid `@ConditionalOnMissingBean` conflicts.
+
+### Extracting to a Separate Microservice
+
+If the platform API grows significantly:
+1. Extract platform controllers, schema files, and `PlatformGraphQlConfig` into a new service
+2. Share domain logic via a common library (core module)
+3. The new service can use Spring Boot's auto-configured GraphQL stack (since it's the only endpoint)
+4. Update API gateway routing to point `/platform/graphql` to the new service
 
 ## Alternatives Considered
 
 ### Alternative 1: Single Schema with Namespace Types
 
-Use wrapper types (`PlatformQueries`, `TenantQueries`) to logically separate operations on a single `/graphql` endpoint.
+Use wrapper types (`PlatformQueries`, `TenantQueries`) to logically separate operations on a single endpoint.
 
-```graphql
-type Query {
-  platform: PlatformQueries!
-  tenant: TenantQueries!
-}
-```
-
-**Rejected because:** Same interceptor chain for everything — would need branching logic inside interceptors to skip tenant validation for platform operations. No true schema isolation — all operations visible to all clients. Re-introduces the complexity we removed with the aggregate query cleanup.
+**Rejected because:** Same interceptor chain for everything — would need branching logic inside interceptors to skip tenant validation for platform operations. No true schema isolation — all operations visible to all clients.
 
 ### Alternative 2: Separate Microservice
 
 Extract platform operations into a dedicated `admin-ms` service.
 
-**Rejected because:** Operational overhead (separate CI/CD, monitoring, infrastructure) is not justified for a small number of platform operations today. Shared domain logic (entities, repositories, Keycloak clients) would need to be extracted into a shared library. Can be revisited if the platform API grows significantly.
+**Rejected because:** Operational overhead (separate CI/CD, monitoring, infrastructure) is not justified for a small number of platform operations today. Can be revisited if the platform API grows significantly.
+
+### Alternative 3: Expose Intermediate Beans
+
+Register `GraphQlSource`, `ExecutionGraphQlService`, etc. as named beans with `@Qualifier`.
+
+**Rejected because:** Spring Boot's `@ConditionalOnMissingBean` checks by type, not by name. Any `GraphQlSource` bean blocks auto-configuration of the tenant stack. Workarounds (`@Primary`, `@ConditionalOnBean`) are fragile and version-dependent.
 
 ## Consequences
 
 ### Positive
 
-- **Clean security boundary** — platform endpoint has no tenant header requirement, tenant endpoint enforces tenant isolation. No conditional branching in interceptors.
-- **Schema isolation** — platform operations are invisible to tenant clients and vice versa. Clients only see what's relevant to them.
-- **Independent interceptor chains** — each endpoint runs exactly the interceptors it needs, nothing more.
-- **Matches industry patterns** — AWS, Stripe, Shopify, and Google Cloud all separate control plane from data plane at the entry point, not deep in business logic.
-- **Future-proof** — the platform endpoint can grow (list institutions, platform analytics, system config) without affecting the tenant API. If it grows enough, extracting to a separate microservice is straightforward.
+- **Clean security boundary** — platform endpoint has no tenant header requirement, tenant endpoint enforces tenant isolation
+- **Schema isolation** — platform operations invisible to tenant clients and vice versa
+- **Independent interceptor chains** — each endpoint runs exactly the interceptors it needs
+- **No auto-config conflicts** — platform pipeline is fully inline, invisible to Spring Boot
+- **Extensible** — new endpoints follow the same `RouterFunction`-only pattern
+- **Matches industry patterns** — AWS, Stripe, Shopify all separate control plane from data plane
 
 ### Negative
 
-- **Verbose setup** — the platform endpoint must be manually wired, bypassing Spring Boot's GraphQL auto-configuration. Each new cross-cutting concern (scalars, exception resolvers, validation) must be configured in both places.
-- **Controller auto-registration** — Spring Boot only auto-registers `@Controller` beans with the primary endpoint. The platform endpoint uses a separate `AnnotatedControllerConfigurer` to discover platform controllers.
-- **Duplicate configuration** — scalars, validation wiring, and exception resolvers are defined in both `TenantGraphQLConfig` and `PlatformGraphQlConfig`. Changes to shared concerns must be applied in both places.
-
-### Operations Classified
-
-| Operation | Endpoint | Reason |
-|-----------|----------|--------|
-| `createInstitution` | `/platform/graphql` | Creates a new tenant — no tenant exists yet |
-| All other operations (14) | `/graphql` | Tenant-scoped — require `x-tenant-id` for data isolation |
-
-As the system grows, operations like `listInstitutions`, `deactivateInstitution`, and platform analytics would be added to the platform endpoint.
+- **Platform config is verbose** — entire pipeline built in one method since no intermediate beans can be exposed
+- **Schema locations must be explicit** — each tenant subdirectory listed in YAML
+- **Duplicate cross-cutting config** — scalars, validation, exception resolvers configured in both places
+- **Controller cross-registration** — both `AnnotatedControllerConfigurer` instances see all `@Controller` beans; schema isolation prevents issues but produces "unmapped registration" warnings in logs
