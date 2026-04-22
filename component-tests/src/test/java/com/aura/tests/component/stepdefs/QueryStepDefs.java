@@ -6,6 +6,7 @@ import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.client.FieldAccessException;
+import com.aura.app.codegen.types.InstitutionResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class QueryStepDefs {
 
     private final TestContext testContext;
     private Map<String, Object> lastInstitutionResponse;
+    private List<InstitutionResponse> lastUserInstitutionsResponse;
 
     @When("user queries their institution")
     public void userQueriesTheirInstitution() {
@@ -56,6 +58,25 @@ public class QueryStepDefs {
     public void theRequestShouldFailWithErrorCode(String errorCode) {
         assertThat(testContext.isRequestFailed()).isTrue();
         assertThat(testContext.getLastErrorMessage()).isEqualTo(errorCode);
+    }
+
+    @When("user queries their institutions")
+    public void userQueriesTheirInstitutions() {
+        String query = findGraphqlQueryFromFiles("get-user-institutions.graphql");
+
+        lastUserInstitutionsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .retrieveSync("getUserInstitutions")
+                .toEntityList(InstitutionResponse.class);
+    }
+
+    @Then("the user's institutions should contain the onboarded institution")
+    public void theUsersInstitutionsShouldContainTheOnboardedInstitution() {
+        assertThat(lastUserInstitutionsResponse).isNotNull().isNotEmpty();
+        assertThat(lastUserInstitutionsResponse)
+                .extracting(InstitutionResponse::getId)
+                .contains(testContext.getInstitutionId());
     }
 
     @When("user queries levels by page")

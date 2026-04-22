@@ -1,0 +1,12 @@
+query GetUserInstitutions {
+    getUserInstitutions {
+        id
+        name
+        email
+        contactNumber
+        address
+        uen
+        createdBy
+        updatedBy
+    }
+}

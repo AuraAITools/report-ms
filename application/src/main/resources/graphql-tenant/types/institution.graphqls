@@ -5,6 +5,7 @@ type InstitutionResponse implements Auditable @connection{
     contactNumber: String!
     address: String!
     uen: String!
+    outlets: [OutletResponse!]!
     createdAt: Long
     createdBy: ID
     updatedAt: Long

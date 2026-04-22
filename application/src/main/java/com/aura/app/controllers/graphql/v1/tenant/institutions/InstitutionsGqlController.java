@@ -6,6 +6,7 @@ import com.aura.app.mappers.InstitutionMapper;
 import com.aura.core.auth.User;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,5 +26,13 @@ public class InstitutionsGqlController {
         return Optional.ofNullable(institutionQueryUseCase.findById(user.getCurrentTenantAccessed()))
                 .map(InstitutionMapper.INSTANCE::from)
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Institution"));
+    }
+
+    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "$tenant")
+    @QueryMapping
+    public List<InstitutionResponse> getUserInstitutions(@ContextValue(name = "user") User user) {
+        return institutionQueryUseCase.findAllByIds(user.getTenantIds()).stream()
+                .map(InstitutionMapper.INSTANCE::from)
+                .toList();
     }
 }

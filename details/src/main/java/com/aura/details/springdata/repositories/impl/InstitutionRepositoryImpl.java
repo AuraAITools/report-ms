@@ -14,6 +14,7 @@ import com.aura.details.springdata.specifications.InstitutionSpecifications;
 import com.aura.details.springdata.tables.institutions.InstitutionTable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
@@ -48,6 +49,14 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
     public List<Institution> findAll() {
         List<InstitutionTable> institutionTables = jpaRepository.findAll();
         return institutionTables.stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList();
+    }
+
+    @Override
+    public List<Institution> findAllByIds(Set<String> ids) {
+        List<UUID> uuids = ids.stream().map(UUID::fromString).toList();
+        return jpaRepository.findAllById(uuids).stream()
+                .map(InstitutionMapper.INSTANCE::toDomainEntity)
+                .toList();
     }
 
     @Override

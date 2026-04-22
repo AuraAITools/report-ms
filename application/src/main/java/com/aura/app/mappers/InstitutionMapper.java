@@ -8,10 +8,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, OutletMapper.class})
 public interface InstitutionMapper {
     InstitutionMapper INSTANCE = Mappers.getMapper(InstitutionMapper.class);
 
+    @Mapping(target = "outlets", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "tenantId", ignore = true)
@@ -20,9 +21,10 @@ public interface InstitutionMapper {
     @Mapping(target = "createdAt", ignore = true)
     Institution from(CreateInstitutionInput createInstitutionInput);
 
+    @Mapping(target = "outlets", source = "outlets")
     InstitutionResponse from(Institution institution);
 
+    @Mapping(target = "outlets", ignore = true)
     InstitutionResponse from(InstitutionTable institutionTable);
-
 
 }

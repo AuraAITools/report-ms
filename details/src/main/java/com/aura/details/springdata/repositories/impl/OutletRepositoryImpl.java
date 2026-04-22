@@ -14,6 +14,7 @@ import com.aura.details.springdata.specifications.OutletSpecifications;
 import com.aura.details.springdata.tables.outlets.OutletTable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -40,6 +41,13 @@ public class OutletRepositoryImpl implements OutletRepository {
         OutletTable outletTable = OutletMapper.INSTANCE.toTableEntity(outlet);
         OutletTable createdTable = jpaOutletRepository.save(outletTable);
         return OutletMapper.INSTANCE.toDomainEntity(createdTable);
+    }
+
+    @Override
+    public List<Outlet> findAllByTenantIds(Set<String> tenantIds) {
+        return jpaOutletRepository.findByTenantIdIn(tenantIds).stream()
+                .map(OutletMapper.INSTANCE::toDomainEntity)
+                .toList();
     }
 
     @Override

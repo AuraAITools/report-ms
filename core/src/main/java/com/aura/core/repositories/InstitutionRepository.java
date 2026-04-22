@@ -6,6 +6,7 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 public interface InstitutionRepository {
@@ -14,6 +15,8 @@ public interface InstitutionRepository {
     @Nullable Institution findById(String id);
 
     List<Institution> findAll();
+
+    List<Institution> findAllByIds(Set<String> ids);
 
     PagedResult<Institution> findAllBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria);
 
