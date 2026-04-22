@@ -28,3 +28,8 @@ enum RELATIONSHIP {
     PARENT
     SELF
 }
+
+input AddUserToGroupInput {
+    userEmail: String!
+    groupName: String!
+}

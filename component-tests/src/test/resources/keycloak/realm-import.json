@@ -898,7 +898,124 @@
       "authorizationSettings": {
         "allowRemoteResourceManagement": true,
         "policyEnforcementMode": "ENFORCING",
-        "resources": [],
+        "resources": [
+          {
+            "name": "account",
+            "type": "urn:aura:account",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              },
+              {
+                "name": "manage"
+              }
+            ]
+          },
+          {
+            "name": "institution",
+            "type": "urn:aura:institution",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              },
+              {
+                "name": "manage"
+              },
+              {
+                "name": "delegate"
+              }
+            ]
+          },
+          {
+            "name": "outlet",
+            "type": "urn:aura:outlet",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              },
+              {
+                "name": "manage"
+              }
+            ]
+          },
+          {
+            "name": "course",
+            "type": "urn:aura:course",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              }
+            ]
+          },
+          {
+            "name": "lesson",
+            "type": "urn:aura:lesson",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              }
+            ]
+          },
+          {
+            "name": "subject",
+            "type": "urn:aura:subject",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              },
+              {
+                "name": "manage"
+              }
+            ]
+          },
+          {
+            "name": "topic",
+            "type": "urn:aura:topic",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "create"
+              },
+              {
+                "name": "view"
+              }
+            ]
+          },
+          {
+            "name": "level",
+            "type": "urn:aura:level",
+            "ownerManagedAccess": false,
+            "scopes": [
+              {
+                "name": "view"
+              }
+            ]
+          }
+        ],
         "policies": [
           {
             "name": "aura-admin-policy",
@@ -1000,11 +1117,21 @@
           }
         ],
         "scopes": [
-          {"name": "create"},
-          {"name": "view"},
-          {"name": "manage"},
-          {"name": "delete"},
-          {"name": "delegate"}
+          {
+            "name": "create"
+          },
+          {
+            "name": "view"
+          },
+          {
+            "name": "manage"
+          },
+          {
+            "name": "delete"
+          },
+          {
+            "name": "delegate"
+          }
         ],
         "decisionStrategy": "AFFIRMATIVE"
       }

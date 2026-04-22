@@ -13,6 +13,8 @@ import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
+import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
+import com.aura.core.usecases.accounts.AddUserToGroupUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -69,6 +71,12 @@ public class UseCaseConfig {
                                                           GroupAuthorizationService groupAuthorizationService) {
         return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader,
                 resourceAuthorizationService, groupAuthorizationService);
+    }
+
+    @Bean
+    AddUserToGroupUseCase addUserToGroupUseCase(IdentityService identityService,
+                                                GroupAuthorizationService groupAuthorizationService) {
+        return new AddUserToGroupUseCaseImpl(identityService, groupAuthorizationService);
     }
 
     @Bean

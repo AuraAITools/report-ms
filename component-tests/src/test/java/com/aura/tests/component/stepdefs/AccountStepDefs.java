@@ -233,7 +233,7 @@ public class AccountStepDefs {
                 .email(email)
                 .firstName(firstName)
                 .lastName(lastName)
-                .contact(row.get("contact"))
+                .contact(Integer.parseInt(row.get("contact")))
                 .build();
 
         AccountResponse response = testContext.getGraphQLClient()
@@ -336,6 +336,38 @@ public class AccountStepDefs {
     @Then("the parent account should be created successfully")
     public void theParentAccountShouldBeCreatedSuccessfully() {
         assertThat(testContext.getAccountId()).isNotNull();
+    }
+
+    @When("user in {string} group adds user {string} to group {string}")
+    public void userInGroupAddsUserToGroup(String actorGroupPattern, String targetUserEmail, String targetGroupPattern) {
+        String resolvedTargetGroup = targetGroupPattern.replace("{institution_id}", testContext.getInstitutionId());
+
+        // Authenticate as the aura-admin service account (has manage permissions)
+        String token = keycloak.tokenManager().getAccessToken().getToken();
+        var tenantClient = testContext.getGraphQLClient()
+                .mutate()
+                .headers(headers -> {
+                    headers.setBearerAuth(token);
+                    headers.set("x-tenant-id", testContext.getInstitutionId());
+                })
+                .build();
+        testContext.setGraphQLClient(tenantClient);
+
+        String query = findGraphqlQueryFromFiles("add-user-to-group.graphql");
+
+        Map<String, Object> input = Map.of(
+                "userEmail", targetUserEmail,
+                "groupName", resolvedTargetGroup
+        );
+
+        Boolean result = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("input", input))
+                .retrieveSync("addUserToGroup")
+                .toEntity(Boolean.class);
+
+        assertThat(result).isTrue();
     }
 
     @When("user tries to create a parent account with details:")

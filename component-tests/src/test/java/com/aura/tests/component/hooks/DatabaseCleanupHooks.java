@@ -66,12 +66,15 @@ public class DatabaseCleanupHooks {
                     .clients().get(client.getId());
 
             // Remove dynamically created UMA resources (created during onboarding)
+            // Keep static resources from realm-import.json (simple names without ':')
             List<ResourceRepresentation> resources = clientResource.authorization()
                     .resources().resources();
             List<String> removedResources = new java.util.ArrayList<>();
             for (ResourceRepresentation resource : resources) {
-                clientResource.authorization().resources().resource(resource.getId()).remove();
-                removedResources.add(resource.getName());
+                if (resource.getName().contains(":")) {
+                    clientResource.authorization().resources().resource(resource.getId()).remove();
+                    removedResources.add(resource.getName());
+                }
             }
             log.info("Removed {} UMA resources: {}", removedResources.size(), removedResources);
 

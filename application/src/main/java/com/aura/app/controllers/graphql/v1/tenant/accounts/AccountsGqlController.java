@@ -23,6 +23,8 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 
 
+import static com.aura.app.codegen.DgsConstants.MUTATION.ADDUSERTOGROUP_INPUT_ARGUMENT.AddUserToGroupInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.AddUserToGroup;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEEDUCATORSINACCOUNT_INPUT_ARGUMENT.CreateEducatorInputs;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTIONADMINACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEPARENTACCOUNT_INPUT_ARGUMENT.CreateParentAccountInput;
@@ -70,5 +72,15 @@ public class AccountsGqlController {
         var params = createEducatorInputs.stream().map(cei -> EducatorMapper.INSTANCE.toParams(cei, user.getCurrentTenantAccessed())).toList();
         List<AccountService.CreatedEducatorResult> results = accountService.createAndLinkEducatorsToAccount(params);
         return results.stream().map(EducatorMapper.INSTANCE::toDto).toList();
+    }
+
+    @ProtectedOperation(resource = "account", scope = "create")
+    @MutationMapping(name = AddUserToGroup)
+    public Boolean addUserToGroup(@Argument(value = AddUserToGroupInput) com.aura.app.codegen.types.AddUserToGroupInput addUserToGroupInput, @ContextValue(name = "user") User user) {
+        accountService.addUserToGroup(
+                addUserToGroupInput.getUserEmail(),
+                addUserToGroupInput.getGroupName()
+        );
+        return true;
     }
 }

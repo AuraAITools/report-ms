@@ -14,6 +14,7 @@ import com.aura.core.repositories.AccountRepository;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
+import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
 import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
@@ -47,6 +48,12 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final IdentityService identityService;
     private final GroupAuthorizationService groupAuthorizationService;
+    private final AddUserToGroupUseCase addUserToGroupUseCase;
+
+    @Transactional
+    public void addUserToGroup(String email, String groupName) {
+        addUserToGroupUseCase.addUserToGroup(email, groupName);
+    }
 
     @Transactional
     public Account createAccountWithInstitutionAdminRole(Account account) {

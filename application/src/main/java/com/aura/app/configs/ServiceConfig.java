@@ -6,6 +6,7 @@ import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
+import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
@@ -91,7 +92,8 @@ public class ServiceConfig {
                                   EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase,
                                   AccountRepository accountRepository,
                                   IdentityService identityService,
-                                  GroupAuthorizationService groupAuthorizationService) {
+                                  GroupAuthorizationService groupAuthorizationService,
+                                  AddUserToGroupUseCase addUserToGroupUseCase) {
         return new AccountService(createAccountUseCase,
                 createParentAccountUseCase,
                 createStudentsInParentAccountUseCase,
@@ -102,8 +104,11 @@ public class ServiceConfig {
                 tagEducatorToCourseUseCase,
                 tagEducatorToLevelUseCase,
                 tagEducatorToSubjectUseCase,
-                enrollEducatorToOutletUseCase, accountRepository, identityService,
-                groupAuthorizationService);
+                enrollEducatorToOutletUseCase,
+                accountRepository,
+                identityService,
+                groupAuthorizationService,
+                addUserToGroupUseCase);
     }
 
     @Bean
