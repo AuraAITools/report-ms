@@ -6,7 +6,6 @@ import com.aura.core.clients.ResourceAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
-import com.aura.core.repositories.OutletRepository;
 import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -70,8 +69,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    InstitutionQueryUseCase institutionQueryService(InstitutionRepository institutionRepository, OutletRepository outletRepository) {
-        return new InstitutionQueryUseCaseImpl(institutionRepository, outletRepository);
+    InstitutionQueryUseCase institutionQueryService(InstitutionRepository institutionRepository) {
+        return new InstitutionQueryUseCaseImpl(institutionRepository);
     }
 
     @Bean

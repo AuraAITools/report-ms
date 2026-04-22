@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class, OutletMapper.class})
+@Mapper(uses = {DateToEpochMapper.class})
 public interface InstitutionMapper {
     InstitutionMapper INSTANCE = Mappers.getMapper(InstitutionMapper.class);
 
@@ -21,7 +21,7 @@ public interface InstitutionMapper {
     @Mapping(target = "createdAt", ignore = true)
     Institution from(CreateInstitutionInput createInstitutionInput);
 
-    @Mapping(target = "outlets", source = "outlets")
+    @Mapping(target = "outlets", ignore = true)
     InstitutionResponse from(Institution institution);
 
     @Mapping(target = "outlets", ignore = true)

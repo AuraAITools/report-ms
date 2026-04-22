@@ -12,10 +12,13 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.graphql.data.method.annotation.support.AnnotatedControllerConfigurer;
+import org.springframework.graphql.execution.DefaultBatchLoaderRegistry;
 import org.springframework.graphql.execution.DefaultExecutionGraphQlService;
+import org.springframework.graphql.execution.BatchLoaderRegistry;
 import org.springframework.graphql.execution.GraphQlSource;
 import org.springframework.graphql.server.WebGraphQlHandler;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
@@ -33,8 +36,15 @@ public class PlatformGraphQlConfig {
     RouterFunction<ServerResponse> platformGraphQlRouterFunction(ApplicationContext applicationContext,
                                                                    ResourcePatternResolver resourcePatternResolver,
                                                                    PolicyEnforcementService policyEnforcementService) throws IOException {
+        // Use a child context with its own BatchLoaderRegistry to prevent
+        // @BatchMapping methods from being registered in the shared tenant registry
+        GenericApplicationContext platformContext = new GenericApplicationContext();
+        platformContext.setParent(applicationContext);
+        platformContext.registerBean(BatchLoaderRegistry.class, (java.util.function.Supplier<BatchLoaderRegistry>) DefaultBatchLoaderRegistry::new);
+        platformContext.refresh();
+
         AnnotatedControllerConfigurer controllerConfigurer = new AnnotatedControllerConfigurer();
-        controllerConfigurer.setApplicationContext(applicationContext);
+        controllerConfigurer.setApplicationContext(platformContext);
         controllerConfigurer.afterPropertiesSet();
 
         ValidationSchemaWiring schemaWiring = new ValidationSchemaWiring(

@@ -7,11 +7,17 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class OutletQueryUseCaseImpl implements OutletQueryUseCase {
     private final OutletRepository outletRepository;
+
+    @Override
+    public List<Outlet> findAllByTenantIds(Set<String> tenantIds) {
+        return outletRepository.findAllByTenantIds(tenantIds);
+    }
 
     @Override
     public PagedResult<Outlet> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria) {
