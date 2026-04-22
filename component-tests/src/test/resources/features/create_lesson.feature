@@ -4,6 +4,8 @@ Feature: Create Lesson
   @ComponentTest
   Scenario: Successfully create a lesson linked to an outlet
     Given user has "aura-admin" role
+    And an institution is onboarded
+    And user switches to the institution tenant
     And an outlet exists with name "Full Lesson Outlet"
     When user creates a lesson with details:
       | name          | description      | startDate             | endDate               |

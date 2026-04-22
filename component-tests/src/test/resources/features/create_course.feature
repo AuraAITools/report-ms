@@ -4,6 +4,8 @@ Feature: Create Course
   @ComponentTest
   Scenario: Successfully create a course in an outlet
     Given user has "aura-admin" role
+    And an institution is onboarded
+    And user switches to the institution tenant
     And an outlet exists with name "Yishun Outlet"
     When user creates a course with details:
       | name        | maxSize | lessonFrequency | price | priceFrequency | startDate            | endDate              |

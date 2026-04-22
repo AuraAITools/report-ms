@@ -4,6 +4,8 @@ Feature: Create Standalone Lesson
   @ComponentTest
   Scenario: Successfully create a standalone lesson
     Given user has "aura-admin" role
+    And an institution is onboarded
+    And user switches to the institution tenant
     And an outlet exists with name "Lesson Outlet"
     When user creates a standalone lesson with details:
       | name        | description         | startDate            | endDate              |
@@ -13,6 +15,8 @@ Feature: Create Standalone Lesson
   @ComponentTest
   Scenario: Cannot create a standalone lesson with a duplicate name
     Given user has "aura-admin" role
+    And an institution is onboarded
+    And user switches to the institution tenant
     And an outlet exists with name "Lesson Outlet"
     And a standalone lesson exists with name "Duplicate Lesson"
     When user tries to create a standalone lesson with name "Duplicate Lesson"

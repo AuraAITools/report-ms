@@ -529,10 +529,12 @@
       "clientRoles": {
         "realm-management": [
           "manage-clients",
+          "manage-authorization",
           "query-clients",
           "manage-users",
           "query-users",
           "view-clients",
+          "view-authorization",
           "view-realm",
           "view-users"
         ],

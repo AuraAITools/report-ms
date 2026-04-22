@@ -29,6 +29,7 @@ public class TestContext {
     // Error tracking for unhappy path @Then steps
     private boolean requestFailed;
     private String lastErrorMessage;
+    private int lastHttpStatus;
 
     public TestContext(HttpSyncGraphQlClient graphQLClient, HttpSyncGraphQlClient platformGraphQLClient) {
         this.graphQLClient = graphQLClient;

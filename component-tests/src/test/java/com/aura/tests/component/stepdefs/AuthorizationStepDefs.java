@@ -3,8 +3,14 @@ package com.aura.tests.component.stepdefs;
 import com.aura.tests.component.containers.keycloak.KeycloakTestContainer;
 import com.aura.tests.component.contexts.TestContext;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
@@ -22,6 +28,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthorizationStepDefs {
 
     private final TestContext testContext;
+
+    @Given("Keycloak is set up")
+    public void keycloakIsSetUp() {
+        KeycloakContainer container = KeycloakTestContainer.getSingleton();
+        String healthUrl = container.getAuthServerUrl() + "/realms/aura";
+        var response = HttpClient.newHttpClient()
+                .sendAsync(HttpRequest.newBuilder()
+                        .uri(java.net.URI.create(healthUrl))
+                        .GET()
+                        .build(), HttpResponse.BodyHandlers.ofString())
+                .join();
+        assertThat(response.statusCode()).as("Keycloak health check").isEqualTo(200);
+    }
 
     @Then("Keycloak should have a {string} resource with scopes {string}")
     public void keycloakShouldHaveResourceWithScopes(String resourceName, String scopesCsv) {
@@ -60,8 +79,8 @@ public class AuthorizationStepDefs {
         }
     }
 
-    @Then("Keycloak should have a {string} policy of type {string}")
-    public void keycloakShouldHavePolicyOfType(String policyName, String policyType) {
+    @Then("Keycloak should have the following policies:")
+    public void keycloakShouldHaveTheFollowingPolicies(DataTable dataTable) {
         KeycloakContainer container = KeycloakTestContainer.getSingleton();
         try (Keycloak adminClient = KeycloakBuilder.builder()
                 .serverUrl(container.getAuthServerUrl())
@@ -79,15 +98,20 @@ public class AuthorizationStepDefs {
             List<PolicyRepresentation> allPolicies = clientResource.authorization()
                     .policies().policies();
 
-            PolicyRepresentation policy = allPolicies.stream()
-                    .filter(p -> policyName.equals(p.getName()))
-                    .findFirst()
-                    .orElseThrow(() -> new AssertionError(
-                            String.format("Policy '%s' should exist in Keycloak. Found policies: %s",
-                                    policyName, allPolicies.stream().map(PolicyRepresentation::getName).toList())));
-            assertThat(policy.getType())
-                    .as("Policy '%s' should be of type '%s'", policyName, policyType)
-                    .isEqualTo(policyType);
+            for (Map<String, String> row : dataTable.asMaps()) {
+                String policyName = row.get("name");
+                String policyType = row.get("type");
+
+                PolicyRepresentation policy = allPolicies.stream()
+                        .filter(p -> policyName.equals(p.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new AssertionError(
+                                String.format("Policy '%s' should exist in Keycloak. Found policies: %s",
+                                        policyName, allPolicies.stream().map(PolicyRepresentation::getName).toList())));
+                assertThat(policy.getType())
+                        .as("Policy '%s' should be of type '%s'", policyName, policyType)
+                        .isEqualTo(policyType);
+            }
         }
     }
 }

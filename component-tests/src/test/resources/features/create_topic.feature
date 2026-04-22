@@ -4,5 +4,7 @@ Feature: Create Topic
   @ComponentTest
   Scenario: Successfully create a new topic
     Given user has "aura-admin" role
+    And an institution is onboarded
+    And user switches to the institution tenant
     When user creates a topic with name "Test Topic"
     Then the topic "Test Topic" should be created successfully

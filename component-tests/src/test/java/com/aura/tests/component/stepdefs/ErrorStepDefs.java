@@ -17,4 +17,14 @@ public class ErrorStepDefs {
                 .as("Expected the request to fail but it succeeded. Last error: %s", testContext.getLastErrorMessage())
                 .isTrue();
     }
+
+    @Then("the request should fail with http status {int}")
+    public void theRequestShouldFailWithHttpStatus(int expectedStatus) {
+        assertThat(testContext.isRequestFailed())
+                .as("Expected the request to fail but it succeeded")
+                .isTrue();
+        assertThat(testContext.getLastHttpStatus())
+                .as("Expected HTTP status %d but got %d", expectedStatus, testContext.getLastHttpStatus())
+                .isEqualTo(expectedStatus);
+    }
 }

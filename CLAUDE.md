@@ -129,11 +129,46 @@ Reference: `TopicStepDefs.java` + `create_topic.feature` + `create-topic.graphql
 - Always include `createdBy`/`updatedBy` in GraphQL selection sets — unselected fields return null
 - aura-admin Keycloak test user ID: `2c43b314-3e3c-4897-a3d3-02a8cab3e5e7`
 - `TestContext` is `@ScenarioScope` — reset per scenario
-- `DatabaseCleanupHooks` truncates all tables (public + audit) before each scenario
+- `DatabaseCleanupHooks` cleans DB tables (public + audit) and Keycloak resources before each scenario
 - `DataTableTypeConverterConfig` — add `@DataTableType` methods here for new input types
 - GraphQL files loaded via `FileUtils.findGraphqlQueryFromFiles("filename.graphql")`
 - Cucumber config is in `junit-platform.properties` (not `cucumber.properties`)
 - `CucumberTestConfig` is the Cucumber entry point — do not add test logic there
+
+## Gherkin & Component Test Conventions
+
+**Gherkin style:**
+
+- Scenario names should describe WHO does WHAT — e.g., "Aura admin successfully creates institution admin account" not
+  "Successfully create an institution admin account"
+- `Given` steps should be detailed — use DataTables for entity details instead of hardcoding in step defs
+- `Then` assertions should be specific — `the request should fail with http status 500` not `the request should fail
+  with an error`. Include error codes, HTTP status, or specific field checks
+- Use parameterized steps for reusability — e.g., `the user {string} enabled status should be {string}` instead of
+  separate `should be enabled` / `should be disabled` steps
+- Use `{institution_id}` placeholders in Gherkin strings — step defs resolve them from `TestContext` at runtime
+  (e.g., `"institution:{institution_id}:admin"`)
+- Use DataTables for lists of expected values — e.g., policy checks with `| name | type |` instead of chained `And`
+  lines
+- For Keycloak user assertions, verify the full state: groups, enabled status, email verified status, required actions
+- Write Gherkin steps as generic and parameterised as possible to promote step def reusability — prefer
+  `the user {string} enabled status should be {string}` over `the user should be enabled`. A single parameterised step
+  def should serve multiple scenarios and feature files
+
+**Step definition patterns:**
+
+- Unhappy path steps ("user tries to...") must catch both `FieldAccessException` (GraphQL errors) and
+  `HttpServerErrorException` (interceptor rejections). Store HTTP status via `testContext.setLastHttpStatus()`
+- Steps that need auth should call `keycloak.tokenManager().getAccessToken().getToken()` and set headers inline — don't
+  rely on a separate `Given user has role` step if the feature flow doesn't include one
+- Keycloak admin assertions use `KeycloakTestContainer.getSingleton()` with master realm admin client (`admin-cli`)
+- No-op steps for unimplemented features should log a skip message and have a `// TODO:` comment
+
+**Environment cleanup (`DatabaseCleanupHooks`):**
+
+- `@Before` hook cleans both DB (truncate) and Keycloak (resources, policies, groups, users)
+- Preserve static Keycloak entities: `aura-admin-*` policies, `aura-admin` group, `service-account-*` users
+- Log summary of removed items per category (even if empty)
 
 ## Liquibase / Database
 

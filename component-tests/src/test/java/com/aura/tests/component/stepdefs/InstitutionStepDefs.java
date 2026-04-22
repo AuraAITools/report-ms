@@ -29,6 +29,7 @@ public class InstitutionStepDefs {
 
     private final TestContext testContext;
     private final JdbcTemplate jdbcTemplate;
+    private final Keycloak keycloak;
 
     @When("user onboards an institution with details:")
     public void onboardToInstitution(CreateInstitutionInput createInstitutionInput) {
@@ -63,7 +64,6 @@ public class InstitutionStepDefs {
 
     @And("an institution is onboarded")
     public void anInstitutionIsOnboarded() {
-        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
         CreateInstitutionInput input = CreateInstitutionInput.newBuilder()
                 .name("testing123")
                 .email("testgg@gmail.com")
@@ -71,6 +71,17 @@ public class InstitutionStepDefs {
                 .address("address")
                 .uen("test")
                 .build();
+        onboardInstitution(input);
+    }
+
+    @And("an institution is onboarded with details:")
+    public void anInstitutionIsOnboardedWithDetails(CreateInstitutionInput input) {
+        onboardInstitution(input);
+    }
+
+    private void onboardInstitution(CreateInstitutionInput input) {
+        ensurePlatformClientAuthenticated();
+        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
         InstitutionResponse institution = testContext.getPlatformGraphQLClient()
                 .mutate().build()
                 .document(graphqlQuery)
@@ -80,16 +91,18 @@ public class InstitutionStepDefs {
         testContext.setInstitutionId(institution.getId());
     }
 
-    @When("user tries to onboard the same institution again")
-    public void userTriesToOnboardTheSameInstitutionAgain() {
-        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
-        CreateInstitutionInput input = CreateInstitutionInput.newBuilder()
-                .name("testing123")
-                .email("testgg@gmail.com")
-                .contactNumber("96228693")
-                .address("address")
-                .uen("test")
+    private void ensurePlatformClientAuthenticated() {
+        String token = keycloak.tokenManager().getAccessToken().getToken();
+        var platformClient = testContext.getPlatformGraphQLClient()
+                .mutate()
+                .headers(headers -> headers.setBearerAuth(token))
                 .build();
+        testContext.setPlatformGraphQLClient(platformClient);
+    }
+
+    @When("user tries to onboard an institution with details:")
+    public void userTriesToOnboardAnInstitutionWithDetails(CreateInstitutionInput input) {
+        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
         try {
             testContext.getPlatformGraphQLClient()
                     .mutate().build()
@@ -99,6 +112,15 @@ public class InstitutionStepDefs {
                     .toEntity(InstitutionResponse.class);
             testContext.setRequestFailed(false);
         } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var extensions = errors.getFirst().getExtensions();
+                if (extensions != null && extensions.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(extensions.get("error_code").toString());
+                }
+            }
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
             testContext.setRequestFailed(true);
             testContext.setLastErrorMessage(e.getMessage());
         }

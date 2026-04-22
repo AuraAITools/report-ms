@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: false
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
