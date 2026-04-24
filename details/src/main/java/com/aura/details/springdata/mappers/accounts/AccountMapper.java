@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.accounts;
 
 import com.aura.core.entities.accounts.Account;
-import com.aura.details.springdata.tables.accounts.AccountTable;
+import com.aura.details.springdata.models.accounts.AccountModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -12,10 +12,10 @@ public interface AccountMapper {
 
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    Account toDomainEntity(AccountTable accountTable);
+    Account toDomainEntity(AccountModel accountModel);
 
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    AccountTable toTableEntity(Account account);
+    AccountModel toModelEntity(Account account);
 }
 

@@ -9,9 +9,9 @@ import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import com.aura.core.utils.SortDirection;
 import com.aura.details.springdata.mappers.levels.LevelMapper;
+import com.aura.details.springdata.models.levels.LevelModel;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.specifications.LevelSpecification;
-import com.aura.details.springdata.tables.levels.LevelTable;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.ScrollPosition;
@@ -43,9 +43,9 @@ public class LevelRepositoryImpl implements LevelRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<LevelTable> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
+        Specification<LevelModel> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
 
-        Window<LevelTable> windowResults = jpaLevelRepository.findBy(
+        Window<LevelModel> windowResults = jpaLevelRepository.findBy(
                 searchSpecifications.and(whereTenantId(tenantId)),
                 fluentQuery -> fluentQuery
                         .sortBy(sort)
@@ -73,9 +73,9 @@ public class LevelRepositoryImpl implements LevelRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<LevelTable> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
+        Specification<LevelModel> searchSpecifications = LevelSpecification.buildLevelSearchSpecification(searchCriteria);
 
-        Window<LevelTable> windowResults = jpaLevelRepository.findBy(
+        Window<LevelModel> windowResults = jpaLevelRepository.findBy(
                 searchSpecifications,
                 fluentQuery -> fluentQuery
                         .sortBy(sort)
@@ -91,7 +91,7 @@ public class LevelRepositoryImpl implements LevelRepository {
 
     @Override
     public @Nullable Level findByNameAndTenantId(String name, String tenantId) {
-        LevelTable levelTable = jpaLevelRepository.findByNameAndTenantId(name, tenantId);
-        return LevelMapper.INSTANCE.toDomainEntity(levelTable);
+        LevelModel levelModel = jpaLevelRepository.findByNameAndTenantId(name, tenantId);
+        return LevelMapper.INSTANCE.toDomainEntity(levelModel);
     }
 }

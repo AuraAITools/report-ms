@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.topics;
 
 import com.aura.core.entities.topics.Topic;
-import com.aura.details.springdata.tables.topics.TopicTable;
+import com.aura.details.springdata.models.topics.TopicModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -14,12 +14,12 @@ public interface TopicMapper {
     @Mapping(target = "lessonObjectiveTopicLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
     @Mapping(target = "lessonPlanTopicLinks", ignore = true)
-    Topic toDomainEntity(TopicTable topicTable);
+    Topic toDomainEntity(TopicModel topicModel);
 
     @Mapping(target = "materialTopicLinks", ignore = true)
     @Mapping(target = "lessonObjectiveTopicLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
     @Mapping(target = "lessonPlanTopicLinks", ignore = true)
-    TopicTable toTableEntity(Topic topic);
+    TopicModel toModelEntity(Topic topic);
 }
 

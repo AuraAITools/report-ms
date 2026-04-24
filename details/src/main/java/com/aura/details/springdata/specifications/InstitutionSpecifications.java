@@ -1,7 +1,7 @@
 package com.aura.details.springdata.specifications;
 
 import com.aura.core.utils.SearchCriteria;
-import com.aura.details.springdata.tables.institutions.InstitutionTable;
+import com.aura.details.springdata.models.institutions.InstitutionModel;
 import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -9,9 +9,9 @@ public class InstitutionSpecifications {
     private InstitutionSpecifications() {
     }
 
-    public static Specification<InstitutionTable> buildInstitutionSearchSpecification(SearchCriteria searchCriteria) {
+    public static Specification<InstitutionModel> buildInstitutionSearchSpecification(SearchCriteria searchCriteria) {
         Map<String, Object> filters = searchCriteria.getFilters();
-        Specification<InstitutionTable> spec = Specification.anyOf();
+        Specification<InstitutionModel> spec = Specification.anyOf();
         if (filters.containsKey("name") && filters.get("name") != null && filters.get("name") instanceof String name) {
             spec = spec.or(nameIsLike(name));
         }

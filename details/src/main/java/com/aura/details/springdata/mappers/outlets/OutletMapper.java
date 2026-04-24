@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.outlets;
 
 import com.aura.core.entities.outlets.Outlet;
-import com.aura.details.springdata.tables.outlets.OutletTable;
+import com.aura.details.springdata.models.outlets.OutletModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -15,13 +15,13 @@ public interface OutletMapper {
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "outletRoom", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    Outlet toDomainEntity(OutletTable outletTable);
+    Outlet toDomainEntity(OutletModel outletModel);
 
     @Mapping(target = "studentOutletLinks", ignore = true)
     @Mapping(target = "outletEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "outletRoom", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    OutletTable toTableEntity(Outlet outlet);
+    OutletModel toModelEntity(Outlet outlet);
 }
 

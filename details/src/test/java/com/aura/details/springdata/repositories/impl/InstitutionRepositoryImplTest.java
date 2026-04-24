@@ -1,8 +1,8 @@
 package com.aura.details.springdata.repositories.impl;
 
 import com.aura.core.entities.institutions.Institution;
+import com.aura.details.springdata.models.institutions.InstitutionModel;
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
-import com.aura.details.springdata.tables.institutions.InstitutionTable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -37,7 +38,7 @@ class InstitutionRepositoryImplTest {
         UUID uuid2 = UUID.randomUUID();
         Set<String> ids = Set.of(uuid1.toString(), uuid2.toString());
 
-        InstitutionTable table1 = new InstitutionTable();
+        InstitutionModel table1 = new InstitutionModel();
         table1.setId(uuid1);
         table1.setName("Institution A");
         table1.setEmail("a@test.com");
@@ -46,7 +47,7 @@ class InstitutionRepositoryImplTest {
         table1.setUen("UEN-A");
         table1.setTenantId(uuid1.toString());
 
-        InstitutionTable table2 = new InstitutionTable();
+        InstitutionModel table2 = new InstitutionModel();
         table2.setId(uuid2);
         table2.setName("Institution B");
         table2.setEmail("b@test.com");

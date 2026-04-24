@@ -11,6 +11,15 @@ import com.aura.details.springdata.mappers.educators.EducatorMapper;
 import com.aura.details.springdata.mappers.levels.LevelMapper;
 import com.aura.details.springdata.mappers.outlets.OutletMapper;
 import com.aura.details.springdata.mappers.subjects.SubjectMapper;
+import com.aura.details.springdata.models.courses.CourseModel;
+import com.aura.details.springdata.models.educators.EducatorModel;
+import com.aura.details.springdata.models.levels.LevelModel;
+import com.aura.details.springdata.models.links.EducatorCourseLinkModel;
+import com.aura.details.springdata.models.links.LevelEducatorLinkModel;
+import com.aura.details.springdata.models.links.OutletEducatorLinkModel;
+import com.aura.details.springdata.models.links.SubjectEducatorLinkModel;
+import com.aura.details.springdata.models.outlets.OutletModel;
+import com.aura.details.springdata.models.subjects.SubjectModel;
 import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.educators.JpaEducatorRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
@@ -20,15 +29,6 @@ import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkR
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
-import com.aura.details.springdata.tables.courses.CourseTable;
-import com.aura.details.springdata.tables.educators.EducatorTable;
-import com.aura.details.springdata.tables.levels.LevelTable;
-import com.aura.details.springdata.tables.links.EducatorCourseLinkTable;
-import com.aura.details.springdata.tables.links.LevelEducatorLinkTable;
-import com.aura.details.springdata.tables.links.OutletEducatorLinkTable;
-import com.aura.details.springdata.tables.links.SubjectEducatorLinkTable;
-import com.aura.details.springdata.tables.outlets.OutletTable;
-import com.aura.details.springdata.tables.subjects.SubjectTable;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -53,65 +53,65 @@ public class EducatorRepositoryImpl implements EducatorRepository {
 
     @Override
     public Educator save(Educator educator) {
-        EducatorTable educatorTable = EducatorMapper.INSTANCE.toTableEntity(educator);
-        EducatorTable createdEducatorTable = jpaEducatorRepository.saveAndFlush(educatorTable);
-        return EducatorMapper.INSTANCE.toDomainEntity(createdEducatorTable);
+        EducatorModel educatorModel = EducatorMapper.INSTANCE.toModelEntity(educator);
+        EducatorModel createdEducatorModel = jpaEducatorRepository.saveAndFlush(educatorModel);
+        return EducatorMapper.INSTANCE.toDomainEntity(createdEducatorModel);
     }
 
     @Override
     public Course createEducatorCourseLink(String educatorId, String courseId, String tenantId) {
-        CourseTable courseTable = jpaCourseRepository.getReferenceById(UUID.fromString(courseId));
-        EducatorTable educatorTable = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
-        EducatorCourseLinkTable educatorCourseLinkTable = EducatorCourseLinkTable
+        CourseModel courseModel = jpaCourseRepository.getReferenceById(UUID.fromString(courseId));
+        EducatorModel educatorModel = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
+        EducatorCourseLinkModel educatorCourseLinkModel = EducatorCourseLinkModel
                 .builder()
-                .course(courseTable)
-                .educator(educatorTable)
+                .course(courseModel)
+                .educator(educatorModel)
                 .tenantId(tenantId)
                 .build();
-        jpaEducatorCourseLinkRepository.save(educatorCourseLinkTable);
-        return CourseMapper.INSTANCE.toDomainEntity(courseTable);
+        jpaEducatorCourseLinkRepository.save(educatorCourseLinkModel);
+        return CourseMapper.INSTANCE.toDomainEntity(courseModel);
     }
 
     @Override
     public Outlet createOutletEducatorLink(String educatorId, String outletId, String tenantId) {
-        OutletTable outletTable = jpaOutletRepository.getReferenceById(UUID.fromString(outletId));
-        EducatorTable educatorTable = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
-        OutletEducatorLinkTable outletEducatorLinkTable = OutletEducatorLinkTable
+        OutletModel outletModel = jpaOutletRepository.getReferenceById(UUID.fromString(outletId));
+        EducatorModel educatorModel = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
+        OutletEducatorLinkModel outletEducatorLinkModel = OutletEducatorLinkModel
                 .builder()
-                .outlet(outletTable)
-                .educator(educatorTable)
+                .outlet(outletModel)
+                .educator(educatorModel)
                 .tenantId(tenantId)
                 .build();
-        jpaOutletEducatorLinkRepository.save(outletEducatorLinkTable);
-        return OutletMapper.INSTANCE.toDomainEntity(outletTable);
+        jpaOutletEducatorLinkRepository.save(outletEducatorLinkModel);
+        return OutletMapper.INSTANCE.toDomainEntity(outletModel);
     }
 
     @Override
     public Level createLevelEducatorLink(String educatorId, String levelId, String tenantId) {
-        LevelTable levelTable = jpaLevelRepository.getReferenceById(UUID.fromString(levelId));
-        EducatorTable educatorTable = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
-        LevelEducatorLinkTable levelEducatorLinkTable = LevelEducatorLinkTable
+        LevelModel levelModel = jpaLevelRepository.getReferenceById(UUID.fromString(levelId));
+        EducatorModel educatorModel = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
+        LevelEducatorLinkModel levelEducatorLinkModel = LevelEducatorLinkModel
                 .builder()
-                .level(levelTable)
-                .educator(educatorTable)
+                .level(levelModel)
+                .educator(educatorModel)
                 .tenantId(tenantId)
                 .build();
-        jpaLevelEducatorLinkRepository.save(levelEducatorLinkTable);
-        return LevelMapper.INSTANCE.toDomainEntity(levelTable);
+        jpaLevelEducatorLinkRepository.save(levelEducatorLinkModel);
+        return LevelMapper.INSTANCE.toDomainEntity(levelModel);
     }
 
     @Override
     public Subject createSubjectEducatorLink(String educatorId, String subjectId, String tenantId) {
-        SubjectTable subjectTable = jpaSubjectRepository.getReferenceById(UUID.fromString(subjectId));
-        EducatorTable educatorTable = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
-        SubjectEducatorLinkTable subjectEducatorLinkTable = SubjectEducatorLinkTable
+        SubjectModel subjectModel = jpaSubjectRepository.getReferenceById(UUID.fromString(subjectId));
+        EducatorModel educatorModel = jpaEducatorRepository.getReferenceById(UUID.fromString(educatorId));
+        SubjectEducatorLinkModel subjectEducatorLinkModel = SubjectEducatorLinkModel
                 .builder()
-                .subject(subjectTable)
-                .educator(educatorTable)
+                .subject(subjectModel)
+                .educator(educatorModel)
                 .tenantId(tenantId)
                 .build();
-        jpaSubjectEducatorLinkRepository.save(subjectEducatorLinkTable);
-        return SubjectMapper.INSTANCE.toDomainEntity(subjectTable);
+        jpaSubjectEducatorLinkRepository.save(subjectEducatorLinkModel);
+        return SubjectMapper.INSTANCE.toDomainEntity(subjectModel);
     }
 
     @Override

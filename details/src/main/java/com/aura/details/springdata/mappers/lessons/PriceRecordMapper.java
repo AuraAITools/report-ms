@@ -2,7 +2,7 @@ package com.aura.details.springdata.mappers.lessons;
 
 import com.aura.core.entities.lessons.PriceRecord;
 import com.aura.details.springdata.mappers.courses.CourseMapper;
-import com.aura.details.springdata.tables.lessons.PriceRecordTable;
+import com.aura.details.springdata.models.lessons.PriceRecordModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -12,9 +12,9 @@ public interface PriceRecordMapper {
     PriceRecordMapper INSTANCE = Mappers.getMapper(PriceRecordMapper.class);
 
     @Mapping(target = "course", ignore = true)
-    PriceRecord toDomainEntity(PriceRecordTable priceRecordTable);
+    PriceRecord toDomainEntity(PriceRecordModel priceRecordModel);
 
     @Mapping(target = "course", ignore = true)
-    PriceRecordTable toTableEntity(PriceRecord priceRecord);
+    PriceRecordModel toModelEntity(PriceRecord priceRecord);
 }
 

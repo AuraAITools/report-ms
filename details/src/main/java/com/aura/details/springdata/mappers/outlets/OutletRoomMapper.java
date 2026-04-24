@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.outlets;
 
 import com.aura.core.entities.outlets.OutletRoom;
-import com.aura.details.springdata.tables.outlets.OutletRoomTable;
+import com.aura.details.springdata.models.outlets.OutletRoomModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -11,9 +11,9 @@ public interface OutletRoomMapper {
     OutletRoomMapper INSTANCE = Mappers.getMapper(OutletRoomMapper.class);
 
     @Mapping(target = "lessonOutletRoomBookings", ignore = true)
-    OutletRoom toDomainEntity(OutletRoomTable outletRoomTable);
+    OutletRoom toDomainEntity(OutletRoomModel outletRoomModel);
 
     @Mapping(target = "lessonOutletRoomBookings", ignore = true)
-    OutletRoomTable toTableEntity(OutletRoom outletRoom);
+    OutletRoomModel toModelEntity(OutletRoom outletRoom);
 }
 

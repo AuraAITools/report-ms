@@ -1,12 +1,12 @@
 package com.aura.details.springdata.repositories.jpa.lessons;
 
-import com.aura.details.springdata.tables.lessons.LessonParticipationReviewTable;
+import com.aura.details.springdata.models.lessons.LessonParticipationReviewModel;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JpaLessonParticipationReviewRepository extends JpaRepository<LessonParticipationReviewTable, UUID>, JpaSpecificationExecutor<LessonParticipationReviewTable> {
+public interface JpaLessonParticipationReviewRepository extends JpaRepository<LessonParticipationReviewModel, UUID>, JpaSpecificationExecutor<LessonParticipationReviewModel> {
 }
 

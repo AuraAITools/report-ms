@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.levels;
 
 import com.aura.core.entities.levels.Level;
-import com.aura.details.springdata.tables.levels.LevelTable;
+import com.aura.details.springdata.models.levels.LevelModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -14,12 +14,12 @@ public interface LevelMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "students", ignore = true)
-    Level toDomainEntity(LevelTable levelTable);
+    Level toDomainEntity(LevelModel levelModel);
 
     @Mapping(target = "subjectLevelLinks", ignore = true)
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "courses", ignore = true)
     @Mapping(target = "students", ignore = true)
-    LevelTable toTableEntity(Level level);
+    LevelModel toModelEntity(Level level);
 }
 

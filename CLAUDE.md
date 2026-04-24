@@ -31,7 +31,7 @@ core → details → application → component-tests
 ```
 
 - **`core/`** — Domain logic. No Spring. Entities (POJOs), repository interfaces, use case interface+impl pairs.
-- **`details/`** — Infrastructure. JPA tables, Spring Data repos, MapStruct mappers, services (`@Transactional`).
+- **`details/`** — Infrastructure. JPA models, Spring Data repos, MapStruct mappers, services (`@Transactional`).
 - **`application/`** — Spring Boot app. GraphQL controllers, mappers, Spring config.
 - **`database-runner/`** — Liquibase migration runner.
 - **`component-tests/`** — Cucumber BDD tests against a running app.
@@ -51,14 +51,14 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 **Repository pattern** (4 files per domain):
 
 - `core/repositories/XRepository.java` — interface
-- `details/springdata/repositories/impl/XRepositoryImpl.java` — implements interface, converts domain↔table via
+- `details/springdata/repositories/impl/XRepositoryImpl.java` — implements interface, converts domain↔model via
   MapStruct
 - `details/springdata/repositories/jpa/JpaXRepository.java` — extends `JpaRepository`
-- `details/springdata/tables/<domain>/XTable.java` — `@Entity` extending `TenantBaseTable`
+- `details/springdata/models/<domain>/XModel.java` — `@Entity` extending `TenantBaseModel`
 
 **Naming:**
 
-- JPA entities: `XTable` (e.g., `CourseTable`)
+- JPA entities: `XModel` (e.g., `CourseModel`)
 - Domain entities: `X` (e.g., `Course`)
 - Use case impls: `XUseCaseImpl`
 
@@ -66,13 +66,25 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 
 - Use `@RequiredArgsConstructor` for dependency injection instead of manual constructors when possible
 - Use `@Slf4j` for logging instead of `LoggerFactory.getLogger(...)` 
-- For `@Entity` classes: use `@Getter @Setter @NoArgsConstructor` instead of `@Data` — `@Data` generates `equals`/`hashCode` which causes JPA issues with lazy-loaded proxies and detached entities
+- For `@Entity` model classes, use this annotation convention (enforced by `ModelEntityConventionTest` ArchUnit test):
+  - `@Getter @Setter @NoArgsConstructor` — never use `@Data` (generates `equals`/`hashCode` that causes JPA issues with
+    lazy-loaded proxies and detached entities)
+  - `@EqualsAndHashCode` — identity is defined by the entity's ID or composite key:
+    - `BaseModel` has `@EqualsAndHashCode(of = {"id"}, callSuper = false)` — uses only the `id` field, excludes
+      `AuditMetadata` audit fields
+    - Non-composite entities: `@EqualsAndHashCode(of = {}, callSuper = true)` — delegates to `BaseModel`'s `id`
+    - Composite key entities: `@EqualsAndHashCode(of = {"compositeField"}, callSuper = true)` — uses `id` from
+      `BaseModel` + the additional composite key field(s) from the subclass
+    - `InstitutionModel` (extends `AuditMetadata`, has own `@Id`): `@EqualsAndHashCode(of = {"id"})`
+    - Never include relationship fields in equals/hashCode — causes stack overflows from circular references
+  - `@ToString.Exclude` on all lazy relationship fields (`@ManyToOne(fetch = LAZY)`, `@OneToMany`, etc.) — prevents
+    `toString()` from triggering lazy loading and causing `LazyInitializationException`
 
 **Rules:**
 
 - No `@Component`, `@Service`, or Spring imports in `core/`
 - `@Transactional` only in `details/services/` — never in use cases or controllers
-- All tables extend `TenantBaseTable` (provides `tenantId` for multi-tenancy)
+- All models extend `TenantBaseModel` (provides `tenantId` for multi-tenancy)
 - Date/time: stored as `Instant` in DB, exposed as epoch milliseconds (`Long`) in GraphQL
 - Controllers get the auth user via `@ContextValue("user") User user`
 
@@ -107,7 +119,7 @@ are regenerated from schema. Always run `mvn generate-sources -f application/pom
 
 **Mappers:**
 
-- `details/springdata/mappers/` — domain entity ↔ JPA table
+- `details/springdata/mappers/` — domain entity ↔ JPA model
 - `application/mappers/` — GraphQL codegen DTO ↔ domain entity
 - `DateToEpochMapper` handles `LocalDateTime`/`Instant` ↔ epoch `Long`
 

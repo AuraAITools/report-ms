@@ -3,7 +3,7 @@ package com.aura.details.springdata.mappers.lessons;
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.details.springdata.mappers.outlets.OutletMapper;
 import com.aura.details.springdata.mappers.subjects.SubjectMapper;
-import com.aura.details.springdata.tables.lessons.LessonTable;
+import com.aura.details.springdata.models.lessons.LessonModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -24,7 +24,7 @@ public interface LessonMapper {
     @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "outlet", ignore = true)
-    Lesson toDomainEntity(LessonTable lessonTable);
+    Lesson toDomainEntity(LessonModel lessonModel);
 
 
     @Mapping(target = "subject", ignore = true)
@@ -38,6 +38,6 @@ public interface LessonMapper {
     @Mapping(target = "materialLessonLinks", ignore = true)
     @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "course", ignore = true)
-    LessonTable toTableEntity(Lesson lesson);
+    LessonModel toModelEntity(Lesson lesson);
 }
 

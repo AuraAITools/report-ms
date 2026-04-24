@@ -1,6 +1,6 @@
 package com.aura.details.springdata.repositories.jpa.outlets;
 
-import com.aura.details.springdata.tables.outlets.OutletTable;
+import com.aura.details.springdata.models.outlets.OutletModel;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JpaOutletRepository extends JpaRepository<OutletTable, UUID>, JpaSpecificationExecutor<OutletTable> {
-    List<OutletTable> findByTenantIdIn(Collection<String> tenantIds);
+public interface JpaOutletRepository extends JpaRepository<OutletModel, UUID>, JpaSpecificationExecutor<OutletModel> {
+    List<OutletModel> findByTenantIdIn(Collection<String> tenantIds);
 }
 

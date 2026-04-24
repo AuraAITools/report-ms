@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 public interface LevelMapper {
     LevelMapper INSTANCE = Mappers.getMapper(LevelMapper.class);
 
-    LevelResponse mapToDto(Level levelTable);
+    LevelResponse mapToDto(Level levelModel);
 
 }
 

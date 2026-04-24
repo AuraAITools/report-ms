@@ -1,7 +1,7 @@
 package com.aura.details.springdata.specifications;
 
 import com.aura.core.utils.SearchCriteria;
-import com.aura.details.springdata.tables.outlets.OutletTable;
+import com.aura.details.springdata.models.outlets.OutletModel;
 import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -9,9 +9,9 @@ public class OutletSpecifications {
     private OutletSpecifications() {
     }
 
-    public static Specification<OutletTable> buildOutletSearchSpecification(SearchCriteria searchCriteria) {
+    public static Specification<OutletModel> buildOutletSearchSpecification(SearchCriteria searchCriteria) {
         Map<String, Object> filters = searchCriteria.getFilters();
-        Specification<OutletTable> spec = Specification.anyOf();
+        Specification<OutletModel> spec = Specification.anyOf();
         if (filters.containsKey("name") && filters.get("name") != null && filters.get("name") instanceof String name) {
             spec = spec.or(nameIsLike(name));
         }

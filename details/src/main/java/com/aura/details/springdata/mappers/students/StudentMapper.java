@@ -3,7 +3,7 @@ package com.aura.details.springdata.mappers.students;
 import com.aura.core.entities.students.Student;
 import com.aura.details.springdata.mappers.levels.LevelMapper;
 import com.aura.details.springdata.mappers.schools.SchoolMapper;
-import com.aura.details.springdata.tables.students.StudentTable;
+import com.aura.details.springdata.models.students.StudentModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -20,7 +20,7 @@ public interface StudentMapper {
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "studentOutletLinks", ignore = true)
-    Student toDomainEntity(StudentTable studentTable);
+    Student toDomainEntity(StudentModel studentModel);
 
     @Mapping(target = "school", ignore = true)
     @Mapping(target = "level", ignore = true)
@@ -30,7 +30,7 @@ public interface StudentMapper {
     @Mapping(target = "accountStudentLinks", ignore = true)
     @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "studentOutletLinks", ignore = true)
-    StudentTable toTableEntity(Student student);
+    StudentModel toModelEntity(Student student);
 
 }
 

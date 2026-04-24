@@ -1,12 +1,12 @@
 package com.aura.details.springdata.repositories.jpa.links;
 
-import com.aura.details.springdata.tables.links.SubjectEducatorLinkTable;
+import com.aura.details.springdata.models.links.SubjectEducatorLinkModel;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JpaSubjectEducatorLinkRepository extends JpaRepository<SubjectEducatorLinkTable, UUID>, JpaSpecificationExecutor<SubjectEducatorLinkTable> {
+public interface JpaSubjectEducatorLinkRepository extends JpaRepository<SubjectEducatorLinkModel, UUID>, JpaSpecificationExecutor<SubjectEducatorLinkModel> {
 }
 

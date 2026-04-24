@@ -3,7 +3,7 @@ package com.aura.details.springdata.mappers.links;
 import com.aura.core.entities.links.StudentLessonLink;
 import com.aura.details.springdata.mappers.lessons.LessonMapper;
 import com.aura.details.springdata.mappers.students.StudentMapper;
-import com.aura.details.springdata.tables.links.StudentLessonLinkTable;
+import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -20,7 +20,7 @@ public interface StudentLessonLinkMapper {
     @Mapping(target = "lessonParticipationReview", ignore = true)
     @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
     @Mapping(target = "lessonTopicProficiency", ignore = true)
-    StudentLessonLink toDomainEntity(StudentLessonLinkTable studentLessonLinkTable);
+    StudentLessonLink toDomainEntity(StudentLessonLinkModel studentLessonLinkModel);
 
     @Mapping(target = "student", ignore = true)
     @Mapping(target = "lesson", ignore = true)
@@ -30,6 +30,6 @@ public interface StudentLessonLinkMapper {
     @Mapping(target = "lessonParticipationReview", ignore = true)
     @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
     @Mapping(target = "lessonTopicProficiency", ignore = true)
-    StudentLessonLinkTable toTableEntity(StudentLessonLink studentLessonLink);
+    StudentLessonLinkModel toModelEntity(StudentLessonLink studentLessonLink);
 }
 

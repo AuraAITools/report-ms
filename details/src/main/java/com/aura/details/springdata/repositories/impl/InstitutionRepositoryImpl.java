@@ -9,9 +9,9 @@ import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import com.aura.core.utils.SortDirection;
 import com.aura.details.springdata.mappers.institutions.InstitutionMapper;
+import com.aura.details.springdata.models.institutions.InstitutionModel;
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
 import com.aura.details.springdata.specifications.InstitutionSpecifications;
-import com.aura.details.springdata.tables.institutions.InstitutionTable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,21 +34,21 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
 
     @Override
     public Institution save(Institution institution) {
-        InstitutionTable institutionTable = InstitutionMapper.INSTANCE.toTableEntity(institution);
-        InstitutionTable saved = jpaRepository.save(institutionTable);
+        InstitutionModel institutionModel = InstitutionMapper.INSTANCE.toModelEntity(institution);
+        InstitutionModel saved = jpaRepository.save(institutionModel);
         return InstitutionMapper.INSTANCE.toDomainEntity(saved);
     }
 
     @Override
     public @Nullable Institution findById(String id) {
-        Optional<InstitutionTable> optionalInstitutionTable = jpaRepository.findById(UUID.fromString(id));
-        return optionalInstitutionTable.map(InstitutionMapper.INSTANCE::toDomainEntity).orElse(null);
+        Optional<InstitutionModel> optionalInstitutionModel = jpaRepository.findById(UUID.fromString(id));
+        return optionalInstitutionModel.map(InstitutionMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 
     @Override
     public List<Institution> findAll() {
-        List<InstitutionTable> institutionTables = jpaRepository.findAll();
-        return institutionTables.stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList();
+        List<InstitutionModel> institutionModels = jpaRepository.findAll();
+        return institutionModels.stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList();
     }
 
     @Override
@@ -73,9 +73,9 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<InstitutionTable> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
+        Specification<InstitutionModel> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
 
-        Window<InstitutionTable> windowResults = jpaRepository.findBy(
+        Window<InstitutionModel> windowResults = jpaRepository.findBy(
                 searchSpecifications,
                 fluentQuery -> fluentQuery
                         .sortBy(sort)
@@ -104,9 +104,9 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
                         osc.getField()))
                 .toList());
 
-        Specification<InstitutionTable> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
+        Specification<InstitutionModel> searchSpecifications = InstitutionSpecifications.buildInstitutionSearchSpecification(searchCriteria);
 
-        Window<InstitutionTable> windowResults = jpaRepository.findBy(
+        Window<InstitutionModel> windowResults = jpaRepository.findBy(
                 searchSpecifications.and(whereTenantId(tenantId)),
                 fluentQuery -> fluentQuery
                         .sortBy(sort)

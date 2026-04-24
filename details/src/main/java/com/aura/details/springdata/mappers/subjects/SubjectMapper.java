@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.subjects;
 
 import com.aura.core.entities.subjects.Subject;
-import com.aura.details.springdata.tables.subjects.SubjectTable;
+import com.aura.details.springdata.models.subjects.SubjectModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -18,7 +18,7 @@ public interface SubjectMapper {
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "subjectLevelLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
-    Subject toDomainEntity(SubjectTable subjectTable);
+    Subject toDomainEntity(SubjectModel subjectModel);
 
     @Mapping(target = "subjectCourseLinks", ignore = true)
     @Mapping(target = "lessons", ignore = true)
@@ -28,6 +28,6 @@ public interface SubjectMapper {
     @Mapping(target = "testResults", ignore = true)
     @Mapping(target = "subjectLevelLinks", ignore = true)
     @Mapping(target = "topicSubjectLinks", ignore = true)
-    SubjectTable toTableEntity(Subject subject);
+    SubjectModel toModelEntity(Subject subject);
 }
 

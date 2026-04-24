@@ -5,12 +5,12 @@ import com.aura.core.entities.subjects.Subject;
 import com.aura.core.repositories.SubjectRepository;
 import com.aura.details.springdata.mappers.subjects.SubjectMapper;
 import com.aura.details.springdata.mappers.subjects.TopicSubjectLinkMapper;
+import com.aura.details.springdata.models.links.TopicSubjectLinkModel;
+import com.aura.details.springdata.models.subjects.SubjectModel;
+import com.aura.details.springdata.models.topics.TopicModel;
 import com.aura.details.springdata.repositories.jpa.links.JpaTopicSubjectLinkRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
-import com.aura.details.springdata.tables.links.TopicSubjectLinkTable;
-import com.aura.details.springdata.tables.subjects.SubjectTable;
-import com.aura.details.springdata.tables.topics.TopicTable;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,27 +24,27 @@ public class SubjectRepositoryImpl implements SubjectRepository {
 
     @Override
     public Subject save(Subject subject) {
-        SubjectTable createdSubject = jpaSubjectRepository.save(SubjectMapper.INSTANCE.toTableEntity(subject));
+        SubjectModel createdSubject = jpaSubjectRepository.save(SubjectMapper.INSTANCE.toModelEntity(subject));
         return SubjectMapper.INSTANCE.toDomainEntity(createdSubject);
     }
 
     @Override
     public List<TopicSubjectLink> link(UUID subjectId, List<UUID> topicIds, String tenantId) {
-        List<TopicTable> topicTables = jpaTopicRepository.findAllById(topicIds);
-        SubjectTable subjectTable = jpaSubjectRepository.findById(subjectId).orElseThrow(() -> new RuntimeException("topic not found"));
-        List<TopicSubjectLinkTable> topicSubjectTableLinks = topicTables
+        List<TopicModel> topicModels = jpaTopicRepository.findAllById(topicIds);
+        SubjectModel subjectModel = jpaSubjectRepository.findById(subjectId).orElseThrow(() -> new RuntimeException("topic not found"));
+        List<TopicSubjectLinkModel> topicSubjectModelLinks = topicModels
                 .stream()
                 .map(tpc -> {
-                    TopicSubjectLinkTable topicSubjectLinkTable = TopicSubjectLinkTable
+                    TopicSubjectLinkModel topicSubjectLinkModel = TopicSubjectLinkModel
                             .builder()
-                            .subject(subjectTable)
+                            .subject(subjectModel)
                             .topic(tpc)
                             .tenantId(tenantId)
                             .build();
-                    return topicSubjectLinkTable;
+                    return topicSubjectLinkModel;
                 })
                 .toList();
-        List<TopicSubjectLinkTable> topicSubjectLinkTables = jpaTopicSubjectLinkRepository.saveAll(topicSubjectTableLinks);
-        return topicSubjectLinkTables.stream().map(TopicSubjectLinkMapper.INSTANCE::toDomain).toList();
+        List<TopicSubjectLinkModel> topicSubjectLinkModels = jpaTopicSubjectLinkRepository.saveAll(topicSubjectModelLinks);
+        return topicSubjectLinkModels.stream().map(TopicSubjectLinkMapper.INSTANCE::toDomain).toList();
     }
 }

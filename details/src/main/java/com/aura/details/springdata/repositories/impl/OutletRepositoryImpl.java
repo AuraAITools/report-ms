@@ -9,9 +9,9 @@ import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import com.aura.core.utils.SortDirection;
 import com.aura.details.springdata.mappers.outlets.OutletMapper;
+import com.aura.details.springdata.models.outlets.OutletModel;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.specifications.OutletSpecifications;
-import com.aura.details.springdata.tables.outlets.OutletTable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,15 +32,15 @@ public class OutletRepositoryImpl implements OutletRepository {
 
     @Override
     public @Nullable Outlet findById(String id) {
-        Optional<OutletTable> outletTable = jpaOutletRepository.findById(UUID.fromString(id));
-        return outletTable.map(OutletMapper.INSTANCE::toDomainEntity).orElse(null);
+        Optional<OutletModel> outletModel = jpaOutletRepository.findById(UUID.fromString(id));
+        return outletModel.map(OutletMapper.INSTANCE::toDomainEntity).orElse(null);
     }
 
     @Override
     public Outlet save(Outlet outlet) {
-        OutletTable outletTable = OutletMapper.INSTANCE.toTableEntity(outlet);
-        OutletTable createdTable = jpaOutletRepository.save(outletTable);
-        return OutletMapper.INSTANCE.toDomainEntity(createdTable);
+        OutletModel outletModel = OutletMapper.INSTANCE.toModelEntity(outlet);
+        OutletModel createdModel = jpaOutletRepository.save(outletModel);
+        return OutletMapper.INSTANCE.toDomainEntity(createdModel);
     }
 
     @Override
@@ -63,9 +63,9 @@ public class OutletRepositoryImpl implements OutletRepository {
                         osc.getDirection() == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
                         osc.getField()))
                 .toList());
-        Specification<OutletTable> searchSpecifications = OutletSpecifications.buildOutletSearchSpecification(searchCriteria);
+        Specification<OutletModel> searchSpecifications = OutletSpecifications.buildOutletSearchSpecification(searchCriteria);
 
-        Window<OutletTable> windowResults = jpaOutletRepository.findBy(
+        Window<OutletModel> windowResults = jpaOutletRepository.findBy(
                 searchSpecifications,
                 fluentQuery -> fluentQuery
                         .sortBy(sort)
@@ -93,9 +93,9 @@ public class OutletRepositoryImpl implements OutletRepository {
                         osc.getDirection() == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
                         osc.getField()))
                 .toList());
-        Specification<OutletTable> searchSpecifications = OutletSpecifications.buildOutletSearchSpecification(searchCriteria);
+        Specification<OutletModel> searchSpecifications = OutletSpecifications.buildOutletSearchSpecification(searchCriteria);
 
-        Window<OutletTable> windowResults = jpaOutletRepository.findBy(
+        Window<OutletModel> windowResults = jpaOutletRepository.findBy(
                 searchSpecifications.and(whereTenantId(tenantId)),
                 fluentQuery -> fluentQuery
                         .sortBy(sort)

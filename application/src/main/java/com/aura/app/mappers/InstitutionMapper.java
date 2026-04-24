@@ -3,7 +3,7 @@ package com.aura.app.mappers;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.core.entities.institutions.Institution;
-import com.aura.details.springdata.tables.institutions.InstitutionTable;
+import com.aura.details.springdata.models.institutions.InstitutionModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -25,6 +25,6 @@ public interface InstitutionMapper {
     InstitutionResponse from(Institution institution);
 
     @Mapping(target = "outlets", ignore = true)
-    InstitutionResponse from(InstitutionTable institutionTable);
+    InstitutionResponse from(InstitutionModel institutionModel);
 
 }

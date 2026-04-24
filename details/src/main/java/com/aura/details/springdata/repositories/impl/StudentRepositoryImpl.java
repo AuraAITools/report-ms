@@ -9,16 +9,16 @@ import com.aura.details.springdata.mappers.courses.CourseMapper;
 import com.aura.details.springdata.mappers.levels.LevelMapper;
 import com.aura.details.springdata.mappers.schools.SchoolMapper;
 import com.aura.details.springdata.mappers.students.StudentMapper;
+import com.aura.details.springdata.models.courses.CourseModel;
+import com.aura.details.springdata.models.levels.LevelModel;
+import com.aura.details.springdata.models.links.StudentCourseLinkModel;
+import com.aura.details.springdata.models.schools.SchoolModel;
+import com.aura.details.springdata.models.students.StudentModel;
 import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
-import com.aura.details.springdata.tables.courses.CourseTable;
-import com.aura.details.springdata.tables.levels.LevelTable;
-import com.aura.details.springdata.tables.links.StudentCourseLinkTable;
-import com.aura.details.springdata.tables.schools.SchoolTable;
-import com.aura.details.springdata.tables.students.StudentTable;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,54 +34,54 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public Student save(Student student) {
-        StudentTable studentTable = StudentMapper.INSTANCE.toTableEntity(student);
-        StudentTable createdStudentTable = jpaStudentRepository.save(studentTable);
-        return StudentMapper.INSTANCE.toDomainEntity(createdStudentTable);
+        StudentModel studentModel = StudentMapper.INSTANCE.toModelEntity(student);
+        StudentModel createdStudentModel = jpaStudentRepository.save(studentModel);
+        return StudentMapper.INSTANCE.toDomainEntity(createdStudentModel);
     }
 
     @Override
     public @Nullable Student findById(String id) {
-        StudentTable studentTable = jpaStudentRepository.findById(UUID.fromString(id)).orElseThrow(() -> new RuntimeException("not found"));
-        return StudentMapper.INSTANCE.toDomainEntity(studentTable);
+        StudentModel studentModel = jpaStudentRepository.findById(UUID.fromString(id)).orElseThrow(() -> new RuntimeException("not found"));
+        return StudentMapper.INSTANCE.toDomainEntity(studentModel);
     }
 
     @Override
     public List<Student> saveAll(List<Student> students) {
-        List<StudentTable> studentTables = students.stream().map(StudentMapper.INSTANCE::toTableEntity).toList();
-        List<StudentTable> createdStudentTables = jpaStudentRepository.saveAll(studentTables);
-        return createdStudentTables.stream().map(StudentMapper.INSTANCE::toDomainEntity).toList();
+        List<StudentModel> studentModels = students.stream().map(StudentMapper.INSTANCE::toModelEntity).toList();
+        List<StudentModel> createdStudentModels = jpaStudentRepository.saveAll(studentModels);
+        return createdStudentModels.stream().map(StudentMapper.INSTANCE::toDomainEntity).toList();
     }
 
     @Override
     public Level tagStudentToLevel(String studentId, String levelId, String tenantId) {
-        LevelTable level = jpaLevelRepository.getReferenceById(UUID.fromString(levelId));
-        StudentTable studentTable = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
-        studentTable.setLevel(level);
-        jpaStudentRepository.save(studentTable);
+        LevelModel level = jpaLevelRepository.getReferenceById(UUID.fromString(levelId));
+        StudentModel studentModel = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
+        studentModel.setLevel(level);
+        jpaStudentRepository.save(studentModel);
         return LevelMapper.INSTANCE.toDomainEntity(level);
     }
 
     @Override
     public School tagStudentToSchool(String studentId, String schoolId, String tenantId) {
-        SchoolTable school = jpaSchoolRepository.getReferenceById(UUID.fromString(schoolId));
-        StudentTable studentTable = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
-        studentTable.setSchool(school);
-        jpaStudentRepository.save(studentTable);
+        SchoolModel school = jpaSchoolRepository.getReferenceById(UUID.fromString(schoolId));
+        StudentModel studentModel = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
+        studentModel.setSchool(school);
+        jpaStudentRepository.save(studentModel);
         return SchoolMapper.INSTANCE.toDomainEntity(school);
     }
 
     @Override
     public Course createStudentCourseLink(String studentId, String courseId, String tenantId) {
 
-        CourseTable courseTable = jpaCourseRepository.getReferenceById(UUID.fromString(courseId));
-        StudentTable studentTable = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
-        StudentCourseLinkTable studentCourseLinkTable = StudentCourseLinkTable
+        CourseModel courseModel = jpaCourseRepository.getReferenceById(UUID.fromString(courseId));
+        StudentModel studentModel = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
+        StudentCourseLinkModel studentCourseLinkModel = StudentCourseLinkModel
                 .builder()
-                .course(courseTable)
-                .student(studentTable)
+                .course(courseModel)
+                .student(studentModel)
                 .tenantId(tenantId)
                 .build();
-        jpaStudentCourseLinkRepository.save(studentCourseLinkTable);
-        return CourseMapper.INSTANCE.toDomainEntity(courseTable); // TODO: should be populated from save()
+        jpaStudentCourseLinkRepository.save(studentCourseLinkModel);
+        return CourseMapper.INSTANCE.toDomainEntity(courseModel); // TODO: should be populated from save()
     }
 }

@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.educators;
 
 import com.aura.core.entities.educators.Educator;
-import com.aura.details.springdata.tables.educators.EducatorTable;
+import com.aura.details.springdata.models.educators.EducatorModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -16,7 +16,7 @@ public interface EducatorMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "educatorLessonLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    Educator toDomainEntity(EducatorTable table);
+    Educator toDomainEntity(EducatorModel table);
 
     @Mapping(target = "educatorCourseLinks", ignore = true)
     @Mapping(target = "subjectEducatorLinks", ignore = true)
@@ -24,5 +24,5 @@ public interface EducatorMapper {
     @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "educatorLessonLinks", ignore = true)
     @Mapping(target = "accountEducatorLinks", ignore = true)
-    EducatorTable toTableEntity(Educator domain);
+    EducatorModel toModelEntity(Educator domain);
 }
