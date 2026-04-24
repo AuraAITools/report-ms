@@ -49,7 +49,7 @@ public class KeycloakAuthorizationInterceptor implements WebGraphQlInterceptor {
         }
 
         String accessToken = jwt.getTokenValue();
-        String resource = resolveResource(permission, request.getVariables(), request);
+        String resource = resolveResource(permission, request.getVariables());
         boolean authorized = policyEnforcementService.isAuthorized(
                 accessToken, resource, permission.scope());
         if (!authorized) {
@@ -77,22 +77,13 @@ public class KeycloakAuthorizationInterceptor implements WebGraphQlInterceptor {
         return afterBrace.substring(0, endIndex).trim();
     }
 
-    private static final String TENANT_PARAM = "$tenant";
-    private static final String X_TENANT_ID = "x-tenant-id";
-
-    private String resolveResource(ProtectedOperation permission, Map<String, Object> variables,
-                                   WebGraphQlRequest request) {
+    private String resolveResource(ProtectedOperation permission, Map<String, Object> variables) {
         String resourceIdParam = permission.resourceIdParam();
         if (resourceIdParam.isEmpty()) {
             return permission.resource();
         }
 
-        String resourceId;
-        if (TENANT_PARAM.equals(resourceIdParam)) {
-            resourceId = request.getHeaders().getFirst(X_TENANT_ID);
-        } else {
-            resourceId = resolveVariable(variables, resourceIdParam);
-        }
+        String resourceId = resolveVariable(variables, resourceIdParam);
 
         if (resourceId == null) {
             log.warn("could not resolve resourceIdParam '{}', falling back to type-level check",

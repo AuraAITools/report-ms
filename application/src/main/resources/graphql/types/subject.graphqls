@@ -1,0 +1,29 @@
+input CreateSubjectInput {
+    institutionId: ID!
+    name: String!
+}
+
+type SubjectResponse implements Auditable @connection{
+    id: ID!
+    name: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+}
+
+type SubjectResponseWithTopics {
+    id: ID!
+    name: String!
+    createdAt: Long
+    createdBy: ID
+    updatedAt: Long
+    updatedBy: ID
+    topics: [TopicResponse!]!
+}
+
+input CreateSubjectTopicLinksInput {
+    institutionId: ID!
+    id: ID!,
+    topicIds: [ID!]! @Size(min: 1)
+}

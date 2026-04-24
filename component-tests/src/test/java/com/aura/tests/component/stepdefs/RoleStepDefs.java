@@ -3,9 +3,7 @@ package com.aura.tests.component.stepdefs;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
-import io.cucumber.java.en.And;
 import org.keycloak.admin.client.Keycloak;
-
 
 import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
 
@@ -13,7 +11,6 @@ import static com.aura.core.usecases.onboarding.RoleTypes.AURA_ADMIN_ROLE;
 public class RoleStepDefs {
 
     private TestContext testContext;
-
     private Keycloak keycloak;
 
     public RoleStepDefs(TestContext testContext, Keycloak keycloak) {
@@ -28,37 +25,10 @@ public class RoleStepDefs {
             default -> throw new RuntimeException(String.format("Role %s is not supported", role));
         };
 
-        // Set auth on platform client (no x-tenant-id needed)
-        var platformClient = testContext.getPlatformGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
                 .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setPlatformGraphQLClient(platformClient);
-
-        // Set auth on tenant client (x-tenant-id will be set later when institution is created)
-        var tenantClient = testContext.getGraphQLClient()
-                .mutate()
-                .headers(headers -> headers.setBearerAuth(token))
-                .build();
-        testContext.setGraphQLClient(tenantClient);
+        testContext.setGraphQLClient(client);
     }
-
-    @And("user switches to the institution tenant")
-    public void userSwitchesToInstitutionTenant() {
-        var graphqlClient = testContext.getGraphQLClient()
-                .mutate()
-                .headers(headers -> headers.set("x-tenant-id", testContext.getInstitutionId()))
-                .build();
-        testContext.setGraphQLClient(graphqlClient);
-    }
-
-    @And("user switches to a non-existent tenant")
-    public void userSwitchesToNonExistentTenant() {
-        var graphqlClient = testContext.getGraphQLClient()
-                .mutate()
-                .headers(headers -> headers.set("x-tenant-id", "00000000-0000-0000-0000-000000000000"))
-                .build();
-        testContext.setGraphQLClient(graphqlClient);
-    }
-
 }

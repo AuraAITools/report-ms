@@ -5,7 +5,6 @@ Feature: Create Parent Account
   Scenario: Successfully create a parent account
     Given user has "aura-admin" role
     And an institution is onboarded
-    And user switches to the institution tenant
     When user creates a parent account with details:
       | email           | firstName | lastName | contact  | relationship |
       | parent@test.com | Jane      | Doe      | 91234567 | PARENT       |

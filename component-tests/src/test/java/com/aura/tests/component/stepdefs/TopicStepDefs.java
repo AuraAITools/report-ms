@@ -23,7 +23,10 @@ public class TopicStepDefs {
     public void userCreatesATopicWithName(String topicName) {
         String graphqlQuery = findGraphqlQueryFromFiles("create-topic.graphql");
 
-        Map<String, Object> variables = Map.of("input", Map.of("name", topicName));
+        Map<String, Object> variables = Map.of("input", Map.of(
+                "institutionId", testContext.getInstitutionId(),
+                "name", topicName
+        ));
 
         TopicResponse topicResponse = testContext
                 .getGraphQLClient()

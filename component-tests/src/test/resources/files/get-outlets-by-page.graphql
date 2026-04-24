@@ -1,5 +1,5 @@
-query GetOutletsByPage($first: Int) {
-    getOutletsByPage(first: $first) {
+query GetOutletsByPage($institutionId: ID!, $first: Int) {
+    getOutletsByPage(institutionId: $institutionId, first: $first) {
         edges {
             node {
                 id

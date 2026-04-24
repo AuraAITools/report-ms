@@ -5,7 +5,6 @@ Feature: Create Subject Topic Links
   Scenario: Successfully link a topic to a subject
     Given user has "aura-admin" role
     And an institution is onboarded
-    And user switches to the institution tenant
     And a topic exists with name "Algebra"
     And a subject exists with name "Mathematics"
     When user links the topic to the subject

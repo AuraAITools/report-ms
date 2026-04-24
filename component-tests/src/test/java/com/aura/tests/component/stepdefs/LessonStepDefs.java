@@ -43,6 +43,7 @@ public class LessonStepDefs {
     public void userTriesToCreateAStandaloneLessonWithName(String name) {
         String query = findGraphqlQueryFromFiles("create-standalone-lesson.graphql");
         Map<String, Object> input = Map.of(
+                "institutionId", testContext.getInstitutionId(),
                 "name", name,
                 "description", "A test lesson",
                 "lessonStartTimestamptz", "2026-03-01T09:00:00Z",
@@ -69,6 +70,7 @@ public class LessonStepDefs {
         String query = findGraphqlQueryFromFiles("create-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("name", data.get("name"));
         input.put("description", data.get("description"));
         input.put("lessonStartTimestamptz", data.get("startDate"));
@@ -102,6 +104,7 @@ public class LessonStepDefs {
                                                          String startDate, String endDate) {
         String query = findGraphqlQueryFromFiles("create-standalone-lesson.graphql");
         Map<String, Object> input = Map.of(
+                "institutionId", testContext.getInstitutionId(),
                 "name", name,
                 "description", description,
                 "lessonStartTimestamptz", startDate,

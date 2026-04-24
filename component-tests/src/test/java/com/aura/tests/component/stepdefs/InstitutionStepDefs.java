@@ -37,7 +37,7 @@ public class InstitutionStepDefs {
 
         Map<String, Object> variables = Map.of("input", createInstitutionInput);
         var institutionResponse = testContext
-                .getPlatformGraphQLClient()
+                .getGraphQLClient()
                 .mutate()
                 .build()
                 .document(graphqlQuery)
@@ -80,9 +80,9 @@ public class InstitutionStepDefs {
     }
 
     private void onboardInstitution(CreateInstitutionInput input) {
-        ensurePlatformClientAuthenticated();
+        ensureClientAuthenticated();
         String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
-        InstitutionResponse institution = testContext.getPlatformGraphQLClient()
+        InstitutionResponse institution = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of("input", input))
@@ -91,20 +91,20 @@ public class InstitutionStepDefs {
         testContext.setInstitutionId(institution.getId());
     }
 
-    private void ensurePlatformClientAuthenticated() {
+    private void ensureClientAuthenticated() {
         String token = keycloak.tokenManager().getAccessToken().getToken();
-        var platformClient = testContext.getPlatformGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
                 .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setPlatformGraphQLClient(platformClient);
+        testContext.setGraphQLClient(client);
     }
 
     @When("user tries to onboard an institution with details:")
     public void userTriesToOnboardAnInstitutionWithDetails(CreateInstitutionInput input) {
         String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
         try {
-            testContext.getPlatformGraphQLClient()
+            testContext.getGraphQLClient()
                     .mutate().build()
                     .document(graphqlQuery)
                     .variables(Map.of("input", input))

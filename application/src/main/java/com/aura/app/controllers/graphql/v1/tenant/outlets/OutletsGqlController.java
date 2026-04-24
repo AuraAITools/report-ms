@@ -46,9 +46,10 @@ public class OutletsGqlController {
         return OutletMapper.INSTANCE.toDto(outlet);
     }
 
-    @ProtectedOperation(resource = "outlet", scope = "view")
+    @ProtectedOperation(resource = "outlet", scope = "view", resourceIdParam = "institutionId")
     @QueryMapping(DgsConstants.QUERY.GetOutletsByPage)
     public Connection<OutletResponse> getOutletsByPage(
+            @Argument("institutionId") String institutionId,
             @Argument(name = "search") OutletSearchInput searchInputs,
             @Argument(name = "sort") SortInput sortInput,
             ScrollSubrange scrollSubrange,

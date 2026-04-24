@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -29,17 +30,21 @@ public class InstitutionsGqlController {
     private final InstitutionQueryUseCase institutionQueryUseCase;
     private final OutletQueryUseCase outletQueryUseCase;
 
-    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "$tenant")
+    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "institutionId")
     @QueryMapping
-    public InstitutionResponse getInstitution(@ContextValue(name = "user") User user) {
+    public InstitutionResponse getInstitution(
+            @Argument("institutionId") String institutionId,
+            @ContextValue(name = "user") User user) {
         return Optional.ofNullable(institutionQueryUseCase.findById(user.getCurrentTenantAccessed()))
                 .map(InstitutionMapper.INSTANCE::from)
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Institution"));
     }
 
-    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "$tenant")
+    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "institutionId")
     @QueryMapping
-    public List<InstitutionResponse> getUserInstitutions(@ContextValue(name = "user") User user) {
+    public List<InstitutionResponse> getUserInstitutions(
+            @Argument("institutionId") String institutionId,
+            @ContextValue(name = "user") User user) {
         return institutionQueryUseCase.findAllByIds(user.getTenantIds()).stream()
                 .map(InstitutionMapper.INSTANCE::from)
                 .toList();

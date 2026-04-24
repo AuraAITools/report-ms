@@ -20,20 +20,19 @@ spring:
     virtual:
       enabled: true
   graphql:
-    http:
-      path: /tenant/graphql
+    path: /graphql
     schema:
       locations:
-        - classpath:graphql-tenant/
-        - classpath:graphql-tenant/types/
-        - classpath:graphql-tenant/operations/outlets/
-        - classpath:graphql-tenant/operations/levels/
-        - classpath:graphql-tenant/operations/courses/
-        - classpath:graphql-tenant/operations/lessons/
-        - classpath:graphql-tenant/operations/accounts/
-        - classpath:graphql-tenant/operations/institutions/
-        - classpath:graphql-tenant/operations/topics/
-        - classpath:graphql-tenant/operations/subjects/
+        - classpath:graphql/
+        - classpath:graphql/types/
+        - classpath:graphql/operations/outlets/
+        - classpath:graphql/operations/levels/
+        - classpath:graphql/operations/courses/
+        - classpath:graphql/operations/lessons/
+        - classpath:graphql/operations/accounts/
+        - classpath:graphql/operations/institutions/
+        - classpath:graphql/operations/topics/
+        - classpath:graphql/operations/subjects/
 # actuator
 management:
   endpoints:

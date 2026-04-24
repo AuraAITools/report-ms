@@ -36,9 +36,10 @@ public class LevelsGqlController {
     private final ObjectMapper objectMapper;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
-    @ProtectedOperation(resource = "level", scope = "view")
+    @ProtectedOperation(resource = "level", scope = "view", resourceIdParam = "institutionId")
     @QueryMapping(name = GetLevelByPage)
     public Connection<LevelResponse> getLevelByPage(
+            @Argument("institutionId") String institutionId,
             @Argument(name = "search") InstitutionSearchInput searchInputs,
             @Argument(name = "sort") SortInput sortInput,
             // ScrollSubrange auto-parses first, last, before, after arguments

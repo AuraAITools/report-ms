@@ -1,5 +1,5 @@
-query GetUserInstitutions {
-    getUserInstitutions {
+query GetUserInstitutions($institutionId: ID!) {
+    getUserInstitutions(institutionId: $institutionId) {
         id
         name
         email

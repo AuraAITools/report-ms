@@ -1,5 +1,5 @@
-query GetLevelsByPage($first: Int) {
-    getLevelByPage(first: $first) {
+query GetLevelsByPage($institutionId: ID!, $first: Int) {
+    getLevelByPage(institutionId: $institutionId, first: $first) {
         edges {
             node {
                 id

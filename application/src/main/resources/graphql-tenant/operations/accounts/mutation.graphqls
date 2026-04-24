@@ -1,7 +1,0 @@
-extend type Mutation {
-    createInstitutionAdminAccount(createAccountInput: CreateInstitutionAdminAccountInput): AccountResponse
-    createParentAccount(createParentAccountInput: CreateParentAccountInput): AccountResponse
-    createStudentsInParentAccount(createStudentInputs: [CreateStudentInput]): [StudentResponse]
-    createEducatorsInAccount(createEducatorInputs: [CreateEducatorInput]): [EducatorResponse]
-    addUserToGroup(addUserToGroupInput: AddUserToGroupInput): Boolean
-}
