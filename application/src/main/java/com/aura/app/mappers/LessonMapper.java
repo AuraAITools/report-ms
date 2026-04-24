@@ -31,7 +31,8 @@ public interface LessonMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "course", ignore = true)
-    Lesson toDomainEntity(CreateStandaloneLessonInput createStandaloneLessonInput, String tenantId);
+    @Mapping(source = "institutionId", target = "tenantId")
+    Lesson toDomainEntity(CreateStandaloneLessonInput createStandaloneLessonInput);
 
     @Mapping(target = "subjects", ignore = true)
     @Mapping(target = "levels", ignore = true)
@@ -58,5 +59,6 @@ public interface LessonMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "course", ignore = true)
-    Lesson toDomainEntity(CreateLessonInput createLessonInput, String tenantId);
+    @Mapping(source = "institutionId", target = "tenantId")
+    Lesson toDomainEntity(CreateLessonInput createLessonInput);
 }

@@ -22,7 +22,8 @@ public interface TopicMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Topic toDomainEntity(TopicInput topicInput, String tenantId);
+    @Mapping(source = "institutionId", target = "tenantId")
+    Topic toDomainEntity(TopicInput topicInput);
 
     TopicResponse toDto(Topic topic);
 }

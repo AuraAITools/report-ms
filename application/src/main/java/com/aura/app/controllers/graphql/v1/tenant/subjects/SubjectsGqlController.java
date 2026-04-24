@@ -32,14 +32,15 @@ public class SubjectsGqlController {
     @ProtectedOperation(resource = "subject", scope = "create")
     @MutationMapping(CreateSubject)
     public SubjectResponse createSubject(@Argument(name = CreateSubjectInput) CreateSubjectInput createSubjectInput, @ContextValue(value = "user") User user) {
-        Subject createdSubject = subjectService.createSubject(SubjectMapper.INSTANCE.toDomain(createSubjectInput, user.getCurrentTenantAccessed()));
+        Subject createdSubject = subjectService.createSubject(SubjectMapper.INSTANCE.toDomain(createSubjectInput));
         return SubjectMapper.INSTANCE.toDto(createdSubject);
     }
 
     @ProtectedOperation(resource = "subject", scope = "manage")
     @MutationMapping(CreateSubjectTopicLinks)
     public SubjectResponseWithTopics createSubjectTopicLinks(@Argument(name = CreateSubjectTopicLinksInput) CreateSubjectTopicLinksInput createSubjectTopicLinksInput, @ContextValue(name = "user") User user) {
-        List<TopicSubjectLink> topicSubjectLinks = subjectService.createTopicSubjectLinks(UUID.fromString(createSubjectTopicLinksInput.getId()), createSubjectTopicLinksInput.getTopicIds().stream().map(UUID::fromString).toList(), user.getCurrentTenantAccessed());
+        List<TopicSubjectLink> topicSubjectLinks = subjectService.createTopicSubjectLinks(UUID.fromString(createSubjectTopicLinksInput.getId()), createSubjectTopicLinksInput.getTopicIds().stream().map(UUID::fromString).toList(), createSubjectTopicLinksInput.getInstitutionId());
+
         return SubjectMapper.INSTANCE.toDto(topicSubjectLinks.getFirst().getSubject(), topicSubjectLinks.stream().map(TopicSubjectLink::getTopic).toList());
     }
 }

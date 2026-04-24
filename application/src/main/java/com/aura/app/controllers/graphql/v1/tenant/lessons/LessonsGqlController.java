@@ -27,7 +27,7 @@ public class LessonsGqlController {
     @ProtectedOperation(resource = "lesson", scope = "create")
     @MutationMapping(CreateStandaloneLesson)
     public LessonResponse createStandaloneLesson(@Argument(name = DgsConstants.MUTATION.CREATESTANDALONELESSON_INPUT_ARGUMENT.CreateStandaloneLesson) CreateStandaloneLessonInput createStandaloneLessonInput, @ContextValue(name = "user") User user) {
-        Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createStandaloneLessonInput, user.getCurrentTenantAccessed());
+        Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createStandaloneLessonInput);
         Lesson lesson = lessonService.createStandaloneLesson(lessonToBeCreated, createStandaloneLessonInput.getOutletId());
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
@@ -35,11 +35,11 @@ public class LessonsGqlController {
     @ProtectedOperation(resource = "lesson", scope = "create")
     @MutationMapping(CreateLesson)
     public LessonResponse createLesson(@Argument(name = DgsConstants.MUTATION.CREATELESSON_INPUT_ARGUMENT.CreateLesson) CreateLessonInput createLessonInput, @ContextValue(name = "user") User user) {
-        Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInput, user.getCurrentTenantAccessed());
+        Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInput);
         Lesson lesson = lessonService.createLesson(
                 lessonToBeCreated,
                 createLessonInput.getOutletId(),
-                user.getCurrentTenantAccessed(),
+                createLessonInput.getInstitutionId(),
                 createLessonInput.getCourseId(),
                 createLessonInput.getEducatorIds());
         return LessonMapper.INSTANCE.toResponseDto(lesson);

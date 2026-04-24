@@ -41,7 +41,7 @@ public class OutletsGqlController {
     @ProtectedOperation(resource = "outlet", scope = "create")
     @MutationMapping(CreateOutlet)
     public OutletResponse createOutlet(@Argument(name = CreateOutletInput) CreateOutletInput createOutletInput, @ContextValue(name = "user") User user) {
-        Outlet outletToBeCreated = OutletMapper.INSTANCE.toDomainEntity(createOutletInput, user.getCurrentTenantAccessed());
+        Outlet outletToBeCreated = OutletMapper.INSTANCE.toDomainEntity(createOutletInput);
         Outlet outlet = outletService.createOutlet(outletToBeCreated);
         return OutletMapper.INSTANCE.toDto(outlet);
     }
@@ -57,7 +57,7 @@ public class OutletsGqlController {
 
         PageParametersDto pageParameters = getPageParametersDto(searchInputs, sortInput, scrollSubrange, searchInputParameters -> mapToSearchFilters(searchInputParameters, objectMapper));
 
-        PagedResult<Outlet> pagedResult = outletService.queryPageBy(user.getCurrentTenantAccessed(), pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
+        PagedResult<Outlet> pagedResult = outletService.queryPageBy(institutionId, pageParameters.keysetPaginationCriteria(), pageParameters.sortCriteriasList(), pageParameters.searchCriteria());
         return PaginationUtils.buildConnection(pagedResult, pageParameters.sortCriteriasList(), OutletMapper.INSTANCE::toDto, keyset -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
 
     }

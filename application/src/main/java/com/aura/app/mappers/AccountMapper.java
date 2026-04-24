@@ -22,8 +22,9 @@ public interface AccountMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "email", source = "createAccountInput.email")
-    Account toDomainEntity(CreateInstitutionAdminAccountInput createAccountInput, String tenantId);
+    @Mapping(target = "email", source = "email")
+    @Mapping(source = "institutionId", target = "tenantId")
+    Account toDomainEntity(CreateInstitutionAdminAccountInput createAccountInput);
 
 
     @Mapping(target = "version", ignore = true)
@@ -35,8 +36,9 @@ public interface AccountMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "email", source = "createParentAccountInput.email")
-    Account toDomainEntity(CreateParentAccountInput createParentAccountInput, String tenantId);
+    @Mapping(target = "email", source = "email")
+    @Mapping(source = "institutionId", target = "tenantId")
+    Account toDomainEntity(CreateParentAccountInput createParentAccountInput);
 
 
     AccountResponse toDto(Account account);

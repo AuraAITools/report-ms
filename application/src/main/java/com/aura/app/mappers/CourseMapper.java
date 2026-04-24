@@ -26,16 +26,16 @@ public interface CourseMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "priceRecord", ignore = true)
-    @Mapping(target = "outlet.id", source = "createCourseInput.outletId")
-    Course toDomainEntity(CreateCourseInput createCourseInput, String tenantId);
+    @Mapping(target = "outlet.id", source = "outletId")
+    @Mapping(source = "institutionId", target = "tenantId")
+    Course toDomainEntity(CreateCourseInput createCourseInput);
 
     @AfterMapping
     default void mapPriceRecord(CreateCourseInput createCourseInput,
-                                String tenantId,
                                 @MappingTarget Course course) {
         if (createCourseInput.getPriceRecord() != null) {
             PriceRecord priceRecord = PriceRecordMapper.INSTANCE
-                    .toDomainEntity(createCourseInput.getPriceRecord(), tenantId);
+                    .toDomainEntity(createCourseInput.getPriceRecord(), createCourseInput.getInstitutionId());
             course.setPriceRecord(priceRecord);
         }
     }

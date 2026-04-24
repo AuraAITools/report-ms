@@ -29,7 +29,8 @@ public interface SubjectMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Subject toDomain(CreateSubjectInput createSubjectInput, String tenantId);
+    @Mapping(source = "institutionId", target = "tenantId")
+    Subject toDomain(CreateSubjectInput createSubjectInput);
 
     SubjectResponse toDto(Subject subject);
 

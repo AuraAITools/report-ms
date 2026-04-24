@@ -44,7 +44,7 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateInstitutionAdminAccount)
     public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateInstitutionAdminAccountInput createAccountInput, @ContextValue(name = "user") User user) {
-        Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput, user.getCurrentTenantAccessed());
+        Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput);
         Account createdAccount = accountService.createAccountWithInstitutionAdminRole(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
@@ -52,7 +52,7 @@ public class AccountsGqlController {
     @ProtectedOperation(resource = "account", scope = "create")
     @MutationMapping(name = CreateParentAccount)
     public AccountResponse createParentAccount(@Argument(value = CreateParentAccountInput) CreateParentAccountInput createParentAccountInput, @ContextValue(name = "user") User user) {
-        Account account = AccountMapper.INSTANCE.toDomainEntity(createParentAccountInput, user.getCurrentTenantAccessed());
+        Account account = AccountMapper.INSTANCE.toDomainEntity(createParentAccountInput);
         Account createdAccount = accountService.createParentAccount(account);
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }

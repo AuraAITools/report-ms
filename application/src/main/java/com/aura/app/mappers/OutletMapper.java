@@ -22,7 +22,8 @@ public interface OutletMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
-    Outlet toDomainEntity(CreateOutletInput createOutletInput, String tenantId);
+    @Mapping(source = "institutionId", target = "tenantId")
+    Outlet toDomainEntity(CreateOutletInput createOutletInput);
 
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

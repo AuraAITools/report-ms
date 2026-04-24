@@ -25,7 +25,7 @@ public class CourseGqlController {
     @ProtectedOperation(resource = "course", scope = "create")
     @MutationMapping(CreateCourse)
     public CourseResponse createCourse(@Argument(name = CreateCourseInput) CreateCourseInput createCourseInput, @ContextValue(name = "user") User user) {
-        Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput, user.getCurrentTenantAccessed());
+        Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput);
         Course createdCourse = courseService.createCourseInOutlet(newCourse, createCourseInput.getOutletId());
         return CourseMapper.INSTANCE.toDto(createdCourse);
     }

@@ -24,7 +24,7 @@ public class TopicsGqlController {
     @ProtectedOperation(resource = "topic", scope = "create")
     @MutationMapping(CreateTopic)
     public TopicResponse createTopic(@Argument TopicInput topicInput, @ContextValue(name = "user") User user) {
-        Topic topicToBeCreated = TopicMapper.INSTANCE.toDomainEntity(topicInput, user.getCurrentTenantAccessed());
+        Topic topicToBeCreated = TopicMapper.INSTANCE.toDomainEntity(topicInput);
         Topic createdTopic = topicService.createTopic(topicToBeCreated);
         return TopicMapper.INSTANCE.toDto(createdTopic);
     }

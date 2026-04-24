@@ -35,7 +35,7 @@ public class InstitutionsGqlController {
     public InstitutionResponse getInstitution(
             @Argument("institutionId") String institutionId,
             @ContextValue(name = "user") User user) {
-        return Optional.ofNullable(institutionQueryUseCase.findById(user.getCurrentTenantAccessed()))
+        return Optional.ofNullable(institutionQueryUseCase.findById(institutionId))
                 .map(InstitutionMapper.INSTANCE::from)
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Institution"));
     }
