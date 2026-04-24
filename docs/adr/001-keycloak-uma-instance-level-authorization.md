@@ -1,4 +1,4 @@
-# ADR-001: Keycloak UMA Instance-Level Authorization
+# ADR-001: Keycloak Instance-Level RBAC Authorization
 
 **Status:** Accepted  
 **Date:** 2026-04-19  
@@ -18,11 +18,27 @@ We needed **instance-level authorization** — protecting individual resource in
 
 ## Decision
 
-We adopted **Keycloak Groups + Group Policies** for instance-level UMA authorization.
+We adopted **Keycloak Groups + Group Policies** for instance-level RBAC authorization.
+
+### Authorization Model Classification
+
+This implementation uses Keycloak's authorization services infrastructure (resources, scopes, policies, permissions) but does **not** follow the UMA 2.0 protocol. In a true UMA flow:
+
+1. Client requests a resource from the resource server
+2. Resource server returns **401 + a permission ticket**
+3. Client exchanges the ticket at the authorization server for an RPT scoped to that specific permission
+4. Client retries the request with the RPT
+
+Our approach differs in two key ways:
+
+- **No permission ticket exchange** — the frontend obtains an RPT containing **all** permissions at login time, not per-resource-request
+- **No resource server → authorization server round-trip** — the resource server checks permissions locally from the RPT JWT claims, never returning a 401 with a ticket
+
+This is more accurately described as **instance-level RBAC**: group membership (a role concept) determines access to specific resource instances. We use Keycloak's authorization engine to evaluate which resources a user can access based on their group memberships, but the runtime protocol is standard JWT bearer token validation — not UMA.
 
 ### Core Concepts
 
-Every entity instance is a **separate UMA resource** in Keycloak. **Groups** represent administrative roles scoped to specific instances. **Group policies** evaluate group membership. **Resource permissions** link resources to policies with an `AFFIRMATIVE` decision strategy (any matching policy grants access).
+Every entity instance is a **separate resource** registered in Keycloak's authorization services. **Groups** represent administrative roles scoped to specific instances. **Group policies** evaluate group membership. **Resource permissions** link resources to policies with an `AFFIRMATIVE` decision strategy (any matching policy grants access).
 
 ### Resource Lifecycle
 
@@ -31,7 +47,7 @@ Every entity instance is a **separate UMA resource** in Keycloak. **Groups** rep
 When an institution is onboarded:
 
 1. Save institution to DB (generates UUID as both `id` and `tenantId`)
-2. Register UMA resource `institution:{institutionId}` (type: `urn:aura:institution`)
+2. Register resource `institution:{institutionId}` in Keycloak authorization services (type: `urn:aura:institution`)
 3. Create Keycloak group `institution:{institutionId}:admin`
 4. Create group policy `institution-{institutionId}-admin-policy`
 5. Create resource permission `institution-{institutionId}-permission` linked to the group policy
@@ -41,7 +57,7 @@ When an institution is onboarded:
 When an outlet is created under an institution:
 
 1. Save outlet to DB
-2. Register UMA resource `outlet:{outletId}` (type: `urn:aura:outlet`)
+2. Register resource `outlet:{outletId}` in Keycloak authorization services (type: `urn:aura:outlet`)
 3. Create Keycloak group `outlet:{outletId}:admin`
 4. Create group policy `outlet-{outletId}-admin-policy`
 5. Create resource permission `outlet-{outletId}-permission` linked to **both**:
@@ -58,29 +74,35 @@ The dual-policy link with `AFFIRMATIVE` decision strategy means a user matching 
 ### Authorization Evaluation Flow
 
 ```
-User Request: query getOutletsByPage for outlet-001
-  |
-  v
-KeycloakAuthorizationInterceptor
-  1. Extracts operation name from GraphQL document
-  2. Looks up @ProtectedOperation annotation -> resource="outlet", scope="view"
-  3. Resolves resource ID from request -> "outlet:outlet-001"
-  4. Calls PolicyEnforcementService.isAuthorized(token, "outlet:outlet-001", "view")
-  |
-  v
-Keycloak Token Endpoint (UMA ticket grant)
-  POST grant_type=urn:ietf:params:oauth:grant-type:uma-ticket
-       &permission=outlet:outlet-001#view
-       &response_mode=decision
-  |
-  v
-Keycloak evaluates permission "outlet-outlet-001-permission"
-  Checks policies (AFFIRMATIVE = any match grants):
-    - outlet-outlet-001-admin-policy -> is user in group "outlet:outlet-001:admin"?
-    - institution-inst-001-admin-policy -> is user in group "institution:inst-001:admin"?
-  |
-  v
-  GRANT (if either matches) or DENY (if neither matches)
+User Login (Frontend):
+  1. User authenticates with Keycloak → receives access token
+  2. Frontend exchanges access token for RPT:
+     POST /realms/{realm}/protocol/openid-connect/token
+       grant_type=urn:ietf:params:oauth:grant-type:uma-ticket
+       &audience={clientId}
+     (no 'permission' param → returns ALL permissions)
+     (no 'response_mode=decision' → returns full RPT JWT)
+  3. RPT contains authorization.permissions claim with all granted resources+scopes
+  4. RPT expires after 5 minutes; frontend refreshes by repeating step 2
+
+API Request (Resource Server):
+  GraphQL Request with RPT as Bearer token
+    |
+    v
+  KeycloakAuthorizationInterceptor
+    1. Extracts operation name from GraphQL document
+    2. Looks up @ProtectedOperation annotation -> resource="outlet", scope="view"
+    3. Resolves resource ID from request -> "outlet:outlet-001"
+    4. Reads authorization.permissions claim from RPT JWT
+    5. Checks if any permission matches resource="outlet:outlet-001" AND scope="view"
+    |
+    v
+  Local JWT claim check (NO network call to Keycloak)
+    - Iterates over permissions array in the RPT
+    - Matches rsname + scope against the @ProtectedOperation
+    |
+    v
+  GRANT (if match found) or DENY (if no match)
 ```
 
 ### Access Matrix
@@ -101,6 +123,20 @@ Keycloak evaluates permission "outlet-outlet-001-permission"
 ### Super-Admin Bypass
 
 The `aura-admin` role retains a **type-level wildcard policy** (`aura-admin-all-access`) that grants all scopes on all resource types. This is the only type-level policy that remains. All institution-admin policies were removed in favor of instance-level group policies.
+
+### RPT (Requesting Party Token) Configuration
+
+The RPT is a JWT issued by Keycloak that embeds all permissions the user has been granted. It replaces the previous per-request remote policy evaluation approach.
+
+**Key configuration:**
+- RPT lifespan: 5 minutes (configured in Keycloak realm token settings)
+- RPT is obtained by the frontend after login by calling the token endpoint with `grant_type=uma-ticket` and `audience={clientId}`, with no `permission` or `response_mode` params
+- The resource server validates the RPT as a standard JWT using the JWK Set URI — no additional Keycloak calls needed
+
+**Trade-off vs. per-request evaluation:**
+- **Pro:** Zero authorization latency on API requests — permissions are checked locally from JWT claims
+- **Pro:** Reduced load on Keycloak — only called once per RPT refresh cycle, not per API request
+- **Con:** Permission changes (e.g., revoking access) take up to 5 minutes to take effect (eventually consistent)
 
 ## Alternatives Considered
 
@@ -143,9 +179,10 @@ Set the institution resource as the `owner` of outlet resources and rely on casc
 
 ### Negative
 
-- **More Keycloak API calls on resource creation**: Each institution creation makes 4 Keycloak API calls (register resource, create group, create policy, create permission). Each outlet creation makes 4 calls plus links 2 policies. This adds latency to creation operations.
+- **Keycloak API calls on resource creation**: Each institution creation makes 4 Keycloak API calls (register resource, create group, create policy, create permission). Each outlet creation makes 4 calls plus links 2 policies. This adds latency to creation operations. However, runtime authorization checks are now local (no Keycloak calls per API request).
+- **Eventual consistency of permissions**: Permission changes (grant/revoke) take up to 5 minutes to take effect due to RPT expiry. This is acceptable for admin-managed access patterns but would not suit real-time permission revocation requirements.
 - **Keycloak state growth**: Each resource instance creates a group, a policy, and a permission in Keycloak. For a platform with thousands of outlets, this means thousands of groups/policies. Keycloak handles this well, but it's a consideration for very large deployments.
-- **Cleanup required on deletion**: When an institution or outlet is deleted, the corresponding group, policy, permission, and UMA resource must all be cleaned up in Keycloak.
+- **Cleanup required on deletion**: When an institution or outlet is deleted, the corresponding group, policy, permission, and registered resource must all be cleaned up in Keycloak.
 
 ## Implementation
 
@@ -157,7 +194,14 @@ Set the institution resource as the `owner` of outlet resources and rely on casc
 **New implementation** (`details/`):
 - `KeycloakGroupAuthorizationService` -- uses Keycloak Admin Client (`GroupsResource`, `ClientResource.authorization()`, `UsersResource`)
 
+**Removed files**:
+- `PolicyEnforcementService` (core interface) -- no longer needed; permissions checked locally from RPT JWT
+- `KeycloakPolicyEnforcementService` (details impl) -- no longer needed; no remote policy enforcement calls
+
 **Modified files**:
+- `KeycloakAuthorizationInterceptor` -- reads `authorization.permissions` from RPT JWT instead of calling Keycloak
+- `InterceptorConfig` -- removed `PolicyEnforcementService` dependency from interceptor wiring
+- `KeycloakClientConfig` -- removed `KeycloakPolicyEnforcementService` bean
 - `DefaultInstitutionOnboardingStrategy` -- creates group + policy + permission after resource registration
 - `OutletService.createOutlet()` -- creates group + policy + permission with institution admin policy inheritance
 - `AccountService.createAccountWithInstitutionAdminRole()` -- adds user to institution admin group

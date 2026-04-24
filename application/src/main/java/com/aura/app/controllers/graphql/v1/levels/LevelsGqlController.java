@@ -1,4 +1,4 @@
-package com.aura.app.controllers.graphql.v1.tenant.levels;
+package com.aura.app.controllers.graphql.v1.levels;
 
 import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.InstitutionSearchInput;
