@@ -49,6 +49,7 @@ public class SubjectStepDefs {
                 .mutate().build()
                 .document(query)
                 .variables(Map.of("input", Map.of(
+                        "institutionId", testContext.getInstitutionId(),
                         "id", testContext.getSubjectId(),
                         "topicIds", List.of(testContext.getTopicId())
                 )))
@@ -70,7 +71,7 @@ public class SubjectStepDefs {
         SubjectResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", Map.of("name", name)))
+                .variables(Map.of("input", Map.of("institutionId", testContext.getInstitutionId(), "name", name)))
                 .retrieveSync("createSubject")
                 .toEntity(SubjectResponse.class);
         assertThat(response).isNotNull();

@@ -29,6 +29,7 @@ public class QueryStepDefs {
             lastInstitutionResponse = testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
+                    .variables(Map.of("institutionId", testContext.getInstitutionId()))
                     .retrieveSync("getInstitution")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
@@ -67,6 +68,7 @@ public class QueryStepDefs {
         lastUserInstitutionsResponse = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
+                .variables(Map.of("institutionId", testContext.getInstitutionId()))
                 .retrieveSync("getUserInstitutions")
                 .toEntityList(InstitutionResponse.class);
     }
@@ -86,7 +88,7 @@ public class QueryStepDefs {
         Map<String, Object> response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("first", 10))
+                .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
                 .retrieveSync("getLevelByPage")
                 .toEntity(Map.class);
 
@@ -107,7 +109,7 @@ public class QueryStepDefs {
         Map<String, Object> response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("first", 10))
+                .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
                 .retrieveSync("getOutletsByPage")
                 .toEntity(Map.class);
 
@@ -120,5 +122,30 @@ public class QueryStepDefs {
     @Then("at least one outlet should be returned")
     public void atLeastOneOutletShouldBeReturned() {
         assertThat(testContext.isLastQuerySucceeded()).isTrue();
+    }
+
+    @When("user queries institution with non-existent id")
+    public void userQueriesInstitutionWithNonExistentId() {
+        String query = findGraphqlQueryFromFiles("get-institution.graphql");
+
+        try {
+            lastInstitutionResponse = testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("institutionId", "00000000-0000-0000-0000-000000000000"))
+                    .retrieveSync("getInstitution")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var extensions = errors.getFirst().getExtensions();
+                if (extensions != null && extensions.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(extensions.get("error_code").toString());
+                }
+            }
+        }
     }
 }

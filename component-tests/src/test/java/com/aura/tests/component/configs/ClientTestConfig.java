@@ -13,7 +13,7 @@ public class ClientTestConfig {
     @Bean
     @ScenarioScope
     HttpSyncGraphQlClient httpSyncGraphQlClient(@LocalServerPort int port) {
-        String url = String.format("http://localhost:%s/tenant/graphql", port);
+        String url = String.format("http://localhost:%s/graphql", port);
         return HttpSyncGraphQlClient
                 .builder()
                 .url(url)
@@ -23,12 +23,9 @@ public class ClientTestConfig {
     @Bean
     @ScenarioScope
     TestContext testContext(@LocalServerPort int port) {
-        var tenantClient = HttpSyncGraphQlClient.builder()
-                .url(String.format("http://localhost:%s/tenant/graphql", port))
+        var client = HttpSyncGraphQlClient.builder()
+                .url(String.format("http://localhost:%s/graphql", port))
                 .build();
-        var platformClient = HttpSyncGraphQlClient.builder()
-                .url(String.format("http://localhost:%s/platform/graphql", port))
-                .build();
-        return new TestContext(tenantClient, platformClient);
+        return new TestContext(client);
     }
 }

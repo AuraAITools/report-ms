@@ -55,17 +55,19 @@ public class OutletStepDefs {
     public void userTriesToCreateAnOutletWithName(String name) {
         String query = findGraphqlQueryFromFiles("create-outlet.graphql");
         try {
+            Map<String, Object> inputMap = new java.util.HashMap<>();
+            inputMap.put("institutionId", testContext.getInstitutionId());
+            inputMap.put("name", name);
+            inputMap.put("address", "456 Other Street");
+            inputMap.put("postalCode", 654321);
+            inputMap.put("contactNumber", 91234567);
+            inputMap.put("description", "Another outlet");
+            inputMap.put("email", "other@test.com");
+
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("input", CreateOutletInput.newBuilder()
-                            .name(name)
-                            .address("456 Other Street")
-                            .postalCode(654321)
-                            .contactNumber(91234567)
-                            .description("Another outlet")
-                            .email("other@test.com")
-                            .build()))
+                    .variables(Map.of("input", inputMap))
                     .retrieveSync("createOutlet")
                     .toEntity(OutletResponse.class);
             testContext.setRequestFailed(false);
@@ -158,10 +160,20 @@ public class OutletStepDefs {
 
     private OutletResponse executeCreateOutlet(CreateOutletInput input) {
         String query = findGraphqlQueryFromFiles("create-outlet.graphql");
+
+        Map<String, Object> inputMap = new java.util.HashMap<>();
+        inputMap.put("institutionId", testContext.getInstitutionId());
+        inputMap.put("name", input.getName());
+        inputMap.put("address", input.getAddress());
+        inputMap.put("postalCode", input.getPostalCode());
+        inputMap.put("contactNumber", input.getContactNumber());
+        inputMap.put("description", input.getDescription());
+        inputMap.put("email", input.getEmail());
+
         OutletResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", input))
+                .variables(Map.of("input", inputMap))
                 .retrieveSync("createOutlet")
                 .toEntity(OutletResponse.class);
         assertThat(response).isNotNull();

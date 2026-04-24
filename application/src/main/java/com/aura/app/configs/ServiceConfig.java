@@ -121,8 +121,11 @@ public class ServiceConfig {
     }
 
     @Bean
-    CourseService courseService(CreateCourseUseCase createCourseUseCase) {
-        return new CourseService(createCourseUseCase);
+    CourseService courseService(CreateCourseUseCase createCourseUseCase,
+                                ResourceAuthorizationService resourceAuthorizationService,
+                                GroupAuthorizationService groupAuthorizationService) {
+        return new CourseService(createCourseUseCase,
+                resourceAuthorizationService, groupAuthorizationService);
     }
 
     @Bean

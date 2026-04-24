@@ -1,4 +1,0 @@
-extend type Query {
-    getInstitution: InstitutionResponse
-    getUserInstitutions: [InstitutionResponse!]!
-}

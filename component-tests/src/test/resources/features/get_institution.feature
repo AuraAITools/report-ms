@@ -5,7 +5,6 @@ Feature: Get Institution
   Scenario: Successfully retrieve the tenant's institution
     Given user has "aura-admin" role
     And an institution is onboarded
-    And user switches to the institution tenant
     When user queries their institution
     Then the institution should be returned with correct details
 
@@ -13,6 +12,5 @@ Feature: Get Institution
   Scenario: Fail to retrieve institution with invalid tenant
     Given user has "aura-admin" role
     And an institution is onboarded
-    And user switches to a non-existent tenant
-    When user queries their institution
+    When user queries institution with non-existent id
     Then the request should fail with error code "RESOURCE_NOT_FOUND"

@@ -33,23 +33,27 @@ public class AccountStepDefs {
 
     @And("user in {string} group creates an institution admin account with details:")
     public void userWithRoleCreatesInstitutionAdminAccount(String role, CreateInstitutionAdminAccountInput input) {
-        // Set auth token
         String token = keycloak.tokenManager().getAccessToken().getToken();
-        var tenantClient = testContext.getGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
-                .headers(headers -> {
-                    headers.setBearerAuth(token);
-                    headers.set("x-tenant-id", testContext.getInstitutionId());
-                })
+                .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setGraphQLClient(tenantClient);
+        testContext.setGraphQLClient(client);
 
-        // Create the account
         String query = findGraphqlQueryFromFiles("create-institution-admin-account.graphql");
+
+        Map<String, Object> inputMap = Map.of(
+                "institutionId", testContext.getInstitutionId(),
+                "email", input.getEmail(),
+                "firstName", input.getFirstName(),
+                "lastName", input.getLastName(),
+                "contact", input.getContact()
+        );
+
         AccountResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", input))
+                .variables(Map.of("input", inputMap))
                 .retrieveSync("createInstitutionAdminAccount")
                 .toEntity(AccountResponse.class);
 
@@ -60,20 +64,26 @@ public class AccountStepDefs {
 
     @When("user tries to create an institution admin account without a tenant with details:")
     public void userTriesToCreateInstitutionAdminAccountWithoutTenant(CreateInstitutionAdminAccountInput input) {
-        // Set auth token but NO x-tenant-id
         String token = keycloak.tokenManager().getAccessToken().getToken();
-        var tenantClient = testContext.getGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
                 .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setGraphQLClient(tenantClient);
+        testContext.setGraphQLClient(client);
 
         String query = findGraphqlQueryFromFiles("create-institution-admin-account.graphql");
         try {
+            Map<String, Object> inputMap = Map.of(
+                    "email", input.getEmail(),
+                    "firstName", input.getFirstName(),
+                    "lastName", input.getLastName(),
+                    "contact", input.getContact()
+            );
+
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("input", input))
+                    .variables(Map.of("input", inputMap))
                     .retrieveSync("createInstitutionAdminAccount")
                     .toEntity(AccountResponse.class);
             testContext.setRequestFailed(false);
@@ -219,27 +229,26 @@ public class AccountStepDefs {
 
         // Create via the app's createInstitutionAdminAccount mutation
         String token = keycloak.tokenManager().getAccessToken().getToken();
-        var tenantClient = testContext.getGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
-                .headers(headers -> {
-                    headers.setBearerAuth(token);
-                    headers.set("x-tenant-id", testContext.getInstitutionId());
-                })
+                .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setGraphQLClient(tenantClient);
+        testContext.setGraphQLClient(client);
 
         String query = findGraphqlQueryFromFiles("create-institution-admin-account.graphql");
-        CreateInstitutionAdminAccountInput input = CreateInstitutionAdminAccountInput.newBuilder()
-                .email(email)
-                .firstName(firstName)
-                .lastName(lastName)
-                .contact(Integer.parseInt(row.get("contact")))
-                .build();
+
+        Map<String, Object> inputMap = Map.of(
+                "institutionId", testContext.getInstitutionId(),
+                "email", email,
+                "firstName", firstName,
+                "lastName", lastName,
+                "contact", Integer.parseInt(row.get("contact"))
+        );
 
         AccountResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", input))
+                .variables(Map.of("input", inputMap))
                 .retrieveSync("createInstitutionAdminAccount")
                 .toEntity(AccountResponse.class);
 
@@ -257,10 +266,18 @@ public class AccountStepDefs {
     public void userCreatesInstitutionAdminAccount(CreateInstitutionAdminAccountInput input) {
         String query = findGraphqlQueryFromFiles("create-institution-admin-account.graphql");
 
+        Map<String, Object> inputMap = Map.of(
+                "institutionId", testContext.getInstitutionId(),
+                "email", input.getEmail(),
+                "firstName", input.getFirstName(),
+                "lastName", input.getLastName(),
+                "contact", input.getContact()
+        );
+
         AccountResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", input))
+                .variables(Map.of("input", inputMap))
                 .retrieveSync("createInstitutionAdminAccount")
                 .toEntity(AccountResponse.class);
 
@@ -308,10 +325,18 @@ public class AccountStepDefs {
     public void userCreatesParentAccount(CreateParentAccountInput input) {
         String query = findGraphqlQueryFromFiles("create-parent-account.graphql");
 
+        Map<String, Object> inputMap = new java.util.HashMap<>();
+        inputMap.put("institutionId", testContext.getInstitutionId());
+        inputMap.put("email", input.getEmail());
+        inputMap.put("firstName", input.getFirstName());
+        inputMap.put("lastName", input.getLastName());
+        inputMap.put("contact", input.getContact());
+        inputMap.put("relationship", input.getRelationship().name());
+
         AccountResponse response = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("input", input))
+                .variables(Map.of("input", inputMap))
                 .retrieveSync("createParentAccount")
                 .toEntity(AccountResponse.class);
 
@@ -342,20 +367,17 @@ public class AccountStepDefs {
     public void userInGroupAddsUserToGroup(String actorGroupPattern, String targetUserEmail, String targetGroupPattern) {
         String resolvedTargetGroup = targetGroupPattern.replace("{institution_id}", testContext.getInstitutionId());
 
-        // Authenticate as the aura-admin service account (has manage permissions)
         String token = keycloak.tokenManager().getAccessToken().getToken();
-        var tenantClient = testContext.getGraphQLClient()
+        var client = testContext.getGraphQLClient()
                 .mutate()
-                .headers(headers -> {
-                    headers.setBearerAuth(token);
-                    headers.set("x-tenant-id", testContext.getInstitutionId());
-                })
+                .headers(headers -> headers.setBearerAuth(token))
                 .build();
-        testContext.setGraphQLClient(tenantClient);
+        testContext.setGraphQLClient(client);
 
         String query = findGraphqlQueryFromFiles("add-user-to-group.graphql");
 
         Map<String, Object> input = Map.of(
+                "institutionId", testContext.getInstitutionId(),
                 "userEmail", targetUserEmail,
                 "groupName", resolvedTargetGroup
         );
@@ -374,10 +396,17 @@ public class AccountStepDefs {
     public void userTriesToCreateParentAccount(CreateParentAccountInput input) {
         String query = findGraphqlQueryFromFiles("create-parent-account.graphql");
         try {
+            Map<String, Object> inputMap = new java.util.HashMap<>();
+            inputMap.put("email", input.getEmail());
+            inputMap.put("firstName", input.getFirstName());
+            inputMap.put("lastName", input.getLastName());
+            inputMap.put("contact", input.getContact());
+            inputMap.put("relationship", input.getRelationship().name());
+
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("input", input))
+                    .variables(Map.of("input", inputMap))
                     .retrieveSync("createParentAccount")
                     .toEntity(AccountResponse.class);
             testContext.setRequestFailed(false);
