@@ -95,6 +95,7 @@ class PreAuthorizeConventionTest {
     }
 
     @TestFactory
+    @DisplayName("hasPermission() must have exactly 3 arguments")
     Stream<DynamicTest> hasPermission_must_have_three_arguments() throws IOException {
         return findPreAuthorizeAnnotations().stream()
                 .filter(match -> match.value().contains("hasPermission("))
@@ -116,6 +117,7 @@ class PreAuthorizeConventionTest {
     }
 
     @TestFactory
+    @DisplayName("Resource names must be from the valid set")
     Stream<DynamicTest> resource_names_must_be_valid() throws IOException {
         return findPreAuthorizeAnnotations().stream()
                 .filter(match -> match.value().contains("hasPermission("))
@@ -134,6 +136,7 @@ class PreAuthorizeConventionTest {
     }
 
     @TestFactory
+    @DisplayName("Scope names must be from the valid set")
     Stream<DynamicTest> scope_names_must_be_valid() throws IOException {
         return findPreAuthorizeAnnotations().stream()
                 .filter(match -> match.value().contains("hasPermission("))
@@ -152,6 +155,7 @@ class PreAuthorizeConventionTest {
     }
 
     @TestFactory
+    @DisplayName("#paramName references must match method parameters")
     Stream<DynamicTest> param_references_must_match_method_parameters() throws IOException {
         return findPreAuthorizeAnnotations().stream()
                 .filter(match -> match.value().contains("#"))
@@ -181,6 +185,7 @@ class PreAuthorizeConventionTest {
     }
 
     @TestFactory
+    @DisplayName("Type-level checks must use null as first argument")
     Stream<DynamicTest> type_level_checks_must_use_null_first_arg() throws IOException {
         return findPreAuthorizeAnnotations().stream()
                 .filter(match -> match.value().contains("hasPermission("))

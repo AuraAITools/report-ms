@@ -156,6 +156,7 @@ class KeycloakGroupAuthorizationServiceTest {
         verify(userResource).joinGroup(groupId);
     }
 
+    @DisplayName("Should throw when group not found for user assignment")
     @Test
     void addUserToGroup_throwsWhenGroupNotFound() {
         when(groupsResource.groups("nonexistent", 0, 1)).thenReturn(List.of());

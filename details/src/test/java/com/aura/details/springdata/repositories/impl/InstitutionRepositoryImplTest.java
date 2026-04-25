@@ -73,6 +73,7 @@ class InstitutionRepositoryImplTest {
         assertThat(captor.getValue()).containsExactlyInAnyOrder(uuid1, uuid2);
     }
 
+    @DisplayName("Should return empty list for empty ID set")
     @Test
     void findAllByIds_emptySet_returnsEmptyList() {
         when(jpaRepository.findAllById(anyList())).thenReturn(List.of());

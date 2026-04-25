@@ -90,11 +90,16 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 
 **Authorization:**
 
-- Authorization is handled by Keycloak server-side policy enforcement — never check roles in controllers
-- Annotate every controller method with `@ProtectedOperation(resource = "...", scope = "...")`
-- The `KeycloakAuthorizationInterceptor` (Order 3) calls Keycloak's token endpoint to evaluate permissions
+- Authorization uses RPT (Requesting Party Token) with Spring Security `@PreAuthorize` — never check roles in controllers
+- Annotate every `@QueryMapping`/`@MutationMapping` controller method with
+  `@PreAuthorize("hasPermission(targetId, 'resource', 'scope')")`:
+  - Type-level (no instance ID): `@PreAuthorize("hasPermission(null, 'outlet', 'create')")`
+  - Instance-level: `@PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")`
+- `RptPermissionEvaluator` reads the RPT JWT's `authorization.permissions` claim locally — no network call to Keycloak
+- `PreAuthorizeConventionTest` enforces correct usage via ArchUnit + source-level tests (valid resources, scopes, param
+  refs)
 - Resources, policies, and permissions are configured in Keycloak (see `realm-import.json` for test config)
-- UMA resources are registered dynamically when entities are created (e.g., `outlet:{id}` on outlet creation)
+- Resources are registered dynamically when entities are created (e.g., `outlet:{id}` on outlet creation)
 - Tenant isolation remains via `x-tenant-id` header + `TenantSpecification` as defense-in-depth
 
 **Testing requirements:**
@@ -102,6 +107,10 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 - Every concrete implementation class (services, repository impls, Keycloak clients) must have unit tests using JUnit
   5 +
   Mockito + AssertJ. Place them in the same module's `src/test/java/` mirroring the source package.
+- Every test class must have `@DisplayName("Human readable description")` on the class
+- Every `@Test` and `@TestFactory` method must have `@DisplayName("Should do something specific")` — use sentence case,
+  start with "Should" for unit tests
+- `@ArchTest` static fields do NOT need `@DisplayName` — they use `.as()` descriptions instead
 - After completing a logical flow end-to-end (e.g., a new use case wired through controller → service → repository),
   write a Cucumber component test that exercises the full flow including side effects.
 - Run tests and ensure they pass before considering the work done.
