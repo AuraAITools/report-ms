@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.lessons;
 
-import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.CreateLessonInput;
 import com.aura.app.codegen.types.CreateStandaloneLessonInput;
@@ -13,6 +12,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 
@@ -24,7 +24,7 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateStandaloneLesson;
 public class LessonsGqlController {
     private final LessonService lessonService;
 
-    @ProtectedOperation(resource = "lesson", scope = "create")
+    @PreAuthorize("hasPermission(null, 'lesson', 'create')")
     @MutationMapping(CreateStandaloneLesson)
     public LessonResponse createStandaloneLesson(@Argument(name = DgsConstants.MUTATION.CREATESTANDALONELESSON_INPUT_ARGUMENT.CreateStandaloneLesson) CreateStandaloneLessonInput createStandaloneLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createStandaloneLessonInput);
@@ -32,7 +32,7 @@ public class LessonsGqlController {
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
-    @ProtectedOperation(resource = "lesson", scope = "create")
+    @PreAuthorize("hasPermission(null, 'lesson', 'create')")
     @MutationMapping(CreateLesson)
     public LessonResponse createLesson(@Argument(name = DgsConstants.MUTATION.CREATELESSON_INPUT_ARGUMENT.CreateLesson) CreateLessonInput createLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInput);

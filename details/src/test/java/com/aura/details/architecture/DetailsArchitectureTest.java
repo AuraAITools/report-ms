@@ -3,10 +3,12 @@ package com.aura.details.architecture;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import org.junit.jupiter.api.DisplayName;
 
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+@DisplayName("Details module architecture")
 @AnalyzeClasses(packages = "com.aura.details")
 public class DetailsArchitectureTest {
 

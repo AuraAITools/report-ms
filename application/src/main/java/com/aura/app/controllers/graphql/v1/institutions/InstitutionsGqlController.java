@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.institutions;
 
-import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.app.codegen.types.OutletResponse;
@@ -25,6 +24,7 @@ import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
@@ -35,7 +35,7 @@ public class InstitutionsGqlController {
     private final OutletQueryUseCase outletQueryUseCase;
     private final OnboardingService onboardingService;
 
-    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "institutionId")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping
     public InstitutionResponse getInstitution(
             @Argument("institutionId") String institutionId,
@@ -45,7 +45,7 @@ public class InstitutionsGqlController {
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Institution"));
     }
 
-    @ProtectedOperation(resource = "institution", scope = "view", resourceIdParam = "institutionId")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping
     public List<InstitutionResponse> getUserInstitutions(
             @Argument("institutionId") String institutionId,
@@ -55,7 +55,7 @@ public class InstitutionsGqlController {
                 .toList();
     }
 
-    @ProtectedOperation(resource = "institution", scope = "create")
+    @PreAuthorize("hasPermission(null, 'institution', 'create')")
     @MutationMapping
     public InstitutionResponse createInstitution(
             @Argument CreateInstitutionInput createInstitutionInput) {

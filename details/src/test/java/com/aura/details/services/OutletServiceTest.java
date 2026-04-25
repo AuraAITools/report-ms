@@ -7,6 +7,7 @@ import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Outlet service")
 @ExtendWith(MockitoExtension.class)
 class OutletServiceTest {
 
@@ -39,6 +41,7 @@ class OutletServiceTest {
         outletService = new OutletService(createOutletUseCase, outletQueryUseCase, resourceAuthorizationService, groupAuthorizationService);
     }
 
+    @DisplayName("Should register UMA resource and return created outlet")
     @Test
     void createOutlet_registersUmaResourceAndReturnsCreatedOutlet() {
         Outlet input = Outlet.builder().name("Test Outlet").build();

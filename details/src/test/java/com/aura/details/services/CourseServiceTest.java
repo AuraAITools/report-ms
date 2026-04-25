@@ -6,6 +6,7 @@ import com.aura.core.entities.courses.Course;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Course service")
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
 
@@ -34,6 +36,7 @@ class CourseServiceTest {
         courseService = new CourseService(createCourseUseCase, resourceAuthorizationService, groupAuthorizationService);
     }
 
+    @DisplayName("Should register UMA resource and return created course")
     @Test
     void createCourseInOutlet_registersUmaResourceAndReturnsCreatedCourse() {
         String outletId = "outlet-456";

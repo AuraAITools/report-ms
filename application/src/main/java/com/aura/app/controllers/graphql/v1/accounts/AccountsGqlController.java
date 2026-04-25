@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.accounts;
 
-import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.AccountResponse;
 import com.aura.app.codegen.types.CreateEducatorInput;
 import com.aura.app.codegen.types.CreateInstitutionAdminAccountInput;
@@ -20,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 
@@ -41,7 +41,7 @@ public class AccountsGqlController {
 
     private final AccountService accountService;
 
-    @ProtectedOperation(resource = "account", scope = "create")
+    @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = CreateInstitutionAdminAccount)
     public AccountResponse createAccountWithInstitutionAdminRole(@Argument(value = CreateAccountInput) CreateInstitutionAdminAccountInput createAccountInput, @ContextValue(name = "user") User user) {
         Account account = AccountMapper.INSTANCE.toDomainEntity(createAccountInput);
@@ -49,7 +49,7 @@ public class AccountsGqlController {
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
 
-    @ProtectedOperation(resource = "account", scope = "create")
+    @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = CreateParentAccount)
     public AccountResponse createParentAccount(@Argument(value = CreateParentAccountInput) CreateParentAccountInput createParentAccountInput, @ContextValue(name = "user") User user) {
         Account account = AccountMapper.INSTANCE.toDomainEntity(createParentAccountInput);
@@ -57,7 +57,7 @@ public class AccountsGqlController {
         return AccountMapper.INSTANCE.toDto(createdAccount);
     }
 
-    @ProtectedOperation(resource = "account", scope = "create")
+    @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = CreateStudentsInParentAccount)
     public List<StudentResponse> createStudentsInParentAccount(@Argument(value = CreateStudentInputs) List<CreateStudentInput> createStudentInputs, @ContextValue(name = "user") User user) {
         List<AccountService.CreateStudentAccountParams> createStudentAccountParams = createStudentInputs.stream()
@@ -66,7 +66,7 @@ public class AccountsGqlController {
         return createdStudentResults.stream().map(StudentMapper.INSTANCE::toDto).toList();
     }
 
-    @ProtectedOperation(resource = "account", scope = "create")
+    @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = CreateEducatorsInAccount)
     public List<EducatorResponse> createEducatorsInAccount(@Argument(value = CreateEducatorInputs) List<CreateEducatorInput> createEducatorInputs, @ContextValue(name = "user") User user) {
         var params = createEducatorInputs.stream().map(cei -> EducatorMapper.INSTANCE.toParams(cei, user.getCurrentTenantAccessed())).toList();
@@ -74,7 +74,7 @@ public class AccountsGqlController {
         return results.stream().map(EducatorMapper.INSTANCE::toDto).toList();
     }
 
-    @ProtectedOperation(resource = "account", scope = "create")
+    @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = AddUserToGroup)
     public Boolean addUserToGroup(@Argument(value = AddUserToGroupInput) com.aura.app.codegen.types.AddUserToGroupInput addUserToGroupInput, @ContextValue(name = "user") User user) {
         accountService.addUserToGroup(

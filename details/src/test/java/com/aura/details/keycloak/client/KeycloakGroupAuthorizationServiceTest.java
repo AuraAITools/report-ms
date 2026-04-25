@@ -3,6 +3,7 @@ package com.aura.details.keycloak.client;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.AuthorizationResource;
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Keycloak group authorization service")
 @ExtendWith(MockitoExtension.class)
 class KeycloakGroupAuthorizationServiceTest {
 
@@ -49,6 +51,7 @@ class KeycloakGroupAuthorizationServiceTest {
         service = new KeycloakGroupAuthorizationService(clientResource, groupsResource, usersResource);
     }
 
+    @DisplayName("Should create group with correct name")
     @Test
     void createGroup_createsGroupWithCorrectName() {
         String groupName = "institution:inst-001:admin";
@@ -60,6 +63,7 @@ class KeycloakGroupAuthorizationServiceTest {
         assertThat(captor.getValue().getName()).isEqualTo(groupName);
     }
 
+    @DisplayName("Should create group policy linked to group")
     @Test
     void createGroupPolicy_createsPolicy_linkedToGroup() {
         String policyName = "institution-inst-001-admin-policy";
@@ -81,6 +85,7 @@ class KeycloakGroupAuthorizationServiceTest {
         assertThat(captor.getValue().getName()).isEqualTo(policyName);
     }
 
+    @DisplayName("Should throw when group not found for policy creation")
     @Test
     void createGroupPolicy_throwsWhenGroupNotFound() {
         when(groupsResource.groups("nonexistent", 0, 1)).thenReturn(List.of());
@@ -90,6 +95,7 @@ class KeycloakGroupAuthorizationServiceTest {
                 .hasMessageContaining("nonexistent");
     }
 
+    @DisplayName("Should create resource permission linked to resource and policies")
     @Test
     void createResourcePermission_createsPermission_linkedToResourceAndPolicies() {
         String permissionName = "outlet-outlet-001-permission";
@@ -119,6 +125,7 @@ class KeycloakGroupAuthorizationServiceTest {
         assertThat(captured.getPolicies()).containsExactlyInAnyOrderElementsOf(policyNames);
     }
 
+    @DisplayName("Should throw when resource not found for permission creation")
     @Test
     void createResourcePermission_throwsWhenResourceNotFound() {
         when(clientResource.authorization()).thenReturn(authorizationResource);
@@ -131,6 +138,7 @@ class KeycloakGroupAuthorizationServiceTest {
                 .hasMessageContaining("outlet:nonexistent");
     }
 
+    @DisplayName("Should join user to correct group")
     @Test
     void addUserToGroup_joinsUserToCorrectGroup() {
         String userId = "user-uuid";

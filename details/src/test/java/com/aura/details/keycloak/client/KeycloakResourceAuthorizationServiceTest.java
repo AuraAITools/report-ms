@@ -3,6 +3,7 @@ package com.aura.details.keycloak.client;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.AuthorizationResource;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Keycloak resource authorization service")
 @ExtendWith(MockitoExtension.class)
 class KeycloakResourceAuthorizationServiceTest {
 
@@ -41,6 +43,7 @@ class KeycloakResourceAuthorizationServiceTest {
         when(authorizationResource.resources()).thenReturn(resourcesResource);
     }
 
+    @DisplayName("Should create resource with correct name, type, owner and scopes")
     @Test
     void registerResource_createsResourceWithCorrectProperties() {
         String name = "institution:123";
@@ -63,6 +66,7 @@ class KeycloakResourceAuthorizationServiceTest {
                 .containsExactlyInAnyOrder("view", "manage", "delegate");
     }
 
+    @DisplayName("Should create resource without owner when owner is null")
     @Test
     void registerResource_withNullOwner_createsResourceOwnedByClient() {
         service.registerResource("institution:456", "urn:aura:institution", null, Set.of("view"));
@@ -73,6 +77,7 @@ class KeycloakResourceAuthorizationServiceTest {
         assertThat(captor.getValue().getOwner()).isNull();
     }
 
+    @DisplayName("Should delete resource when it exists")
     @Test
     void deleteResource_whenResourceExists_removesIt() {
         String name = "institution:123";
@@ -91,6 +96,7 @@ class KeycloakResourceAuthorizationServiceTest {
         verify(resourceResource).remove();
     }
 
+    @DisplayName("Should do nothing when deleting non-existent resource")
     @Test
     void deleteResource_whenResourceDoesNotExist_doesNothing() {
         when(resourcesResource.findByName("institution:nonexistent")).thenReturn(List.of());

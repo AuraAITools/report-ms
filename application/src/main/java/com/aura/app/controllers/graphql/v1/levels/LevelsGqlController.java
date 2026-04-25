@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.levels;
 
-import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.types.InstitutionSearchInput;
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.SortInput;
@@ -21,6 +20,7 @@ import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.pagination.CursorStrategy;
 import org.springframework.graphql.data.query.ScrollSubrange;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 
@@ -36,7 +36,7 @@ public class LevelsGqlController {
     private final ObjectMapper objectMapper;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
-    @ProtectedOperation(resource = "level", scope = "view", resourceIdParam = "institutionId")
+    @PreAuthorize("hasPermission(#institutionId, 'level', 'view')")
     @QueryMapping(name = GetLevelByPage)
     public Connection<LevelResponse> getLevelByPage(
             @Argument("institutionId") String institutionId,

@@ -1,6 +1,5 @@
 package com.aura.app.controllers.graphql.v1.outlets;
 
-import com.aura.app.annotations.ProtectedOperation;
 import com.aura.app.codegen.DgsConstants;
 import com.aura.app.codegen.types.CreateOutletInput;
 import com.aura.app.codegen.types.OutletResponse;
@@ -23,6 +22,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.pagination.CursorStrategy;
 import org.springframework.graphql.data.query.ScrollSubrange;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 
@@ -38,7 +38,7 @@ public class OutletsGqlController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
-    @ProtectedOperation(resource = "outlet", scope = "create")
+    @PreAuthorize("hasPermission(null, 'outlet', 'create')")
     @MutationMapping(CreateOutlet)
     public OutletResponse createOutlet(@Argument(name = CreateOutletInput) CreateOutletInput createOutletInput, @ContextValue(name = "user") User user) {
         Outlet outletToBeCreated = OutletMapper.INSTANCE.toDomainEntity(createOutletInput);
@@ -46,7 +46,7 @@ public class OutletsGqlController {
         return OutletMapper.INSTANCE.toDto(outlet);
     }
 
-    @ProtectedOperation(resource = "outlet", scope = "view", resourceIdParam = "institutionId")
+    @PreAuthorize("hasPermission(#institutionId, 'outlet', 'view')")
     @QueryMapping(DgsConstants.QUERY.GetOutletsByPage)
     public Connection<OutletResponse> getOutletsByPage(
             @Argument("institutionId") String institutionId,
