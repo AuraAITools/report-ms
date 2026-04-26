@@ -88,19 +88,22 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
 - Date/time: stored as `Instant` in DB, exposed as epoch milliseconds (`Long`) in GraphQL
 - Controllers get the auth user via `@ContextValue("user") User user`
 
-**Authorization:**
+**Authorization (SpiceDB ReBAC — see ADR-004):**
 
-- Authorization uses RPT (Requesting Party Token) with Spring Security `@PreAuthorize` — never check roles in controllers
+- Authorization uses SpiceDB (Zanzibar-style ReBAC) for instance-level permission checks. Keycloak handles authentication
+  only (login, JWT issuance, user management).
+- SpiceDB schema: `application/src/main/resources/spicedb/schema.zed` — defines resource types, relations, and permissions
 - Annotate every `@QueryMapping`/`@MutationMapping` controller method with
   `@PreAuthorize("hasPermission(targetId, 'resource', 'scope')")`:
-  - Type-level (no instance ID): `@PreAuthorize("hasPermission(null, 'outlet', 'create')")`
+  - Type-level (no instance ID): `@PreAuthorize("hasPermission(null, 'outlet', 'create')")` — routed to `system:global`
   - Instance-level: `@PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")`
-- `RptPermissionEvaluator` reads the RPT JWT's `authorization.permissions` claim locally — no network call to Keycloak
+- `SpiceDbPermissionEvaluator` calls SpiceDB's `CheckPermission` gRPC API — no JWT claim parsing
 - `PreAuthorizeConventionTest` enforces correct usage via ArchUnit + source-level tests (valid resources, scopes, param
   refs)
-- Resources, policies, and permissions are configured in Keycloak (see `realm-import.json` for test config)
-- Resources are registered dynamically when entities are created (e.g., `outlet:{id}` on outlet creation)
+- Relationships are written when entities are created (e.g., `outlet:id#parent_institution@institution:tenantId`)
+- Services write relationships via `RelationshipAuthorizationService.writeRelationship()` — one call per entity creation
 - Tenant isolation remains via `x-tenant-id` header + `TenantSpecification` as defense-in-depth
+- SpiceDB config: `application.yaml` has `spicedb.target`, `spicedb.preshared-key`, `spicedb.plaintext`
 
 **Testing requirements:**
 
@@ -134,7 +137,7 @@ are regenerated from schema. Always run `mvn generate-sources -f application/pom
 
 ## Component Tests
 
-Tests use Cucumber + TestContainers (PostgreSQL + Keycloak spun up automatically).
+Tests use Cucumber + TestContainers (PostgreSQL + Keycloak + SpiceDB spun up automatically).
 
 **Writing a new test** (follow this 3-file pattern):
 
@@ -150,7 +153,8 @@ Reference: `TopicStepDefs.java` + `create_topic.feature` + `create-topic.graphql
 - Always include `createdBy`/`updatedBy` in GraphQL selection sets — unselected fields return null
 - aura-admin Keycloak test user ID: `2c43b314-3e3c-4897-a3d3-02a8cab3e5e7`
 - `TestContext` is `@ScenarioScope` — reset per scenario
-- `DatabaseCleanupHooks` cleans DB tables (public + audit) and Keycloak resources before each scenario
+- `DatabaseCleanupHooks` cleans DB tables (public + audit), SpiceDB relationships, and Keycloak test users before each
+  scenario
 - `DataTableTypeConverterConfig` — add `@DataTableType` methods here for new input types
 - GraphQL files loaded via `FileUtils.findGraphqlQueryFromFiles("filename.graphql")`
 - Cucumber config is in `junit-platform.properties` (not `cucumber.properties`)
@@ -187,8 +191,8 @@ Reference: `TopicStepDefs.java` + `create_topic.feature` + `create-topic.graphql
 
 **Environment cleanup (`DatabaseCleanupHooks`):**
 
-- `@Before` hook cleans both DB (truncate) and Keycloak (resources, policies, groups, users)
-- Preserve static Keycloak entities: `aura-admin-*` policies, `aura-admin` group, `service-account-*` users
+- `@Before` hook cleans DB (truncate), SpiceDB relationships (delete all + re-create `system:global#admin`), and
+  Keycloak test users (preserve `service-account-*`)
 - Log summary of removed items per category (even if empty)
 
 ## Liquibase / Database
