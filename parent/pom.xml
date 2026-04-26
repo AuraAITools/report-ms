@@ -50,6 +50,8 @@
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <extentreports.version>5.1.2</extentreports.version>
         <extentreports-cucumber7-adapater.version>1.14.0</extentreports-cucumber7-adapater.version>
+        <authzed.version>1.5.0</authzed.version>
+        <grpc.version>1.72.0</grpc.version>
     </properties>
     <!-- dependency management does not actually add dependencies, it just standardises version in child pom   -->
     <dependencyManagement>
@@ -100,6 +102,17 @@
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-admin-client</artifactId>
                 <version>${keycloak-admin-client.version}</version>
+            </dependency>
+            <!-- SpiceDB -->
+            <dependency>
+                <groupId>com.authzed.api</groupId>
+                <artifactId>authzed</artifactId>
+                <version>${authzed.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty-shaded</artifactId>
+                <version>${grpc.version}</version>
             </dependency>
             <!-- GraphQL -->
             <dependency>

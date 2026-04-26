@@ -1,0 +1,72 @@
+definition user {}
+
+definition institution {
+    relation admin: user
+    relation viewer: user
+
+    permission manage = admin
+    permission create = admin
+    permission view = viewer + admin
+    permission delegate = admin
+}
+
+definition outlet {
+    relation parent_institution: institution
+    relation admin: user
+    relation viewer: user
+
+    permission manage = admin + parent_institution->manage
+    permission create = admin + parent_institution->manage
+    permission view = viewer + admin + parent_institution->view
+    permission delegate = admin + parent_institution->delegate
+}
+
+definition course {
+    relation parent_outlet: outlet
+    relation admin: user
+    relation educator: user
+    relation viewer: user
+
+    permission manage = admin + educator + parent_outlet->manage
+    permission create = admin + parent_outlet->manage
+    permission view = viewer + educator + admin + parent_outlet->view
+    permission delegate = admin + parent_outlet->delegate
+}
+
+definition lesson {
+    relation parent_course: course
+    relation parent_outlet: outlet
+    relation educator: user
+
+    permission manage = educator + parent_course->manage
+    permission view = educator + parent_course->view
+}
+
+definition account {
+    relation owner: user
+    relation parent_institution: institution
+
+    permission manage = owner + parent_institution->manage
+    permission view = owner + parent_institution->view
+}
+
+definition level {
+    relation parent_institution: institution
+
+    permission manage = parent_institution->manage
+    permission view = parent_institution->view
+}
+
+definition subject {
+    relation parent_institution: institution
+
+    permission manage = parent_institution->manage
+    permission view = parent_institution->view
+}
+
+definition topic {
+    relation parent_subject: subject
+
+    permission manage = parent_subject->manage
+    permission view = parent_subject->view
+}
