@@ -109,6 +109,11 @@ class AssignUserRoleUseCaseImplTest {
         }
 
         @Override
+        public void deleteAllRelationships(String resourceType) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void writeRelationships(List<Relationship> relationships) {
             writtenRelationships.addAll(relationships);
         }

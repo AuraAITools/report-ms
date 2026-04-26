@@ -2,6 +2,8 @@ package com.aura.details.spicedb;
 
 import com.authzed.api.v1.CheckPermissionRequest;
 import com.authzed.api.v1.CheckPermissionResponse;
+import com.authzed.api.v1.DeleteRelationshipsRequest;
+import com.authzed.api.v1.DeleteRelationshipsResponse;
 import com.authzed.api.v1.PermissionsServiceGrpc;
 import com.authzed.api.v1.RelationshipUpdate;
 import com.authzed.api.v1.WriteRelationshipsRequest;
@@ -106,6 +108,21 @@ class SpiceDbRelationshipServiceTest {
         assertThat(second.getOperation()).isEqualTo(RelationshipUpdate.Operation.OPERATION_TOUCH);
         assertThat(second.getRelationship().getResource().getObjectType()).isEqualTo("outlet");
         assertThat(second.getRelationship().getRelation()).isEqualTo("member");
+    }
+
+    @Test
+    @DisplayName("Should delete all relationships for a given resource type")
+    void deleteAllRelationships() {
+        when(permissionsService.deleteRelationships(any(DeleteRelationshipsRequest.class)))
+                .thenReturn(DeleteRelationshipsResponse.getDefaultInstance());
+
+        service.deleteAllRelationships("institution");
+
+        var captor = ArgumentCaptor.forClass(DeleteRelationshipsRequest.class);
+        verify(permissionsService).deleteRelationships(captor.capture());
+
+        DeleteRelationshipsRequest request = captor.getValue();
+        assertThat(request.getRelationshipFilter().getResourceType()).isEqualTo("institution");
     }
 
     @Test

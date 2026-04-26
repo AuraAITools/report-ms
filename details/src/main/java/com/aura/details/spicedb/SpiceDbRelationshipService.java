@@ -3,8 +3,10 @@ package com.aura.details.spicedb;
 import com.authzed.api.v1.CheckPermissionRequest;
 import com.authzed.api.v1.CheckPermissionResponse;
 import com.authzed.api.v1.Consistency;
+import com.authzed.api.v1.DeleteRelationshipsRequest;
 import com.authzed.api.v1.ObjectReference;
 import com.authzed.api.v1.PermissionsServiceGrpc;
+import com.authzed.api.v1.RelationshipFilter;
 import com.authzed.api.v1.RelationshipUpdate;
 import com.authzed.api.v1.SubjectReference;
 import com.authzed.api.v1.WriteRelationshipsRequest;
@@ -46,6 +48,17 @@ public class SpiceDbRelationshipService implements RelationshipAuthorizationServ
                 .build();
 
         permissionsService.writeRelationships(request);
+    }
+
+    @Override
+    public void deleteAllRelationships(String resourceType) {
+        log.debug("Deleting all relationships for resource type: {}", resourceType);
+
+        permissionsService.deleteRelationships(DeleteRelationshipsRequest.newBuilder()
+                .setRelationshipFilter(RelationshipFilter.newBuilder()
+                        .setResourceType(resourceType)
+                        .build())
+                .build());
     }
 
     @Override

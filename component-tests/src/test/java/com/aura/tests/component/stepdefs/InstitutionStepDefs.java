@@ -6,17 +6,11 @@ import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import com.aura.tests.component.containers.keycloak.KeycloakTestContainer;
-import dasniko.testcontainers.keycloak.KeycloakContainer;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.ClientResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -92,10 +86,10 @@ public class InstitutionStepDefs {
     }
 
     private void ensureClientAuthenticated() {
-        String token = keycloak.tokenManager().getAccessToken().getToken();
+        String accessToken = keycloak.tokenManager().getAccessToken().getToken();
         var client = testContext.getGraphQLClient()
                 .mutate()
-                .headers(headers -> headers.setBearerAuth(token))
+                .headers(headers -> headers.setBearerAuth(accessToken))
                 .build();
         testContext.setGraphQLClient(client);
     }
@@ -132,80 +126,4 @@ public class InstitutionStepDefs {
         assertThat(results).isNotNull().hasSize(1);
     }
 
-    @And("a UMA resource should be registered for the institution with type {string} and scopes {string}")
-    public void umaResourceRegisteredWithTypeAndScopes(String expectedType, String scopesCsv) {
-        String institutionId = testContext.getInstitutionId();
-        String expectedResourceName = "institution:" + institutionId;
-        List<String> expectedScopes = List.of(scopesCsv.split(","));
-
-        KeycloakContainer container = KeycloakTestContainer.getSingleton();
-        try (Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(container.getAuthServerUrl())
-                .realm("master")
-                .username(container.getAdminUsername())
-                .password(container.getAdminPassword())
-                .clientId("admin-cli")
-                .build()) {
-
-            ClientRepresentation client = adminClient.realm("aura")
-                    .clients().findByClientId("aura-application-client").getFirst();
-            ClientResource adminClientResource = adminClient.realm("aura")
-                    .clients().get(client.getId());
-
-            List<ResourceRepresentation> resources = adminClientResource.authorization()
-                    .resources().findByName(expectedResourceName);
-
-            assertThat(resources)
-                    .as("UMA resource '%s' should be registered in Keycloak", expectedResourceName)
-                    .isNotEmpty();
-
-            ResourceRepresentation resource = resources.getFirst();
-            assertThat(resource.getName()).isEqualTo(expectedResourceName);
-            assertThat(resource.getType())
-                    .as("Resource type should be '%s'", expectedType)
-                    .isEqualTo(expectedType);
-            assertThat(resource.getOwnerManagedAccess())
-                    .as("Resource should have ownerManagedAccess enabled")
-                    .isTrue();
-            assertThat(resource.getScopes())
-                    .extracting("name")
-                    .as("Resource should have scopes %s", expectedScopes)
-                    .containsExactlyInAnyOrderElementsOf(expectedScopes);
-        }
-    }
-
-    @And("a UMA resource should be registered for the institution")
-    public void umaResourceShouldBeRegisteredForTheInstitution() {
-        String institutionId = testContext.getInstitutionId();
-        String expectedResourceName = "institution:" + institutionId;
-
-        // Create a master realm admin client to query authorization resources
-        KeycloakContainer container = KeycloakTestContainer.getSingleton();
-        try (Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(container.getAuthServerUrl())
-                .realm("master")
-                .username(container.getAdminUsername())
-                .password(container.getAdminPassword())
-                .clientId("admin-cli")
-                .build()) {
-
-            ClientRepresentation client = adminClient.realm("aura")
-                    .clients().findByClientId("aura-application-client").getFirst();
-            ClientResource adminClientResource = adminClient.realm("aura")
-                    .clients().get(client.getId());
-
-            List<ResourceRepresentation> resources = adminClientResource.authorization()
-                    .resources().findByName(expectedResourceName);
-
-            assertThat(resources).isNotEmpty();
-
-            ResourceRepresentation resource = resources.getFirst();
-            assertThat(resource.getName()).isEqualTo(expectedResourceName);
-            assertThat(resource.getType()).isEqualTo("urn:aura:institution");
-            assertThat(resource.getOwnerManagedAccess()).isTrue();
-            assertThat(resource.getScopes())
-                    .extracting("name")
-                    .containsExactlyInAnyOrder("view", "manage", "delegate", "create");
-        }
-    }
 }

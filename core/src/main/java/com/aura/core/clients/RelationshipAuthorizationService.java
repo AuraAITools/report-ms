@@ -11,6 +11,8 @@ public interface RelationshipAuthorizationService {
 
     void writeRelationships(List<Relationship> relationships);
 
+    void deleteAllRelationships(String resourceType);
+
     boolean checkPermission(String resourceType, String resourceId,
                             String permission, String subjectType, String subjectId);
 

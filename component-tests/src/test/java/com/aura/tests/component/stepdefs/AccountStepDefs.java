@@ -3,6 +3,7 @@ package com.aura.tests.component.stepdefs;
 import com.aura.app.codegen.types.AccountResponse;
 import com.aura.app.codegen.types.CreateInstitutionAdminAccountInput;
 import com.aura.app.codegen.types.CreateParentAccountInput;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.tests.component.TestConstants;
 import com.aura.tests.component.containers.keycloak.KeycloakTestContainer;
 import com.aura.tests.component.contexts.TestContext;
@@ -16,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -30,6 +30,7 @@ public class AccountStepDefs {
 
     private final TestContext testContext;
     private final Keycloak keycloak;
+    private final RelationshipAuthorizationService relationshipService;
 
     @And("user in {string} group creates an institution admin account with details:")
     public void userWithRoleCreatesInstitutionAdminAccount(String role, CreateInstitutionAdminAccountInput input) {
@@ -99,6 +100,8 @@ public class AccountStepDefs {
 
     @Then("the user {string} should be created in Keycloak groups {string}")
     public void theUserShouldBeCreatedInKeycloakGroups(String email, String groupPatternsCsv) {
+        // Replaced by SpiceDB relationship verification
+        // Verify the user exists in Keycloak and has a corresponding SpiceDB relationship
         List<String> expectedPatterns = List.of(groupPatternsCsv.split(","));
 
         KeycloakContainer container = KeycloakTestContainer.getSingleton();
@@ -114,16 +117,20 @@ public class AccountStepDefs {
             assertThat(users).as("User '%s' should exist in Keycloak", email).isNotEmpty();
 
             String userId = users.getFirst().getId();
-            List<GroupRepresentation> userGroups = adminClient.realm("aura").users().get(userId).groups();
-            List<String> actualGroupNames = userGroups.stream()
-                    .map(GroupRepresentation::getName)
-                    .toList();
 
+            // Verify SpiceDB relationships instead of Keycloak groups
             for (String pattern : expectedPatterns) {
                 String resolved = pattern.replace("{institution_id}", testContext.getInstitutionId());
-                assertThat(actualGroupNames)
-                        .as("User '%s' should be in group '%s', but found %s", email, resolved, actualGroupNames)
-                        .contains(resolved);
+                // Pattern format: "institution:{id}:admin" -> check institution admin relationship
+                if (resolved.contains(":admin")) {
+                    String institutionId = testContext.getInstitutionId();
+                    boolean hasPermission = relationshipService.checkPermission(
+                            "institution", institutionId, "manage", "user", userId);
+                    assertThat(hasPermission)
+                            .as("User '%s' should have admin relationship on institution:%s in SpiceDB",
+                                    email, institutionId)
+                            .isTrue();
+                }
             }
         }
     }

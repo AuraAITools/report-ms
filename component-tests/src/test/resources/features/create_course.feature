@@ -10,4 +10,3 @@ Feature: Create Course
       | name        | maxSize | lessonFrequency | price | priceFrequency | startDate            | endDate              |
       | Test Course | 20      | WEEKLY          | 200.0 | MONTHLY        | 2026-03-01T09:00:00Z | 2026-12-31T09:00:00Z |
     Then the course should be created successfully
-    And a UMA resource should be registered for the course with type "urn:aura:course" and scopes "view,manage,delegate"

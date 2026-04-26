@@ -36,3 +36,7 @@ keycloak:
     realm: ${KEYCLOAK_CLIENT_REALM}
     clientId: ${KEYCLOAK_CLIENT_ID}
     clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+spicedb:
+  target: ${SPICEDB_TARGET:localhost:50051}
+  preshared-key: ${SPICEDB_PRESHARED_KEY:test-key}
+  plaintext: true
