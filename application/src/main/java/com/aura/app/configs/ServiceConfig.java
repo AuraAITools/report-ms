@@ -1,12 +1,11 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
-import com.aura.core.clients.GroupAuthorizationService;
-import com.aura.core.clients.ResourceAuthorizationService;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
@@ -92,8 +91,8 @@ public class ServiceConfig {
                                   EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase,
                                   AccountRepository accountRepository,
                                   IdentityService identityService,
-                                  GroupAuthorizationService groupAuthorizationService,
-                                  AddUserToGroupUseCase addUserToGroupUseCase) {
+                                  RelationshipAuthorizationService relationshipService,
+                                  AssignUserRoleUseCase assignUserRoleUseCase) {
         return new AccountService(createAccountUseCase,
                 createParentAccountUseCase,
                 createStudentsInParentAccountUseCase,
@@ -107,30 +106,30 @@ public class ServiceConfig {
                 enrollEducatorToOutletUseCase,
                 accountRepository,
                 identityService,
-                groupAuthorizationService,
-                addUserToGroupUseCase);
+                relationshipService,
+                assignUserRoleUseCase);
     }
 
     @Bean
     OutletService outletService(CreateOutletUseCase createOutletUseCase,
                                 OutletQueryUseCase outletQueryUseCase,
-                                ResourceAuthorizationService resourceAuthorizationService,
-                                GroupAuthorizationService groupAuthorizationService) {
-        return new OutletService(createOutletUseCase, outletQueryUseCase,
-                resourceAuthorizationService, groupAuthorizationService);
+                                RelationshipAuthorizationService relationshipService) {
+        return new OutletService(createOutletUseCase, outletQueryUseCase, relationshipService);
     }
 
     @Bean
     CourseService courseService(CreateCourseUseCase createCourseUseCase,
-                                ResourceAuthorizationService resourceAuthorizationService,
-                                GroupAuthorizationService groupAuthorizationService) {
-        return new CourseService(createCourseUseCase,
-                resourceAuthorizationService, groupAuthorizationService);
+                                RelationshipAuthorizationService relationshipService) {
+        return new CourseService(createCourseUseCase, relationshipService);
     }
 
     @Bean
-    LessonService lessonService(CreateLessonUseCase createLessonUseCase, AddEducatorsToLessonUseCase addEducatorsToLessonUseCase, LinkLessonsToCourseUseCase linkLessonsToCourseUseCase) {
-        return new LessonService(createLessonUseCase, addEducatorsToLessonUseCase, linkLessonsToCourseUseCase);
+    LessonService lessonService(CreateLessonUseCase createLessonUseCase,
+                                AddEducatorsToLessonUseCase addEducatorsToLessonUseCase,
+                                LinkLessonsToCourseUseCase linkLessonsToCourseUseCase,
+                                RelationshipAuthorizationService relationshipService) {
+        return new LessonService(createLessonUseCase, addEducatorsToLessonUseCase,
+                linkLessonsToCourseUseCase, relationshipService);
     }
 
     @Bean

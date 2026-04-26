@@ -1,7 +1,7 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.GroupAuthorizationService;
 import com.aura.core.clients.IdentityService;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.educators.Educator;
@@ -11,10 +11,10 @@ import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.repositories.AccountRepository;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
 import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-
 
 import static java.util.Optional.ofNullable;
 
@@ -47,19 +46,19 @@ public class AccountService {
     private final EnrollEducatorToOutletUseCase enrollEducatorToOutletUseCase;
     private final AccountRepository accountRepository;
     private final IdentityService identityService;
-    private final GroupAuthorizationService groupAuthorizationService;
-    private final AddUserToGroupUseCase addUserToGroupUseCase;
+    private final RelationshipAuthorizationService relationshipService;
+    private final AssignUserRoleUseCase assignUserRoleUseCase;
 
     @Transactional
-    public void addUserToGroup(String email, String groupName) {
-        addUserToGroupUseCase.addUserToGroup(email, groupName);
+    public void assignUserRole(String email, String resourceType, String resourceId, String role) {
+        assignUserRoleUseCase.assignRole(email, resourceType, resourceId, role);
     }
 
     @Transactional
     public Account createAccountWithInstitutionAdminRole(Account account) {
         Account createdAccount = createAccountUseCase.createAccount(account);
-        String groupName = "institution:" + account.getTenantId() + ":admin";
-        groupAuthorizationService.addUserToGroup(createdAccount.getUserId(), groupName);
+        relationshipService.writeRelationship("institution", account.getTenantId(),
+                "admin", "user", createdAccount.getUserId());
         return createdAccount;
     }
 
@@ -78,7 +77,6 @@ public class AccountService {
         Student student = createStudentsInParentAccountUseCase.createStudent(createStudentAccountParams.accountId, createStudentAccountParams.student);
         Level level = tagStudentToLevelUseCase.tagStudentToLevel(student.getId(), createStudentAccountParams.levelId());
         School school = tagStudentToSchoolUseCase.tagStudentToSchool(student.getId(), createStudentAccountParams.schoolId());
-
 
         var courses = createStudentAccountParams.studentCourseEnrollmentParams().stream()
                 .map(param -> enrollStudentToCourseUseCase.enroll(student.getId(), param.courseId(), createStudentAccountParams.tenantId()))
@@ -101,7 +99,6 @@ public class AccountService {
         List<Subject> taggedSubjects = params.subjectIds().stream().map(sid -> tagEducatorToSubjectUseCase.tag(createdEducator.getId(), sid)).toList();
         List<Outlet> enrolledOutlets = params.outletIds().stream().map(oid -> enrollEducatorToOutletUseCase.enroll(createdEducator.getId(), oid)).toList();
         return CreatedEducatorResult.builder()
-                // missing account
                 .account(account)
                 .educator(createdEducator)
                 .courses(taggedCourses)
@@ -125,7 +122,6 @@ public class AccountService {
     public record CreateEducatorAccountParams(Educator educator, List<String> courseIds, List<String> subjectIds,
                                               List<String> outletIds, List<String> levelIds, String accountId) {
     }
-
 
     @Builder
     public record CreateStudentAccountParams(Student student, String levelId, String schoolId, String accountId,

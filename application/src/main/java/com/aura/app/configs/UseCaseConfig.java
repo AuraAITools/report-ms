@@ -1,8 +1,7 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
-import com.aura.core.clients.GroupAuthorizationService;
-import com.aura.core.clients.ResourceAuthorizationService;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
@@ -13,8 +12,8 @@ import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCaseImpl;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -66,17 +65,14 @@ public class UseCaseConfig {
 
     @Bean
     OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository,
-                                                          TenantInitialDataLoader tenantInitialDataLoader,
-                                                          ResourceAuthorizationService resourceAuthorizationService,
-                                                          GroupAuthorizationService groupAuthorizationService) {
-        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader,
-                resourceAuthorizationService, groupAuthorizationService);
+                                                          TenantInitialDataLoader tenantInitialDataLoader) {
+        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader);
     }
 
     @Bean
-    AddUserToGroupUseCase addUserToGroupUseCase(IdentityService identityService,
-                                                GroupAuthorizationService groupAuthorizationService) {
-        return new AddUserToGroupUseCaseImpl(identityService, groupAuthorizationService);
+    AssignUserRoleUseCase assignUserRoleUseCase(IdentityService identityService,
+                                                RelationshipAuthorizationService relationshipService) {
+        return new AssignUserRoleUseCaseImpl(identityService, relationshipService);
     }
 
     @Bean

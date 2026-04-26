@@ -77,8 +77,10 @@ public class AccountsGqlController {
     @PreAuthorize("hasPermission(null, 'account', 'create')")
     @MutationMapping(name = AddUserToGroup)
     public Boolean addUserToGroup(@Argument(value = AddUserToGroupInput) com.aura.app.codegen.types.AddUserToGroupInput addUserToGroupInput, @ContextValue(name = "user") User user) {
-        accountService.addUserToGroup(
+        accountService.assignUserRole(
                 addUserToGroupInput.getUserEmail(),
+                "institution",
+                addUserToGroupInput.getInstitutionId(),
                 addUserToGroupInput.getGroupName()
         );
         return true;
