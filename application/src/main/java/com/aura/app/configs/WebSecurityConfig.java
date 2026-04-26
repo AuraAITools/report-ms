@@ -1,6 +1,7 @@
 package com.aura.app.configs;
 
-import com.aura.app.security.RptPermissionEvaluator;
+import com.aura.app.security.SpiceDbPermissionEvaluator;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +56,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+    MethodSecurityExpressionHandler methodSecurityExpressionHandler(RelationshipAuthorizationService relationshipService) {
         DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setPermissionEvaluator(new RptPermissionEvaluator());
+        handler.setPermissionEvaluator(new SpiceDbPermissionEvaluator(relationshipService));
         return handler;
     }
 

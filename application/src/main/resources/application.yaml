@@ -59,6 +59,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
   enabled: true
+spicedb:
+  target: ${SPICEDB_TARGET:localhost:50051}
+  preshared-key: ${SPICEDB_PRESHARED_KEY:}
+  plaintext: ${SPICEDB_PLAINTEXT:true}
 info:
   app:
     name: report-service

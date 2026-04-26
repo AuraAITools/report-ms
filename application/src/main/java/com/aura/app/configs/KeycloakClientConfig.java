@@ -2,8 +2,6 @@ package com.aura.app.configs;
 
 import com.aura.details.keycloak.client.KeycloakCredentials;
 import com.aura.details.keycloak.client.KeycloakIdentityService;
-import com.aura.details.keycloak.client.KeycloakGroupAuthorizationService;
-import com.aura.details.keycloak.client.KeycloakResourceAuthorizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -24,18 +22,6 @@ public class KeycloakClientConfig {
     @Bean
     KeycloakIdentityService getKeycloakRemoteIdentityService(ClientResource clientResource, UsersResource usersResource) {
         return new KeycloakIdentityService(clientResource, usersResource);
-    }
-
-    @Bean
-    KeycloakResourceAuthorizationService keycloakResourceAuthorizationService(ClientResource clientResource) {
-        return new KeycloakResourceAuthorizationService(clientResource);
-    }
-
-    @Bean
-    KeycloakGroupAuthorizationService keycloakGroupAuthorizationService(ClientResource clientResource,
-                                                                          RealmResource realmResource,
-                                                                          UsersResource usersResource) {
-        return new KeycloakGroupAuthorizationService(clientResource, realmResource.groups(), usersResource);
     }
 
     @Bean
