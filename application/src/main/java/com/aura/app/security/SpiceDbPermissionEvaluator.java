@@ -29,13 +29,18 @@ public class SpiceDbPermissionEvaluator implements PermissionEvaluator {
         }
 
         String userId = jwt.getSubject();
-        String resourceId = targetId != null ? targetId.toString() : "";
         String scope = (String) permission;
 
+        // Type-level checks (null targetId) are routed to the system:global resource.
+        // This grants access to system admins for create/manage operations on any resource type.
+        // Instance-level checks use the actual resource type and ID.
+        String effectiveResourceType = targetId != null ? targetType : "system";
+        String effectiveResourceId = targetId != null ? targetId.toString() : "global";
+
         boolean granted = relationshipService.checkPermission(
-            targetType, resourceId, scope, "user", userId);
+            effectiveResourceType, effectiveResourceId, scope, "user", userId);
         log.debug("SpiceDB permission check: {}:{}#{} for user {} = {}",
-                  targetType, resourceId, scope, userId, granted);
+                  effectiveResourceType, effectiveResourceId, scope, userId, granted);
         return granted;
     }
 }

@@ -1,5 +1,14 @@
 definition user {}
 
+definition system {
+    relation admin: user
+
+    permission manage = admin
+    permission create = admin
+    permission view = admin
+    permission delegate = admin
+}
+
 definition institution {
     relation admin: user
     relation viewer: user

@@ -50,17 +50,17 @@ class SpiceDbPermissionEvaluatorTest {
     }
 
     @Test
-    @DisplayName("Should pass empty resourceId when targetId is null")
-    void hasPermission_nullTargetId_passesEmptyResourceId() {
+    @DisplayName("Should route type-level checks to system:global when targetId is null")
+    void hasPermission_nullTargetId_routesToSystemGlobal() {
         Jwt jwt = buildJwt("user-123");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("outlet", "", "create", "user", "user-123"))
+        when(relationshipService.checkPermission("system", "global", "create", "user", "user-123"))
                 .thenReturn(true);
 
         boolean result = evaluator.hasPermission(auth, null, "outlet", "create");
 
         assertThat(result).isTrue();
-        verify(relationshipService).checkPermission("outlet", "", "create", "user", "user-123");
+        verify(relationshipService).checkPermission("system", "global", "create", "user", "user-123");
     }
 
     @Test
@@ -82,7 +82,7 @@ class SpiceDbPermissionEvaluatorTest {
     void hasPermission_denied_returnsFalse() {
         Jwt jwt = buildJwt("user-789");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("outlet", "", "create", "user", "user-789"))
+        when(relationshipService.checkPermission("system", "global", "create", "user", "user-789"))
                 .thenReturn(false);
 
         boolean result = evaluator.hasPermission(auth, null, "outlet", "create");
