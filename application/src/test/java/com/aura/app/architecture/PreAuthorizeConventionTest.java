@@ -52,7 +52,9 @@ class PreAuthorizeConventionTest {
     );
 
     private static final Set<String> VALID_SCOPES = Set.of(
-            "view", "create", "manage"
+            "view", "create", "manage", "delegate",
+            "create_institution", "create_outlet", "create_course",
+            "create_lesson", "create_account", "create_subject"
     );
 
     private static final Path CONTROLLERS_ROOT = findControllersRoot();
@@ -65,6 +67,9 @@ class PreAuthorizeConventionTest {
 
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile(
             "@Argument\\((?:name\\s*=\\s*|value\\s*=\\s*)?\"([^\"]+)\"\\)");
+
+    private static final Pattern JAVA_PARAM_PATTERN = Pattern.compile(
+            "\\w+\\s+(\\w+)\\s*[,)]");
 
     // ===================== ArchUnit bytecode tests =====================
 
@@ -165,21 +170,34 @@ class PreAuthorizeConventionTest {
                             String firstArg = extractRawArgument(match.value(), 0);
                             assertThat(firstArg).as("Could not extract first argument").isNotNull();
                             assertThat(firstArg).startsWith("#");
-                            String paramRef = firstArg.substring(1);
+
+                            // Extract root variable name (before dot for SpEL property access)
+                            String fullRef = firstArg.substring(1);
+                            String rootParamName = fullRef.contains(".")
+                                    ? fullRef.substring(0, fullRef.indexOf('.'))
+                                    : fullRef;
 
                             List<String> fileLines = Files.readAllLines(match.file());
-                            Set<String> argumentNames = new java.util.HashSet<>();
+
+                            // Collect both @Argument names and Java parameter names from method signature
+                            Set<String> parameterNames = new java.util.HashSet<>();
                             for (int i = match.lineNumber(); i < Math.min(match.lineNumber() + 5, fileLines.size()); i++) {
+                                // Match @Argument("name") values
                                 Matcher argMatcher = ARGUMENT_PATTERN.matcher(fileLines.get(i));
                                 while (argMatcher.find()) {
-                                    argumentNames.add(argMatcher.group(1));
+                                    parameterNames.add(argMatcher.group(1));
+                                }
+                                // Match Java parameter names (type paramName or type paramName,)
+                                Matcher javaParamMatcher = JAVA_PARAM_PATTERN.matcher(fileLines.get(i));
+                                while (javaParamMatcher.find()) {
+                                    parameterNames.add(javaParamMatcher.group(1));
                                 }
                             }
 
-                            assertThat(argumentNames)
-                                    .as("#%s at %s:%d must match an @Argument parameter. Found: %s",
-                                            paramRef, match.file().getFileName(), match.lineNumber(), argumentNames)
-                                    .contains(paramRef);
+                            assertThat(parameterNames)
+                                    .as("#%s at %s:%d must match a method parameter. Found: %s",
+                                            rootParamName, match.file().getFileName(), match.lineNumber(), parameterNames)
+                                    .contains(rootParamName);
                         }
                 ));
     }
