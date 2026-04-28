@@ -45,8 +45,11 @@ public class AuthRoleStepDefs {
                 UserRepresentation user = new UserRepresentation();
                 user.setEmail(email);
                 user.setUsername(email);
+                user.setFirstName("Test");
+                user.setLastName("User");
                 user.setEnabled(true);
                 user.setEmailVerified(true);
+                user.setRequiredActions(List.of());
 
                 CredentialRepresentation credential = new CredentialRepresentation();
                 credential.setType(CredentialRepresentation.PASSWORD);

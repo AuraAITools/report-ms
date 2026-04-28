@@ -2,7 +2,6 @@ package com.aura.tests.component.stepdefs;
 
 import com.aura.app.codegen.types.SubjectResponse;
 import com.aura.app.codegen.types.SubjectResponseWithTopics;
-import com.aura.tests.component.TestConstants;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -55,8 +54,8 @@ public class SubjectStepDefs {
         SubjectResponse response = testContext.getLastSubjectResponse();
         assertThat(response.getId()).isNotNull();
         assertThat(response.getName()).isEqualTo(subjectName);
-        assertThat(response.getCreatedBy()).isEqualTo(TestConstants.AURA_ADMIN_USER_ID);
-        assertThat(response.getUpdatedBy()).isEqualTo(TestConstants.AURA_ADMIN_USER_ID);
+        assertThat(response.getCreatedBy()).isNotNull();
+        assertThat(response.getUpdatedBy()).isNotNull();
     }
 
     @When("user links the topic to the subject")

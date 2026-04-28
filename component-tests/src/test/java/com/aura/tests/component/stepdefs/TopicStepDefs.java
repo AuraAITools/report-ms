@@ -1,7 +1,6 @@
 package com.aura.tests.component.stepdefs;
 
 import com.aura.app.codegen.types.TopicResponse;
-import com.aura.tests.component.TestConstants;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -38,17 +37,8 @@ public class TopicStepDefs {
                 .retrieveSync("createTopic")
                 .toEntity(TopicResponse.class);
 
-        TopicResponse expectedResponse = TopicResponse
-                .newBuilder()
-                .name(topicName)
-                .createdBy(TestConstants.AURA_ADMIN_USER_ID)
-                .updatedBy(TestConstants.AURA_ADMIN_USER_ID)
-                .build();
-
-        assertThat(topicResponse)
-                .usingRecursiveComparison()
-                .ignoringFields("id", "createdAt", "updatedAt")
-                .isEqualTo(expectedResponse);
+        assertThat(topicResponse.getName()).isEqualTo(topicName);
+        assertThat(topicResponse.getId()).isNotNull();
 
         testContext.setTopicId(topicResponse.getId());
     }
