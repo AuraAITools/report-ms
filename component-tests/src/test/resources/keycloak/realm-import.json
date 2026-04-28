@@ -522,9 +522,7 @@
         ]
       },
       "notBefore": 0,
-      "groups": [
-        "/system:1:admin"
-      ]
+      "groups": []
     },
     {
       "id": "d635e46f-f3cd-46ad-b016-66d6f0bc735b",

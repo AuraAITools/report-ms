@@ -83,7 +83,7 @@ public class SpiceDbRelationshipService implements RelationshipAuthorizationServ
         log.debug("Checking permission: {}:{}#{}@{}:{}", resourceType, resourceId, permission, subjectType, subjectId);
 
         var request = CheckPermissionRequest.newBuilder()
-                .setConsistency(Consistency.newBuilder().setMinimizeLatency(true).build())
+                .setConsistency(Consistency.newBuilder().setFullyConsistent(true).build())
                 .setResource(ObjectReference.newBuilder()
                         .setObjectType(resourceType)
                         .setObjectId(resourceId)
