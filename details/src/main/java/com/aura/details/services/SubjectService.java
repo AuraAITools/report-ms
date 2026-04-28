@@ -1,5 +1,6 @@
 package com.aura.details.services;
 
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.links.TopicSubjectLink;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
@@ -11,11 +12,17 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class SubjectService {
+
     private final CreateSubjectUseCase createSubjectUseCase;
     private final CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase;
+    private final RelationshipAuthorizationService relationshipService;
 
+    @Transactional
     public Subject createSubject(Subject subject) {
-        return createSubjectUseCase.createSubject(subject);
+        Subject created = createSubjectUseCase.createSubject(subject);
+        relationshipService.writeRelationship(
+                "subject", created.getId(), "parent_institution", "institution", created.getTenantId());
+        return created;
     }
 
     @Transactional

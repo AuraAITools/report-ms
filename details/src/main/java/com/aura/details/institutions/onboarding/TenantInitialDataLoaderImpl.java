@@ -1,5 +1,6 @@
 package com.aura.details.institutions.onboarding;
 
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.details.springdata.models.levels.LevelModel;
 import com.aura.details.springdata.models.levels.LevelTemplateModel;
@@ -49,6 +50,7 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
     private final JpaTopicRepository jpaTopicRepository;
     private final JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository;
     private final JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository;
+    private final RelationshipAuthorizationService relationshipService;
 
     @Transactional
     @Override
@@ -65,16 +67,22 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
         List<LevelTemplateModel> levelTemplateModels = jpaLevelTemplateRepository.findAll();
         List<LevelModel> levelModels = levelTemplateModels.stream().map(ltt -> mapToLevelModel(ltt, tenantId)).toList();
         jpaLevelRepository.saveAll(levelModels);
+        levelModels.forEach(level -> relationshipService.writeRelationship(
+                "level", level.getId().toString(), "parent_institution", "institution", tenantId));
 
         // insert default subjects from subject templates
         List<SubjectTemplateModel> subjectTemplateModels = jpaSubjectTemplateRepository.findAll();
         List<SubjectModel> subjects = subjectTemplateModels.stream().map(stt -> mapToSubject(stt, tenantId)).toList();
         jpaSubjectRepository.saveAll(subjects);
+        subjects.forEach(subject -> relationshipService.writeRelationship(
+                "subject", subject.getId().toString(), "parent_institution", "institution", tenantId));
 
         // insert default topics
         List<TopicTemplateModel> topicTemplateModels = jpaTopicTemplateRepository.findAll();
         List<TopicModel> topics = topicTemplateModels.stream().map(ttt -> mapToTopic(ttt, tenantId)).toList();
         jpaTopicRepository.saveAll(topics);
+        topics.forEach(topic -> relationshipService.writeRelationship(
+                "topic", topic.getId().toString(), "parent_institution", "institution", tenantId));
 
         // ✅ PRE-LOAD all levels and subjects into Maps
         Map<String, LevelModel> levelsByName = levelModels.stream()
