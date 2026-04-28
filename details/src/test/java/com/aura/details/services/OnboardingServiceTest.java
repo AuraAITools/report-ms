@@ -1,5 +1,6 @@
 package com.aura.details.services;
 
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import static org.mockito.Mockito.when;
 class OnboardingServiceTest {
 
     @Mock private OnboardInstitutionUseCase onboardInstitutionUseCase;
+    @Mock private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks private OnboardingService onboardingService;
 
@@ -32,5 +34,18 @@ class OnboardingServiceTest {
 
         assertThat(result).isEqualTo(created);
         verify(onboardInstitutionUseCase).onboard(input);
+    }
+
+    @DisplayName("Should write institution parent_system relationship after onboarding")
+    @Test
+    void onboard_writesParentSystemRelationship() {
+        Institution input = Institution.builder().name("Test School").build();
+        Institution created = Institution.builder().id("inst-123").name("Test School").build();
+        when(onboardInstitutionUseCase.onboard(input)).thenReturn(created);
+
+        onboardingService.onboard(input);
+
+        verify(relationshipService).writeRelationship(
+                "institution", "inst-123", "parent_system", "system", "global");
     }
 }

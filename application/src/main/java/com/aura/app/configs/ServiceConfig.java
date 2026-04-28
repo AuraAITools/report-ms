@@ -63,8 +63,10 @@ public class ServiceConfig {
     }
 
     @Bean
-    OnboardingService onboardingService(OnboardInstitutionUseCase onboardInstitutionUseCase) {
-        return new OnboardingService(onboardInstitutionUseCase);
+    OnboardingService onboardingService(
+            OnboardInstitutionUseCase onboardInstitutionUseCase,
+            RelationshipAuthorizationService relationshipService) {
+        return new OnboardingService(onboardInstitutionUseCase, relationshipService);
     }
 
     @Bean
