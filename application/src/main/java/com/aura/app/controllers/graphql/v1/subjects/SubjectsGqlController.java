@@ -29,14 +29,14 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateSubjectTopicLinks
 public class SubjectsGqlController {
     private final SubjectService subjectService;
 
-    @PreAuthorize("hasPermission(null, 'subject', 'create')")
+    @PreAuthorize("hasPermission(#createSubjectInput.institutionId, 'institution', 'create_subject')")
     @MutationMapping(CreateSubject)
     public SubjectResponse createSubject(@Argument(name = CreateSubjectInput) CreateSubjectInput createSubjectInput, @ContextValue(value = "user") User user) {
         Subject createdSubject = subjectService.createSubject(SubjectMapper.INSTANCE.toDomain(createSubjectInput));
         return SubjectMapper.INSTANCE.toDto(createdSubject);
     }
 
-    @PreAuthorize("hasPermission(null, 'subject', 'manage')")
+    @PreAuthorize("hasPermission(#createSubjectTopicLinksInput.institutionId, 'institution', 'manage')")
     @MutationMapping(CreateSubjectTopicLinks)
     public SubjectResponseWithTopics createSubjectTopicLinks(@Argument(name = CreateSubjectTopicLinksInput) CreateSubjectTopicLinksInput createSubjectTopicLinksInput, @ContextValue(name = "user") User user) {
         List<TopicSubjectLink> topicSubjectLinks = subjectService.createTopicSubjectLinks(UUID.fromString(createSubjectTopicLinksInput.getId()), createSubjectTopicLinksInput.getTopicIds().stream().map(UUID::fromString).toList(), createSubjectTopicLinksInput.getInstitutionId());

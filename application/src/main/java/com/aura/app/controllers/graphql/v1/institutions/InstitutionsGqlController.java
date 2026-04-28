@@ -55,7 +55,7 @@ public class InstitutionsGqlController {
                 .toList();
     }
 
-    @PreAuthorize("hasPermission(null, 'institution', 'create')")
+    @PreAuthorize("hasPermission(null, 'institution', 'create_institution')")
     @MutationMapping
     public InstitutionResponse createInstitution(
             @Argument CreateInstitutionInput createInstitutionInput) {

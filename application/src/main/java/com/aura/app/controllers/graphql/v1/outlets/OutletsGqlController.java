@@ -38,7 +38,7 @@ public class OutletsGqlController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
-    @PreAuthorize("hasPermission(null, 'outlet', 'create')")
+    @PreAuthorize("hasPermission(#createOutletInput.institutionId, 'institution', 'create_outlet')")
     @MutationMapping(CreateOutlet)
     public OutletResponse createOutlet(@Argument(name = CreateOutletInput) CreateOutletInput createOutletInput, @ContextValue(name = "user") User user) {
         Outlet outletToBeCreated = OutletMapper.INSTANCE.toDomainEntity(createOutletInput);
@@ -46,7 +46,7 @@ public class OutletsGqlController {
         return OutletMapper.INSTANCE.toDto(outlet);
     }
 
-    @PreAuthorize("hasPermission(#institutionId, 'outlet', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping(DgsConstants.QUERY.GetOutletsByPage)
     public Connection<OutletResponse> getOutletsByPage(
             @Argument("institutionId") String institutionId,

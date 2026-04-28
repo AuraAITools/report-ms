@@ -22,7 +22,7 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateCourse;
 public class CourseGqlController {
     private final CourseService courseService;
 
-    @PreAuthorize("hasPermission(null, 'course', 'create')")
+    @PreAuthorize("hasPermission(#createCourseInput.outletId, 'outlet', 'create_course')")
     @MutationMapping(CreateCourse)
     public CourseResponse createCourse(@Argument(name = CreateCourseInput) CreateCourseInput createCourseInput, @ContextValue(name = "user") User user) {
         Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput);

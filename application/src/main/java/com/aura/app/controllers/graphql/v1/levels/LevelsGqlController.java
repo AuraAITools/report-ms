@@ -36,7 +36,7 @@ public class LevelsGqlController {
     private final ObjectMapper objectMapper;
     private final CursorStrategy<ScrollPosition> cursorStrategy;
 
-    @PreAuthorize("hasPermission(#institutionId, 'level', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping(name = GetLevelByPage)
     public Connection<LevelResponse> getLevelByPage(
             @Argument("institutionId") String institutionId,

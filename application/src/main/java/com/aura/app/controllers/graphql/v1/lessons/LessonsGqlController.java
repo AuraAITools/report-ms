@@ -24,7 +24,7 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateStandaloneLesson;
 public class LessonsGqlController {
     private final LessonService lessonService;
 
-    @PreAuthorize("hasPermission(null, 'lesson', 'create')")
+    @PreAuthorize("hasPermission(#createStandaloneLessonInput.outletId, 'outlet', 'create_lesson')")
     @MutationMapping(CreateStandaloneLesson)
     public LessonResponse createStandaloneLesson(@Argument(name = DgsConstants.MUTATION.CREATESTANDALONELESSON_INPUT_ARGUMENT.CreateStandaloneLesson) CreateStandaloneLessonInput createStandaloneLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createStandaloneLessonInput);
@@ -32,7 +32,7 @@ public class LessonsGqlController {
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
-    @PreAuthorize("hasPermission(null, 'lesson', 'create')")
+    @PreAuthorize("hasPermission(#createLessonInput.outletId, 'outlet', 'create_lesson')")
     @MutationMapping(CreateLesson)
     public LessonResponse createLesson(@Argument(name = DgsConstants.MUTATION.CREATELESSON_INPUT_ARGUMENT.CreateLesson) CreateLessonInput createLessonInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInput);

@@ -21,7 +21,7 @@ public class TopicsGqlController {
 
     private final TopicService topicService;
 
-    @PreAuthorize("hasPermission(null, 'topic', 'create')")
+    @PreAuthorize("hasPermission(#topicInput.institutionId, 'institution', 'create_subject')")
     @MutationMapping(CreateTopic)
     public TopicResponse createTopic(@Argument TopicInput topicInput, @ContextValue(name = "user") User user) {
         Topic topicToBeCreated = TopicMapper.INSTANCE.toDomainEntity(topicInput);
