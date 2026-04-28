@@ -4,29 +4,39 @@ definition system {
     relation admin: user
 
     permission manage = admin
-    permission create = admin
+    permission create_institution = admin
     permission view = admin
     permission delegate = admin
 }
 
 definition institution {
+    relation parent_system: system
     relation admin: user
     relation viewer: user
+    relation educator: user
+    relation parent_user: user
 
-    permission manage = admin
-    permission create = admin
-    permission view = viewer + admin
-    permission delegate = admin
+    permission manage = admin + parent_system->manage
+    permission create_outlet = admin + parent_system->manage
+    permission create_account = admin + parent_system->manage
+    permission create_subject = admin + parent_system->manage
+    permission create_level = admin + parent_system->manage
+    permission view = viewer + admin + educator + parent_user + parent_system->view
+    permission view_all = viewer + admin + parent_system->view
+    permission delegate = admin + parent_system->delegate
 }
 
 definition outlet {
     relation parent_institution: institution
     relation admin: user
     relation viewer: user
+    relation modifier: user
 
-    permission manage = admin + parent_institution->manage
-    permission create = admin + parent_institution->manage
-    permission view = viewer + admin + parent_institution->view
+    permission manage = admin + modifier + parent_institution->manage
+    permission create_course = admin + modifier + parent_institution->manage
+    permission create_lesson = admin + modifier + parent_institution->manage
+    permission view = viewer + admin + modifier + parent_institution->view
+    permission view_all = viewer + admin + modifier + parent_institution->view_all
     permission delegate = admin + parent_institution->delegate
 }
 
@@ -37,18 +47,20 @@ definition course {
     relation viewer: user
 
     permission manage = admin + educator + parent_outlet->manage
-    permission create = admin + parent_outlet->manage
-    permission view = viewer + educator + admin + parent_outlet->view
+    permission create_lesson = admin + parent_outlet->manage
+    permission view = viewer + educator + admin + parent_outlet->view_all
     permission delegate = admin + parent_outlet->delegate
 }
 
 definition lesson {
     relation parent_course: course
     relation parent_outlet: outlet
+    relation admin: user
     relation educator: user
+    relation viewer: user
 
-    permission manage = educator + parent_course->manage
-    permission view = educator + parent_course->view
+    permission manage = admin + educator + parent_course->manage + parent_outlet->manage
+    permission view = viewer + admin + educator + parent_course->view + parent_outlet->view_all
 }
 
 definition account {
@@ -74,8 +86,8 @@ definition subject {
 }
 
 definition topic {
-    relation parent_subject: subject
+    relation parent_institution: institution
 
-    permission manage = parent_subject->manage
-    permission view = parent_subject->view
+    permission manage = parent_institution->manage
+    permission view = parent_institution->view
 }
