@@ -148,4 +148,40 @@ public class QueryStepDefs {
             }
         }
     }
+
+    @When("user tries to query outlets by page")
+    public void userTriesToQueryOutletsByPage() {
+        String query = findGraphqlQueryFromFiles("get-outlets-by-page.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
+                    .retrieveSync("getOutletsByPage")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+            testContext.setLastQuerySucceeded(true);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
+
+    @When("user tries to query levels by page")
+    public void userTriesToQueryLevelsByPage() {
+        String query = findGraphqlQueryFromFiles("get-levels-by-page.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
+                    .retrieveSync("getLevelByPage")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+            testContext.setLastQuerySucceeded(true);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
 }

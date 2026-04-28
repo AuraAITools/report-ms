@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
+import org.springframework.graphql.client.FieldAccessException;
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,23 @@ public class SubjectStepDefs {
     @And("a subject exists with name {string}")
     public void aSubjectExistsWithName(String subjectName) {
         executeCreateSubject(subjectName);
+    }
+
+    @When("user tries to create a subject with name {string}")
+    public void userTriesToCreateASubjectWithName(String subjectName) {
+        String query = findGraphqlQueryFromFiles("create-subject.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("input", Map.of("institutionId", testContext.getInstitutionId(), "name", subjectName)))
+                    .retrieveSync("createSubject")
+                    .toEntity(SubjectResponse.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
     }
 
     @Then("the subject {string} should be created successfully")

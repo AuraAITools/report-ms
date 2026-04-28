@@ -9,6 +9,7 @@ import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
+import org.springframework.graphql.client.FieldAccessException;
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +56,23 @@ public class TopicStepDefs {
     @And("a topic exists with name {string}")
     public void aTopicExistsWithName(String topicName) {
         userCreatesATopicWithName(topicName);
+    }
+
+    @When("user tries to create a topic with name {string}")
+    public void userTriesToCreateATopicWithName(String topicName) {
+        String query = findGraphqlQueryFromFiles("create-topic.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("input", Map.of("institutionId", testContext.getInstitutionId(), "name", topicName)))
+                    .retrieveSync("createTopic")
+                    .toEntity(TopicResponse.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
     }
 
     @Then("the topic {string} should be created successfully")
