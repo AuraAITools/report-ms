@@ -3,7 +3,9 @@ package com.aura.details.services;
 import com.aura.core.clients.IdentityService;
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.accounts.Account;
+import com.aura.core.entities.educators.Educator;
 import com.aura.core.repositories.AccountRepository;
+import java.util.List;
 import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -82,5 +84,43 @@ class AccountServiceTest {
 
         assertThat(result).isEqualTo(created);
         verify(createParentAccountUseCase).createParentAccount(input);
+    }
+
+    @DisplayName("Should write parent_user relationship on institution when creating parent account")
+    @Test
+    void createParentAccount_writesParentUserRelationship() {
+        Account input = Account.builder().tenantId("tenant-1").build();
+        Account created = Account.builder().userId("user-1").tenantId("tenant-1").build();
+        when(createParentAccountUseCase.createParentAccount(input)).thenReturn(created);
+
+        accountService.createParentAccount(input);
+
+        verify(relationshipService).writeRelationship(
+                "institution", "tenant-1", "parent_user", "user", "user-1");
+    }
+
+    @DisplayName("Should write educator relationship on institution when creating educator")
+    @Test
+    void createAndLinkEducatorToAccount_writesEducatorRelationship() {
+        Educator educator = Educator.builder().name("Jane").build();
+        Educator createdEducator = Educator.builder().id("edu-1").name("Jane").build();
+        Account account = Account.builder().userId("user-1").tenantId("tenant-1").build();
+
+        var params = AccountService.CreateEducatorAccountParams.builder()
+                .educator(educator)
+                .accountId("acc-1")
+                .courseIds(List.of())
+                .subjectIds(List.of())
+                .outletIds(List.of())
+                .levelIds(List.of())
+                .build();
+
+        when(createEducatorInAccountUseCase.createEducator("acc-1", educator)).thenReturn(createdEducator);
+        when(accountRepository.findById("acc-1")).thenReturn(account);
+
+        accountService.createAndLinkEducatorToAccount(params);
+
+        verify(relationshipService).writeRelationship(
+                "institution", "tenant-1", "educator", "user", "user-1");
     }
 }

@@ -64,7 +64,10 @@ public class AccountService {
 
     @Transactional
     public Account createParentAccount(Account account) {
-        return createParentAccountUseCase.createParentAccount(account);
+        Account created = createParentAccountUseCase.createParentAccount(account);
+        relationshipService.writeRelationship(
+                "institution", created.getTenantId(), "parent_user", "user", created.getUserId());
+        return created;
     }
 
     @Transactional
@@ -94,6 +97,8 @@ public class AccountService {
     public CreatedEducatorResult createAndLinkEducatorToAccount(CreateEducatorAccountParams params) {
         Educator createdEducator = createEducatorInAccountUseCase.createEducator(params.accountId(), params.educator());
         Account account = ofNullable(accountRepository.findById(params.accountId())).orElseThrow(() -> new RuntimeException("account not found"));
+        relationshipService.writeRelationship(
+                "institution", account.getTenantId(), "educator", "user", account.getUserId());
         List<Level> taggedLevels = params.levelIds().stream().map(levelId -> tagEducatorToLevelUseCase.tag(createdEducator.getId(), levelId)).toList();
         List<Course> taggedCourses = params.courseIds().stream().map(courseId -> tagEducatorToCourseUseCase.tag(createdEducator.getId(), courseId)).toList();
         List<Subject> taggedSubjects = params.subjectIds().stream().map(sid -> tagEducatorToSubjectUseCase.tag(createdEducator.getId(), sid)).toList();
