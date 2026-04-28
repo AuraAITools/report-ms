@@ -54,13 +54,13 @@ class SpiceDbPermissionEvaluatorTest {
     void hasPermission_nullTargetId_routesToSystemGlobal() {
         Jwt jwt = buildJwt("user-123");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("system", "global", "create", "user", "user-123"))
+        when(relationshipService.checkPermission("system", "global", "create_institution", "user", "user-123"))
                 .thenReturn(true);
 
-        boolean result = evaluator.hasPermission(auth, null, "outlet", "create");
+        boolean result = evaluator.hasPermission(auth, null, "institution", "create_institution");
 
         assertThat(result).isTrue();
-        verify(relationshipService).checkPermission("system", "global", "create", "user", "user-123");
+        verify(relationshipService).checkPermission("system", "global", "create_institution", "user", "user-123");
     }
 
     @Test
@@ -68,13 +68,13 @@ class SpiceDbPermissionEvaluatorTest {
     void hasPermission_nonNullTargetId_passesTargetIdAsResourceId() {
         Jwt jwt = buildJwt("user-456");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("outlet", "outlet-001", "view", "user", "user-456"))
+        when(relationshipService.checkPermission("institution", "inst-001", "create_outlet", "user", "user-456"))
                 .thenReturn(true);
 
-        boolean result = evaluator.hasPermission(auth, "outlet-001", "outlet", "view");
+        boolean result = evaluator.hasPermission(auth, "inst-001", "institution", "create_outlet");
 
         assertThat(result).isTrue();
-        verify(relationshipService).checkPermission("outlet", "outlet-001", "view", "user", "user-456");
+        verify(relationshipService).checkPermission("institution", "inst-001", "create_outlet", "user", "user-456");
     }
 
     @Test
@@ -82,10 +82,10 @@ class SpiceDbPermissionEvaluatorTest {
     void hasPermission_denied_returnsFalse() {
         Jwt jwt = buildJwt("user-789");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("system", "global", "create", "user", "user-789"))
+        when(relationshipService.checkPermission("system", "global", "create_institution", "user", "user-789"))
                 .thenReturn(false);
 
-        boolean result = evaluator.hasPermission(auth, null, "outlet", "create");
+        boolean result = evaluator.hasPermission(auth, null, "institution", "create_institution");
 
         assertThat(result).isFalse();
     }
