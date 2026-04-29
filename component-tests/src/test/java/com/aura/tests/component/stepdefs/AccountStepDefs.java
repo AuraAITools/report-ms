@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -226,7 +227,14 @@ public class AccountStepDefs {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 user.setEnabled(true);
-                user.setEmailVerified(false);
+                user.setEmailVerified(true);
+                user.setRequiredActions(List.of());
+
+                CredentialRepresentation credential = new CredentialRepresentation();
+                credential.setType(CredentialRepresentation.PASSWORD);
+                credential.setValue("test-password");
+                credential.setTemporary(false);
+                user.setCredentials(List.of(credential));
 
                 adminClient.realm("aura").users().create(user);
                 log.info("Created Keycloak user '{}' with no groups", email);
