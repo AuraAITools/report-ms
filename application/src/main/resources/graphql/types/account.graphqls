@@ -45,3 +45,8 @@ input AddCourseAdminInput {
     courseId: ID!
     userEmail: String!
 }
+
+input AddLessonAdminInput {
+    lessonId: ID!
+    userEmail: String!
+}

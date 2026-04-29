@@ -6,4 +6,5 @@ extend type Mutation {
     addOutletAdmin(addOutletAdminInput: AddOutletAdminInput): Boolean
     addInstitutionAdmin(addInstitutionAdminInput: AddInstitutionAdminInput): Boolean
     addCourseAdmin(addCourseAdminInput: AddCourseAdminInput): Boolean
+    addLessonAdmin(addLessonAdminInput: AddLessonAdminInput): Boolean
 }
