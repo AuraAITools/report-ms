@@ -23,8 +23,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 
-import static com.aura.app.codegen.DgsConstants.MUTATION.ADDUSERTOGROUP_INPUT_ARGUMENT.AddUserToGroupInput;
-import static com.aura.app.codegen.DgsConstants.MUTATION.AddUserToGroup;
+import static com.aura.app.codegen.DgsConstants.MUTATION.ADDOUTLETADMIN_INPUT_ARGUMENT.AddOutletAdminInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.ADDINSTITUTIONADMIN_INPUT_ARGUMENT.AddInstitutionAdminInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.AddOutletAdmin;
+import static com.aura.app.codegen.DgsConstants.MUTATION.AddInstitutionAdmin;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEEDUCATORSINACCOUNT_INPUT_ARGUMENT.CreateEducatorInputs;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTIONADMINACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEPARENTACCOUNT_INPUT_ARGUMENT.CreateParentAccountInput;
@@ -74,14 +76,26 @@ public class AccountsGqlController {
         return results.stream().map(EducatorMapper.INSTANCE::toDto).toList();
     }
 
-    @PreAuthorize("hasPermission(#addUserToGroupInput.institutionId, 'institution', 'delegate')")
-    @MutationMapping(name = AddUserToGroup)
-    public Boolean addUserToGroup(@Argument(value = AddUserToGroupInput) com.aura.app.codegen.types.AddUserToGroupInput addUserToGroupInput, @ContextValue(name = "user") User user) {
+    @PreAuthorize("hasPermission(#addOutletAdminInput.outletId, 'outlet', 'delegate')")
+    @MutationMapping(name = AddOutletAdmin)
+    public Boolean addOutletAdmin(@Argument(value = AddOutletAdminInput) com.aura.app.codegen.types.AddOutletAdminInput addOutletAdminInput, @ContextValue(name = "user") User user) {
         accountService.assignUserRole(
-                addUserToGroupInput.getUserEmail(),
+                addOutletAdminInput.getUserEmail(),
+                "outlet",
+                addOutletAdminInput.getOutletId(),
+                "admin"
+        );
+        return true;
+    }
+
+    @PreAuthorize("hasPermission(#addInstitutionAdminInput.institutionId, 'institution', 'delegate')")
+    @MutationMapping(name = AddInstitutionAdmin)
+    public Boolean addInstitutionAdmin(@Argument(value = AddInstitutionAdminInput) com.aura.app.codegen.types.AddInstitutionAdminInput addInstitutionAdminInput, @ContextValue(name = "user") User user) {
+        accountService.assignUserRole(
+                addInstitutionAdminInput.getUserEmail(),
                 "institution",
-                addUserToGroupInput.getInstitutionId(),
-                addUserToGroupInput.getGroupName()
+                addInstitutionAdminInput.getInstitutionId(),
+                "admin"
         );
         return true;
     }
