@@ -396,6 +396,25 @@ public class AccountStepDefs {
         assertThat(result).isTrue();
     }
 
+    @When("outlet admin adds user {string} as outlet admin")
+    public void outletAdminAddsUserAsOutletAdmin(String targetUserEmail) {
+        String query = findGraphqlQueryFromFiles("add-outlet-admin.graphql");
+
+        Map<String, Object> input = Map.of(
+                "outletId", testContext.getOutletId(),
+                "userEmail", targetUserEmail
+        );
+
+        Boolean result = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("input", input))
+                .retrieveSync("addOutletAdmin")
+                .toEntity(Boolean.class);
+
+        assertThat(result).isTrue();
+    }
+
     @Then("the user {string} should have {string} role on {string} {string}")
     public void userShouldHaveRoleOnResource(String email, String role, String resourceType, String resourceIdPattern) {
         String resolvedResourceId = resourceIdPattern

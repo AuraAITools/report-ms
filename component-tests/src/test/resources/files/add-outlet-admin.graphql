@@ -1,0 +1,3 @@
+mutation AddOutletAdmin($input: AddOutletAdminInput!) {
+    addOutletAdmin(addOutletAdminInput: $input)
+}
