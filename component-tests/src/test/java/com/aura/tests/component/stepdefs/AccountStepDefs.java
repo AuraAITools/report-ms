@@ -370,10 +370,8 @@ public class AccountStepDefs {
         assertThat(testContext.getAccountId()).isNotNull();
     }
 
-    @When("user in {string} group adds user {string} to group {string}")
-    public void userInGroupAddsUserToGroup(String actorGroupPattern, String targetUserEmail, String targetGroupPattern) {
-        String resolvedTargetGroup = targetGroupPattern.replace("{institution_id}", testContext.getInstitutionId());
-
+    @When("institution admin adds user {string} as institution admin")
+    public void institutionAdminAddsUserAsInstitutionAdmin(String targetUserEmail) {
         String token = keycloak.tokenManager().getAccessToken().getToken();
         var client = testContext.getGraphQLClient()
                 .mutate()
@@ -381,22 +379,48 @@ public class AccountStepDefs {
                 .build();
         testContext.setGraphQLClient(client);
 
-        String query = findGraphqlQueryFromFiles("add-user-to-group.graphql");
+        String query = findGraphqlQueryFromFiles("add-institution-admin.graphql");
 
         Map<String, Object> input = Map.of(
                 "institutionId", testContext.getInstitutionId(),
-                "userEmail", targetUserEmail,
-                "groupName", resolvedTargetGroup
+                "userEmail", targetUserEmail
         );
 
         Boolean result = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
                 .variables(Map.of("input", input))
-                .retrieveSync("addUserToGroup")
+                .retrieveSync("addInstitutionAdmin")
                 .toEntity(Boolean.class);
 
         assertThat(result).isTrue();
+    }
+
+    @Then("the user {string} should have {string} role on {string} {string}")
+    public void userShouldHaveRoleOnResource(String email, String role, String resourceType, String resourceIdPattern) {
+        String resolvedResourceId = resourceIdPattern
+                .replace("{institution_id}", testContext.getInstitutionId())
+                .replace("{outlet_id}", testContext.getOutletId() != null ? testContext.getOutletId() : "");
+
+        KeycloakContainer container = KeycloakTestContainer.getSingleton();
+        try (Keycloak adminClient = KeycloakBuilder.builder()
+                .serverUrl(container.getAuthServerUrl())
+                .realm("master")
+                .username(container.getAdminUsername())
+                .password(container.getAdminPassword())
+                .clientId("admin-cli")
+                .build()) {
+
+            List<UserRepresentation> users = adminClient.realm("aura").users().searchByEmail(email, true);
+            assertThat(users).as("User '%s' should exist in Keycloak", email).isNotEmpty();
+            String userId = users.getFirst().getId();
+
+            boolean hasPermission = relationshipService.checkPermission(
+                    resourceType, resolvedResourceId, "manage", "user", userId);
+            assertThat(hasPermission)
+                    .as("User '%s' should have %s role on %s %s in SpiceDB", email, role, resourceType, resolvedResourceId)
+                    .isTrue();
+        }
     }
 
     @When("user tries to create a parent account with details:")
