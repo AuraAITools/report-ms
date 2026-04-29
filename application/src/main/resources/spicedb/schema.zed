@@ -61,6 +61,7 @@ definition lesson {
 
     permission manage = admin + educator + parent_course->manage + parent_outlet->manage
     permission view = viewer + admin + educator + parent_course->view + parent_outlet->view_all
+    permission delegate = admin + parent_course->delegate + parent_outlet->delegate
 }
 
 definition account {
