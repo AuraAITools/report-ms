@@ -1,0 +1,3 @@
+mutation AddCourseAdmin($input: AddCourseAdminInput!) {
+    addCourseAdmin(addCourseAdminInput: $input)
+}

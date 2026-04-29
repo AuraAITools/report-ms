@@ -423,11 +423,31 @@ public class AccountStepDefs {
         assertThat(result).isTrue();
     }
 
+    @When("course admin adds user {string} as course admin")
+    public void courseAdminAddsUserAsCourseAdmin(String targetUserEmail) {
+        String query = findGraphqlQueryFromFiles("add-course-admin.graphql");
+
+        Map<String, Object> input = Map.of(
+                "courseId", testContext.getCourseId(),
+                "userEmail", targetUserEmail
+        );
+
+        Boolean result = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("input", input))
+                .retrieveSync("addCourseAdmin")
+                .toEntity(Boolean.class);
+
+        assertThat(result).isTrue();
+    }
+
     @Then("the user {string} should have {string} role on {string} {string}")
     public void userShouldHaveRoleOnResource(String email, String role, String resourceType, String resourceIdPattern) {
         String resolvedResourceId = resourceIdPattern
                 .replace("{institution_id}", testContext.getInstitutionId())
-                .replace("{outlet_id}", testContext.getOutletId() != null ? testContext.getOutletId() : "");
+                .replace("{outlet_id}", testContext.getOutletId() != null ? testContext.getOutletId() : "")
+                .replace("{course_id}", testContext.getCourseId() != null ? testContext.getCourseId() : "");
 
         KeycloakContainer container = KeycloakTestContainer.getSingleton();
         try (Keycloak adminClient = KeycloakBuilder.builder()
