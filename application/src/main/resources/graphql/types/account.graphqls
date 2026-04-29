@@ -31,8 +31,12 @@ enum RELATIONSHIP {
     SELF
 }
 
-input AddUserToGroupInput {
+input AddOutletAdminInput {
+    outletId: ID!
+    userEmail: String!
+}
+
+input AddInstitutionAdminInput {
     institutionId: ID!
     userEmail: String!
-    groupName: String!
 }
