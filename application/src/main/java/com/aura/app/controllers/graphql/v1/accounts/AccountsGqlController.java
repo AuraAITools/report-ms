@@ -25,8 +25,10 @@ import org.springframework.stereotype.Controller;
 
 import static com.aura.app.codegen.DgsConstants.MUTATION.ADDOUTLETADMIN_INPUT_ARGUMENT.AddOutletAdminInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.ADDINSTITUTIONADMIN_INPUT_ARGUMENT.AddInstitutionAdminInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.ADDCOURSEADMIN_INPUT_ARGUMENT.AddCourseAdminInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.AddOutletAdmin;
 import static com.aura.app.codegen.DgsConstants.MUTATION.AddInstitutionAdmin;
+import static com.aura.app.codegen.DgsConstants.MUTATION.AddCourseAdmin;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEEDUCATORSINACCOUNT_INPUT_ARGUMENT.CreateEducatorInputs;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEINSTITUTIONADMINACCOUNT_INPUT_ARGUMENT.CreateAccountInput;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CREATEPARENTACCOUNT_INPUT_ARGUMENT.CreateParentAccountInput;
@@ -95,6 +97,18 @@ public class AccountsGqlController {
                 addInstitutionAdminInput.getUserEmail(),
                 "institution",
                 addInstitutionAdminInput.getInstitutionId(),
+                "admin"
+        );
+        return true;
+    }
+
+    @PreAuthorize("hasPermission(#addCourseAdminInput.courseId, 'course', 'delegate')")
+    @MutationMapping(name = AddCourseAdmin)
+    public Boolean addCourseAdmin(@Argument(value = AddCourseAdminInput) com.aura.app.codegen.types.AddCourseAdminInput addCourseAdminInput, @ContextValue(name = "user") User user) {
+        accountService.assignUserRole(
+                addCourseAdminInput.getUserEmail(),
+                "course",
+                addCourseAdminInput.getCourseId(),
                 "admin"
         );
         return true;
