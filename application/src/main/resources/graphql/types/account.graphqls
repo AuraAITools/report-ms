@@ -40,3 +40,8 @@ input AddInstitutionAdminInput {
     institutionId: ID!
     userEmail: String!
 }
+
+input AddCourseAdminInput {
+    courseId: ID!
+    userEmail: String!
+}

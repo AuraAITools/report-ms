@@ -5,4 +5,5 @@ extend type Mutation {
     createEducatorsInAccount(createEducatorInputs: [CreateEducatorInput]): [EducatorResponse]
     addOutletAdmin(addOutletAdminInput: AddOutletAdminInput): Boolean
     addInstitutionAdmin(addInstitutionAdminInput: AddInstitutionAdminInput): Boolean
+    addCourseAdmin(addCourseAdminInput: AddCourseAdminInput): Boolean
 }
