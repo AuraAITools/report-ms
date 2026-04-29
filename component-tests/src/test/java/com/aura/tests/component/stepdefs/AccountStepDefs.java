@@ -447,7 +447,8 @@ public class AccountStepDefs {
         String resolvedResourceId = resourceIdPattern
                 .replace("{institution_id}", testContext.getInstitutionId())
                 .replace("{outlet_id}", testContext.getOutletId() != null ? testContext.getOutletId() : "")
-                .replace("{course_id}", testContext.getCourseId() != null ? testContext.getCourseId() : "");
+                .replace("{course_id}", testContext.getCourseId() != null ? testContext.getCourseId() : "")
+                .replace("{lesson_id}", testContext.getLessonId() != null ? testContext.getLessonId() : "");
 
         KeycloakContainer container = KeycloakTestContainer.getSingleton();
         try (Keycloak adminClient = KeycloakBuilder.builder()

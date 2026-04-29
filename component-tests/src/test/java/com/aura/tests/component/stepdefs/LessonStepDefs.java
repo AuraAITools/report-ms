@@ -30,6 +30,7 @@ public class LessonStepDefs {
                 data.get("startDate"), data.get("endDate"));
         assertThat(response.getCreatedBy()).isNotNull();
         testContext.setLastLessonResponse(response);
+        testContext.setLessonId(response.getId());
     }
 
     @And("a standalone lesson exists with name {string}")
@@ -37,6 +38,7 @@ public class LessonStepDefs {
         LessonResponse response = executeCreateStandaloneLesson(name, "A test lesson",
                 "2026-03-01T09:00:00Z", "2026-03-01T11:00:00Z");
         testContext.setLastLessonResponse(response);
+        testContext.setLessonId(response.getId());
     }
 
     @When("user tries to create a standalone lesson with name {string}")
@@ -91,6 +93,7 @@ public class LessonStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo(data.get("name"));
         testContext.setLastLessonResponse(response);
+        testContext.setLessonId(response.getId());
     }
 
     @Then("the lesson should be created successfully")

@@ -133,6 +133,7 @@ public class AuthRoleStepDefs {
         return resourceId
                 .replace("{institution_id}", testContext.getInstitutionId() != null ? testContext.getInstitutionId() : "")
                 .replace("{outlet_id}", testContext.getOutletId() != null ? testContext.getOutletId() : "")
-                .replace("{course_id}", testContext.getCourseId() != null ? testContext.getCourseId() : "");
+                .replace("{course_id}", testContext.getCourseId() != null ? testContext.getCourseId() : "")
+                .replace("{lesson_id}", testContext.getLessonId() != null ? testContext.getLessonId() : "");
     }
 }

@@ -17,6 +17,7 @@ public class TestContext {
     private String subjectId;
     private String topicId;
     private String courseId;
+    private String lessonId;
     private String accountId;
 
     // Last responses for @Then assertion steps
