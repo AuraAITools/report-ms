@@ -1,0 +1,94 @@
+services:
+  spicedb-postgres:
+    image: postgres:18.0
+    container_name: spicedb-postgres-dev
+    ports:
+      - "5435:5432"
+    command: [ "-c", "track_commit_timestamp=on" ]
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "15m"
+    environment:
+      POSTGRES_DB: spicedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/spicedb-data-dev
+    volumes:
+      - spicedb-pgdata-dev:/var/lib/postgresql/spicedb-data-dev
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d spicedb" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+#  spicedb-migrate:
+#    image: authzed/spicedb:latest
+#    container_name: spicedb-migrate-dev
+#    command: migrate head
+#    environment:
+#      SPICEDB_DATASTORE_ENGINE: postgres
+#      SPICEDB_DATASTORE_CONN_URI: "postgres://postgres:password@spicedb-postgres:5432/spicedb?sslmode=disable"
+#    depends_on:
+#      spicedb-postgres:
+#        condition: service_healthy
+
+  spicedb:
+    image: authzed/spicedb:latest
+    container_name: spicedb-dev
+    command: serve
+    ports:
+      - 50051:50051
+      - 8443:8443
+    environment:
+      SPICEDB_DATASTORE_ENGINE: postgres
+      SPICEDB_DATASTORE_CONN_URI: "postgres://postgres:password@spicedb-postgres:5432/spicedb?sslmode=disable"
+      SPICEDB_GRPC_PRESHARED_KEY: dev-secret-key
+      SPICEDB_HTTP_ENABLED: "true"
+#    depends_on:
+#      spicedb-migrate:
+#        condition: service_completed_successfully
+#  spicedb-schema-init:
+#    image: python:3.13-alpine
+#    container_name: spicedb-schema-init-dev
+#    depends_on:
+#      spicedb:
+#        condition: service_started
+#    volumes:
+#      - ./application/src/main/resources/spicedb/schema.zed:/schema.zed:ro
+#    entrypoint: [ "python3", "-c" ]
+#    command:
+#      - |
+#        import json, time, urllib.request, urllib.error
+#
+#        target = "http://spicedb:8443"
+#        token = "dev-secret-key"
+#
+#        print("Waiting for SpiceDB HTTP gateway...")
+#        for _ in range(30):
+#            try:
+#                urllib.request.urlopen(f"{target}/v1/schema/readSchema",
+#                    data=json.dumps({}).encode(), timeout=2)
+#                break
+#            except Exception:
+#                time.sleep(1)
+#        else:
+#            raise RuntimeError("SpiceDB did not become ready in 30s")
+#
+#        with open("/schema.zed") as f:
+#            schema = f.read()
+#
+#        req = urllib.request.Request(
+#            f"{target}/v1/schema/writeSchema",
+#            data=json.dumps({"schema": schema}).encode(),
+#            headers={
+#                "Authorization": f"Bearer {token}",
+#                "Content-Type": "application/json",
+#            },
+#        )
+#        resp = urllib.request.urlopen(req)
+#        print(f"Schema written successfully ({resp.status})")
+volumes:
+  spicedb-pgdata-dev:
+    name: spicedb-pgdata-dev
