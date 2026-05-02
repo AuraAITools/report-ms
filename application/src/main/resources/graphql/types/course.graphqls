@@ -7,6 +7,9 @@ input CreateCourseInput {
     courseStartTimestamptz: DateTime!
     courseEndTimestamptz: DateTime!
     outletId:ID!
+    subjectIds: [ID!]!
+    educatorIds: [ID!]!
+    studentIds: [ID!]!
 }
 
 input CreatePriceRecordInput {
