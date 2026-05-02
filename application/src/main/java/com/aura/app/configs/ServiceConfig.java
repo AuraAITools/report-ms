@@ -3,8 +3,11 @@ package com.aura.app.configs;
 import com.aura.core.clients.IdentityService;
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
+import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LevelRepository;
+import com.aura.core.repositories.StudentRepository;
+import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -121,8 +124,12 @@ public class ServiceConfig {
 
     @Bean
     CourseService courseService(CreateCourseUseCase createCourseUseCase,
-                                RelationshipAuthorizationService relationshipService) {
-        return new CourseService(createCourseUseCase, relationshipService);
+                                RelationshipAuthorizationService relationshipService,
+                                SubjectRepository subjectRepository,
+                                EducatorRepository educatorRepository,
+                                StudentRepository studentRepository) {
+        return new CourseService(createCourseUseCase, relationshipService,
+                subjectRepository, educatorRepository, studentRepository);
     }
 
     @Bean
