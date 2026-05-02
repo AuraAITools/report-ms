@@ -29,7 +29,9 @@ import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkR
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -117,5 +119,19 @@ public class EducatorRepositoryImpl implements EducatorRepository {
     @Override
     public List<Educator> findByIds(List<UUID> educatorIds) {
         return jpaEducatorRepository.findAllById(educatorIds).stream().map(EducatorMapper.INSTANCE::toDomainEntity).toList();
+    }
+
+    @Override
+    public Map<String, String> findUserIdsByEducatorIds(List<String> educatorIds) {
+        if (educatorIds.isEmpty()) return Map.of();
+
+        List<UUID> uuids = educatorIds.stream().map(UUID::fromString).toList();
+        List<Object[]> results = jpaEducatorRepository.findUserIdsByIds(uuids);
+
+        Map<String, String> map = new HashMap<>();
+        for (Object[] row : results) {
+            map.put(row[0].toString(), (String) row[1]);
+        }
+        return map;
     }
 }
