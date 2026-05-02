@@ -19,7 +19,9 @@ import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -83,5 +85,19 @@ public class StudentRepositoryImpl implements StudentRepository {
                 .build();
         jpaStudentCourseLinkRepository.save(studentCourseLinkModel);
         return CourseMapper.INSTANCE.toDomainEntity(courseModel); // TODO: should be populated from save()
+    }
+
+    @Override
+    public Map<String, String> findUserIdsByStudentIds(List<String> studentIds) {
+        if (studentIds.isEmpty()) return Map.of();
+
+        List<UUID> uuids = studentIds.stream().map(UUID::fromString).toList();
+        List<Object[]> results = jpaStudentRepository.findUserIdsByIds(uuids);
+
+        Map<String, String> map = new HashMap<>();
+        for (Object[] row : results) {
+            map.put(row[0].toString(), (String) row[1]);
+        }
+        return map;
     }
 }
