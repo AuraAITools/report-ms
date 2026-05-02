@@ -26,7 +26,12 @@ public class CourseGqlController {
     @MutationMapping(CreateCourse)
     public CourseResponse createCourse(@Argument(name = CreateCourseInput) CreateCourseInput createCourseInput, @ContextValue(name = "user") User user) {
         Course newCourse = CourseMapper.INSTANCE.toDomainEntity(createCourseInput);
-        Course createdCourse = courseService.createCourseInOutlet(newCourse, createCourseInput.getOutletId());
+        Course createdCourse = courseService.createCourseInOutlet(
+                newCourse,
+                createCourseInput.getOutletId(),
+                createCourseInput.getSubjectIds(),
+                createCourseInput.getEducatorIds(),
+                createCourseInput.getStudentIds());
         return CourseMapper.INSTANCE.toDto(createdCourse);
     }
 }
