@@ -9,4 +9,6 @@ public interface SubjectRepository {
     Subject save(Subject subject);
 
     List<TopicSubjectLink> link(UUID topicId, List<UUID> ids, String tenantId);
+
+    void createSubjectCourseLinks(List<String> subjectIds, String courseId, String tenantId);
 }
