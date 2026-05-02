@@ -5,6 +5,7 @@ import com.aura.tests.component.TestConstants;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class CourseStepDefs {
         Map<String, String> data = dataTable.asMaps().get(0);
         String query = findGraphqlQueryFromFiles("create-course.graphql");
 
-        Map<String, Object> input = Map.of(
+        Map<String, Object> input = new java.util.HashMap<>(Map.of(
                 "institutionId", testContext.getInstitutionId(),
                 "name", data.get("name"),
                 "maxSize", Integer.parseInt(data.get("maxSize")),
@@ -36,7 +37,10 @@ public class CourseStepDefs {
                 "courseStartTimestamptz", data.get("startDate"),
                 "courseEndTimestamptz", data.get("endDate"),
                 "outletId", testContext.getOutletId()
-        );
+        ));
+        input.put("subjectIds", List.of());
+        input.put("educatorIds", List.of());
+        input.put("studentIds", List.of());
 
         CourseResponse response = testContext.getGraphQLClient()
                 .mutate().build()
@@ -58,7 +62,7 @@ public class CourseStepDefs {
         Map<String, String> data = dataTable.asMaps().get(0);
         String query = findGraphqlQueryFromFiles("create-course.graphql");
 
-        Map<String, Object> input = Map.of(
+        Map<String, Object> input = new java.util.HashMap<>(Map.of(
                 "institutionId", testContext.getInstitutionId(),
                 "name", data.get("name"),
                 "maxSize", Integer.parseInt(data.get("maxSize")),
@@ -70,7 +74,10 @@ public class CourseStepDefs {
                 "courseStartTimestamptz", data.get("startDate"),
                 "courseEndTimestamptz", data.get("endDate"),
                 "outletId", testContext.getOutletId()
-        );
+        ));
+        input.put("subjectIds", List.of());
+        input.put("educatorIds", List.of());
+        input.put("studentIds", List.of());
 
         try {
             testContext.getGraphQLClient()
