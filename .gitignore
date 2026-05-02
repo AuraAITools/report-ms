@@ -33,3 +33,4 @@ component-tests/target/
 **/.env
 .DS_Store
 docs/superpowers
+.worktrees
