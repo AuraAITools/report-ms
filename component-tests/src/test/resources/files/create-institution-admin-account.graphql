@@ -1,4 +1,4 @@
-mutation CreateInstitutionAdminAccount($input: CreateInstitutionAdminAccountInput!) {
+mutation CreateInstitutionAdminAccount($input: CreateAccountInput!) {
     createInstitutionAdminAccount(createAccountInput: $input) {
         id
         firstName

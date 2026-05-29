@@ -1,12 +1,11 @@
 package com.aura.core.entities.lessons;
 
-import com.aura.core.entities.links.StudentLessonLink;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -23,13 +22,14 @@ public class LessonParticipationReview {
     private String updatedBy;
     private String tenantId;
     private PARTICIPATION_TYPE participationType;
-    private StudentLessonLink studentLessonLink;
+    private String studentLessonReportId;
 
     // TODO: TO fill
     public enum PARTICIPATION_TYPE {
         ATTENTIVE,
         QUIET,
-        CURIOUS
+        CURIOUS,
+        UNFILLED
     }
 
 }

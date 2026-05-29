@@ -1,0 +1,24 @@
+query GetStudentById($input: GetStudentByIdInput!) {
+    getStudentById(input: $input) {
+        id
+        name
+        email
+        dateOfBirth
+        createdBy
+        updatedBy
+        createdAt
+        updatedAt
+        level {
+            id
+            name
+        }
+        school {
+            id
+            name
+        }
+        courses {
+            id
+            name
+        }
+    }
+}

@@ -1,0 +1,376 @@
+schemaFile: ../course.zed
+
+# Full coverage: direct course roles, inherited outlet roles, transitively-inherited
+# institution and system roles, and negative cases.
+#
+# DIRECT (course_user_group:1):
+#   crs_group_admin_user   — group_admin
+#   crs_group_viewer_user  — group_viewer
+#   crs_admin_user         — admin     (view + update + delete)
+#   crs_modifier_user      — modifier  (view + update; NOT delete)
+#   crs_viewer_user        — viewer    (view only)
+#
+# INHERITED (outlet_user_group:1, reaches course via course#parent):
+#   out_group_admin_user   — group_admin (outlet) — NO inherited course access
+#   out_group_viewer_user  — group_viewer (outlet) — NO inherited course access
+#   out_admin_user         — admin (outlet)        — inherits view + update + delete + create_lesson
+#   out_modifier_user      — modifier (outlet)     — inherits view + update + create_lesson; NOT delete
+#   out_viewer_user        — viewer (outlet)       — inherits view only
+#
+# TRANSITIVELY INHERITED (institution_user_group:1, reaches course via course -> outlet -> institution):
+#   inst_admin_user        — admin (institution)   — inherits view + update + delete + create_lesson
+#   inst_modifier_user     — modifier (institution) — inherits view + update + create_lesson; NOT delete
+#   inst_viewer_user       — viewer (institution)  — inherits view only
+#
+# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches course via course -> outlet -> institution -> system):
+#   sys_admin_user         — admin (system)        — inherits view + update + delete + create_lesson
+#   sys_modifier_user      — modifier (system)     — inherits view + update + create_lesson; NOT delete
+#   sys_viewer_user        — viewer (system)       — inherits view only
+#
+# SUPERADMIN cascade (each *_user_group#parent -> system_user_group):
+#   sys_group_admin_user   — group_admin (system)  — superadmin: full group-mgmt on course_user_group, outlet_user_group, institution_user_group
+#   sys_group_viewer_user  — group_viewer (system) — group_view only on each descendant *_user_group
+#
+# Negative:
+#   non_member_user — no relationships
+relationships: |-
+  course_user_group:1#group_admin@user:crs_group_admin_user
+  course_user_group:1#group_viewer@user:crs_group_viewer_user
+  course_user_group:1#admin@user:crs_admin_user
+  course_user_group:1#modifier@user:crs_modifier_user
+  course_user_group:1#viewer@user:crs_viewer_user
+  course:1#user_group@course_user_group:1
+
+  outlet_user_group:1#group_admin@user:out_group_admin_user
+  outlet_user_group:1#group_viewer@user:out_group_viewer_user
+  outlet_user_group:1#admin@user:out_admin_user
+  outlet_user_group:1#modifier@user:out_modifier_user
+  outlet_user_group:1#viewer@user:out_viewer_user
+  outlet:1#user_group@outlet_user_group:1
+
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#group_admin@user:sys_group_admin_user
+  system_user_group:aura#group_viewer@user:sys_group_viewer_user
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#modifier@user:sys_modifier_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  course:1#parent@outlet:1
+  outlet:1#parent@institution:1
+  institution:1#parent@system:aura
+
+  course_user_group:1#parent@system_user_group:aura
+  outlet_user_group:1#parent@system_user_group:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ============================================================
+    # DIRECT course roles
+    # ============================================================
+
+    # ---- crs_group_admin_user — full group-management ----
+    - course_user_group:1#group_view@user:crs_group_admin_user
+    - course_user_group:1#group_add_admin@user:crs_group_admin_user
+    - course_user_group:1#group_add_viewer@user:crs_group_admin_user
+    - course_user_group:1#group_remove_admin@user:crs_group_admin_user
+    - course_user_group:1#group_remove_viewer@user:crs_group_admin_user
+    - course_user_group:1#group_add_modifier@user:crs_group_admin_user
+    - course_user_group:1#group_remove_modifier@user:crs_group_admin_user
+    - course_user_group:1#group_add_group_admin@user:crs_group_admin_user
+    - course_user_group:1#group_remove_group_admin@user:crs_group_admin_user
+    - course_user_group:1#group_add_group_viewer@user:crs_group_admin_user
+    - course_user_group:1#group_remove_group_viewer@user:crs_group_admin_user
+
+    # ---- crs_group_viewer_user — only group_view ----
+    - course_user_group:1#group_view@user:crs_group_viewer_user
+
+    # ---- crs_admin_user — view + update + delete + create_lesson ----
+    - course_user_group:1#view@user:crs_admin_user
+    - course_user_group:1#update@user:crs_admin_user
+    - course_user_group:1#delete@user:crs_admin_user
+    - course:1#view@user:crs_admin_user
+    - course:1#update@user:crs_admin_user
+    - course:1#delete@user:crs_admin_user
+    - course:1#is_admin_or_modifier@user:crs_admin_user
+    - course:1#create_lesson@user:crs_admin_user
+
+    # ---- crs_modifier_user — view + update + create_lesson; NOT delete ----
+    - course_user_group:1#view@user:crs_modifier_user
+    - course_user_group:1#update@user:crs_modifier_user
+    - course:1#view@user:crs_modifier_user
+    - course:1#update@user:crs_modifier_user
+    - course:1#is_admin_or_modifier@user:crs_modifier_user
+    - course:1#create_lesson@user:crs_modifier_user
+
+    # ---- crs_viewer_user — view only ----
+    - course_user_group:1#view@user:crs_viewer_user
+    - course:1#view@user:crs_viewer_user
+
+    # ============================================================
+    # INHERITED roles via course#parent -> outlet
+    # ============================================================
+
+    # ---- out_admin_user — inherits view + update + delete + create_lesson ----
+    - course:1#view@user:out_admin_user
+    - course:1#update@user:out_admin_user
+    - course:1#delete@user:out_admin_user
+    - course:1#create_lesson@user:out_admin_user
+
+    # ---- out_modifier_user — inherits view + update + create_lesson; NOT delete ----
+    - course:1#view@user:out_modifier_user
+    - course:1#update@user:out_modifier_user
+    - course:1#create_lesson@user:out_modifier_user
+
+    # ---- out_viewer_user — inherits view only ----
+    - course:1#view@user:out_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via course -> outlet -> institution
+    # ============================================================
+
+    # ---- inst_admin_user — transitively inherits view + update + delete + create_lesson ----
+    - course:1#view@user:inst_admin_user
+    - course:1#update@user:inst_admin_user
+    - course:1#delete@user:inst_admin_user
+    - course:1#create_lesson@user:inst_admin_user
+
+    # ---- inst_modifier_user — transitively inherits view + update + create_lesson; NOT delete ----
+    - course:1#view@user:inst_modifier_user
+    - course:1#update@user:inst_modifier_user
+    - course:1#create_lesson@user:inst_modifier_user
+
+    # ---- inst_viewer_user — transitively inherits view only ----
+    - course:1#view@user:inst_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via course -> outlet -> institution -> system
+    # ============================================================
+
+    # ---- sys_admin_user — transitively inherits view + update + delete + create_lesson ----
+    - course:1#view@user:sys_admin_user
+    - course:1#update@user:sys_admin_user
+    - course:1#delete@user:sys_admin_user
+    - course:1#create_lesson@user:sys_admin_user
+
+    # ---- sys_modifier_user — transitively inherits view + update + create_lesson; NOT delete ----
+    - course:1#view@user:sys_modifier_user
+    - course:1#update@user:sys_modifier_user
+    - course:1#create_lesson@user:sys_modifier_user
+
+    # ---- sys_viewer_user — transitively inherits view only ----
+    - course:1#view@user:sys_viewer_user
+
+    # ============================================================
+    # SUPERADMIN cascade via course_user_group#parent -> system_user_group
+    # ============================================================
+
+    # ---- sys_group_admin_user — full group-management on course_user_group ----
+    - course_user_group:1#group_view@user:sys_group_admin_user
+    - course_user_group:1#group_add_admin@user:sys_group_admin_user
+    - course_user_group:1#group_add_viewer@user:sys_group_admin_user
+    - course_user_group:1#group_remove_admin@user:sys_group_admin_user
+    - course_user_group:1#group_remove_viewer@user:sys_group_admin_user
+    - course_user_group:1#group_add_modifier@user:sys_group_admin_user
+    - course_user_group:1#group_remove_modifier@user:sys_group_admin_user
+    - course_user_group:1#group_add_group_admin@user:sys_group_admin_user
+    - course_user_group:1#group_remove_group_admin@user:sys_group_admin_user
+    - course_user_group:1#group_add_group_viewer@user:sys_group_admin_user
+    - course_user_group:1#group_remove_group_viewer@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — only group_view on course_user_group ----
+    - course_user_group:1#group_view@user:sys_group_viewer_user
+
+  assertFalse:
+    # ============================================================
+    # non_member_user (no relationships anywhere)
+    # ============================================================
+    - course_user_group:1#group_view@user:non_member_user
+    - course_user_group:1#group_add_modifier@user:non_member_user
+    - course_user_group:1#group_remove_modifier@user:non_member_user
+    - course_user_group:1#group_add_group_admin@user:non_member_user
+    - course_user_group:1#group_remove_group_admin@user:non_member_user
+    - course_user_group:1#group_add_group_viewer@user:non_member_user
+    - course_user_group:1#group_remove_group_viewer@user:non_member_user
+    - course_user_group:1#view@user:non_member_user
+    - course_user_group:1#update@user:non_member_user
+    - course_user_group:1#delete@user:non_member_user
+    - course:1#view@user:non_member_user
+    - course:1#update@user:non_member_user
+    - course:1#delete@user:non_member_user
+    - course:1#create_lesson@user:non_member_user
+
+    # ============================================================
+    # DIRECT course role exclusions
+    # ============================================================
+
+    # ---- crs_group_admin_user — NO resource access (already has group-mgmt assertTrue above) ----
+    - course_user_group:1#view@user:crs_group_admin_user
+    - course_user_group:1#update@user:crs_group_admin_user
+    - course_user_group:1#delete@user:crs_group_admin_user
+    - course:1#view@user:crs_group_admin_user
+    - course:1#update@user:crs_group_admin_user
+    - course:1#delete@user:crs_group_admin_user
+    - course:1#create_lesson@user:crs_group_admin_user
+
+    # ---- crs_group_viewer_user — only group_view, no resource access ----
+    - course_user_group:1#group_add_admin@user:crs_group_viewer_user
+    - course_user_group:1#group_add_modifier@user:crs_group_viewer_user
+    - course_user_group:1#group_remove_modifier@user:crs_group_viewer_user
+    - course_user_group:1#group_add_group_admin@user:crs_group_viewer_user
+    - course_user_group:1#group_remove_group_admin@user:crs_group_viewer_user
+    - course_user_group:1#group_add_group_viewer@user:crs_group_viewer_user
+    - course_user_group:1#group_remove_group_viewer@user:crs_group_viewer_user
+    - course_user_group:1#view@user:crs_group_viewer_user
+    - course:1#view@user:crs_group_viewer_user
+
+    # ---- crs_admin_user — NO group-management ----
+    - course_user_group:1#group_view@user:crs_admin_user
+    - course_user_group:1#group_add_admin@user:crs_admin_user
+    - course_user_group:1#group_add_viewer@user:crs_admin_user
+    - course_user_group:1#group_remove_admin@user:crs_admin_user
+    - course_user_group:1#group_remove_viewer@user:crs_admin_user
+    - course_user_group:1#group_add_modifier@user:crs_admin_user
+    - course_user_group:1#group_remove_modifier@user:crs_admin_user
+    - course_user_group:1#group_add_group_admin@user:crs_admin_user
+    - course_user_group:1#group_remove_group_admin@user:crs_admin_user
+    - course_user_group:1#group_add_group_viewer@user:crs_admin_user
+    - course_user_group:1#group_remove_group_viewer@user:crs_admin_user
+
+    # ---- crs_modifier_user — no delete, no group-mgmt ----
+    - course_user_group:1#delete@user:crs_modifier_user
+    - course:1#delete@user:crs_modifier_user
+    - course_user_group:1#group_view@user:crs_modifier_user
+    - course_user_group:1#group_add_admin@user:crs_modifier_user
+    - course_user_group:1#group_add_modifier@user:crs_modifier_user
+    - course_user_group:1#group_remove_modifier@user:crs_modifier_user
+    - course_user_group:1#group_add_group_admin@user:crs_modifier_user
+    - course_user_group:1#group_remove_group_admin@user:crs_modifier_user
+    - course_user_group:1#group_add_group_viewer@user:crs_modifier_user
+    - course_user_group:1#group_remove_group_viewer@user:crs_modifier_user
+
+    # ---- crs_viewer_user — no update/delete/create_lesson, no group-mgmt ----
+    - course_user_group:1#update@user:crs_viewer_user
+    - course_user_group:1#delete@user:crs_viewer_user
+    - course:1#update@user:crs_viewer_user
+    - course:1#delete@user:crs_viewer_user
+    - course:1#create_lesson@user:crs_viewer_user
+    - course_user_group:1#group_view@user:crs_viewer_user
+    - course_user_group:1#group_add_modifier@user:crs_viewer_user
+    - course_user_group:1#group_remove_modifier@user:crs_viewer_user
+    - course_user_group:1#group_add_group_admin@user:crs_viewer_user
+    - course_user_group:1#group_remove_group_admin@user:crs_viewer_user
+    - course_user_group:1#group_add_group_viewer@user:crs_viewer_user
+    - course_user_group:1#group_remove_group_viewer@user:crs_viewer_user
+
+    # ============================================================
+    # INHERITED (outlet) role exclusions
+    # ============================================================
+
+    # ---- out_group_admin_user — group mgmt at outlet confers NO course access ----
+    - course:1#view@user:out_group_admin_user
+    - course:1#update@user:out_group_admin_user
+    - course:1#delete@user:out_group_admin_user
+    - course:1#create_lesson@user:out_group_admin_user
+    - course_user_group:1#group_add_modifier@user:out_group_admin_user
+    - course_user_group:1#group_remove_modifier@user:out_group_admin_user
+    - course_user_group:1#group_add_group_admin@user:out_group_admin_user
+    - course_user_group:1#group_remove_group_admin@user:out_group_admin_user
+    - course_user_group:1#group_add_group_viewer@user:out_group_admin_user
+    - course_user_group:1#group_remove_group_viewer@user:out_group_admin_user
+
+    # ---- out_group_viewer_user — same: no inherited course access ----
+    - course:1#view@user:out_group_viewer_user
+
+    # ---- out_modifier_user — cannot delete course (outlet modifier lacks delete) ----
+    - course:1#delete@user:out_modifier_user
+
+    # ---- out_viewer_user — cannot update/delete/create_lesson ----
+    - course:1#update@user:out_viewer_user
+    - course:1#delete@user:out_viewer_user
+    - course:1#create_lesson@user:out_viewer_user
+
+    # ---- Inherited outlet users do NOT gain permissions on course_user_group ----
+    - course_user_group:1#view@user:out_admin_user
+    - course_user_group:1#update@user:out_admin_user
+    - course_user_group:1#delete@user:out_admin_user
+    - course_user_group:1#group_view@user:out_admin_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED (institution / system) role exclusions
+    # ============================================================
+
+    # ---- inst_modifier_user — cannot delete course ----
+    - course:1#delete@user:inst_modifier_user
+
+    # ---- inst_viewer_user — cannot update/delete/create_lesson ----
+    - course:1#update@user:inst_viewer_user
+    - course:1#delete@user:inst_viewer_user
+    - course:1#create_lesson@user:inst_viewer_user
+
+    # ---- Transitively-inherited institution users do NOT gain perms on course_user_group ----
+    - course_user_group:1#view@user:inst_admin_user
+    - course_user_group:1#update@user:inst_admin_user
+    - course_user_group:1#delete@user:inst_admin_user
+    - course_user_group:1#group_view@user:inst_admin_user
+
+    # ---- sys_modifier_user — cannot delete course ----
+    - course:1#delete@user:sys_modifier_user
+
+    # ---- sys_viewer_user — cannot update/delete/create_lesson ----
+    - course:1#update@user:sys_viewer_user
+    - course:1#delete@user:sys_viewer_user
+    - course:1#create_lesson@user:sys_viewer_user
+
+    # ---- Transitively-inherited system users do NOT gain perms on course_user_group ----
+    - course_user_group:1#view@user:sys_admin_user
+    - course_user_group:1#group_view@user:sys_admin_user
+    - course_user_group:1#group_add_modifier@user:sys_admin_user
+    - course_user_group:1#group_remove_modifier@user:sys_admin_user
+    - course_user_group:1#group_add_group_admin@user:sys_admin_user
+    - course_user_group:1#group_remove_group_admin@user:sys_admin_user
+    - course_user_group:1#group_add_group_viewer@user:sys_admin_user
+    - course_user_group:1#group_remove_group_viewer@user:sys_admin_user
+
+    # ---- sys_modifier / sys_viewer resource roles — NO group-mgmt on course_user_group ----
+    - course_user_group:1#group_add_modifier@user:sys_modifier_user
+    - course_user_group:1#group_remove_modifier@user:sys_modifier_user
+    - course_user_group:1#group_add_group_admin@user:sys_modifier_user
+    - course_user_group:1#group_remove_group_admin@user:sys_modifier_user
+    - course_user_group:1#group_add_group_viewer@user:sys_modifier_user
+    - course_user_group:1#group_remove_group_viewer@user:sys_modifier_user
+    - course_user_group:1#group_add_modifier@user:sys_viewer_user
+    - course_user_group:1#group_remove_modifier@user:sys_viewer_user
+    - course_user_group:1#group_add_group_admin@user:sys_viewer_user
+    - course_user_group:1#group_remove_group_admin@user:sys_viewer_user
+    - course_user_group:1#group_add_group_viewer@user:sys_viewer_user
+    - course_user_group:1#group_remove_group_viewer@user:sys_viewer_user
+
+    # ---- sys_group_admin_user / sys_group_viewer_user — group-mgmt at system confers NO course resource access (decoupling) ----
+    - course:1#view@user:sys_group_admin_user
+    - course:1#update@user:sys_group_admin_user
+    - course:1#delete@user:sys_group_admin_user
+    - course:1#create_lesson@user:sys_group_admin_user
+    - course:1#view@user:sys_group_viewer_user
+    - course:1#update@user:sys_group_viewer_user
+
+    # ---- sys_group_viewer_user — only group_view; no group mutations on course_user_group ----
+    - course_user_group:1#group_add_admin@user:sys_group_viewer_user
+    - course_user_group:1#group_add_viewer@user:sys_group_viewer_user
+    - course_user_group:1#group_remove_admin@user:sys_group_viewer_user
+    - course_user_group:1#group_remove_viewer@user:sys_group_viewer_user
+    - course_user_group:1#group_add_modifier@user:sys_group_viewer_user
+    - course_user_group:1#group_remove_modifier@user:sys_group_viewer_user
+    - course_user_group:1#group_add_group_admin@user:sys_group_viewer_user
+    - course_user_group:1#group_remove_group_admin@user:sys_group_viewer_user
+    - course_user_group:1#group_add_group_viewer@user:sys_group_viewer_user
+    - course_user_group:1#group_remove_group_viewer@user:sys_group_viewer_user
+
+    # ---- sys_modifier / sys_viewer — resource roles do NOT confer group-mgmt on course_user_group ----
+    - course_user_group:1#group_view@user:sys_modifier_user
+    - course_user_group:1#group_view@user:sys_viewer_user

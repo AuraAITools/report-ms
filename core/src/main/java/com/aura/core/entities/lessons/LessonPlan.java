@@ -1,15 +1,11 @@
 package com.aura.core.entities.lessons;
 
-import com.aura.core.entities.links.LessonPlanMaterialLink;
-import com.aura.core.entities.links.LessonPlanTopicLink;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -25,14 +21,14 @@ public class LessonPlan {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Lesson lesson;
-    private boolean isPlanned;
-    private Set<LessonPlanMaterialLink> lessonPlanMaterialsLinks = new HashSet<>();
-    private Set<LessonPlanTopicLink> lessonPlanTopicLinks = new HashSet<>();
+    private String lessonId;
+    private String plan;
+    private LESSON_PLAN_STATE state;
 
-    public enum LESSON_PLAN_STATUS {
-        PLANNED,
-        UNPLANNED
+    public enum LESSON_PLAN_STATE {
+        UNPLANNED,
+        DRAFT,
+        PLANNED
     }
 
 }

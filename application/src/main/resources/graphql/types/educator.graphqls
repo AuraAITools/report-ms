@@ -2,7 +2,7 @@ type EducatorResponse implements Auditable{
     id: ID!
     name: String!
     startDate: Date!
-    dateOfBirth: Date
+    dateOfBirth: Date!
     email: String!
     employmentType: EmploymentType!
     courses: [CourseResponse!]!
@@ -10,16 +10,19 @@ type EducatorResponse implements Auditable{
     outlets: [OutletResponse!]!
     levels: [LevelResponse!]!
     account: AccountResponse!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }
-
+input CreateEducatorsInput {
+    institutionId: ID!
+    educators: [CreateEducatorInput!]!
+}
 input CreateEducatorInput {
     name: String!
     startDate: Date!
-    dateOfBirth: Date
+    dateOfBirth: Date!
     email: String!
     employmentType: EmploymentType!
     courseIds: [ID!]!
@@ -27,9 +30,30 @@ input CreateEducatorInput {
     outletIds: [ID!]!
     levelIds: [ID!]!
     accountId: ID!
+    institutionId: ID!
 }
 
 enum EmploymentType {
     FULL_TIME
     PART_TIME
+}
+
+input GetEducatorByIdInput {
+    id: ID!
+    institutionId: ID!
+}
+
+input UpdateEducatorByIdInput {
+    id: ID!
+    institutionId: ID!
+    name: String
+    startDate: Date
+    dateOfBirth: Date
+    email: String
+    employmentType: EmploymentType
+}
+
+input DeleteEducatorByIdInput {
+    id: ID!
+    institutionId: ID!
 }

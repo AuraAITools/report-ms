@@ -1,35 +1,27 @@
 package com.aura.details.springdata.mappers.links;
 
 import com.aura.core.entities.links.StudentLessonLink;
-import com.aura.details.springdata.mappers.lessons.LessonMapper;
-import com.aura.details.springdata.mappers.students.StudentMapper;
+import com.aura.details.springdata.mappers.lessons.LessonPlanMapper;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {StudentMapper.class, LessonMapper.class})
+@Mapper(uses = {
+        LessonPlanMapper.class
+})
 public interface StudentLessonLinkMapper {
     StudentLessonLinkMapper INSTANCE = Mappers.getMapper(StudentLessonLinkMapper.class);
 
-    @Mapping(target = "student", ignore = true)
-    @Mapping(target = "lesson", ignore = true)
-    @Mapping(target = "lessonPlan", ignore = true)
-    @Mapping(target = "lessonHomeworkCompletion", ignore = true)
-    @Mapping(target = "studentLessonAttendance", ignore = true)
-    @Mapping(target = "lessonParticipationReview", ignore = true)
-    @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
-    @Mapping(target = "lessonTopicProficiency", ignore = true)
+    @Mapping(source = "student.id", target = "studentId")
+    @Mapping(source = "lesson.id", target = "lessonId")
     StudentLessonLink toDomainEntity(StudentLessonLinkModel studentLessonLinkModel);
 
+    // student and lesson are attached separately by StudentLessonLinkRepositoryImpl via Refs.ref(entityManager, ...),
+    // because a builder-stub *Model (id set, @Version null) trips Hibernate's
+    // isTransient check ("Detached entity ... uninitialized version value 'null'") during persist.
     @Mapping(target = "student", ignore = true)
     @Mapping(target = "lesson", ignore = true)
-    @Mapping(target = "lessonPlan", ignore = true)
-    @Mapping(target = "lessonHomeworkCompletion", ignore = true)
-    @Mapping(target = "studentLessonAttendance", ignore = true)
-    @Mapping(target = "lessonParticipationReview", ignore = true)
-    @Mapping(target = "lessonQuizStudentLessonLinks", ignore = true)
-    @Mapping(target = "lessonTopicProficiency", ignore = true)
+    @Mapping(target = "studentLessonReport", ignore = true)
     StudentLessonLinkModel toModelEntity(StudentLessonLink studentLessonLink);
 }
-

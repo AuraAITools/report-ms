@@ -1,13 +1,11 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.subjects.Subject;
-import com.aura.core.entities.tests.TestGroup;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -22,8 +20,7 @@ public class SubjectTestGroupLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Subject subject;
-
-    private TestGroup testGroup;
+    private String subjectId;
+    private String testGroupId;
 
 }

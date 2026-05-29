@@ -1,0 +1,15 @@
+mutation CreateParentAndStudentsInAccount($input: CreateParentAndStudentsInAccountInput!) {
+    createParentAndStudentsInAccount(createParentAndStudentsInAccountInput: $input) {
+        parent {
+            id
+            relationship
+        }
+        students {
+            id
+            name
+            email
+            dateOfBirth
+            createdBy
+        }
+    }
+}

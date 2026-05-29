@@ -2,6 +2,7 @@ package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.links.LessonObjectiveTopicLinkModel;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
@@ -30,9 +31,15 @@ import org.hibernate.envers.Audited;
 @Table(name = "LessonObjectives")
 public class LessonObjectiveModel extends TenantBaseModel {
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String objective;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    private LessonModel lesson;
+    private LessonPlanModel lessonPlan;
 
     @OneToMany(mappedBy = "lessonObjective", fetch = FetchType.LAZY)
     @ToString.Exclude

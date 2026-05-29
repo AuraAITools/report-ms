@@ -1,0 +1,29 @@
+query GetLessonById($lessonId: ID!) {
+    getLessonById(lessonId: $lessonId) {
+        id
+        name
+        lessonStartTimestamptz
+        lessonEndTimestamptz
+        createdBy
+        updatedBy
+        course {
+            id
+            name
+        }
+        outlet {
+            id
+        }
+        educators {
+            id
+        }
+        students {
+            id
+        }
+        subjects {
+            id
+        }
+        levels {
+            id
+        }
+    }
+}

@@ -1,8 +1,31 @@
-type SchoolResponse implements Auditable @connection{
+type SchoolResponse implements Auditable {
     id: ID!
     name: String!
-    createdAt: Long
-    createdBy: ID
+    schoolCategory: SchoolCategory!
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
+}
+
+enum SchoolCategory {
+    PRIMARY
+    SECONDARY
+    JUNIOR_COLLEGE
+    POLYTECHNIC
+    TECHNICAL
+    INTERNATIONAL
+    ARTS
+    UNIVERSITY
+}
+
+input CreateSchoolInput {
+    institutionId: ID!
+    name: String!
+    schoolCategory: SchoolCategory!
+}
+
+input DeleteSchoolInInstitutionInput {
+    institutionId: ID!
+    schoolId: ID!
 }

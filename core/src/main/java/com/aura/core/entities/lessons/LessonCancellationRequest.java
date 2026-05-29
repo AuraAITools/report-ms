@@ -24,7 +24,7 @@ public class LessonCancellationRequest {
     private String reasoning = "";
     private String approvedBy;
     private APPROVAL_STATUS status = APPROVAL_STATUS.PENDING;
-    private Lesson lesson;
+    private String lessonId;
 
     public enum APPROVAL_STATUS {
         APPROVED,

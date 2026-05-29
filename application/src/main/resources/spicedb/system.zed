@@ -1,0 +1,42 @@
+use import
+use typechecking
+import 'user.zed'
+definition system_user_group {
+    // roles for the user group itself
+    relation group_admin: user
+    relation group_viewer: user
+
+    // roles for the system resource
+    relation admin: user
+    relation viewer: user
+    relation modifier: user
+
+    // Group-management permissions (act on the group resource itself)
+    permission group_view: user = group_viewer + group_admin
+    permission group_add_viewer: user = group_admin
+    permission group_add_admin: user = group_admin
+    permission group_remove_viewer: user = group_admin
+    permission group_remove_admin: user = group_admin
+    permission group_add_modifier: user = group_admin
+    permission group_remove_modifier: user = group_admin
+    permission group_add_group_admin: user = group_admin
+    permission group_remove_group_admin: user = group_admin
+    permission group_add_group_viewer: user = group_admin
+    permission group_remove_group_viewer: user = group_admin
+
+    // Resource-management permissions
+    permission view: user = viewer + modifier + admin   // admin implies viewer
+    permission update: user = modifier + admin
+    permission delete: user = admin
+    permission is_admin_or_modifier: user = admin + modifier   // role-set helper for resource-level aliasing
+}
+
+definition system {
+    relation user_group: system_user_group
+
+    permission view: user = user_group->view
+    permission update: user = user_group->update
+    permission delete: user = user_group->delete
+    permission is_admin_or_modifier: user = user_group->is_admin_or_modifier
+    permission create_institution: user = is_admin_or_modifier
+}

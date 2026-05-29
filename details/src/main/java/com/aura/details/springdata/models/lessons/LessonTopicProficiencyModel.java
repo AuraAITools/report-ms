@@ -1,13 +1,12 @@
 package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import com.aura.details.springdata.models.topics.TopicModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -36,8 +35,8 @@ public class LessonTopicProficiencyModel extends TenantBaseModel {
     @ToString.Exclude
     private TopicModel topic;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    private StudentLessonLinkModel studentLessonLink;
+    private StudentLessonReportModel studentLessonReport;
 
 }

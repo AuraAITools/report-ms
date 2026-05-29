@@ -1,0 +1,40 @@
+type UserPermissions {
+    permissions: [ResourcePermissions!]!
+}
+
+type ResourcePermissions {
+    resourceType: String!
+    resourceId: String!
+    permissions: [String!]!
+}
+
+enum UserGroupType {
+    SYSTEM_USER_GROUP
+    INSTITUTION_USER_GROUP
+    OUTLET_USER_GROUP
+    COURSE_USER_GROUP
+    LESSON_USER_GROUP
+    ACCOUNT_USER_GROUP
+}
+
+enum UserGroupRole {
+    ADMIN
+    MODIFIER
+    VIEWER
+    GROUP_ADMIN
+    GROUP_VIEWER
+}
+
+input GrantUserGroupRoleInput {
+    userGroupType: UserGroupType!
+    userGroupId: ID!
+    role: UserGroupRole!
+    userId: ID!
+}
+
+input RevokeUserGroupRoleInput {
+    userGroupType: UserGroupType!
+    userGroupId: ID!
+    role: UserGroupRole!
+    userId: ID!
+}

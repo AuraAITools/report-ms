@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -24,10 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   <li>All lazy relationship fields must have @ToString.Exclude</li>
  * </ul>
  */
+@DisplayName("Model entity source conventions")
 class ModelEntitySourceConventionTest {
 
     private static final Path MODELS_ROOT = findModelsRoot();
 
+    @DisplayName("Entity classes should have @Getter")
     @TestFactory
     Stream<DynamicTest> entity_classes_should_have_getter() throws IOException {
         return entitySourceFiles().map(path -> DynamicTest.dynamicTest(
@@ -38,6 +41,7 @@ class ModelEntitySourceConventionTest {
         ));
     }
 
+    @DisplayName("Entity classes should have @Setter")
     @TestFactory
     Stream<DynamicTest> entity_classes_should_have_setter() throws IOException {
         return entitySourceFiles().map(path -> DynamicTest.dynamicTest(
@@ -48,6 +52,7 @@ class ModelEntitySourceConventionTest {
         ));
     }
 
+    @DisplayName("Entity classes should have @EqualsAndHashCode")
     @TestFactory
     Stream<DynamicTest> entity_classes_should_have_equals_and_hashcode() throws IOException {
         return entitySourceFiles().map(path -> DynamicTest.dynamicTest(
@@ -58,6 +63,7 @@ class ModelEntitySourceConventionTest {
         ));
     }
 
+    @DisplayName("Lazy relationship fields should have @ToString.Exclude")
     @TestFactory
     Stream<DynamicTest> lazy_relationship_fields_should_have_tostring_exclude() throws IOException {
         return entitySourceFiles()

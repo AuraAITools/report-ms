@@ -1,0 +1,4 @@
+extend type Query {
+    getAllParentsInInstitution(institutionId: ID!): [ParentResponse!]!
+    getParentById(input: GetParentByIdInput!): ParentResponse!
+}

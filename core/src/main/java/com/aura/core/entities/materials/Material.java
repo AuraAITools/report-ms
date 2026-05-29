@@ -1,16 +1,11 @@
 package com.aura.core.entities.materials;
 
-import com.aura.core.entities.links.LessonPlanMaterialLink;
-import com.aura.core.entities.links.MaterialLessonLink;
-import com.aura.core.entities.links.MaterialTopicLink;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -27,10 +22,11 @@ public class Material {
     private String updatedBy;
     private String tenantId;
     private String name;
+    private String description;
 
-    private String fileUrl;
-    private Set<MaterialTopicLink> materialTopicLinks = new HashSet<>();
-    private Set<MaterialLessonLink> materialLessonLinks = new HashSet<>();
-    private Set<LessonPlanMaterialLink> lessonPlanMaterialsLinks = new HashSet<>();
+    /**
+     * S3 object key of the underlying file. Null if no file is associated.
+     */
+    private String fileKey;
 
 }

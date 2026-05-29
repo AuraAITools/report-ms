@@ -1,0 +1,27 @@
+query GetAllCoursesInOutlet($outletId: ID!) {
+    getAllCoursesInOutlet(outletId: $outletId) {
+        id
+        name
+        maxSize
+        lessonFrequency
+        courseStartTimestamptz
+        courseEndTimestamptz
+        createdBy
+        updatedBy
+        lessons {
+            id
+        }
+        educators {
+            id
+        }
+        students {
+            id
+        }
+        subjects {
+            id
+        }
+        level {
+            id
+        }
+    }
+}

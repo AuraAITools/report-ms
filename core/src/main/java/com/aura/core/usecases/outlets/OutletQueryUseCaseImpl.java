@@ -15,6 +15,11 @@ public class OutletQueryUseCaseImpl implements OutletQueryUseCase {
     private final OutletRepository outletRepository;
 
     @Override
+    public List<Outlet> findAllByTenantId(String tenantId) {
+        return outletRepository.findAllByTenantId(tenantId);
+    }
+
+    @Override
     public List<Outlet> findAllByTenantIds(Set<String> tenantIds) {
         return outletRepository.findAllByTenantIds(tenantIds);
     }

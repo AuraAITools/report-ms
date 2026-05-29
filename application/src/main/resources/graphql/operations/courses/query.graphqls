@@ -1,0 +1,4 @@
+extend type Query {
+    getCourseById(courseId: ID!): CourseResponse!
+    getAllCoursesInOutlet(outletId: ID!): [CourseResponse!]!
+}

@@ -26,7 +26,7 @@ public class LessonPostponementRequest {
     private APPROVAL_STATUS status = APPROVAL_STATUS.PENDING;
     private Instant postponedLessonStartTimestamptz;
     private Instant postponedLessonEndTimestamptz;
-    private Lesson lesson;
+    private String lessonId;
 
     public enum APPROVAL_STATUS {
         APPROVED,

@@ -1,0 +1,12 @@
+query GetAllSubjectsInInstitution($institutionId: ID!) {
+    getAllSubjectsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        createdBy
+        updatedBy
+        topics {
+            id
+            name
+        }
+    }
+}

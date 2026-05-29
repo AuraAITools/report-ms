@@ -3,20 +3,21 @@ input CreateSubjectInput {
     name: String!
 }
 
-type SubjectResponse implements Auditable @connection{
+type SubjectResponse implements Auditable {
     id: ID!
     name: String!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
+    topics: [TopicResponse!]!
 }
 
 type SubjectResponseWithTopics {
     id: ID!
     name: String!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
     topics: [TopicResponse!]!

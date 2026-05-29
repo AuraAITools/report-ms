@@ -1,0 +1,76 @@
+schemaFile: ../outlet_room.zed
+
+# outlet_room is a thin child of outlet — all permissions delegate via parent->X.
+# Coverage:
+#   - Direct outlet roles flow through outlet_room#parent (admin/modifier/viewer).
+#   - Inherited institution and system roles flow through outlet#parent transitively.
+#   - Negative: non_member has nothing; outlet_viewer cannot update/delete.
+relationships: |-
+  outlet_user_group:1#admin@user:out_admin_user
+  outlet_user_group:1#modifier@user:out_modifier_user
+  outlet_user_group:1#viewer@user:out_viewer_user
+  outlet:1#user_group@outlet_user_group:1
+
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  outlet_room:1#parent@outlet:1
+  outlet:1#parent@institution:1
+  institution:1#parent@system:aura
+
+  outlet_user_group:1#parent@system_user_group:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ---- Direct outlet roles inherited into outlet_room ----
+    - outlet_room:1#view@user:out_admin_user
+    - outlet_room:1#update@user:out_admin_user
+    - outlet_room:1#delete@user:out_admin_user
+    - outlet_room:1#view@user:out_modifier_user
+    - outlet_room:1#update@user:out_modifier_user
+    - outlet_room:1#view@user:out_viewer_user
+
+    # ---- Institution roles inherited via outlet -> outlet_room ----
+    - outlet_room:1#view@user:inst_admin_user
+    - outlet_room:1#update@user:inst_admin_user
+    - outlet_room:1#delete@user:inst_admin_user
+    - outlet_room:1#view@user:inst_modifier_user
+    - outlet_room:1#update@user:inst_modifier_user
+    - outlet_room:1#view@user:inst_viewer_user
+
+    # ---- System roles transitively inherited ----
+    - outlet_room:1#view@user:sys_admin_user
+    - outlet_room:1#update@user:sys_admin_user
+    - outlet_room:1#delete@user:sys_admin_user
+    - outlet_room:1#view@user:sys_viewer_user
+
+  assertFalse:
+    # ---- non_member has nothing ----
+    - outlet_room:1#view@user:non_member_user
+    - outlet_room:1#update@user:non_member_user
+    - outlet_room:1#delete@user:non_member_user
+
+    # ---- outlet viewer cannot update/delete ----
+    - outlet_room:1#update@user:out_viewer_user
+    - outlet_room:1#delete@user:out_viewer_user
+
+    # ---- outlet modifier cannot delete ----
+    - outlet_room:1#delete@user:out_modifier_user
+
+    # ---- institution viewer cannot update/delete ----
+    - outlet_room:1#update@user:inst_viewer_user
+    - outlet_room:1#delete@user:inst_viewer_user
+
+    # ---- institution modifier cannot delete ----
+    - outlet_room:1#delete@user:inst_modifier_user
+
+    # ---- system viewer cannot update/delete ----
+    - outlet_room:1#update@user:sys_viewer_user
+    - outlet_room:1#delete@user:sys_viewer_user

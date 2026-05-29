@@ -19,6 +19,9 @@ spring:
   mvc:
     async:
       request-timeout: 120000
+  mail:
+    host: localhost
+    port: 25
 #    properties:
 #      hibernate.envers.default_schema: audit
 oauth2:
@@ -36,3 +39,16 @@ keycloak:
     realm: ${KEYCLOAK_CLIENT_REALM}
     clientId: ${KEYCLOAK_CLIENT_ID}
     clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+spicedb:
+  target: ${SPICEDB_TARGET:localhost:50051}
+  preshared-key: ${SPICEDB_PRESHARED_KEY:test-key}
+  plaintext: true
+aura:
+  email:
+    enabled: false
+    from-address: no-reply@aura-test.com
+    from-display-name: Aura Test
+    base-url-app: https://app-test.aura.com
+    action-redirect-uri: https://app-test.aura.com/auth/complete
+    weekly-digest:
+      enabled: false

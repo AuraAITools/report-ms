@@ -1,0 +1,3 @@
+mutation DeleteTopicById($id: ID!) {
+    deleteTopicById(id: $id)
+}

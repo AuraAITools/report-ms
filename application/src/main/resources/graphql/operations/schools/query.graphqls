@@ -1,0 +1,3 @@
+extend type Query {
+    getSchoolsInInstitution(institutionId: ID!): [SchoolResponse!]!
+}

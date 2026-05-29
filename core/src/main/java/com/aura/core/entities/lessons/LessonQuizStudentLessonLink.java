@@ -21,7 +21,9 @@ public class LessonQuizStudentLessonLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private LessonQuiz lessonQuiz;
+    private String lessonQuizId;
+
+    private String studentLessonReportId;
 
     private int score;
 

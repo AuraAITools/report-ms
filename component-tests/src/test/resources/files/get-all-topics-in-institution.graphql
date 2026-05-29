@@ -1,0 +1,8 @@
+query GetAllTopicsInInstitution($institutionId: ID!) {
+    getAllTopicsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        createdBy
+        updatedBy
+    }
+}

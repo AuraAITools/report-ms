@@ -1,3 +1,4 @@
 extend type Mutation {
     createTopic(topicInput: TopicInput!): TopicResponse!
+    deleteTopicById(id: ID!): Boolean!
 }

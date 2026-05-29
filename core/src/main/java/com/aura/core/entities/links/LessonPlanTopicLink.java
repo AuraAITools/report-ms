@@ -1,7 +1,5 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.core.entities.topics.Topic;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +20,8 @@ public class LessonPlanTopicLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private LessonPlan lessonPlan;
+    private String lessonPlanId;
 
-    private Topic topic;
+    private String topicId;
 
 }

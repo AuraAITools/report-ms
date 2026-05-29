@@ -1,0 +1,3 @@
+mutation GrantUserGroupRole($input: GrantUserGroupRoleInput!) {
+    grantUserGroupRole(input: $input)
+}

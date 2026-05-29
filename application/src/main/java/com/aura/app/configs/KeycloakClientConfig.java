@@ -2,9 +2,6 @@ package com.aura.app.configs;
 
 import com.aura.details.keycloak.client.KeycloakCredentials;
 import com.aura.details.keycloak.client.KeycloakIdentityService;
-import com.aura.details.keycloak.client.KeycloakPolicyEnforcementService;
-import com.aura.details.keycloak.client.KeycloakGroupAuthorizationService;
-import com.aura.details.keycloak.client.KeycloakResourceAuthorizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -12,11 +9,11 @@ import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.ClientRepresentation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Configuration
@@ -24,20 +21,18 @@ import org.springframework.web.client.RestClient;
 public class KeycloakClientConfig {
 
     @Bean
-    KeycloakIdentityService getKeycloakRemoteIdentityService(ClientResource clientResource, UsersResource usersResource) {
-        return new KeycloakIdentityService(clientResource, usersResource);
-    }
-
-    @Bean
-    KeycloakResourceAuthorizationService keycloakResourceAuthorizationService(ClientResource clientResource) {
-        return new KeycloakResourceAuthorizationService(clientResource);
-    }
-
-    @Bean
-    KeycloakGroupAuthorizationService keycloakGroupAuthorizationService(ClientResource clientResource,
-                                                                          RealmResource realmResource,
-                                                                          UsersResource usersResource) {
-        return new KeycloakGroupAuthorizationService(clientResource, realmResource.groups(), usersResource);
+    KeycloakIdentityService getKeycloakRemoteIdentityService(ClientResource clientResource,
+                                                             UsersResource usersResource,
+                                                             KeycloakCredentials keycloakCredentials,
+                                                             @Value("${aura.email.action-token-lifespan-seconds:86400}") int actionTokenLifespanSeconds,
+                                                             @Value("${aura.email.action-client-id:}") String configuredActionClientId) {
+        // Default to the admin/service-account client we already authenticate
+        // as; only override if the action-email redirect should be validated
+        // against a different (e.g. user-facing) client.
+        String actionEmailClientId = configuredActionClientId == null || configuredActionClientId.isBlank()
+                ? keycloakCredentials.getClientId()
+                : configuredActionClientId;
+        return new KeycloakIdentityService(clientResource, usersResource, actionTokenLifespanSeconds, actionEmailClientId);
     }
 
     @Bean
@@ -79,17 +74,6 @@ public class KeycloakClientConfig {
     @Bean
     ClientRepresentation getAuraApplicationClientRepresentation(ClientResource clientResource) {
         return clientResource.toRepresentation();
-    }
-
-    @Bean
-    KeycloakPolicyEnforcementService keycloakPolicyEnforcementService(KeycloakCredentials keycloakCredentials) {
-        String tokenEndpoint = keycloakCredentials.getServerUrl()
-                + "/realms/" + keycloakCredentials.getRealm()
-                + "/protocol/openid-connect/token";
-        RestClient restClient = RestClient.builder()
-                .baseUrl(tokenEndpoint)
-                .build();
-        return new KeycloakPolicyEnforcementService(restClient, keycloakCredentials.getClientId());
     }
 
 }

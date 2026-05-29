@@ -1,12 +1,11 @@
 package com.aura.core.entities.lessons;
 
-import com.aura.core.entities.topics.Topic;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -24,6 +23,8 @@ public class LessonTopicProficiency {
     private String tenantId;
     private Integer rating;
 
-    private Topic topic;
+    private String topicId;
+
+    private String studentLessonReportId;
 
 }

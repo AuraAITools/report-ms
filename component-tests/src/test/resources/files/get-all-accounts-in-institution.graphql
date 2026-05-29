@@ -1,0 +1,10 @@
+query GetAllAccountsInInstitution($institutionId: ID!) {
+    getAllAccountsInInstitution(institutionId: $institutionId) {
+        id
+        firstName
+        lastName
+        userId
+        createdBy
+        updatedBy
+    }
+}

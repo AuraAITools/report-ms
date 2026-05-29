@@ -1,5 +1,6 @@
 package com.aura.details.keycloak.client;
 
+import com.aura.core.exceptions.TechnicalException;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -54,7 +55,7 @@ public class KeycloakUserPrincipal {
                     Object tenantIds = attrs.get("tenant_ids");
                     if (tenantIds != null && !(tenantIds instanceof List<?>)) {
                         log.warn("tenant_ids is not a List: {}", tenantIds.getClass());
-                        throw new RuntimeException("incorrect token format");
+                        throw new TechnicalException("incorrect token format");
                     }
                     return tenantIds;
                 })

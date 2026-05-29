@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaLessonObjectiveTopicLinkRepository extends JpaRepository<LessonObjectiveTopicLinkModel, UUID>, JpaSpecificationExecutor<LessonObjectiveTopicLinkModel> {
+    void deleteAllByLessonObjectiveId(UUID lessonObjectiveId);
 }
-

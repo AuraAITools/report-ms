@@ -85,7 +85,24 @@ CREATE TABLE public."lesson_quizzes" ("max_score" INTEGER NOT NULL, "score" INTE
 CREATE TABLE public."lesson_topic_proficiencies" ("rating" INTEGER, "created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "version" BIGINT, "id" UUID NOT NULL, "student_lesson_link_id" UUID, "topic_id" UUID, "created_by" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "updated_by" VARCHAR(255), CONSTRAINT "lesson_topic_proficiencies_pkey" PRIMARY KEY ("id"));
 
 -- changeset kevin:1766810234582-28
-CREATE TABLE public."lessons" ("created_at" TIMESTAMP WITH TIME ZONE, "lesson_end_timestamptz" TIMESTAMP WITH TIME ZONE NOT NULL, "lesson_start_timestamptz" TIMESTAMP WITH TIME ZONE NOT NULL, "updated_at" TIMESTAMP WITH TIME ZONE, "version" BIGINT, "course_id" UUID, "id" UUID NOT NULL, "outlet_id" UUID NOT NULL, "subject_id" UUID, "created_by" VARCHAR(255), "description" VARCHAR(255), "name" VARCHAR(255) NOT NULL, "recap" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "updated_by" VARCHAR(255), CONSTRAINT "lessons_pkey" PRIMARY KEY ("id"));
+CREATE TABLE public."lessons"
+(
+    "created_at"               TIMESTAMP WITH TIME ZONE,
+    "lesson_end_timestamptz"   TIMESTAMP WITH TIME ZONE NOT NULL,
+    "lesson_start_timestamptz" TIMESTAMP WITH TIME ZONE NOT NULL,
+    "updated_at"               TIMESTAMP WITH TIME ZONE,
+    "version"                  BIGINT,
+    "course_id"                UUID,
+    "id"                       UUID                     NOT NULL,
+    "outlet_id"                UUID                     NOT NULL,
+    "created_by"               VARCHAR(255),
+    "description"              VARCHAR(255),
+    "name"                     VARCHAR(255)             NOT NULL,
+    "recap"                    VARCHAR(255),
+    "tenant_id"                VARCHAR(255)             NOT NULL,
+    "updated_by"               VARCHAR(255),
+    CONSTRAINT "lessons_pkey" PRIMARY KEY ("id")
+);
 
 -- changeset kevin:1766810234582-29
 CREATE TABLE public."level_educator_links" ("created_at" TIMESTAMP WITH TIME ZONE, "updated_at" TIMESTAMP WITH TIME ZONE, "version" BIGINT, "educator_id" UUID, "id" UUID NOT NULL, "level_id" UUID, "created_by" VARCHAR(255), "tenant_id" VARCHAR(255) NOT NULL, "updated_by" VARCHAR(255), CONSTRAINT "level_educator_links_pkey" PRIMARY KEY ("id"));
@@ -396,9 +413,6 @@ ALTER TABLE public."outlet_rooms" ADD CONSTRAINT "fkdvhwlaeccmlum90r33ce27gwk" F
 -- changeset kevin:1766810234582-131
 ALTER TABLE public."lesson_objective_topic_links" ADD CONSTRAINT "fke93or59ghs8gcv2fplflau16h" FOREIGN KEY ("topic_id") REFERENCES "topics" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 
--- changeset kevin:1766810234582-132
-ALTER TABLE public."lessons" ADD CONSTRAINT "fke94a0k21xpi7glv89af90lwjv" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
-
 -- changeset kevin:1766810234582-133
 ALTER TABLE public."test_results" ADD CONSTRAINT "fkeb5e15t9e5hn11gbkuub0xeln" FOREIGN KEY ("test_id") REFERENCES "tests" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 
@@ -512,4 +526,85 @@ ALTER TABLE public."lesson_cancellation_requests" ADD CONSTRAINT "fkst5m93umekq7
 
 -- changeset kevin:1766810234582-170
 ALTER TABLE public."tests" ADD CONSTRAINT "fktqfc6jqrqlvpsvtu4l1t294x1" FOREIGN KEY ("test_group_id") REFERENCES "test_groups" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-171
+CREATE TABLE public."topic_lesson_links"
+(
+    "created_at" TIMESTAMP WITH TIME ZONE,
+    "updated_at" TIMESTAMP WITH TIME ZONE,
+    "version"    BIGINT,
+    "id"         UUID         NOT NULL,
+    "topic_id"   UUID,
+    "lesson_id"  UUID,
+    "created_by" VARCHAR(255),
+    "tenant_id"  VARCHAR(255) NOT NULL,
+    "updated_by" VARCHAR(255),
+    CONSTRAINT "topic_lesson_links_pkey" PRIMARY KEY ("id")
+);
+
+-- changeset kevin:1766810234582-172
+CREATE TABLE public."level_lesson_links"
+(
+    "created_at" TIMESTAMP WITH TIME ZONE,
+    "updated_at" TIMESTAMP WITH TIME ZONE,
+    "version"    BIGINT,
+    "id"         UUID         NOT NULL,
+    "level_id"   UUID,
+    "lesson_id"  UUID,
+    "created_by" VARCHAR(255),
+    "tenant_id"  VARCHAR(255) NOT NULL,
+    "updated_by" VARCHAR(255),
+    CONSTRAINT "level_lesson_links_pkey" PRIMARY KEY ("id")
+);
+
+-- changeset kevin:1766810234582-173
+CREATE TABLE public."subject_lesson_links"
+(
+    "created_at" TIMESTAMP WITH TIME ZONE,
+    "updated_at" TIMESTAMP WITH TIME ZONE,
+    "version"    BIGINT,
+    "id"         UUID         NOT NULL,
+    "subject_id" UUID,
+    "lesson_id"  UUID,
+    "created_by" VARCHAR(255),
+    "tenant_id"  VARCHAR(255) NOT NULL,
+    "updated_by" VARCHAR(255),
+    CONSTRAINT "subject_lesson_links_pkey" PRIMARY KEY ("id")
+);
+
+-- changeset kevin:1766810234582-174
+ALTER TABLE public."topic_lesson_links"
+    ADD CONSTRAINT "uk_topic_lesson" UNIQUE ("topic_id", "lesson_id");
+
+-- changeset kevin:1766810234582-175
+ALTER TABLE public."level_lesson_links"
+    ADD CONSTRAINT "uk_level_lesson" UNIQUE ("level_id", "lesson_id");
+
+-- changeset kevin:1766810234582-176
+ALTER TABLE public."subject_lesson_links"
+    ADD CONSTRAINT "uk_subject_lesson" UNIQUE ("subject_id", "lesson_id");
+
+-- changeset kevin:1766810234582-177
+ALTER TABLE public."topic_lesson_links"
+    ADD CONSTRAINT "fk_topic_lesson_links_topic" FOREIGN KEY ("topic_id") REFERENCES "topics" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-178
+ALTER TABLE public."topic_lesson_links"
+    ADD CONSTRAINT "fk_topic_lesson_links_lesson" FOREIGN KEY ("lesson_id") REFERENCES "lessons" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-179
+ALTER TABLE public."level_lesson_links"
+    ADD CONSTRAINT "fk_level_lesson_links_level" FOREIGN KEY ("level_id") REFERENCES "levels" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-180
+ALTER TABLE public."level_lesson_links"
+    ADD CONSTRAINT "fk_level_lesson_links_lesson" FOREIGN KEY ("lesson_id") REFERENCES "lessons" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-181
+ALTER TABLE public."subject_lesson_links"
+    ADD CONSTRAINT "fk_subject_lesson_links_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- changeset kevin:1766810234582-182
+ALTER TABLE public."subject_lesson_links"
+    ADD CONSTRAINT "fk_subject_lesson_links_lesson" FOREIGN KEY ("lesson_id") REFERENCES "lessons" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION;
 

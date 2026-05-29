@@ -1,9 +1,6 @@
 package com.aura.core.entities.institutions;
 
-import com.aura.core.entities.outlets.Outlet;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,11 +17,17 @@ public class Institution {
     private String uen;
     private String address;
     private String contactNumber;
-    @Builder.Default
-    private List<Outlet> outlets = new ArrayList<>();
+    private String logoKey;
+    private STATE state;
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
+
+    public enum STATE {
+        PENDING,
+        ACTIVE,
+        INACTIVE
+    }
 }

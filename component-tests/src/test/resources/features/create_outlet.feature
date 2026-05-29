@@ -9,7 +9,6 @@ Feature: Create Outlet
       | name        | address        | postalCode | contactNumber | description   | email           |
       | Test Outlet | 123 Test St    | 123456     | 96228693      | A test outlet | outlet@test.com |
     Then the outlet should be created successfully
-    And a UMA resource should be registered for the outlet with type "urn:aura:outlet" and scopes "view,manage,delegate"
 
   @ComponentTest
   Scenario: Cannot create an outlet with a duplicate name

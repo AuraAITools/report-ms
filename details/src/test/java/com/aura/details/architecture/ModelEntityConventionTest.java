@@ -4,6 +4,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import jakarta.persistence.Entity;
+import org.junit.jupiter.api.DisplayName;
 
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -16,6 +17,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  * Those conventions are enforced by {@link ModelEntitySourceConventionTest} which
  * inspects the source files directly.
  */
+@DisplayName("Model entity conventions")
 @AnalyzeClasses(packages = "com.aura.details.springdata.models")
 public class ModelEntityConventionTest {
 

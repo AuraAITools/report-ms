@@ -1,0 +1,352 @@
+schemaFile: ../outlet.zed
+
+# Full coverage: direct outlet roles, inherited institution roles, transitively-inherited
+# system roles, and negative cases.
+#
+# DIRECT (outlet_user_group:1):
+#   out_group_admin_user   — group_admin
+#   out_group_viewer_user  — group_viewer
+#   out_admin_user         — admin     (view + update + delete)
+#   out_modifier_user      — modifier  (view + update; NOT delete)
+#   out_viewer_user        — viewer    (view only)
+#
+# INHERITED (institution_user_group:1, reaches outlet via outlet#parent):
+#   inst_group_admin_user  — group_admin (institution) — NO inherited outlet access
+#   inst_group_viewer_user — group_viewer (institution) — NO inherited outlet access
+#   inst_admin_user        — admin (institution)        — inherits view + update + delete
+#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete
+#   inst_viewer_user       — viewer (institution)       — inherits view only
+#
+# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches outlet via outlet#parent -> institution#parent):
+#   sys_admin_user         — admin (system)         — inherits view + update + delete
+#   sys_modifier_user      — modifier (system)      — inherits view + update; NOT delete
+#   sys_viewer_user        — viewer (system)        — inherits view only
+#
+# SUPERADMIN cascade via outlet_user_group#parent -> system_user_group AND institution_user_group#parent -> system_user_group:
+#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on outlet_user_group AND institution_user_group
+#   sys_group_viewer_user  — group_viewer (system)  — group_view only on outlet_user_group AND institution_user_group
+#
+# Negative:
+#   non_member_user — no relationships
+relationships: |-
+  outlet_user_group:1#group_admin@user:out_group_admin_user
+  outlet_user_group:1#group_viewer@user:out_group_viewer_user
+  outlet_user_group:1#admin@user:out_admin_user
+  outlet_user_group:1#modifier@user:out_modifier_user
+  outlet_user_group:1#viewer@user:out_viewer_user
+  outlet:1#user_group@outlet_user_group:1
+
+  institution_user_group:1#group_admin@user:inst_group_admin_user
+  institution_user_group:1#group_viewer@user:inst_group_viewer_user
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#group_admin@user:sys_group_admin_user
+  system_user_group:aura#group_viewer@user:sys_group_viewer_user
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#modifier@user:sys_modifier_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  outlet:1#parent@institution:1
+  institution:1#parent@system:aura
+
+  outlet_user_group:1#parent@system_user_group:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ============================================================
+    # DIRECT outlet roles
+    # ============================================================
+
+    # ---- out_group_admin_user — full group-management ----
+    - outlet_user_group:1#group_view@user:out_group_admin_user
+    - outlet_user_group:1#group_add_admin@user:out_group_admin_user
+    - outlet_user_group:1#group_add_viewer@user:out_group_admin_user
+    - outlet_user_group:1#group_remove_admin@user:out_group_admin_user
+    - outlet_user_group:1#group_remove_viewer@user:out_group_admin_user
+    - outlet_user_group:1#group_add_modifier@user:out_group_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:out_group_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:out_group_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:out_group_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:out_group_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:out_group_admin_user
+
+    # ---- out_group_viewer_user — only group_view ----
+    - outlet_user_group:1#group_view@user:out_group_viewer_user
+
+    # ---- out_admin_user — view + update + delete + create_course on both definitions ----
+    - outlet_user_group:1#view@user:out_admin_user
+    - outlet_user_group:1#update@user:out_admin_user
+    - outlet_user_group:1#delete@user:out_admin_user
+    - outlet_user_group:1#is_admin_or_modifier@user:out_admin_user
+    - outlet:1#view@user:out_admin_user
+    - outlet:1#update@user:out_admin_user
+    - outlet:1#delete@user:out_admin_user
+    - outlet:1#is_admin_or_modifier@user:out_admin_user
+    - outlet:1#create_course@user:out_admin_user
+    - outlet:1#create_outlet_room@user:out_admin_user
+
+    # ---- out_modifier_user — view + update + create_course + create_outlet_room; NOT delete ----
+    - outlet_user_group:1#view@user:out_modifier_user
+    - outlet_user_group:1#update@user:out_modifier_user
+    - outlet_user_group:1#is_admin_or_modifier@user:out_modifier_user
+    - outlet:1#view@user:out_modifier_user
+    - outlet:1#update@user:out_modifier_user
+    - outlet:1#is_admin_or_modifier@user:out_modifier_user
+    - outlet:1#create_course@user:out_modifier_user
+    - outlet:1#create_outlet_room@user:out_modifier_user
+
+    # ---- out_viewer_user — view only ----
+    - outlet_user_group:1#view@user:out_viewer_user
+    - outlet:1#view@user:out_viewer_user
+
+    # ============================================================
+    # INHERITED roles via outlet#parent -> institution
+    # ============================================================
+
+    # ---- inst_admin_user — inherits view + update + delete + create_course + create_outlet_room ----
+    - outlet:1#view@user:inst_admin_user
+    - outlet:1#update@user:inst_admin_user
+    - outlet:1#delete@user:inst_admin_user
+    - outlet:1#create_course@user:inst_admin_user
+    - outlet:1#create_outlet_room@user:inst_admin_user
+
+    # ---- inst_modifier_user — inherits view + update + create_course + create_outlet_room; NOT delete ----
+    - outlet:1#view@user:inst_modifier_user
+    - outlet:1#update@user:inst_modifier_user
+    - outlet:1#create_course@user:inst_modifier_user
+    - outlet:1#create_outlet_room@user:inst_modifier_user
+
+    # ---- inst_viewer_user — inherits view only ----
+    - outlet:1#view@user:inst_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via outlet -> institution -> system
+    # ============================================================
+
+    # ---- sys_admin_user — transitively inherits view + update + delete + create_course + create_outlet_room ----
+    - outlet:1#view@user:sys_admin_user
+    - outlet:1#update@user:sys_admin_user
+    - outlet:1#delete@user:sys_admin_user
+    - outlet:1#create_course@user:sys_admin_user
+    - outlet:1#create_outlet_room@user:sys_admin_user
+
+    # ---- sys_modifier_user — transitively inherits view + update + create_course + create_outlet_room; NOT delete ----
+    - outlet:1#view@user:sys_modifier_user
+    - outlet:1#update@user:sys_modifier_user
+    - outlet:1#create_course@user:sys_modifier_user
+    - outlet:1#create_outlet_room@user:sys_modifier_user
+
+    # ---- sys_viewer_user — transitively inherits view only ----
+    - outlet:1#view@user:sys_viewer_user
+
+    # ============================================================
+    # SUPERADMIN cascade via outlet_user_group#parent -> system_user_group
+    # ============================================================
+
+    # ---- sys_group_admin_user — full group-management on outlet_user_group ----
+    - outlet_user_group:1#group_view@user:sys_group_admin_user
+    - outlet_user_group:1#group_add_admin@user:sys_group_admin_user
+    - outlet_user_group:1#group_add_viewer@user:sys_group_admin_user
+    - outlet_user_group:1#group_remove_admin@user:sys_group_admin_user
+    - outlet_user_group:1#group_remove_viewer@user:sys_group_admin_user
+    - outlet_user_group:1#group_add_modifier@user:sys_group_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:sys_group_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:sys_group_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:sys_group_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:sys_group_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — only group_view on outlet_user_group ----
+    - outlet_user_group:1#group_view@user:sys_group_viewer_user
+
+  assertFalse:
+    # ============================================================
+    # non_member_user (no relationships anywhere)
+    # ============================================================
+    - outlet_user_group:1#group_view@user:non_member_user
+    - outlet_user_group:1#group_add_modifier@user:non_member_user
+    - outlet_user_group:1#group_remove_modifier@user:non_member_user
+    - outlet_user_group:1#group_add_group_admin@user:non_member_user
+    - outlet_user_group:1#group_remove_group_admin@user:non_member_user
+    - outlet_user_group:1#group_add_group_viewer@user:non_member_user
+    - outlet_user_group:1#group_remove_group_viewer@user:non_member_user
+    - outlet_user_group:1#view@user:non_member_user
+    - outlet_user_group:1#update@user:non_member_user
+    - outlet_user_group:1#delete@user:non_member_user
+    - outlet:1#view@user:non_member_user
+    - outlet:1#update@user:non_member_user
+    - outlet:1#delete@user:non_member_user
+    - outlet:1#create_course@user:non_member_user
+    - outlet:1#create_outlet_room@user:non_member_user
+
+    # ============================================================
+    # DIRECT outlet role exclusions
+    # ============================================================
+
+    # ---- out_group_admin_user — NO resource access ----
+    - outlet_user_group:1#view@user:out_group_admin_user
+    - outlet_user_group:1#update@user:out_group_admin_user
+    - outlet_user_group:1#delete@user:out_group_admin_user
+    - outlet:1#view@user:out_group_admin_user
+    - outlet:1#update@user:out_group_admin_user
+    - outlet:1#delete@user:out_group_admin_user
+    - outlet:1#create_course@user:out_group_admin_user
+    - outlet:1#create_outlet_room@user:out_group_admin_user
+
+    # ---- out_group_viewer_user — only group_view, no resource access ----
+    - outlet_user_group:1#group_add_admin@user:out_group_viewer_user
+    - outlet_user_group:1#group_add_viewer@user:out_group_viewer_user
+    - outlet_user_group:1#group_remove_admin@user:out_group_viewer_user
+    - outlet_user_group:1#group_remove_viewer@user:out_group_viewer_user
+    - outlet_user_group:1#group_add_modifier@user:out_group_viewer_user
+    - outlet_user_group:1#group_remove_modifier@user:out_group_viewer_user
+    - outlet_user_group:1#group_add_group_admin@user:out_group_viewer_user
+    - outlet_user_group:1#group_remove_group_admin@user:out_group_viewer_user
+    - outlet_user_group:1#group_add_group_viewer@user:out_group_viewer_user
+    - outlet_user_group:1#group_remove_group_viewer@user:out_group_viewer_user
+    - outlet_user_group:1#view@user:out_group_viewer_user
+    - outlet_user_group:1#update@user:out_group_viewer_user
+    - outlet_user_group:1#delete@user:out_group_viewer_user
+    - outlet:1#view@user:out_group_viewer_user
+    - outlet:1#update@user:out_group_viewer_user
+    - outlet:1#delete@user:out_group_viewer_user
+
+    # ---- out_admin_user — NO group-management ----
+    - outlet_user_group:1#group_view@user:out_admin_user
+    - outlet_user_group:1#group_add_admin@user:out_admin_user
+    - outlet_user_group:1#group_add_viewer@user:out_admin_user
+    - outlet_user_group:1#group_remove_admin@user:out_admin_user
+    - outlet_user_group:1#group_remove_viewer@user:out_admin_user
+    - outlet_user_group:1#group_add_modifier@user:out_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:out_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:out_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:out_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:out_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:out_admin_user
+
+    # ---- out_modifier_user — no delete, no group-mgmt ----
+    - outlet_user_group:1#delete@user:out_modifier_user
+    - outlet:1#delete@user:out_modifier_user
+    - outlet_user_group:1#group_view@user:out_modifier_user
+    - outlet_user_group:1#group_add_admin@user:out_modifier_user
+    - outlet_user_group:1#group_add_modifier@user:out_modifier_user
+    - outlet_user_group:1#group_remove_modifier@user:out_modifier_user
+    - outlet_user_group:1#group_add_group_admin@user:out_modifier_user
+    - outlet_user_group:1#group_remove_group_admin@user:out_modifier_user
+    - outlet_user_group:1#group_add_group_viewer@user:out_modifier_user
+    - outlet_user_group:1#group_remove_group_viewer@user:out_modifier_user
+
+    # ---- out_viewer_user — no update/delete/create_course, no group-mgmt ----
+    - outlet_user_group:1#update@user:out_viewer_user
+    - outlet_user_group:1#delete@user:out_viewer_user
+    - outlet:1#update@user:out_viewer_user
+    - outlet:1#delete@user:out_viewer_user
+    - outlet:1#create_course@user:out_viewer_user
+    - outlet:1#create_outlet_room@user:out_viewer_user
+    - outlet_user_group:1#group_view@user:out_viewer_user
+    - outlet_user_group:1#group_add_admin@user:out_viewer_user
+    - outlet_user_group:1#group_add_modifier@user:out_viewer_user
+    - outlet_user_group:1#group_remove_modifier@user:out_viewer_user
+    - outlet_user_group:1#group_add_group_admin@user:out_viewer_user
+    - outlet_user_group:1#group_remove_group_admin@user:out_viewer_user
+    - outlet_user_group:1#group_add_group_viewer@user:out_viewer_user
+    - outlet_user_group:1#group_remove_group_viewer@user:out_viewer_user
+
+    # ============================================================
+    # INHERITED (institution) role exclusions
+    # ============================================================
+
+    # ---- inst_group_admin_user — group mgmt at institution confers NO outlet access ----
+    - outlet:1#view@user:inst_group_admin_user
+    - outlet:1#update@user:inst_group_admin_user
+    - outlet:1#delete@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_modifier@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — same: no inherited outlet access ----
+    - outlet:1#view@user:inst_group_viewer_user
+    - outlet:1#update@user:inst_group_viewer_user
+    - outlet:1#delete@user:inst_group_viewer_user
+
+    # ---- inst_modifier_user — cannot delete outlet (institution modifier lacks delete) ----
+    - outlet:1#delete@user:inst_modifier_user
+
+    # ---- inst_viewer_user — cannot update or delete outlet ----
+    - outlet:1#update@user:inst_viewer_user
+    - outlet:1#delete@user:inst_viewer_user
+
+    # ---- Inherited institution users do NOT gain permissions on outlet_user_group ----
+    - outlet_user_group:1#view@user:inst_admin_user
+    - outlet_user_group:1#update@user:inst_admin_user
+    - outlet_user_group:1#delete@user:inst_admin_user
+    - outlet_user_group:1#group_view@user:inst_admin_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED (system) role exclusions
+    # ============================================================
+
+    # ---- sys_group_admin_user — group mgmt at system confers NO outlet resource access (decoupling) ----
+    - outlet:1#view@user:sys_group_admin_user
+    - outlet:1#update@user:sys_group_admin_user
+    - outlet:1#delete@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — same: no transitive outlet resource access; only group_view on outlet_user_group ----
+    - outlet:1#view@user:sys_group_viewer_user
+    - outlet:1#update@user:sys_group_viewer_user
+    - outlet:1#delete@user:sys_group_viewer_user
+    - outlet_user_group:1#group_add_admin@user:sys_group_viewer_user
+    - outlet_user_group:1#group_add_viewer@user:sys_group_viewer_user
+    - outlet_user_group:1#group_remove_admin@user:sys_group_viewer_user
+    - outlet_user_group:1#group_remove_viewer@user:sys_group_viewer_user
+    - outlet_user_group:1#group_add_modifier@user:sys_group_viewer_user
+    - outlet_user_group:1#group_remove_modifier@user:sys_group_viewer_user
+    - outlet_user_group:1#group_add_group_admin@user:sys_group_viewer_user
+    - outlet_user_group:1#group_remove_group_admin@user:sys_group_viewer_user
+    - outlet_user_group:1#group_add_group_viewer@user:sys_group_viewer_user
+    - outlet_user_group:1#group_remove_group_viewer@user:sys_group_viewer_user
+
+    # ---- sys_admin / sys_modifier / sys_viewer — resource roles do NOT confer group-mgmt on outlet_user_group (decoupling) ----
+    - outlet_user_group:1#group_view@user:sys_admin_user
+    - outlet_user_group:1#group_add_admin@user:sys_admin_user
+    - outlet_user_group:1#group_add_modifier@user:sys_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:sys_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:sys_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:sys_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:sys_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:sys_admin_user
+    - outlet_user_group:1#group_view@user:sys_modifier_user
+    - outlet_user_group:1#group_add_modifier@user:sys_modifier_user
+    - outlet_user_group:1#group_remove_modifier@user:sys_modifier_user
+    - outlet_user_group:1#group_add_group_admin@user:sys_modifier_user
+    - outlet_user_group:1#group_remove_group_admin@user:sys_modifier_user
+    - outlet_user_group:1#group_add_group_viewer@user:sys_modifier_user
+    - outlet_user_group:1#group_remove_group_viewer@user:sys_modifier_user
+    - outlet_user_group:1#group_view@user:sys_viewer_user
+    - outlet_user_group:1#group_add_modifier@user:sys_viewer_user
+    - outlet_user_group:1#group_remove_modifier@user:sys_viewer_user
+    - outlet_user_group:1#group_add_group_admin@user:sys_viewer_user
+    - outlet_user_group:1#group_remove_group_admin@user:sys_viewer_user
+    - outlet_user_group:1#group_add_group_viewer@user:sys_viewer_user
+    - outlet_user_group:1#group_remove_group_viewer@user:sys_viewer_user
+
+    # ---- sys_modifier_user — cannot delete outlet (system modifier lacks delete) ----
+    - outlet:1#delete@user:sys_modifier_user
+
+    # ---- sys_viewer_user — cannot update or delete outlet ----
+    - outlet:1#update@user:sys_viewer_user
+    - outlet:1#delete@user:sys_viewer_user
+
+    # ---- Transitively-inherited system users do NOT gain perms on outlet_user_group ----
+    - outlet_user_group:1#view@user:sys_admin_user
+    - outlet_user_group:1#update@user:sys_admin_user
+    - outlet_user_group:1#delete@user:sys_admin_user
+    - outlet_user_group:1#group_view@user:sys_admin_user

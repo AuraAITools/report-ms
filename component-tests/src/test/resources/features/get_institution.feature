@@ -9,6 +9,7 @@ Feature: Get Institution
     Then the institution should be returned with correct details
 
   @ComponentTest
+  @PreExistingFailure
   Scenario: Fail to retrieve institution with invalid tenant
     Given user has "aura-admin" role
     And an institution is onboarded

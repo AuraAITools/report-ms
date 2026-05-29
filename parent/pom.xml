@@ -50,6 +50,11 @@
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <extentreports.version>5.1.2</extentreports.version>
         <extentreports-cucumber7-adapater.version>1.14.0</extentreports-cucumber7-adapater.version>
+        <authzed.version>1.5.4</authzed.version>
+        <grpc.version>1.72.0</grpc.version>
+        <shedlock.version>5.16.0</shedlock.version>
+        <jsoup.version>1.18.3</jsoup.version>
+        <aws.sdk.version>2.30.0</aws.sdk.version>
     </properties>
     <!-- dependency management does not actually add dependencies, it just standardises version in child pom   -->
     <dependencyManagement>
@@ -58,6 +63,14 @@
                 <groupId>io.cucumber</groupId>
                 <artifactId>cucumber-bom</artifactId>
                 <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- AWS SDK v2 — manages versions for s3, s3-presigner, etc. -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -100,6 +113,44 @@
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-admin-client</artifactId>
                 <version>${keycloak-admin-client.version}</version>
+            </dependency>
+            <!-- ShedLock — distributed scheduled task lock -->
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <!-- Jsoup — HTML → plaintext for email -->
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
+            <!-- SpiceDB -->
+            <dependency>
+                <groupId>com.authzed.api</groupId>
+                <artifactId>authzed</artifactId>
+                <version>${authzed.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty-shaded</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
             </dependency>
             <!-- GraphQL -->
             <dependency>
@@ -192,6 +243,12 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${test-containers-junit.version}</version> <!-- Use the same version as postgresql module -->
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>localstack</artifactId>
+                <version>${test-containers-postgres.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

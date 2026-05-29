@@ -5,37 +5,42 @@ type LessonResponse implements Auditable{
     lessonEndTimestamptz: Long!
     description: String
     recap: String
-    createdAt: Long
-    createdBy: ID
+    state: LessonState!
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
     outlet: OutletResponse!
-    course: CourseResponse
+    outletRoom: OutletRoomResponse
+    course: CourseResponse!
     educators: [EducatorResponse!]!
     students: [StudentResponse!]!
     levels: [LevelResponse!]!
     subjects: [SubjectResponse!]!
+    topics: [TopicResponse!]!
+    lessonPlans: [LessonPlanResponse!]!
+    lessonObjectives: [LessonObjectiveResponse!]!
+    materials: [MaterialResponse!]!
 }
 
-input CreateStandaloneLessonInput {
+enum LessonState {
+    CREATED
+    ENDED
+    CANCELLED
+}
+
+input CreateLessonInCourseInput {
     institutionId: ID!
     name: String!
     lessonStartTimestamptz: DateTime!
     lessonEndTimestamptz: DateTime!
     description: String
-    outletId: ID!
-}
-
-input CreateLessonInput {
-    institutionId: ID!
-    name: String!
-    lessonStartTimestamptz: DateTime!
-    lessonEndTimestamptz: DateTime!
-    description: String
-    outletId: ID!
-    courseId: ID
-    educatorIds: [ID!]
-    studentIds: [ID!]
+    courseId: ID!
+    outletRoomId: ID
+    educatorIds: [ID!]!
+    studentIds: [ID!]!
     levelIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 level")
     subjectIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 subject")
+    topicIds: [ID!]!
+    lessonPlans: [CreateLessonPlanForLessonInput!]! @Size(min: 1, message: "lesson must have at least 1 lesson plan")
 }

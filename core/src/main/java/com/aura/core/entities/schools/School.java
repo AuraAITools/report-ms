@@ -1,8 +1,6 @@
 package com.aura.core.entities.schools;
 
-import com.aura.core.entities.students.Student;
 import java.time.Instant;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +19,5 @@ public class School {
     private String updatedBy;
     private String name;
     private SchoolCategory schoolCategory;
-    private Set<Student> students;
     private String tenantId;
 }

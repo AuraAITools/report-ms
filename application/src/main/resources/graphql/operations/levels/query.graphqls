@@ -1,3 +1,5 @@
 extend type Query {
     getLevelByPage(institutionId: ID!, search: LevelSearchInput, sort: SortInput, first: Int, after: String, last: Int, before: String): LevelResponseConnection!
+    getLevelByIdInInstitution(levelId: ID!, institutionId:ID!): LevelResponse!
+    getLevelsInInstitution(institutionId: ID!): [LevelResponse!]!
 }

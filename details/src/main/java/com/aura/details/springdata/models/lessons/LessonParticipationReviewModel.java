@@ -1,7 +1,7 @@
 package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,13 +33,14 @@ public class LessonParticipationReviewModel extends TenantBaseModel {
 
     @OneToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    private StudentLessonLinkModel studentLessonLink;
+    private StudentLessonReportModel studentLessonReport;
 
     // TODO: TO fill
     public enum PARTICIPATION_TYPE {
         ATTENTIVE,
         QUIET,
-        CURIOUS
+        CURIOUS,
+        UNFILLED
     }
 
 }

@@ -3,6 +3,7 @@ package com.aura.core.usecases.lessons;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.links.EducatorLessonLink;
+import com.aura.core.exceptions.TechnicalException;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -21,18 +22,23 @@ public class AddEducatorsToLessonUseCaseImpl implements AddEducatorsToLessonUseC
     private final EducatorRepository educatorRepository;
 
     @Override
-    public List<EducatorLessonLink> addEducatorsToLessonUseCase(String lessonId, List<String> educatorIds, String tenantId) {
+    public List<Educator> addEducatorsToLessonUseCase(String lessonId, List<String> educatorIds, String tenantId) {
         if (educatorIds.isEmpty()) return emptyList();
         Lesson lesson = ofNullable(lessonRepository.findById(UUID.fromString(lessonId)))
-                .orElseThrow(() -> new RuntimeException("no lesson id found"));
-        List<Educator> educators = educatorRepository.findByIds(educatorIds.stream().map(UUID::fromString).toList());
+                .orElseThrow(() -> new TechnicalException("no lesson found with id: " + lessonId));
+        List<Educator> educators = educatorRepository.findAllByIds(educatorIds.stream().map(UUID::fromString).toList());
+        if (educators.size() != educatorIds.size()) {
+            throw new TechnicalException("Some educators could not be found");
+        }
         List<EducatorLessonLink> educatorLessonLinks = educators.stream()
                 .map(educator -> EducatorLessonLink
                         .builder()
-                        .educator(educator)
-                        .lesson(lesson)
+                        .educatorId(educator.getId())
+                        .lessonId(lesson.getId())
+                        .tenantId(tenantId)
                         .build()).toList();
 
-        return educatorLessonLinkRepository.saveAll(educatorLessonLinks);
+        educatorLessonLinkRepository.saveAll(educatorLessonLinks);
+        return educators;
     }
 }

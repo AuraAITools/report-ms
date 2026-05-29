@@ -1,4 +1,5 @@
 extend type Mutation {
     createSubject(createSubjectInput: CreateSubjectInput!): SubjectResponse!
     createSubjectTopicLinks(createSubjectTopicLinksInput: CreateSubjectTopicLinksInput!): SubjectResponseWithTopics!
+    deleteSubjectById(id: ID!): Boolean!
 }

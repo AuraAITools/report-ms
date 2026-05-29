@@ -10,6 +10,7 @@ import graphql.execution.ResultPath;
 import graphql.language.Field;
 import graphql.schema.DataFetchingEnvironment;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("GraphQL exception resolver")
 class GraphQlExceptionResolverTest {
 
     private GraphQlExceptionResolver resolver;
@@ -46,6 +48,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should resolve business exception with actual message")
     void shouldResolveBusinessExceptionWithActualMessage() {
         NotFoundException ex = new NotFoundException("Institution not found");
 
@@ -60,6 +63,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should resolve access denied exception as forbidden")
     void shouldResolveAccessDeniedExceptionAsForbidden() {
         AccessDeniedBusinessException ex = new AccessDeniedBusinessException("not authorized");
 
@@ -73,6 +77,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should resolve technical exception with masked message")
     void shouldResolveTechnicalExceptionWithMaskedMessage() {
         TechnicalException ex = new TechnicalException("NullPointerException at line 42");
 
@@ -87,6 +92,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should resolve unhandled exception with masked message")
     void shouldResolveUnhandledExceptionWithMaskedMessage() {
         RuntimeException ex = new RuntimeException("something broke");
 
@@ -100,6 +106,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should include correlation ID in all errors")
     void shouldIncludeCorrelationIdInAllErrors() {
         BusinessException ex = new BusinessException("bad request", 400, "VALIDATION_FAILED");
 
@@ -110,6 +117,7 @@ class GraphQlExceptionResolverTest {
     }
 
     @Test
+    @DisplayName("Should use unknown when correlation ID is missing")
     void shouldUseUnknownWhenCorrelationIdIsMissing() {
         when(graphQlContext.getOrDefault("x-correlation-id", "unknown")).thenReturn("unknown");
 

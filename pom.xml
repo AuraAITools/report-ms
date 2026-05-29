@@ -14,5 +14,6 @@
         <module>application</module>
         <module>database-runner</module>
         <module>component-tests</module>
+        <module>keycloak-theme</module>
     </modules>
 </project>

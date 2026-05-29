@@ -1,8 +1,9 @@
-type LevelResponse implements Auditable @connection{
+type LevelResponse implements Auditable {
     id: ID!
     name: String!
-    createdAt: Long
-    createdBy: ID
+    category: SCHOOL_CATEGORY!
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }
@@ -13,4 +14,21 @@ input LevelSearchInput {
     createdBy: ID
     updatedAt: Long
     updatedBy: ID
+}
+
+input CreateLevelInInstitutionInput {
+    institutionId: ID!
+    name: String!
+    category: SCHOOL_CATEGORY!
+}
+
+enum SCHOOL_CATEGORY {
+    PRIMARY
+    SECONDARY
+    JUNIOR_COLLEGE
+    POLYTECHNIC
+    TECHNICAL
+    INTERNATIONAL
+    ARTS
+    UNIVERSITY
 }

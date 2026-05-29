@@ -3,12 +3,14 @@ package com.aura.details.springdata.models.accounts;
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.links.AccountEducatorLinkModel;
 import com.aura.details.springdata.models.links.AccountStudentLinkModel;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
@@ -63,8 +65,22 @@ public class AccountModel extends TenantBaseModel {
     @Column(nullable = false)
     private String contact;
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private ParentModel parent;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RELATIONSHIP relationship;
+    private STATE state;
+
+    @Column(nullable = false)
+    private boolean parentFeatureEnabled;
+
+    @Column(nullable = false)
+    private boolean educatorFeatureEnabled;
+
+    @Column(nullable = false)
+    private boolean staffFeatureEnabled;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     @ToString.Exclude
@@ -76,9 +92,10 @@ public class AccountModel extends TenantBaseModel {
     @Builder.Default
     private Set<AccountEducatorLinkModel> accountEducatorLinks = new HashSet<>();
 
-    public enum RELATIONSHIP {
-        PARENT,
-        SELF
+    public enum STATE {
+        VERIFYING,
+        ACTIVE,
+        RETIRED
     }
 
 }

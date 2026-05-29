@@ -1,0 +1,10 @@
+mutation UpdateStudentById($input: UpdateStudentByIdInput!) {
+    updateStudentById(input: $input) {
+        id
+        name
+        email
+        dateOfBirth
+        createdBy
+        updatedBy
+    }
+}

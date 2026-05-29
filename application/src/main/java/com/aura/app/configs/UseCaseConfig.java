@@ -1,20 +1,39 @@
 package com.aura.app.configs;
 
 import com.aura.core.clients.IdentityService;
-import com.aura.core.clients.GroupAuthorizationService;
-import com.aura.core.clients.ResourceAuthorizationService;
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.repositories.LessonObjectiveRepository;
+import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
+import com.aura.core.repositories.LessonPlanMaterialLinkRepository;
+import com.aura.core.repositories.LessonPlanRepository;
+import com.aura.core.repositories.LessonPlanTopicLinkRepository;
 import com.aura.core.repositories.LessonRepository;
+import com.aura.core.repositories.LevelLessonLinkRepository;
+import com.aura.core.repositories.LevelRepository;
+import com.aura.core.repositories.MaterialRepository;
 import com.aura.core.repositories.OutletRepository;
+import com.aura.core.repositories.OutletRoomRepository;
+import com.aura.core.repositories.ParentRepository;
+import com.aura.core.repositories.SchoolRepository;
+import com.aura.core.repositories.StudentLessonLinkRepository;
+import com.aura.core.repositories.StudentLessonReportRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.core.repositories.SubjectLessonLinkRepository;
 import com.aura.core.repositories.SubjectRepository;
+import com.aura.core.repositories.TopicLessonLinkRepository;
 import com.aura.core.repositories.TopicRepository;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCase;
-import com.aura.core.usecases.accounts.AddUserToGroupUseCaseImpl;
+import com.aura.core.repositories.email.EmailGateway;
+import com.aura.core.repositories.email.EmailLogRepository;
+import com.aura.core.repositories.email.TemplateRenderer;
+import com.aura.core.usecases.accounts.AccountQueryUseCase;
+import com.aura.core.usecases.accounts.AccountQueryUseCaseImpl;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCase;
+import com.aura.core.usecases.accounts.AssignUserRoleUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountAndTagToTenantUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -23,41 +42,139 @@ import com.aura.core.usecases.accounts.CreateParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateParentAccountUseCaseImpl;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCaseImpl;
+import com.aura.core.usecases.authorization.GrantUserGroupRoleUseCase;
+import com.aura.core.usecases.authorization.GrantUserGroupRoleUseCaseImpl;
+import com.aura.core.usecases.authorization.LookupPermissionsUseCase;
+import com.aura.core.usecases.authorization.LookupPermissionsUseCaseImpl;
+import com.aura.core.usecases.authorization.RevokeUserGroupRoleUseCase;
+import com.aura.core.usecases.authorization.RevokeUserGroupRoleUseCaseImpl;
+import com.aura.core.usecases.courses.CourseQueryUseCase;
+import com.aura.core.usecases.courses.CourseQueryUseCaseImpl;
 import com.aura.core.usecases.courses.CreateCourseUseCase;
 import com.aura.core.usecases.courses.CreateCourseUseCaseImpl;
+import com.aura.core.usecases.courses.DeleteCourseUseCase;
+import com.aura.core.usecases.courses.DeleteCourseUseCaseImpl;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCase;
 import com.aura.core.usecases.courses.EnrollStudentToCourseUseCaseImpl;
 import com.aura.core.usecases.courses.TagEducatorToCourseUseCase;
 import com.aura.core.usecases.courses.TagEducatorToCourseUseCaseImpl;
+import com.aura.core.usecases.educators.DeleteEducatorUseCase;
+import com.aura.core.usecases.educators.DeleteEducatorUseCaseImpl;
+import com.aura.core.usecases.educators.EducatorQueryUseCase;
+import com.aura.core.usecases.educators.EducatorQueryUseCaseImpl;
 import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCase;
 import com.aura.core.usecases.educators.EnrollEducatorToOutletUseCaseImpl;
 import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
 import com.aura.core.usecases.educators.TagEducatorToLevelUseCaseImpl;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCaseImpl;
+import com.aura.core.usecases.educators.UpdateEducatorUseCase;
+import com.aura.core.usecases.educators.UpdateEducatorUseCaseImpl;
+import com.aura.core.usecases.email.SendEmailUseCase;
+import com.aura.core.usecases.email.SendEmailUseCaseImpl;
+import com.aura.core.usecases.lesson_objectives.AddTopicsToLessonObjectiveUseCase;
+import com.aura.core.usecases.lesson_objectives.AddTopicsToLessonObjectiveUseCaseImpl;
+import com.aura.core.usecases.lesson_objectives.CreateLessonObjectiveUseCase;
+import com.aura.core.usecases.lesson_objectives.CreateLessonObjectiveUseCaseImpl;
+import com.aura.core.usecases.lesson_objectives.DeleteLessonObjectiveUseCase;
+import com.aura.core.usecases.lesson_objectives.DeleteLessonObjectiveUseCaseImpl;
+import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCase;
+import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCaseImpl;
+import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCase;
+import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCaseImpl;
+import com.aura.core.usecases.lesson_plans.AddMaterialsToLessonPlanUseCase;
+import com.aura.core.usecases.lesson_plans.AddMaterialsToLessonPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_plans.AddStudentsToLessonPlanUseCase;
+import com.aura.core.usecases.lesson_plans.AddStudentsToLessonPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_plans.AddTopicsToLessonPlanUseCase;
+import com.aura.core.usecases.lesson_plans.AddTopicsToLessonPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_plans.CreateLessonPlanUseCase;
+import com.aura.core.usecases.lesson_plans.CreateLessonPlanUseCaseImpl;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
+import com.aura.core.usecases.lessons.AddLevelsToLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.AddStudentsToLessonUseCase;
+import com.aura.core.usecases.lessons.AddStudentsToLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCase;
+import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
+import com.aura.core.usecases.lessons.AddTopicsToLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.DeleteLessonUseCase;
+import com.aura.core.usecases.lessons.DeleteLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.LessonQueryUseCase;
+import com.aura.core.usecases.lessons.LessonQueryUseCaseImpl;
 import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
 import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCaseImpl;
+import com.aura.core.usecases.levels.CreateLevelUseCase;
+import com.aura.core.usecases.levels.CreateLevelUseCaseImpl;
+import com.aura.core.usecases.levels.DeleteLevelUseCase;
+import com.aura.core.usecases.levels.DeleteLevelUseCaseImpl;
+import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCase;
+import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCaseImpl;
+import com.aura.core.usecases.materials.DeleteMaterialUseCase;
+import com.aura.core.usecases.materials.DeleteMaterialUseCaseImpl;
+import com.aura.core.usecases.materials.MaterialQueryUseCase;
+import com.aura.core.usecases.materials.MaterialQueryUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
+import com.aura.core.usecases.outlet_rooms.CreateOutletRoomUseCase;
+import com.aura.core.usecases.outlet_rooms.CreateOutletRoomUseCaseImpl;
+import com.aura.core.usecases.outlet_rooms.DeleteOutletRoomUseCase;
+import com.aura.core.usecases.outlet_rooms.DeleteOutletRoomUseCaseImpl;
+import com.aura.core.usecases.outlet_rooms.OutletRoomQueryUseCase;
+import com.aura.core.usecases.outlet_rooms.OutletRoomQueryUseCaseImpl;
+import com.aura.core.usecases.outlet_rooms.UpdateOutletRoomUseCase;
+import com.aura.core.usecases.outlet_rooms.UpdateOutletRoomUseCaseImpl;
 import com.aura.core.usecases.outlets.CreateOutletUseCase;
 import com.aura.core.usecases.outlets.CreateOutletUseCaseImpl;
+import com.aura.core.usecases.outlets.DeleteOutletUseCase;
+import com.aura.core.usecases.outlets.DeleteOutletUseCaseImpl;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCaseImpl;
+import com.aura.core.usecases.outlets.UpdateOutletUseCase;
+import com.aura.core.usecases.outlets.UpdateOutletUseCaseImpl;
+import com.aura.core.usecases.parents.DeleteParentUseCase;
+import com.aura.core.usecases.parents.DeleteParentUseCaseImpl;
+import com.aura.core.usecases.parents.ParentQueryUseCase;
+import com.aura.core.usecases.parents.ParentQueryUseCaseImpl;
+import com.aura.core.usecases.parents.UpdateParentUseCase;
+import com.aura.core.usecases.parents.UpdateParentUseCaseImpl;
+import com.aura.core.usecases.schools.CreateSchoolUseCase;
+import com.aura.core.usecases.schools.CreateSchoolUseCaseImpl;
+import com.aura.core.usecases.schools.DeleteSchoolUseCase;
+import com.aura.core.usecases.schools.DeleteSchoolUseCaseImpl;
+import com.aura.core.usecases.schools.SchoolQueryUseCase;
+import com.aura.core.usecases.schools.SchoolQueryUseCaseImpl;
+import com.aura.core.usecases.student_lesson_reports.CreateStudentLessonReportUseCase;
+import com.aura.core.usecases.student_lesson_reports.CreateStudentLessonReportUseCaseImpl;
+import com.aura.core.usecases.students.DeleteStudentUseCase;
+import com.aura.core.usecases.students.DeleteStudentUseCaseImpl;
+import com.aura.core.usecases.students.StudentQueryUseCase;
+import com.aura.core.usecases.students.StudentQueryUseCaseImpl;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCaseImpl;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCaseImpl;
+import com.aura.core.usecases.students.UpdateStudentUseCase;
+import com.aura.core.usecases.students.UpdateStudentUseCaseImpl;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
 import com.aura.core.usecases.subjects.CreateSubjectUseCaseImpl;
 import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
 import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCaseImpl;
+import com.aura.core.usecases.subjects.DeleteSubjectUseCase;
+import com.aura.core.usecases.subjects.DeleteSubjectUseCaseImpl;
+import com.aura.core.usecases.subjects.SubjectQueryUseCase;
+import com.aura.core.usecases.subjects.SubjectQueryUseCaseImpl;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCaseImpl;
+import com.aura.core.usecases.topics.DeleteTopicUseCase;
+import com.aura.core.usecases.topics.DeleteTopicUseCaseImpl;
+import com.aura.core.usecases.topics.TopicQueryUseCase;
+import com.aura.core.usecases.topics.TopicQueryUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -66,17 +183,14 @@ public class UseCaseConfig {
 
     @Bean
     OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository,
-                                                          TenantInitialDataLoader tenantInitialDataLoader,
-                                                          ResourceAuthorizationService resourceAuthorizationService,
-                                                          GroupAuthorizationService groupAuthorizationService) {
-        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader,
-                resourceAuthorizationService, groupAuthorizationService);
+                                                        TenantInitialDataLoader tenantInitialDataLoader) {
+        return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader);
     }
 
     @Bean
-    AddUserToGroupUseCase addUserToGroupUseCase(IdentityService identityService,
-                                                GroupAuthorizationService groupAuthorizationService) {
-        return new AddUserToGroupUseCaseImpl(identityService, groupAuthorizationService);
+    AssignUserRoleUseCase assignUserRoleUseCase(IdentityService identityService,
+                                                RelationshipAuthorizationService relationshipService) {
+        return new AssignUserRoleUseCaseImpl(identityService, relationshipService);
     }
 
     @Bean
@@ -105,13 +219,74 @@ public class UseCaseConfig {
     }
 
     @Bean
+    UpdateOutletUseCase updateOutletUseCase(OutletRepository outletRepository) {
+        return new UpdateOutletUseCaseImpl(outletRepository);
+    }
+
+    @Bean
+    CreateOutletRoomUseCase createOutletRoomUseCase(OutletRoomRepository outletRoomRepository) {
+        return new CreateOutletRoomUseCaseImpl(outletRoomRepository);
+    }
+
+    @Bean
+    UpdateOutletRoomUseCase updateOutletRoomUseCase(OutletRoomRepository outletRoomRepository) {
+        return new UpdateOutletRoomUseCaseImpl(outletRoomRepository);
+    }
+
+    @Bean
+    DeleteOutletRoomUseCase deleteOutletRoomUseCase(OutletRoomRepository outletRoomRepository) {
+        return new DeleteOutletRoomUseCaseImpl(outletRoomRepository);
+    }
+
+    @Bean
+    OutletRoomQueryUseCase outletRoomQueryUseCase(OutletRoomRepository outletRoomRepository) {
+        return new OutletRoomQueryUseCaseImpl(outletRoomRepository);
+    }
+
+    @Bean
     CreateCourseUseCase createCourseUseCase(CourseRepository courseRepository, OutletRepository outletRepository) {
         return new CreateCourseUseCaseImpl(courseRepository, outletRepository);
     }
 
     @Bean
-    CreateLessonUseCase createLessonUseCase(LessonRepository lessonRepository, OutletRepository outletRepository) {
-        return new CreateLessonUseCaseImpl(lessonRepository, outletRepository);
+    CourseQueryUseCase courseQueryUseCase(CourseRepository courseRepository) {
+        return new CourseQueryUseCaseImpl(courseRepository);
+    }
+
+    @Bean
+    CreateLessonUseCase createLessonUseCase(LessonRepository lessonRepository,
+                                            CourseRepository courseRepository) {
+        return new CreateLessonUseCaseImpl(lessonRepository, courseRepository);
+    }
+
+    @Bean
+    LessonQueryUseCase lessonQueryUseCase(LessonRepository lessonRepository) {
+        return new LessonQueryUseCaseImpl(lessonRepository);
+    }
+
+    @Bean
+    SubjectQueryUseCase subjectQueryUseCase(SubjectRepository subjectRepository) {
+        return new SubjectQueryUseCaseImpl(subjectRepository);
+    }
+
+    @Bean
+    SchoolQueryUseCase schoolQueryUseCase(SchoolRepository schoolRepository) {
+        return new SchoolQueryUseCaseImpl(schoolRepository);
+    }
+
+    @Bean
+    CreateSchoolUseCase createSchoolUseCase(SchoolRepository schoolRepository) {
+        return new CreateSchoolUseCaseImpl(schoolRepository);
+    }
+
+    @Bean
+    DeleteSchoolUseCase deleteSchoolUseCase(SchoolRepository schoolRepository) {
+        return new DeleteSchoolUseCaseImpl(schoolRepository);
+    }
+
+    @Bean
+    TopicQueryUseCase topicQueryUseCase(TopicRepository topicRepository) {
+        return new TopicQueryUseCaseImpl(topicRepository);
     }
 
     @Bean
@@ -127,6 +302,65 @@ public class UseCaseConfig {
     }
 
     @Bean
+    AddStudentsToLessonUseCase addStudentsToLessonUseCase(StudentLessonLinkRepository studentLessonLinkRepository,
+                                                          LessonRepository lessonRepository,
+                                                          StudentRepository studentRepository) {
+        return new AddStudentsToLessonUseCaseImpl(studentLessonLinkRepository, lessonRepository, studentRepository);
+    }
+
+    @Bean
+    AddSubjectsToLessonUseCase addSubjectsToLessonUseCase(SubjectLessonLinkRepository subjectLessonLinkRepository,
+                                                          LessonRepository lessonRepository,
+                                                          SubjectRepository subjectRepository) {
+        return new AddSubjectsToLessonUseCaseImpl(subjectLessonLinkRepository, lessonRepository, subjectRepository);
+    }
+
+    @Bean
+    AddLevelsToLessonUseCase addLevelsToLessonUseCase(LevelLessonLinkRepository levelLessonLinkRepository,
+                                                      LessonRepository lessonRepository,
+                                                      LevelRepository levelRepository) {
+        return new AddLevelsToLessonUseCaseImpl(levelLessonLinkRepository, lessonRepository, levelRepository);
+    }
+
+    @Bean
+    AddTopicsToLessonUseCase addTopicsToLessonUseCase(TopicLessonLinkRepository topicLessonLinkRepository,
+                                                      LessonRepository lessonRepository,
+                                                      TopicRepository topicRepository) {
+        return new AddTopicsToLessonUseCaseImpl(topicLessonLinkRepository, lessonRepository, topicRepository);
+    }
+
+    @Bean
+    CreateLessonPlanUseCase createLessonPlanUseCase(LessonPlanRepository lessonPlanRepository,
+                                                    LessonRepository lessonRepository) {
+        return new CreateLessonPlanUseCaseImpl(lessonPlanRepository, lessonRepository);
+    }
+
+    @Bean
+    CreateStudentLessonReportUseCase createStudentLessonReportUseCase(StudentLessonReportRepository studentLessonReportRepository) {
+        return new CreateStudentLessonReportUseCaseImpl(studentLessonReportRepository);
+    }
+
+    @Bean
+    AddTopicsToLessonPlanUseCase addTopicsToLessonPlanUseCase(LessonPlanTopicLinkRepository lessonPlanTopicLinkRepository,
+                                                              LessonPlanRepository lessonPlanRepository,
+                                                              TopicRepository topicRepository) {
+        return new AddTopicsToLessonPlanUseCaseImpl(lessonPlanTopicLinkRepository, lessonPlanRepository, topicRepository);
+    }
+
+    @Bean
+    AddMaterialsToLessonPlanUseCase addMaterialsToLessonPlanUseCase(LessonPlanMaterialLinkRepository lessonPlanMaterialLinkRepository,
+                                                                    LessonPlanRepository lessonPlanRepository,
+                                                                    MaterialRepository materialRepository) {
+        return new AddMaterialsToLessonPlanUseCaseImpl(lessonPlanMaterialLinkRepository, lessonPlanRepository, materialRepository);
+    }
+
+    @Bean
+    AddStudentsToLessonPlanUseCase addStudentsToLessonPlanUseCase(LessonPlanRepository lessonPlanRepository,
+                                                                  StudentLessonLinkRepository studentLessonLinkRepository) {
+        return new AddStudentsToLessonPlanUseCaseImpl(lessonPlanRepository, studentLessonLinkRepository);
+    }
+
+    @Bean
     TagStudentToSchoolUseCase tagStudentToSchoolUseCase(StudentRepository studentRepository) {
         return new TagStudentToSchoolUseCaseImpl(studentRepository);
     }
@@ -137,8 +371,23 @@ public class UseCaseConfig {
     }
 
     @Bean
-    EnrollStudentToCourseUseCase enrollStudentToCourseUseCase(StudentRepository studentRepository, CourseRepository courseRepository) {
-        return new EnrollStudentToCourseUseCaseImpl(studentRepository, courseRepository);
+    EnrollStudentToCourseUseCase enrollStudentToCourseUseCase(StudentRepository studentRepository) {
+        return new EnrollStudentToCourseUseCaseImpl(studentRepository);
+    }
+
+    @Bean
+    StudentQueryUseCase studentQueryUseCase(StudentRepository studentRepository) {
+        return new StudentQueryUseCaseImpl(studentRepository);
+    }
+
+    @Bean
+    UpdateStudentUseCase updateStudentUseCase(StudentRepository studentRepository) {
+        return new UpdateStudentUseCaseImpl(studentRepository);
+    }
+
+    @Bean
+    DeleteStudentUseCase deleteStudentUseCase(StudentRepository studentRepository) {
+        return new DeleteStudentUseCaseImpl(studentRepository);
     }
 
     @Bean
@@ -166,6 +415,36 @@ public class UseCaseConfig {
         return new TagEducatorToSubjectUseCaseImpl(educatorRepository);
     }
 
+    @Bean
+    EducatorQueryUseCase educatorQueryUseCase(EducatorRepository educatorRepository) {
+        return new EducatorQueryUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    UpdateEducatorUseCase updateEducatorUseCase(EducatorRepository educatorRepository) {
+        return new UpdateEducatorUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    DeleteEducatorUseCase deleteEducatorUseCase(EducatorRepository educatorRepository) {
+        return new DeleteEducatorUseCaseImpl(educatorRepository);
+    }
+
+    @Bean
+    ParentQueryUseCase parentQueryUseCase(ParentRepository parentRepository) {
+        return new ParentQueryUseCaseImpl(parentRepository);
+    }
+
+    @Bean
+    UpdateParentUseCase updateParentUseCase(ParentRepository parentRepository) {
+        return new UpdateParentUseCaseImpl(parentRepository);
+    }
+
+    @Bean
+    DeleteParentUseCase deleteParentUseCase(ParentRepository parentRepository) {
+        return new DeleteParentUseCaseImpl(parentRepository);
+    }
+
 
     @Bean
     CreateTopicUseCase createTopicUseCase(TopicRepository topicRepository) {
@@ -180,5 +459,109 @@ public class UseCaseConfig {
     @Bean
     CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase(SubjectRepository subjectRepository) {
         return new CreateTopicSubjectLinksUseCaseImpl(subjectRepository);
+    }
+
+    @Bean
+    LookupPermissionsUseCase lookupPermissionsUseCase(RelationshipAuthorizationService relationshipService) {
+        return new LookupPermissionsUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    GrantUserGroupRoleUseCase grantUserGroupRoleUseCase(RelationshipAuthorizationService relationshipService) {
+        return new GrantUserGroupRoleUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    RevokeUserGroupRoleUseCase revokeUserGroupRoleUseCase(RelationshipAuthorizationService relationshipService) {
+        return new RevokeUserGroupRoleUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    SendEmailUseCase sendEmailUseCase(EmailLogRepository emailLogRepository,
+                                      EmailGateway emailGateway,
+                                      TemplateRenderer templateRenderer) {
+        return new SendEmailUseCaseImpl(emailLogRepository, emailGateway, templateRenderer);
+    }
+
+    @Bean
+    DeleteCourseUseCase deleteCourseUseCase(CourseRepository courseRepository) {
+        return new DeleteCourseUseCaseImpl(courseRepository);
+    }
+
+    @Bean
+    DeleteLessonUseCase deleteLessonUseCase(LessonRepository lessonRepository) {
+        return new DeleteLessonUseCaseImpl(lessonRepository);
+    }
+
+    @Bean
+    DeleteLevelUseCase deleteLevelUseCase(LevelRepository levelRepository) {
+        return new DeleteLevelUseCaseImpl(levelRepository);
+    }
+
+    @Bean
+    DeleteOutletUseCase deleteOutletUseCase(OutletRepository outletRepository) {
+        return new DeleteOutletUseCaseImpl(outletRepository);
+    }
+
+    @Bean
+    DeleteSubjectUseCase deleteSubjectUseCase(SubjectRepository subjectRepository) {
+        return new DeleteSubjectUseCaseImpl(subjectRepository);
+    }
+
+    @Bean
+    DeleteTopicUseCase deleteTopicUseCase(TopicRepository topicRepository) {
+        return new DeleteTopicUseCaseImpl(topicRepository);
+    }
+
+    @Bean
+    AccountQueryUseCase accountQueryUseCase(AccountRepository accountRepository, ParentRepository parentRepository) {
+        return new AccountQueryUseCaseImpl(accountRepository, parentRepository);
+    }
+
+    @Bean
+    CreateLevelUseCase createLevelUseCase(LevelRepository levelRepository) {
+        return new CreateLevelUseCaseImpl(levelRepository);
+    }
+
+    @Bean
+    CreateMaterialInInstitutionUseCase createMaterialInInstitutionUseCase(MaterialRepository materialRepository) {
+        return new CreateMaterialInInstitutionUseCaseImpl(materialRepository);
+    }
+
+    @Bean
+    MaterialQueryUseCase materialQueryUseCase(MaterialRepository materialRepository) {
+        return new MaterialQueryUseCaseImpl(materialRepository);
+    }
+
+    @Bean
+    DeleteMaterialUseCase deleteMaterialUseCase(MaterialRepository materialRepository) {
+        return new DeleteMaterialUseCaseImpl(materialRepository);
+    }
+
+    @Bean
+    CreateLessonObjectiveUseCase createLessonObjectiveUseCase(LessonObjectiveRepository lessonObjectiveRepository) {
+        return new CreateLessonObjectiveUseCaseImpl(lessonObjectiveRepository);
+    }
+
+    @Bean
+    UpdateLessonObjectiveUseCase updateLessonObjectiveUseCase(LessonObjectiveRepository lessonObjectiveRepository) {
+        return new UpdateLessonObjectiveUseCaseImpl(lessonObjectiveRepository);
+    }
+
+    @Bean
+    DeleteLessonObjectiveUseCase deleteLessonObjectiveUseCase(LessonObjectiveRepository lessonObjectiveRepository) {
+        return new DeleteLessonObjectiveUseCaseImpl(lessonObjectiveRepository);
+    }
+
+    @Bean
+    LessonObjectiveQueryUseCase lessonObjectiveQueryUseCase(LessonObjectiveRepository lessonObjectiveRepository) {
+        return new LessonObjectiveQueryUseCaseImpl(lessonObjectiveRepository);
+    }
+
+    @Bean
+    AddTopicsToLessonObjectiveUseCase addTopicsToLessonObjectiveUseCase(
+            LessonObjectiveTopicLinkRepository lessonObjectiveTopicLinkRepository,
+            TopicRepository topicRepository) {
+        return new AddTopicsToLessonObjectiveUseCaseImpl(lessonObjectiveTopicLinkRepository, topicRepository);
     }
 }

@@ -1,3 +1,3 @@
 extend type Mutation {
-    createInstitution(createInstitutionInput: CreateInstitutionInput): InstitutionResponse
+    createInstitution(createInstitutionInput: CreateInstitutionInput!): InstitutionResponse!
 }

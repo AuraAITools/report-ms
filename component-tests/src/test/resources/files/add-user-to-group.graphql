@@ -1,3 +1,0 @@
-mutation AddUserToGroup($input: AddUserToGroupInput!) {
-    addUserToGroup(addUserToGroupInput: $input)
-}

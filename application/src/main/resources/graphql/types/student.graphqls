@@ -2,27 +2,49 @@ type StudentResponse implements Auditable{
     id: ID!
     name: String!
     email: String!
-    dateOfBirth: Date
+    dateOfBirth: Date!
     level: LevelResponse!
     school: SchoolResponse!
     courses: [CourseResponse!]!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }
-
+input CreateStudentsInput {
+    institutionId: ID!
+    students: [CreateStudentInput!]!
+}
 input CreateStudentInput {
     accountId: ID!
     name: String!
     email: String!
-    dateOfBirth: Date
+    dateOfBirth: Date!
     levelId: ID!
     schoolId: ID!
+    institutionId: ID!
     courseEnrollments: [StudentCourseEnrollmentInput!]!
 }
 
 input StudentCourseEnrollmentInput {
     courseId: ID!
     startDate: Date!
+}
+
+input GetStudentByIdInput {
+    id: ID!
+    institutionId: ID!
+}
+
+input UpdateStudentByIdInput {
+    id: ID!
+    institutionId: ID!
+    name: String
+    email: String
+    dateOfBirth: Date
+}
+
+input DeleteStudentByIdInput {
+    id: ID!
+    institutionId: ID!
 }

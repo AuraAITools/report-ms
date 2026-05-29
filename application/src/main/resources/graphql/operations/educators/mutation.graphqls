@@ -1,0 +1,4 @@
+extend type Mutation {
+    updateEducatorById(input: UpdateEducatorByIdInput!): EducatorResponse!
+    deleteEducatorById(input: DeleteEducatorByIdInput!): Boolean!
+}

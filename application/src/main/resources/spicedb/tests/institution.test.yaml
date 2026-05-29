@@ -1,0 +1,366 @@
+schemaFile: ../institution.zed
+
+# Full coverage: direct institution roles, inherited system roles (recursive via
+# is_admin_or_modifier), and negative cases.
+#
+# DIRECT (institution_user_group:1):
+#   inst_group_admin_user   — group_admin
+#   inst_group_viewer_user  — group_viewer
+#   inst_admin_user         — admin     (view + update + delete; is_admin_or_modifier; create_outlet)
+#   inst_modifier_user      — modifier  (view + update; is_admin_or_modifier; create_outlet; NOT delete)
+#   inst_viewer_user        — viewer    (view only)
+#
+# INHERITED (system_user_group:aura):
+#   sys_group_admin_user    — group_admin (system) — superadmin: cascades into institution_user_group group-mgmt
+#   sys_group_viewer_user   — group_viewer (system) — cascades into institution_user_group group_view only
+#   sys_admin_user          — admin (system) — inherits resource: view + update + delete + is_admin_or_modifier + create_outlet via institution#parent
+#   sys_modifier_user       — modifier (system) — inherits view + update + is_admin_or_modifier + create_outlet; NOT delete
+#   sys_viewer_user         — viewer (system) — inherits view only
+#
+# Negative:
+#   non_member_user — no relationships
+relationships: |-
+  institution_user_group:1#group_admin@user:inst_group_admin_user
+  institution_user_group:1#group_viewer@user:inst_group_viewer_user
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#group_admin@user:sys_group_admin_user
+  system_user_group:aura#group_viewer@user:sys_group_viewer_user
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#modifier@user:sys_modifier_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  institution:1#parent@system:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ============================================================
+    # DIRECT institution roles
+    # ============================================================
+
+    # ---- inst_group_admin_user — full group-management ----
+    - institution_user_group:1#group_view@user:inst_group_admin_user
+    - institution_user_group:1#group_add_admin@user:inst_group_admin_user
+    - institution_user_group:1#group_add_viewer@user:inst_group_admin_user
+    - institution_user_group:1#group_remove_admin@user:inst_group_admin_user
+    - institution_user_group:1#group_remove_viewer@user:inst_group_admin_user
+    - institution_user_group:1#group_add_modifier@user:inst_group_admin_user
+    - institution_user_group:1#group_remove_modifier@user:inst_group_admin_user
+    - institution_user_group:1#group_add_group_admin@user:inst_group_admin_user
+    - institution_user_group:1#group_remove_group_admin@user:inst_group_admin_user
+    - institution_user_group:1#group_add_group_viewer@user:inst_group_admin_user
+    - institution_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — only group_view ----
+    - institution_user_group:1#group_view@user:inst_group_viewer_user
+
+    # ---- inst_admin_user — view/update/delete/is_admin_or_modifier on user_group; all resource perms on institution ----
+    - institution_user_group:1#view@user:inst_admin_user
+    - institution_user_group:1#update@user:inst_admin_user
+    - institution_user_group:1#delete@user:inst_admin_user
+    - institution_user_group:1#is_admin_or_modifier@user:inst_admin_user
+    - institution:1#view@user:inst_admin_user
+    - institution:1#update@user:inst_admin_user
+    - institution:1#delete@user:inst_admin_user
+    - institution:1#is_admin_or_modifier@user:inst_admin_user
+    - institution:1#create_outlet@user:inst_admin_user
+    - institution:1#create_level@user:inst_admin_user
+    - institution:1#create_subject@user:inst_admin_user
+    - institution:1#create_topic@user:inst_admin_user
+    - institution:1#create_material@user:inst_admin_user
+    - institution:1#create_school@user:inst_admin_user
+    - institution:1#delete_school@user:inst_admin_user
+    - institution:1#create_account@user:inst_admin_user
+
+    # ---- inst_modifier_user — view/update/is_admin_or_modifier on user_group; view/update/is_admin_or_modifier/create_* on institution ----
+    - institution_user_group:1#view@user:inst_modifier_user
+    - institution_user_group:1#update@user:inst_modifier_user
+    - institution_user_group:1#is_admin_or_modifier@user:inst_modifier_user
+    - institution:1#view@user:inst_modifier_user
+    - institution:1#update@user:inst_modifier_user
+    - institution:1#is_admin_or_modifier@user:inst_modifier_user
+    - institution:1#create_outlet@user:inst_modifier_user
+    - institution:1#create_level@user:inst_modifier_user
+    - institution:1#create_subject@user:inst_modifier_user
+    - institution:1#create_topic@user:inst_modifier_user
+    - institution:1#create_material@user:inst_modifier_user
+    - institution:1#create_school@user:inst_modifier_user
+    - institution:1#create_account@user:inst_modifier_user
+
+    # ---- inst_viewer_user — view only ----
+    - institution_user_group:1#view@user:inst_viewer_user
+    - institution:1#view@user:inst_viewer_user
+
+    # ============================================================
+    # INHERITED roles via institution#parent -> system
+    # ============================================================
+
+    # ---- sys_admin_user — inherits view + update + delete + is_admin_or_modifier + all create_* ----
+    - institution:1#view@user:sys_admin_user
+    - institution:1#update@user:sys_admin_user
+    - institution:1#delete@user:sys_admin_user
+    - institution:1#is_admin_or_modifier@user:sys_admin_user
+    - institution:1#create_outlet@user:sys_admin_user
+    - institution:1#create_level@user:sys_admin_user
+    - institution:1#create_subject@user:sys_admin_user
+    - institution:1#create_topic@user:sys_admin_user
+    - institution:1#create_material@user:sys_admin_user
+    - institution:1#create_school@user:sys_admin_user
+    - institution:1#delete_school@user:sys_admin_user
+    - institution:1#create_account@user:sys_admin_user
+
+    # ---- sys_modifier_user — inherits view + update + is_admin_or_modifier + all create_*; NOT delete ----
+    - institution:1#view@user:sys_modifier_user
+    - institution:1#update@user:sys_modifier_user
+    - institution:1#is_admin_or_modifier@user:sys_modifier_user
+    - institution:1#create_outlet@user:sys_modifier_user
+    - institution:1#create_level@user:sys_modifier_user
+    - institution:1#create_subject@user:sys_modifier_user
+    - institution:1#create_topic@user:sys_modifier_user
+    - institution:1#create_material@user:sys_modifier_user
+    - institution:1#create_school@user:sys_modifier_user
+    - institution:1#create_account@user:sys_modifier_user
+
+    # ---- sys_viewer_user — inherits view only ----
+    - institution:1#view@user:sys_viewer_user
+
+    # ============================================================
+    # SUPERADMIN cascade via institution_user_group#parent -> system_user_group
+    # ============================================================
+
+    # ---- sys_group_admin_user — full group-management on institution_user_group ----
+    - institution_user_group:1#group_view@user:sys_group_admin_user
+    - institution_user_group:1#group_add_admin@user:sys_group_admin_user
+    - institution_user_group:1#group_add_viewer@user:sys_group_admin_user
+    - institution_user_group:1#group_remove_admin@user:sys_group_admin_user
+    - institution_user_group:1#group_remove_viewer@user:sys_group_admin_user
+    - institution_user_group:1#group_add_modifier@user:sys_group_admin_user
+    - institution_user_group:1#group_remove_modifier@user:sys_group_admin_user
+    - institution_user_group:1#group_add_group_admin@user:sys_group_admin_user
+    - institution_user_group:1#group_remove_group_admin@user:sys_group_admin_user
+    - institution_user_group:1#group_add_group_viewer@user:sys_group_admin_user
+    - institution_user_group:1#group_remove_group_viewer@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — only group_view on institution_user_group ----
+    - institution_user_group:1#group_view@user:sys_group_viewer_user
+
+  assertFalse:
+    # ============================================================
+    # non_member_user (no relationships anywhere)
+    # ============================================================
+    - institution_user_group:1#group_view@user:non_member_user
+    - institution_user_group:1#group_add_modifier@user:non_member_user
+    - institution_user_group:1#group_remove_modifier@user:non_member_user
+    - institution_user_group:1#group_add_group_admin@user:non_member_user
+    - institution_user_group:1#group_remove_group_admin@user:non_member_user
+    - institution_user_group:1#group_add_group_viewer@user:non_member_user
+    - institution_user_group:1#group_remove_group_viewer@user:non_member_user
+    - institution_user_group:1#view@user:non_member_user
+    - institution_user_group:1#update@user:non_member_user
+    - institution_user_group:1#delete@user:non_member_user
+    - institution_user_group:1#is_admin_or_modifier@user:non_member_user
+    - institution:1#view@user:non_member_user
+    - institution:1#update@user:non_member_user
+    - institution:1#delete@user:non_member_user
+    - institution:1#is_admin_or_modifier@user:non_member_user
+    - institution:1#create_outlet@user:non_member_user
+    - institution:1#create_level@user:non_member_user
+    - institution:1#create_subject@user:non_member_user
+    - institution:1#create_topic@user:non_member_user
+    - institution:1#create_material@user:non_member_user
+    - institution:1#create_school@user:non_member_user
+    - institution:1#delete_school@user:non_member_user
+    - institution:1#create_account@user:non_member_user
+
+    # ============================================================
+    # DIRECT institution role exclusions
+    # ============================================================
+
+    # ---- inst_group_admin_user — NO resource access ----
+    - institution_user_group:1#view@user:inst_group_admin_user
+    - institution_user_group:1#update@user:inst_group_admin_user
+    - institution_user_group:1#delete@user:inst_group_admin_user
+    - institution_user_group:1#is_admin_or_modifier@user:inst_group_admin_user
+    - institution:1#view@user:inst_group_admin_user
+    - institution:1#update@user:inst_group_admin_user
+    - institution:1#delete@user:inst_group_admin_user
+    - institution:1#is_admin_or_modifier@user:inst_group_admin_user
+    - institution:1#create_outlet@user:inst_group_admin_user
+    - institution:1#create_level@user:inst_group_admin_user
+    - institution:1#create_subject@user:inst_group_admin_user
+    - institution:1#create_topic@user:inst_group_admin_user
+    - institution:1#create_material@user:inst_group_admin_user
+    - institution:1#create_school@user:inst_group_admin_user
+    - institution:1#delete_school@user:inst_group_admin_user
+    - institution:1#create_account@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — only group_view, no resource access ----
+    - institution_user_group:1#group_add_admin@user:inst_group_viewer_user
+    - institution_user_group:1#group_add_viewer@user:inst_group_viewer_user
+    - institution_user_group:1#group_remove_admin@user:inst_group_viewer_user
+    - institution_user_group:1#group_remove_viewer@user:inst_group_viewer_user
+    - institution_user_group:1#group_add_modifier@user:inst_group_viewer_user
+    - institution_user_group:1#group_remove_modifier@user:inst_group_viewer_user
+    - institution_user_group:1#group_add_group_admin@user:inst_group_viewer_user
+    - institution_user_group:1#group_remove_group_admin@user:inst_group_viewer_user
+    - institution_user_group:1#group_add_group_viewer@user:inst_group_viewer_user
+    - institution_user_group:1#group_remove_group_viewer@user:inst_group_viewer_user
+    - institution_user_group:1#view@user:inst_group_viewer_user
+    - institution_user_group:1#update@user:inst_group_viewer_user
+    - institution_user_group:1#delete@user:inst_group_viewer_user
+    - institution_user_group:1#is_admin_or_modifier@user:inst_group_viewer_user
+    - institution:1#view@user:inst_group_viewer_user
+    - institution:1#update@user:inst_group_viewer_user
+    - institution:1#delete@user:inst_group_viewer_user
+    - institution:1#is_admin_or_modifier@user:inst_group_viewer_user
+    - institution:1#create_outlet@user:inst_group_viewer_user
+    - institution:1#create_level@user:inst_group_viewer_user
+    - institution:1#create_subject@user:inst_group_viewer_user
+    - institution:1#create_topic@user:inst_group_viewer_user
+    - institution:1#create_material@user:inst_group_viewer_user
+    - institution:1#create_school@user:inst_group_viewer_user
+    - institution:1#delete_school@user:inst_group_viewer_user
+    - institution:1#create_account@user:inst_group_viewer_user
+
+    # ---- inst_admin_user — NO group-management ----
+    - institution_user_group:1#group_view@user:inst_admin_user
+    - institution_user_group:1#group_add_admin@user:inst_admin_user
+    - institution_user_group:1#group_add_viewer@user:inst_admin_user
+    - institution_user_group:1#group_remove_admin@user:inst_admin_user
+    - institution_user_group:1#group_remove_viewer@user:inst_admin_user
+    - institution_user_group:1#group_add_modifier@user:inst_admin_user
+    - institution_user_group:1#group_remove_modifier@user:inst_admin_user
+    - institution_user_group:1#group_add_group_admin@user:inst_admin_user
+    - institution_user_group:1#group_remove_group_admin@user:inst_admin_user
+    - institution_user_group:1#group_add_group_viewer@user:inst_admin_user
+    - institution_user_group:1#group_remove_group_viewer@user:inst_admin_user
+
+    # ---- inst_modifier_user — no delete (incl. delete_school which aliases delete), no group-mgmt ----
+    - institution_user_group:1#delete@user:inst_modifier_user
+    - institution:1#delete@user:inst_modifier_user
+    - institution:1#delete_school@user:inst_modifier_user
+    - institution_user_group:1#group_view@user:inst_modifier_user
+    - institution_user_group:1#group_add_admin@user:inst_modifier_user
+    - institution_user_group:1#group_add_modifier@user:inst_modifier_user
+    - institution_user_group:1#group_remove_modifier@user:inst_modifier_user
+    - institution_user_group:1#group_add_group_admin@user:inst_modifier_user
+    - institution_user_group:1#group_remove_group_admin@user:inst_modifier_user
+    - institution_user_group:1#group_add_group_viewer@user:inst_modifier_user
+    - institution_user_group:1#group_remove_group_viewer@user:inst_modifier_user
+
+    # ---- inst_viewer_user — no update/delete/is_admin_or_modifier/create_*, no group-mgmt ----
+    - institution_user_group:1#update@user:inst_viewer_user
+    - institution_user_group:1#delete@user:inst_viewer_user
+    - institution_user_group:1#is_admin_or_modifier@user:inst_viewer_user
+    - institution:1#update@user:inst_viewer_user
+    - institution:1#delete@user:inst_viewer_user
+    - institution:1#is_admin_or_modifier@user:inst_viewer_user
+    - institution:1#create_outlet@user:inst_viewer_user
+    - institution:1#create_level@user:inst_viewer_user
+    - institution:1#create_subject@user:inst_viewer_user
+    - institution:1#create_topic@user:inst_viewer_user
+    - institution:1#create_material@user:inst_viewer_user
+    - institution:1#create_school@user:inst_viewer_user
+    - institution:1#delete_school@user:inst_viewer_user
+    - institution:1#create_account@user:inst_viewer_user
+    - institution_user_group:1#group_view@user:inst_viewer_user
+    - institution_user_group:1#group_add_admin@user:inst_viewer_user
+    - institution_user_group:1#group_add_modifier@user:inst_viewer_user
+    - institution_user_group:1#group_remove_modifier@user:inst_viewer_user
+    - institution_user_group:1#group_add_group_admin@user:inst_viewer_user
+    - institution_user_group:1#group_remove_group_admin@user:inst_viewer_user
+    - institution_user_group:1#group_add_group_viewer@user:inst_viewer_user
+    - institution_user_group:1#group_remove_group_viewer@user:inst_viewer_user
+
+    # ============================================================
+    # INHERITED role exclusions
+    # ============================================================
+
+    # ---- sys_group_admin_user — group mgmt at system level confers NO institution resource access (decoupling) ----
+    - institution:1#view@user:sys_group_admin_user
+    - institution:1#update@user:sys_group_admin_user
+    - institution:1#delete@user:sys_group_admin_user
+    - institution:1#is_admin_or_modifier@user:sys_group_admin_user
+    - institution:1#create_outlet@user:sys_group_admin_user
+    - institution:1#create_level@user:sys_group_admin_user
+    - institution:1#create_subject@user:sys_group_admin_user
+    - institution:1#create_topic@user:sys_group_admin_user
+    - institution:1#create_material@user:sys_group_admin_user
+    - institution:1#create_school@user:sys_group_admin_user
+    - institution:1#delete_school@user:sys_group_admin_user
+    - institution:1#create_account@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — same: no inherited institution resource access ----
+    - institution:1#view@user:sys_group_viewer_user
+    - institution:1#update@user:sys_group_viewer_user
+    - institution:1#delete@user:sys_group_viewer_user
+    - institution:1#is_admin_or_modifier@user:sys_group_viewer_user
+    - institution:1#create_outlet@user:sys_group_viewer_user
+    - institution:1#create_level@user:sys_group_viewer_user
+    - institution:1#create_subject@user:sys_group_viewer_user
+    - institution:1#create_topic@user:sys_group_viewer_user
+    - institution:1#create_material@user:sys_group_viewer_user
+    - institution:1#create_school@user:sys_group_viewer_user
+    - institution:1#delete_school@user:sys_group_viewer_user
+    - institution:1#create_account@user:sys_group_viewer_user
+
+    # ---- sys_group_viewer_user — only group_view; no group mutations on institution_user_group ----
+    - institution_user_group:1#group_add_admin@user:sys_group_viewer_user
+    - institution_user_group:1#group_add_viewer@user:sys_group_viewer_user
+    - institution_user_group:1#group_remove_admin@user:sys_group_viewer_user
+    - institution_user_group:1#group_remove_viewer@user:sys_group_viewer_user
+    - institution_user_group:1#group_add_modifier@user:sys_group_viewer_user
+    - institution_user_group:1#group_remove_modifier@user:sys_group_viewer_user
+    - institution_user_group:1#group_add_group_admin@user:sys_group_viewer_user
+    - institution_user_group:1#group_remove_group_admin@user:sys_group_viewer_user
+    - institution_user_group:1#group_add_group_viewer@user:sys_group_viewer_user
+    - institution_user_group:1#group_remove_group_viewer@user:sys_group_viewer_user
+
+    # ---- sys_admin_user / sys_modifier_user / sys_viewer_user — resource roles do NOT confer group-mgmt on institution_user_group (decoupling) ----
+    - institution_user_group:1#group_view@user:sys_admin_user
+    - institution_user_group:1#group_add_admin@user:sys_admin_user
+    - institution_user_group:1#group_add_viewer@user:sys_admin_user
+    - institution_user_group:1#group_add_modifier@user:sys_admin_user
+    - institution_user_group:1#group_remove_modifier@user:sys_admin_user
+    - institution_user_group:1#group_add_group_admin@user:sys_admin_user
+    - institution_user_group:1#group_remove_group_admin@user:sys_admin_user
+    - institution_user_group:1#group_add_group_viewer@user:sys_admin_user
+    - institution_user_group:1#group_remove_group_viewer@user:sys_admin_user
+    - institution_user_group:1#group_view@user:sys_modifier_user
+    - institution_user_group:1#group_add_admin@user:sys_modifier_user
+    - institution_user_group:1#group_add_modifier@user:sys_modifier_user
+    - institution_user_group:1#group_remove_modifier@user:sys_modifier_user
+    - institution_user_group:1#group_add_group_admin@user:sys_modifier_user
+    - institution_user_group:1#group_remove_group_admin@user:sys_modifier_user
+    - institution_user_group:1#group_add_group_viewer@user:sys_modifier_user
+    - institution_user_group:1#group_remove_group_viewer@user:sys_modifier_user
+    - institution_user_group:1#group_view@user:sys_viewer_user
+    - institution_user_group:1#group_add_admin@user:sys_viewer_user
+    - institution_user_group:1#group_add_modifier@user:sys_viewer_user
+    - institution_user_group:1#group_remove_modifier@user:sys_viewer_user
+    - institution_user_group:1#group_add_group_admin@user:sys_viewer_user
+    - institution_user_group:1#group_remove_group_admin@user:sys_viewer_user
+    - institution_user_group:1#group_add_group_viewer@user:sys_viewer_user
+    - institution_user_group:1#group_remove_group_viewer@user:sys_viewer_user
+
+    # ---- sys_modifier_user — cannot delete (system modifier lacks delete; delete_school aliases delete) ----
+    - institution:1#delete@user:sys_modifier_user
+    - institution:1#delete_school@user:sys_modifier_user
+
+    # ---- sys_viewer_user — cannot update/delete/is_admin_or_modifier/create_* (read-only) ----
+    - institution:1#update@user:sys_viewer_user
+    - institution:1#delete@user:sys_viewer_user
+    - institution:1#is_admin_or_modifier@user:sys_viewer_user
+    - institution:1#create_outlet@user:sys_viewer_user
+    - institution:1#create_level@user:sys_viewer_user
+    - institution:1#create_subject@user:sys_viewer_user
+    - institution:1#create_topic@user:sys_viewer_user
+    - institution:1#create_material@user:sys_viewer_user
+    - institution:1#create_school@user:sys_viewer_user
+    - institution:1#delete_school@user:sys_viewer_user
+    - institution:1#create_account@user:sys_viewer_user

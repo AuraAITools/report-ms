@@ -10,9 +10,14 @@ import com.aura.core.utils.SortCriteria;
 import com.aura.core.utils.SortDirection;
 import com.aura.details.springdata.mappers.outlets.OutletMapper;
 import com.aura.details.springdata.models.outlets.OutletModel;
+import com.aura.details.springdata.repositories.jpa.links.JpaOutletEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRepository;
 import com.aura.details.springdata.specifications.OutletSpecifications;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +34,7 @@ import static com.aura.details.springdata.specifications.TenantSpecification.whe
 @RequiredArgsConstructor
 public class OutletRepositoryImpl implements OutletRepository {
     private final JpaOutletRepository jpaOutletRepository;
+    private final JpaOutletEducatorLinkRepository jpaOutletEducatorLinkRepository;
 
     @Override
     public @Nullable Outlet findById(String id) {
@@ -41,6 +47,22 @@ public class OutletRepositoryImpl implements OutletRepository {
         OutletModel outletModel = OutletMapper.INSTANCE.toModelEntity(outlet);
         OutletModel createdModel = jpaOutletRepository.save(outletModel);
         return OutletMapper.INSTANCE.toDomainEntity(createdModel);
+    }
+
+    @Override
+    public List<Outlet> findAllByIds(List<String> ids) {
+        if (ids.isEmpty()) return List.of();
+        List<UUID> uuids = ids.stream().map(UUID::fromString).toList();
+        return jpaOutletRepository.findAllById(uuids).stream()
+                .map(OutletMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<Outlet> findAllByTenantId(String tenantId) {
+        return jpaOutletRepository.findByTenantId(tenantId).stream()
+                .map(OutletMapper.INSTANCE::toDomainEntity)
+                .toList();
     }
 
     @Override
@@ -108,5 +130,24 @@ public class OutletRepositoryImpl implements OutletRepository {
                 windowResults.getContent().stream().map(OutletMapper.INSTANCE::toDomainEntity).toList(),
                 new PageInfo(hasPreviousPage, windowResults.hasNext())
         );
+    }
+
+    @Override
+    public Map<String, List<Outlet>> findAllByEducatorIds(List<String> educatorIds) {
+        if (educatorIds.isEmpty()) return Collections.emptyMap();
+        List<UUID> uuids = educatorIds.stream().map(UUID::fromString).toList();
+        Map<String, List<Outlet>> result = new HashMap<>();
+        for (Object[] row : jpaOutletEducatorLinkRepository.findOutletsByEducatorIds(uuids)) {
+            String educatorId = row[0].toString();
+            OutletModel outletModel = (OutletModel) row[1];
+            result.computeIfAbsent(educatorId, k -> new ArrayList<>())
+                    .add(OutletMapper.INSTANCE.toDomainEntity(outletModel));
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteById(String id) {
+        jpaOutletRepository.deleteById(UUID.fromString(id));
     }
 }

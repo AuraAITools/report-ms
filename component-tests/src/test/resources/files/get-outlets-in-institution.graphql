@@ -1,0 +1,7 @@
+query GetOutletsInInstitution($institutionId: ID!) {
+    getOutletsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        email
+    }
+}

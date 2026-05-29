@@ -1,0 +1,3 @@
+mutation DeleteSubjectById($id: ID!) {
+    deleteSubjectById(id: $id)
+}

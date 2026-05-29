@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
+import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
 public class GraphQlExceptionResolver extends DataFetcherExceptionResolverAdapter {
@@ -18,6 +19,15 @@ public class GraphQlExceptionResolver extends DataFetcherExceptionResolverAdapte
     @Override
     protected GraphQLError resolveToSingleError(Throwable ex, DataFetchingEnvironment env) {
         String correlationId = env.getGraphQlContext().getOrDefault(CORRELATION_ID_KEY, "unknown");
+
+        if (ex instanceof AccessDeniedException) {
+            return buildError("Access denied",
+                    ErrorType.FORBIDDEN,
+                    403,
+                    "FORBIDDEN",
+                    correlationId,
+                    env);
+        }
 
         if (ex instanceof BusinessException businessException) {
             return buildError(businessException.getMessage(),

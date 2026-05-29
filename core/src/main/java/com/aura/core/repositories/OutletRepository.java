@@ -6,6 +6,7 @@ import com.aura.core.utils.PagedResult;
 import com.aura.core.utils.SearchCriteria;
 import com.aura.core.utils.SortCriteria;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -14,10 +15,17 @@ public interface OutletRepository {
 
     Outlet save(Outlet outlet);
 
+    List<Outlet> findAllByIds(List<String> ids);
+
+    List<Outlet> findAllByTenantId(String tenantId);
+
     List<Outlet> findAllByTenantIds(Set<String> tenantIds);
 
     PagedResult<Outlet> queryPageBy(KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria);
 
     PagedResult<Outlet> queryPageBy(String tenantId, KeysetPaginationCriteria keysetPaginationCriteria, List<SortCriteria> orderedSortCriterias, SearchCriteria searchCriteria);
 
+    Map<String, List<Outlet>> findAllByEducatorIds(List<String> educatorIds);
+
+    void deleteById(String id);
 }

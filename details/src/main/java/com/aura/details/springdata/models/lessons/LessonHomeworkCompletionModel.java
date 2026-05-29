@@ -1,7 +1,7 @@
 package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
@@ -28,7 +28,7 @@ public class LessonHomeworkCompletionModel extends TenantBaseModel {
 
     @OneToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    private StudentLessonLinkModel studentLessonLink;
+    private StudentLessonReportModel studentLessonReport;
 
 
     private Integer completion;

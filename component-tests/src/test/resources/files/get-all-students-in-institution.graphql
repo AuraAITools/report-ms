@@ -1,0 +1,22 @@
+query GetAllStudentsInInstitution($institutionId: ID!) {
+    getAllStudentsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        email
+        dateOfBirth
+        createdBy
+        updatedBy
+        level {
+            id
+            name
+        }
+        school {
+            id
+            name
+        }
+        courses {
+            id
+            name
+        }
+    }
+}

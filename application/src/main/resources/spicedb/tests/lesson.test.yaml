@@ -1,0 +1,453 @@
+schemaFile: ../lesson.zed
+
+# Full coverage: direct lesson roles, inherited course roles, transitively-inherited
+# outlet/institution/system roles, and negative cases.
+#
+# DIRECT (lesson_user_group:1):
+#   les_group_admin_user   — group_admin
+#   les_group_viewer_user  — group_viewer
+#   les_admin_user         — admin     (view + update + delete)
+#   les_modifier_user      — modifier  (view + update; NOT delete)
+#   les_viewer_user        — viewer    (view only)
+#
+# INHERITED (course_user_group:1, reaches lesson via lesson#parent):
+#   crs_admin_user         — admin (course)        — inherits view + update + delete
+#   crs_modifier_user      — modifier (course)     — inherits view + update; NOT delete
+#   crs_viewer_user        — viewer (course)       — inherits view only
+#
+# TRANSITIVELY INHERITED (outlet_user_group:1, reaches lesson via lesson -> course -> outlet):
+#   out_admin_user         — admin (outlet)        — inherits view + update + delete
+#   out_modifier_user      — modifier (outlet)     — inherits view + update; NOT delete
+#   out_viewer_user        — viewer (outlet)       — inherits view only
+#
+# TRANSITIVELY INHERITED (institution_user_group:1, reaches lesson via lesson -> course -> outlet -> institution):
+#   inst_admin_user        — admin (institution)   — inherits view + update + delete
+#   inst_modifier_user     — modifier (institution) — inherits view + update; NOT delete
+#   inst_viewer_user       — viewer (institution)  — inherits view only
+#
+# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches lesson via lesson -> course -> outlet -> institution -> system):
+#   sys_admin_user         — admin (system)        — inherits view + update + delete
+#   sys_modifier_user      — modifier (system)     — inherits view + update; NOT delete
+#   sys_viewer_user        — viewer (system)       — inherits view only
+#
+# SUPERADMIN cascade (each *_user_group#parent -> system_user_group):
+#   sys_group_admin_user   — group_admin (system)  — superadmin: full group-mgmt on lesson_user_group, course_user_group, outlet_user_group, institution_user_group
+#   sys_group_viewer_user  — group_viewer (system) — group_view only on each descendant *_user_group
+#
+# Negative:
+#   non_member_user — no relationships
+relationships: |-
+  lesson_user_group:1#group_admin@user:les_group_admin_user
+  lesson_user_group:1#group_viewer@user:les_group_viewer_user
+  lesson_user_group:1#admin@user:les_admin_user
+  lesson_user_group:1#modifier@user:les_modifier_user
+  lesson_user_group:1#viewer@user:les_viewer_user
+  lesson:1#user_group@lesson_user_group:1
+
+  course_user_group:1#admin@user:crs_admin_user
+  course_user_group:1#modifier@user:crs_modifier_user
+  course_user_group:1#viewer@user:crs_viewer_user
+  course:1#user_group@course_user_group:1
+
+  outlet_user_group:1#admin@user:out_admin_user
+  outlet_user_group:1#modifier@user:out_modifier_user
+  outlet_user_group:1#viewer@user:out_viewer_user
+  outlet:1#user_group@outlet_user_group:1
+
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#group_admin@user:sys_group_admin_user
+  system_user_group:aura#group_viewer@user:sys_group_viewer_user
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#modifier@user:sys_modifier_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  lesson:1#parent@course:1
+  course:1#parent@outlet:1
+  outlet:1#parent@institution:1
+  institution:1#parent@system:aura
+
+  lesson_user_group:1#parent@system_user_group:aura
+  course_user_group:1#parent@system_user_group:aura
+  outlet_user_group:1#parent@system_user_group:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ============================================================
+    # DIRECT lesson roles
+    # ============================================================
+
+    # ---- les_group_admin_user — full group-management ----
+    - lesson_user_group:1#group_view@user:les_group_admin_user
+    - lesson_user_group:1#group_add_admin@user:les_group_admin_user
+    - lesson_user_group:1#group_add_viewer@user:les_group_admin_user
+    - lesson_user_group:1#group_remove_admin@user:les_group_admin_user
+    - lesson_user_group:1#group_remove_viewer@user:les_group_admin_user
+    - lesson_user_group:1#group_add_modifier@user:les_group_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:les_group_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:les_group_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:les_group_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:les_group_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:les_group_admin_user
+
+    # ---- les_group_viewer_user — only group_view ----
+    - lesson_user_group:1#group_view@user:les_group_viewer_user
+
+    # ---- les_admin_user — view + update + delete ----
+    - lesson_user_group:1#view@user:les_admin_user
+    - lesson_user_group:1#update@user:les_admin_user
+    - lesson_user_group:1#delete@user:les_admin_user
+    - lesson:1#view@user:les_admin_user
+    - lesson:1#update@user:les_admin_user
+    - lesson:1#delete@user:les_admin_user
+    - lesson:1#is_admin_or_modifier@user:les_admin_user
+
+    # ---- les_modifier_user — view + update; NOT delete ----
+    - lesson_user_group:1#view@user:les_modifier_user
+    - lesson_user_group:1#update@user:les_modifier_user
+    - lesson:1#view@user:les_modifier_user
+    - lesson:1#update@user:les_modifier_user
+    - lesson:1#is_admin_or_modifier@user:les_modifier_user
+
+    # ---- les_viewer_user — view only ----
+    - lesson_user_group:1#view@user:les_viewer_user
+    - lesson:1#view@user:les_viewer_user
+
+    # ============================================================
+    # INHERITED roles via lesson#parent -> course
+    # ============================================================
+
+    # ---- crs_admin_user — inherits view + update + delete ----
+    - lesson:1#view@user:crs_admin_user
+    - lesson:1#update@user:crs_admin_user
+    - lesson:1#delete@user:crs_admin_user
+
+    # ---- crs_modifier_user — inherits view + update; NOT delete ----
+    - lesson:1#view@user:crs_modifier_user
+    - lesson:1#update@user:crs_modifier_user
+
+    # ---- crs_viewer_user — inherits view only ----
+    - lesson:1#view@user:crs_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via lesson -> course -> outlet
+    # ============================================================
+
+    # ---- out_admin_user — transitively inherits view + update + delete ----
+    - lesson:1#view@user:out_admin_user
+    - lesson:1#update@user:out_admin_user
+    - lesson:1#delete@user:out_admin_user
+
+    # ---- out_modifier_user — transitively inherits view + update; NOT delete ----
+    - lesson:1#view@user:out_modifier_user
+    - lesson:1#update@user:out_modifier_user
+
+    # ---- out_viewer_user — transitively inherits view only ----
+    - lesson:1#view@user:out_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via lesson -> course -> outlet -> institution
+    # ============================================================
+
+    # ---- inst_admin_user — transitively inherits view + update + delete ----
+    - lesson:1#view@user:inst_admin_user
+    - lesson:1#update@user:inst_admin_user
+    - lesson:1#delete@user:inst_admin_user
+
+    # ---- inst_modifier_user — transitively inherits view + update; NOT delete ----
+    - lesson:1#view@user:inst_modifier_user
+    - lesson:1#update@user:inst_modifier_user
+
+    # ---- inst_viewer_user — transitively inherits view only ----
+    - lesson:1#view@user:inst_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via lesson -> course -> outlet -> institution -> system
+    # ============================================================
+
+    # ---- sys_admin_user — transitively inherits view + update + delete ----
+    - lesson:1#view@user:sys_admin_user
+    - lesson:1#update@user:sys_admin_user
+    - lesson:1#delete@user:sys_admin_user
+
+    # ---- sys_modifier_user — transitively inherits view + update; NOT delete ----
+    - lesson:1#view@user:sys_modifier_user
+    - lesson:1#update@user:sys_modifier_user
+
+    # ---- sys_viewer_user — transitively inherits view only ----
+    - lesson:1#view@user:sys_viewer_user
+
+    # ============================================================
+    # SUPERADMIN cascade via lesson_user_group#parent -> system_user_group
+    # ============================================================
+
+    # ---- sys_group_admin_user — full group-management on lesson_user_group ----
+    - lesson_user_group:1#group_view@user:sys_group_admin_user
+    - lesson_user_group:1#group_add_admin@user:sys_group_admin_user
+    - lesson_user_group:1#group_add_viewer@user:sys_group_admin_user
+    - lesson_user_group:1#group_remove_admin@user:sys_group_admin_user
+    - lesson_user_group:1#group_remove_viewer@user:sys_group_admin_user
+    - lesson_user_group:1#group_add_modifier@user:sys_group_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:sys_group_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:sys_group_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:sys_group_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:sys_group_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — only group_view on lesson_user_group ----
+    - lesson_user_group:1#group_view@user:sys_group_viewer_user
+
+    # ============================================================
+    # create_lesson_plan — alias of is_admin_or_modifier; granted to
+    # admin/modifier directly and via inherited parent chain
+    # ============================================================
+    - lesson:1#create_lesson_plan@user:les_admin_user
+    - lesson:1#create_lesson_plan@user:les_modifier_user
+    - lesson:1#create_lesson_plan@user:crs_admin_user
+    - lesson:1#create_lesson_plan@user:crs_modifier_user
+    - lesson:1#create_lesson_plan@user:out_admin_user
+    - lesson:1#create_lesson_plan@user:out_modifier_user
+    - lesson:1#create_lesson_plan@user:inst_admin_user
+    - lesson:1#create_lesson_plan@user:inst_modifier_user
+    - lesson:1#create_lesson_plan@user:sys_admin_user
+    - lesson:1#create_lesson_plan@user:sys_modifier_user
+
+    # ============================================================
+    # create_lesson_objective — alias of is_admin_or_modifier; granted to
+    # admin/modifier directly and via inherited parent chain
+    # ============================================================
+    - lesson:1#create_lesson_objective@user:les_admin_user
+    - lesson:1#create_lesson_objective@user:les_modifier_user
+    - lesson:1#create_lesson_objective@user:crs_admin_user
+    - lesson:1#create_lesson_objective@user:crs_modifier_user
+    - lesson:1#create_lesson_objective@user:out_admin_user
+    - lesson:1#create_lesson_objective@user:out_modifier_user
+    - lesson:1#create_lesson_objective@user:inst_admin_user
+    - lesson:1#create_lesson_objective@user:inst_modifier_user
+    - lesson:1#create_lesson_objective@user:sys_admin_user
+    - lesson:1#create_lesson_objective@user:sys_modifier_user
+
+  assertFalse:
+    # ============================================================
+    # non_member_user (no relationships anywhere)
+    # ============================================================
+    - lesson_user_group:1#group_view@user:non_member_user
+    - lesson_user_group:1#group_add_modifier@user:non_member_user
+    - lesson_user_group:1#group_remove_modifier@user:non_member_user
+    - lesson_user_group:1#group_add_group_admin@user:non_member_user
+    - lesson_user_group:1#group_remove_group_admin@user:non_member_user
+    - lesson_user_group:1#group_add_group_viewer@user:non_member_user
+    - lesson_user_group:1#group_remove_group_viewer@user:non_member_user
+    - lesson_user_group:1#view@user:non_member_user
+    - lesson_user_group:1#update@user:non_member_user
+    - lesson_user_group:1#delete@user:non_member_user
+    - lesson:1#view@user:non_member_user
+    - lesson:1#update@user:non_member_user
+    - lesson:1#delete@user:non_member_user
+
+    # ============================================================
+    # DIRECT lesson role exclusions
+    # ============================================================
+
+    # ---- les_group_admin_user — NO resource access (already has group-mgmt assertTrue above) ----
+    - lesson_user_group:1#view@user:les_group_admin_user
+    - lesson_user_group:1#update@user:les_group_admin_user
+    - lesson_user_group:1#delete@user:les_group_admin_user
+    - lesson:1#view@user:les_group_admin_user
+    - lesson:1#update@user:les_group_admin_user
+    - lesson:1#delete@user:les_group_admin_user
+
+    # ---- les_group_viewer_user — only group_view, no resource access ----
+    - lesson_user_group:1#group_add_admin@user:les_group_viewer_user
+    - lesson_user_group:1#group_add_modifier@user:les_group_viewer_user
+    - lesson_user_group:1#group_remove_modifier@user:les_group_viewer_user
+    - lesson_user_group:1#group_add_group_admin@user:les_group_viewer_user
+    - lesson_user_group:1#group_remove_group_admin@user:les_group_viewer_user
+    - lesson_user_group:1#group_add_group_viewer@user:les_group_viewer_user
+    - lesson_user_group:1#group_remove_group_viewer@user:les_group_viewer_user
+    - lesson_user_group:1#view@user:les_group_viewer_user
+    - lesson:1#view@user:les_group_viewer_user
+
+    # ---- les_admin_user — NO group-management ----
+    - lesson_user_group:1#group_view@user:les_admin_user
+    - lesson_user_group:1#group_add_admin@user:les_admin_user
+    - lesson_user_group:1#group_add_viewer@user:les_admin_user
+    - lesson_user_group:1#group_remove_admin@user:les_admin_user
+    - lesson_user_group:1#group_remove_viewer@user:les_admin_user
+    - lesson_user_group:1#group_add_modifier@user:les_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:les_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:les_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:les_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:les_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:les_admin_user
+
+    # ---- les_modifier_user — no delete, no group-mgmt ----
+    - lesson_user_group:1#delete@user:les_modifier_user
+    - lesson:1#delete@user:les_modifier_user
+    - lesson_user_group:1#group_view@user:les_modifier_user
+    - lesson_user_group:1#group_add_modifier@user:les_modifier_user
+    - lesson_user_group:1#group_remove_modifier@user:les_modifier_user
+    - lesson_user_group:1#group_add_group_admin@user:les_modifier_user
+    - lesson_user_group:1#group_remove_group_admin@user:les_modifier_user
+    - lesson_user_group:1#group_add_group_viewer@user:les_modifier_user
+    - lesson_user_group:1#group_remove_group_viewer@user:les_modifier_user
+
+    # ---- les_viewer_user — no update/delete, no group-mgmt ----
+    - lesson_user_group:1#update@user:les_viewer_user
+    - lesson_user_group:1#delete@user:les_viewer_user
+    - lesson:1#update@user:les_viewer_user
+    - lesson:1#delete@user:les_viewer_user
+    - lesson_user_group:1#group_view@user:les_viewer_user
+    - lesson_user_group:1#group_add_modifier@user:les_viewer_user
+    - lesson_user_group:1#group_remove_modifier@user:les_viewer_user
+    - lesson_user_group:1#group_add_group_admin@user:les_viewer_user
+    - lesson_user_group:1#group_remove_group_admin@user:les_viewer_user
+    - lesson_user_group:1#group_add_group_viewer@user:les_viewer_user
+    - lesson_user_group:1#group_remove_group_viewer@user:les_viewer_user
+
+    # ============================================================
+    # INHERITED (course) role exclusions
+    # ============================================================
+
+    # ---- crs_modifier_user — cannot delete lesson ----
+    - lesson:1#delete@user:crs_modifier_user
+
+    # ---- crs_viewer_user — cannot update/delete lesson ----
+    - lesson:1#update@user:crs_viewer_user
+    - lesson:1#delete@user:crs_viewer_user
+
+    # ---- Inherited course users do NOT gain permissions on lesson_user_group ----
+    - lesson_user_group:1#view@user:crs_admin_user
+    - lesson_user_group:1#update@user:crs_admin_user
+    - lesson_user_group:1#delete@user:crs_admin_user
+    - lesson_user_group:1#group_view@user:crs_admin_user
+    - lesson_user_group:1#group_add_modifier@user:crs_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:crs_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:crs_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:crs_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:crs_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:crs_admin_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED (outlet / institution / system) role exclusions
+    # ============================================================
+
+    # ---- out_modifier_user — cannot delete lesson ----
+    - lesson:1#delete@user:out_modifier_user
+
+    # ---- out_viewer_user — cannot update/delete lesson ----
+    - lesson:1#update@user:out_viewer_user
+    - lesson:1#delete@user:out_viewer_user
+
+    # ---- Transitively-inherited outlet users do NOT gain perms on lesson_user_group ----
+    - lesson_user_group:1#view@user:out_admin_user
+    - lesson_user_group:1#group_view@user:out_admin_user
+    - lesson_user_group:1#group_add_modifier@user:out_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:out_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:out_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:out_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:out_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:out_admin_user
+
+    # ---- inst_modifier_user — cannot delete lesson ----
+    - lesson:1#delete@user:inst_modifier_user
+
+    # ---- inst_viewer_user — cannot update/delete lesson ----
+    - lesson:1#update@user:inst_viewer_user
+    - lesson:1#delete@user:inst_viewer_user
+
+    # ---- Transitively-inherited institution users do NOT gain perms on lesson_user_group ----
+    - lesson_user_group:1#view@user:inst_admin_user
+    - lesson_user_group:1#group_view@user:inst_admin_user
+    - lesson_user_group:1#group_add_modifier@user:inst_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:inst_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:inst_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:inst_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:inst_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:inst_admin_user
+
+    # ---- sys_modifier_user — cannot delete lesson ----
+    - lesson:1#delete@user:sys_modifier_user
+
+    # ---- sys_viewer_user — cannot update/delete lesson ----
+    - lesson:1#update@user:sys_viewer_user
+    - lesson:1#delete@user:sys_viewer_user
+
+    # ---- Transitively-inherited system users do NOT gain perms on lesson_user_group ----
+    - lesson_user_group:1#view@user:sys_admin_user
+    - lesson_user_group:1#group_view@user:sys_admin_user
+    - lesson_user_group:1#group_add_modifier@user:sys_admin_user
+    - lesson_user_group:1#group_remove_modifier@user:sys_admin_user
+    - lesson_user_group:1#group_add_group_admin@user:sys_admin_user
+    - lesson_user_group:1#group_remove_group_admin@user:sys_admin_user
+    - lesson_user_group:1#group_add_group_viewer@user:sys_admin_user
+    - lesson_user_group:1#group_remove_group_viewer@user:sys_admin_user
+    - lesson_user_group:1#group_view@user:sys_modifier_user
+    - lesson_user_group:1#group_add_modifier@user:sys_modifier_user
+    - lesson_user_group:1#group_remove_modifier@user:sys_modifier_user
+    - lesson_user_group:1#group_add_group_admin@user:sys_modifier_user
+    - lesson_user_group:1#group_remove_group_admin@user:sys_modifier_user
+    - lesson_user_group:1#group_add_group_viewer@user:sys_modifier_user
+    - lesson_user_group:1#group_remove_group_viewer@user:sys_modifier_user
+    - lesson_user_group:1#group_view@user:sys_viewer_user
+    - lesson_user_group:1#group_add_modifier@user:sys_viewer_user
+    - lesson_user_group:1#group_remove_modifier@user:sys_viewer_user
+    - lesson_user_group:1#group_add_group_admin@user:sys_viewer_user
+    - lesson_user_group:1#group_remove_group_admin@user:sys_viewer_user
+    - lesson_user_group:1#group_add_group_viewer@user:sys_viewer_user
+    - lesson_user_group:1#group_remove_group_viewer@user:sys_viewer_user
+
+    # ---- sys_group_admin_user / sys_group_viewer_user — group-mgmt at system confers NO lesson resource access (decoupling) ----
+    - lesson:1#view@user:sys_group_admin_user
+    - lesson:1#update@user:sys_group_admin_user
+    - lesson:1#delete@user:sys_group_admin_user
+    - lesson:1#view@user:sys_group_viewer_user
+    - lesson:1#update@user:sys_group_viewer_user
+
+    # ---- sys_group_viewer_user — only group_view; no group mutations on lesson_user_group ----
+    - lesson_user_group:1#group_add_admin@user:sys_group_viewer_user
+    - lesson_user_group:1#group_add_viewer@user:sys_group_viewer_user
+    - lesson_user_group:1#group_remove_admin@user:sys_group_viewer_user
+    - lesson_user_group:1#group_add_modifier@user:sys_group_viewer_user
+    - lesson_user_group:1#group_remove_modifier@user:sys_group_viewer_user
+    - lesson_user_group:1#group_add_group_admin@user:sys_group_viewer_user
+    - lesson_user_group:1#group_remove_group_admin@user:sys_group_viewer_user
+    - lesson_user_group:1#group_add_group_viewer@user:sys_group_viewer_user
+    - lesson_user_group:1#group_remove_group_viewer@user:sys_group_viewer_user
+
+    # ---- sys_modifier / sys_viewer — resource roles do NOT confer group-mgmt on lesson_user_group ----
+    - lesson_user_group:1#group_view@user:sys_modifier_user
+    - lesson_user_group:1#group_view@user:sys_viewer_user
+
+    # ============================================================
+    # create_lesson_plan — viewers, group-mgmt users, non-members denied
+    # ============================================================
+    - lesson:1#create_lesson_plan@user:les_viewer_user
+    - lesson:1#create_lesson_plan@user:crs_viewer_user
+    - lesson:1#create_lesson_plan@user:out_viewer_user
+    - lesson:1#create_lesson_plan@user:inst_viewer_user
+    - lesson:1#create_lesson_plan@user:sys_viewer_user
+    - lesson:1#create_lesson_plan@user:les_group_admin_user
+    - lesson:1#create_lesson_plan@user:les_group_viewer_user
+    - lesson:1#create_lesson_plan@user:sys_group_admin_user
+    - lesson:1#create_lesson_plan@user:sys_group_viewer_user
+    - lesson:1#create_lesson_plan@user:non_member_user
+
+    # ============================================================
+    # create_lesson_objective — viewers, group-mgmt users, non-members denied
+    # ============================================================
+    - lesson:1#create_lesson_objective@user:les_viewer_user
+    - lesson:1#create_lesson_objective@user:crs_viewer_user
+    - lesson:1#create_lesson_objective@user:out_viewer_user
+    - lesson:1#create_lesson_objective@user:inst_viewer_user
+    - lesson:1#create_lesson_objective@user:sys_viewer_user
+    - lesson:1#create_lesson_objective@user:les_group_admin_user
+    - lesson:1#create_lesson_objective@user:les_group_viewer_user
+    - lesson:1#create_lesson_objective@user:sys_group_admin_user
+    - lesson:1#create_lesson_objective@user:sys_group_viewer_user
+    - lesson:1#create_lesson_objective@user:non_member_user
