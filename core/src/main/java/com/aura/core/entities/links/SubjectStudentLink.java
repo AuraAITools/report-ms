@@ -1,7 +1,5 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.students.Student;
-import com.aura.core.entities.subjects.Subject;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +21,7 @@ public class SubjectStudentLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Student student;
-
-    private Subject subject;
+    private String studentId;
+    private String subjectId;
 
 }

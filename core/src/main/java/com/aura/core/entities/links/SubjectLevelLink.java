@@ -1,13 +1,11 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.levels.Level;
-import com.aura.core.entities.subjects.Subject;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -22,8 +20,7 @@ public class SubjectLevelLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Level level;
-
-    private Subject subject;
+    private String levelId;
+    private String subjectId;
 
 }

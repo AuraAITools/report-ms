@@ -1,0 +1,8 @@
+mutation CreateEducatorsInAccount($input: [CreateEducatorInput]) {
+    createEducatorsInAccount(createEducatorInputs: $input) {
+        id
+        name
+        email
+        createdBy
+    }
+}

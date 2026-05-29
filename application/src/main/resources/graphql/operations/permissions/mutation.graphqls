@@ -1,0 +1,4 @@
+extend type Mutation {
+    grantUserGroupRole(input: GrantUserGroupRoleInput!): Boolean!
+    revokeUserGroupRole(input: RevokeUserGroupRoleInput!): Boolean!
+}

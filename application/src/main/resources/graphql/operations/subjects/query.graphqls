@@ -1,0 +1,4 @@
+extend type Query {
+    getSubjectById(subjectId: ID!): SubjectResponse!
+    getAllSubjectsInInstitution(institutionId: ID!): [SubjectResponse!]!
+}

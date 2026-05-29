@@ -1,0 +1,14 @@
+mutation UpdateOutlet($input: UpdateOutletInput!) {
+    updateOutlet(updateOutletInput: $input) {
+        id
+        name
+        address
+        postalCode
+        contactNumber
+        description
+        email
+        createdBy
+        updatedBy
+    }
+}
+

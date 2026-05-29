@@ -1,0 +1,5 @@
+extend type Query {
+    getAllOutletRoomsByIds(institutionId: ID!, ids: [ID!]!): [OutletRoomResponse!]!
+    getAllOutletRoomsInInstitution(institutionId: ID!): [OutletRoomResponse!]!
+    getAllOutletRoomsInOutlet(institutionId: ID!, outletId: ID!): [OutletRoomResponse!]!
+}

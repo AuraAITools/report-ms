@@ -1,7 +1,7 @@
 package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -31,8 +31,8 @@ import org.hibernate.envers.Audited;
 @Table(name = "LessonQuizStudentLessonLinks",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_lesson_quiz_student_lesson_link",
-                        columnNames = {"lesson_quiz_id", "student_lesson_link_id"}
+                        name = "uk_lesson_quiz_student_lesson_report",
+                        columnNames = {"lesson_quiz_id", "student_lesson_report_id"}
                 )
         })
 public class LessonQuizStudentLessonLinkModel extends TenantBaseModel {
@@ -43,9 +43,9 @@ public class LessonQuizStudentLessonLinkModel extends TenantBaseModel {
     private LessonQuizModel lessonQuizTable;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_lesson_link_id")
+    @JoinColumn(name = "student_lesson_report_id")
     @ToString.Exclude
-    private StudentLessonLinkModel studentLessonLink;
+    private StudentLessonReportModel studentLessonReport;
 
     // store results of a student registered under a lesson registered under the lesson's quiz here
     private int score;

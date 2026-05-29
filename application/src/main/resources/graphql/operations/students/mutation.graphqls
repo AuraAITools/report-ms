@@ -1,0 +1,4 @@
+extend type Mutation {
+    updateStudentById(input: UpdateStudentByIdInput!): StudentResponse!
+    deleteStudentById(input: DeleteStudentByIdInput!): Boolean!
+}

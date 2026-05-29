@@ -4,3 +4,6 @@ directive @connection on OBJECT
 # validation directives
 directive @Size(min : Int = 0, max : Int = 2147483647, message : String = "graphql.validation.Size.message")
 on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @ContainerSize(min : Int = 0, max : Int = 2147483647, message : String = "graphql.validation.ContainerSize.message")
+on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION

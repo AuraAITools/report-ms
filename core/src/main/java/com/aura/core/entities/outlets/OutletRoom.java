@@ -1,14 +1,11 @@
 package com.aura.core.entities.outlets;
 
-import com.aura.core.entities.lessons.LessonOutletRoomBooking;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -24,11 +21,18 @@ public class OutletRoom {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Outlet outlet;
+    private String outletId;
     private String name;
     private int size;
     private String details;
     private String fileUrl;
-    private Set<LessonOutletRoomBooking> lessonOutletRoomBookings = new HashSet<>();
+    private OUTLET_ROOM_TYPE type;
+    private String url;
+    private String passcode;
+    private String description;
 
+    public enum OUTLET_ROOM_TYPE {
+        PHYSICAL,
+        VIRTUAL
+    }
 }

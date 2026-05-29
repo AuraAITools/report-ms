@@ -15,8 +15,8 @@ public interface EducatorMapper {
 
     EducatorMapper INSTANCE = Mappers.getMapper(EducatorMapper.class);
 
-    @Mapping(target = "educator", expression = "java(toDomain(input, tenantId))")
-    AccountService.CreateEducatorAccountParams toParams(CreateEducatorInput input, String tenantId);
+    @Mapping(target = "educator", expression = "java(toDomain(input))")
+    AccountService.CreateEducatorAccountParams toParams(CreateEducatorInput input);
 
     @Mapping(target = "updatedBy", source = "educator.updatedBy")
     @Mapping(target = "startDate", source = "educator.startDate")
@@ -33,15 +33,17 @@ public interface EducatorMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "subjectEducatorLinks", ignore = true)
-    @Mapping(target = "outletEducatorLinks", ignore = true)
-    @Mapping(target = "levelEducatorLinks", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "educatorLessonLinks", ignore = true)
-    @Mapping(target = "educatorCourseLinks", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "accountEducatorLinks", ignore = true)
-    Educator toDomain(CreateEducatorInput input, String tenantId);
+    @Mapping(target = "tenantId", source = "institutionId")
+    Educator toDomain(CreateEducatorInput input);
+
+    @Mapping(target = "courses", ignore = true)
+    @Mapping(target = "subjects", ignore = true)
+    @Mapping(target = "outlets", ignore = true)
+    @Mapping(target = "levels", ignore = true)
+    @Mapping(target = "account", ignore = true)
+    EducatorResponse toDto(Educator educator);
 
 }

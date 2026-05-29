@@ -1,0 +1,12 @@
+query GetSubjectById($subjectId: ID!) {
+    getSubjectById(subjectId: $subjectId) {
+        id
+        name
+        createdBy
+        updatedBy
+        topics {
+            id
+            name
+        }
+    }
+}

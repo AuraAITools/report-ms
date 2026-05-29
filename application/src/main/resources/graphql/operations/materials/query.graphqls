@@ -1,0 +1,4 @@
+extend type Query {
+    getMaterialsInInstitution(institutionId: ID!): [MaterialResponse!]!
+    getMaterialById(institutionId: ID!, materialId: ID!): MaterialResponse!
+}

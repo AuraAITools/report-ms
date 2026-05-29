@@ -1,13 +1,11 @@
 package com.aura.core.entities.tests;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -25,9 +23,7 @@ public class Test {
     private String tenantId;
     private String name;
 
-    private TestGroup testGroup;
-
-    private Set<TestResult> testResults = new HashSet<>();
+    private String testGroupId;
 
 
 }

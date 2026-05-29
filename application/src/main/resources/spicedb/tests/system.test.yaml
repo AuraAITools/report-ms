@@ -1,0 +1,158 @@
+schemaFile: ../system.zed
+
+# Full coverage of every role × every permission on system_user_group and system.
+#
+# Fixtures (one user per role + one non-member):
+#   group_admin_user   — manages group membership; no resource access
+#   group_viewer_user  — reads group membership only
+#   admin_user         — resource: view + update + delete; is_admin_or_modifier; create_institution
+#   modifier_user      — resource: view + update; is_admin_or_modifier; create_institution
+#   viewer_user        — resource: view only
+#   non_member_user    — no relationships (pure negative)
+relationships: |-
+  system_user_group:aura#group_admin@user:group_admin_user
+  system_user_group:aura#group_viewer@user:group_viewer_user
+  system_user_group:aura#admin@user:admin_user
+  system_user_group:aura#modifier@user:modifier_user
+  system_user_group:aura#viewer@user:viewer_user
+  system:aura#user_group@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ---- group_admin_user ----
+    - system_user_group:aura#group_view@user:group_admin_user
+    - system_user_group:aura#group_add_admin@user:group_admin_user
+    - system_user_group:aura#group_add_viewer@user:group_admin_user
+    - system_user_group:aura#group_remove_admin@user:group_admin_user
+    - system_user_group:aura#group_remove_viewer@user:group_admin_user
+    - system_user_group:aura#group_add_modifier@user:group_admin_user
+    - system_user_group:aura#group_remove_modifier@user:group_admin_user
+    - system_user_group:aura#group_add_group_admin@user:group_admin_user
+    - system_user_group:aura#group_remove_group_admin@user:group_admin_user
+    - system_user_group:aura#group_add_group_viewer@user:group_admin_user
+    - system_user_group:aura#group_remove_group_viewer@user:group_admin_user
+
+    # ---- group_viewer_user ----
+    - system_user_group:aura#group_view@user:group_viewer_user
+
+    # ---- admin_user — view/update/delete/is_admin_or_modifier on user_group, all resource perms on system ----
+    - system_user_group:aura#view@user:admin_user
+    - system_user_group:aura#update@user:admin_user
+    - system_user_group:aura#delete@user:admin_user
+    - system_user_group:aura#is_admin_or_modifier@user:admin_user
+    - system:aura#view@user:admin_user
+    - system:aura#update@user:admin_user
+    - system:aura#delete@user:admin_user
+    - system:aura#is_admin_or_modifier@user:admin_user
+    - system:aura#create_institution@user:admin_user
+
+    # ---- modifier_user — view/update/is_admin_or_modifier on user_group; view/update/is_admin_or_modifier/create_institution on system ----
+    - system_user_group:aura#view@user:modifier_user
+    - system_user_group:aura#update@user:modifier_user
+    - system_user_group:aura#is_admin_or_modifier@user:modifier_user
+    - system:aura#view@user:modifier_user
+    - system:aura#update@user:modifier_user
+    - system:aura#is_admin_or_modifier@user:modifier_user
+    - system:aura#create_institution@user:modifier_user
+
+    # ---- viewer_user — view only on both ----
+    - system_user_group:aura#view@user:viewer_user
+    - system:aura#view@user:viewer_user
+
+  assertFalse:
+    # ---- non_member_user ----
+    - system_user_group:aura#group_view@user:non_member_user
+    - system_user_group:aura#group_add_admin@user:non_member_user
+    - system_user_group:aura#group_add_viewer@user:non_member_user
+    - system_user_group:aura#group_remove_admin@user:non_member_user
+    - system_user_group:aura#group_remove_viewer@user:non_member_user
+    - system_user_group:aura#group_add_modifier@user:non_member_user
+    - system_user_group:aura#group_remove_modifier@user:non_member_user
+    - system_user_group:aura#group_add_group_admin@user:non_member_user
+    - system_user_group:aura#group_remove_group_admin@user:non_member_user
+    - system_user_group:aura#group_add_group_viewer@user:non_member_user
+    - system_user_group:aura#group_remove_group_viewer@user:non_member_user
+    - system_user_group:aura#view@user:non_member_user
+    - system_user_group:aura#update@user:non_member_user
+    - system_user_group:aura#delete@user:non_member_user
+    - system_user_group:aura#is_admin_or_modifier@user:non_member_user
+    - system:aura#view@user:non_member_user
+    - system:aura#update@user:non_member_user
+    - system:aura#delete@user:non_member_user
+    - system:aura#is_admin_or_modifier@user:non_member_user
+    - system:aura#create_institution@user:non_member_user
+
+    # ---- group_admin_user — NO resource permissions (group mgmt decoupled) ----
+    - system_user_group:aura#view@user:group_admin_user
+    - system_user_group:aura#update@user:group_admin_user
+    - system_user_group:aura#delete@user:group_admin_user
+    - system_user_group:aura#is_admin_or_modifier@user:group_admin_user
+    - system:aura#view@user:group_admin_user
+    - system:aura#update@user:group_admin_user
+    - system:aura#delete@user:group_admin_user
+    - system:aura#is_admin_or_modifier@user:group_admin_user
+    - system:aura#create_institution@user:group_admin_user
+
+    # ---- group_viewer_user — only group_view, no group mutations, no resource access ----
+    - system_user_group:aura#group_add_admin@user:group_viewer_user
+    - system_user_group:aura#group_add_viewer@user:group_viewer_user
+    - system_user_group:aura#group_remove_admin@user:group_viewer_user
+    - system_user_group:aura#group_remove_viewer@user:group_viewer_user
+    - system_user_group:aura#group_add_modifier@user:group_viewer_user
+    - system_user_group:aura#group_remove_modifier@user:group_viewer_user
+    - system_user_group:aura#group_add_group_admin@user:group_viewer_user
+    - system_user_group:aura#group_remove_group_admin@user:group_viewer_user
+    - system_user_group:aura#group_add_group_viewer@user:group_viewer_user
+    - system_user_group:aura#group_remove_group_viewer@user:group_viewer_user
+    - system_user_group:aura#view@user:group_viewer_user
+    - system_user_group:aura#update@user:group_viewer_user
+    - system_user_group:aura#delete@user:group_viewer_user
+    - system_user_group:aura#is_admin_or_modifier@user:group_viewer_user
+    - system:aura#view@user:group_viewer_user
+    - system:aura#update@user:group_viewer_user
+    - system:aura#delete@user:group_viewer_user
+    - system:aura#is_admin_or_modifier@user:group_viewer_user
+    - system:aura#create_institution@user:group_viewer_user
+
+    # ---- admin_user — NO group-management ----
+    - system_user_group:aura#group_view@user:admin_user
+    - system_user_group:aura#group_add_admin@user:admin_user
+    - system_user_group:aura#group_add_viewer@user:admin_user
+    - system_user_group:aura#group_remove_admin@user:admin_user
+    - system_user_group:aura#group_remove_viewer@user:admin_user
+    - system_user_group:aura#group_add_modifier@user:admin_user
+    - system_user_group:aura#group_remove_modifier@user:admin_user
+    - system_user_group:aura#group_add_group_admin@user:admin_user
+    - system_user_group:aura#group_remove_group_admin@user:admin_user
+    - system_user_group:aura#group_add_group_viewer@user:admin_user
+    - system_user_group:aura#group_remove_group_viewer@user:admin_user
+
+    # ---- modifier_user — cannot delete; no group-mgmt ----
+    - system_user_group:aura#delete@user:modifier_user
+    - system:aura#delete@user:modifier_user
+    - system_user_group:aura#group_view@user:modifier_user
+    - system_user_group:aura#group_add_admin@user:modifier_user
+    - system_user_group:aura#group_remove_admin@user:modifier_user
+    - system_user_group:aura#group_add_modifier@user:modifier_user
+    - system_user_group:aura#group_remove_modifier@user:modifier_user
+    - system_user_group:aura#group_add_group_admin@user:modifier_user
+    - system_user_group:aura#group_remove_group_admin@user:modifier_user
+    - system_user_group:aura#group_add_group_viewer@user:modifier_user
+    - system_user_group:aura#group_remove_group_viewer@user:modifier_user
+
+    # ---- viewer_user — read-only; no update/delete/is_admin_or_modifier/create_institution; no group-mgmt ----
+    - system_user_group:aura#update@user:viewer_user
+    - system_user_group:aura#delete@user:viewer_user
+    - system_user_group:aura#is_admin_or_modifier@user:viewer_user
+    - system:aura#update@user:viewer_user
+    - system:aura#delete@user:viewer_user
+    - system:aura#is_admin_or_modifier@user:viewer_user
+    - system:aura#create_institution@user:viewer_user
+    - system_user_group:aura#group_view@user:viewer_user
+    - system_user_group:aura#group_add_admin@user:viewer_user
+    - system_user_group:aura#group_add_modifier@user:viewer_user
+    - system_user_group:aura#group_remove_modifier@user:viewer_user
+    - system_user_group:aura#group_add_group_admin@user:viewer_user
+    - system_user_group:aura#group_remove_group_admin@user:viewer_user
+    - system_user_group:aura#group_add_group_viewer@user:viewer_user
+    - system_user_group:aura#group_remove_group_viewer@user:viewer_user

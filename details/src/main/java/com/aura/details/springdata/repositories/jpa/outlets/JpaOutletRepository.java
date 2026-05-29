@@ -11,5 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JpaOutletRepository extends JpaRepository<OutletModel, UUID>, JpaSpecificationExecutor<OutletModel> {
     List<OutletModel> findByTenantIdIn(Collection<String> tenantIds);
+
+    List<OutletModel> findByTenantId(String tenantId);
 }
 

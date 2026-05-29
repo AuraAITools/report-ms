@@ -1,13 +1,11 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.materials.Material;
-import com.aura.core.entities.topics.Topic;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
@@ -23,8 +21,7 @@ public class MaterialTopicLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Topic topic;
-
-    private Material material;
+    private String topicId;
+    private String materialId;
 
 }

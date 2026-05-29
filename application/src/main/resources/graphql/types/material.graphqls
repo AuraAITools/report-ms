@@ -1,0 +1,41 @@
+type MaterialResponse implements Auditable {
+    id: ID!
+    name: String!
+    description: String
+    """Presigned S3 GET URL for the material file. Null if the material has no file."""
+    fileUrl: String
+    createdAt: Long!
+    createdBy: ID!
+    updatedAt: Long
+    updatedBy: ID
+}
+
+"""
+Response from requestMaterialUpload — the client uses uploadUrl to PUT bytes
+directly to S3, then passes fileKey back to createMaterialInInstitution to
+persist the material once the upload completes.
+"""
+type MaterialUploadResponse {
+    uploadUrl: String!
+    fileKey: String!
+}
+
+input CreateMaterialInInstitutionInput {
+    institutionId: ID!
+    name: String! @Size(min: 1, max: 255, message: "name must be between 1 and 255 characters")
+    description: String
+    """Set to the fileKey returned by requestMaterialUpload if a file was uploaded. Omit for materials without a file."""
+    fileKey: String
+    """Topics to link the material to. Pass an empty list for no links."""
+    topicIds: [ID!]!
+}
+
+input RequestMaterialUploadInput {
+    institutionId: ID!
+    contentType: String!
+}
+
+input DeleteMaterialByIdInput {
+    institutionId: ID!
+    materialId: ID!
+}

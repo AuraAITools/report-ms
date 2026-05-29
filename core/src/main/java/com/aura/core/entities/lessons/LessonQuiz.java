@@ -1,8 +1,6 @@
 package com.aura.core.entities.lessons;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +25,6 @@ public class LessonQuiz {
 
     private int maxScore = 100;
 
-    private Lesson lesson;
-
-    private Set<LessonQuizStudentLessonLink> lessonQuizStudentLessonLinks = new HashSet<>();
+    private String lessonId;
 
 }

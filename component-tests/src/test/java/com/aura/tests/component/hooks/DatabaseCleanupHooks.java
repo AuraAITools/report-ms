@@ -1,31 +1,79 @@
 package com.aura.tests.component.hooks;
 
+import com.aura.core.clients.RelationshipAuthorizationService;
+import com.aura.details.aws.AwsS3Properties;
 import com.aura.tests.component.containers.keycloak.KeycloakTestContainer;
+import com.aura.tests.component.email.FakeEmailGateway;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.cucumber.java.Before;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.ClientResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.authorization.PolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.springframework.jdbc.core.JdbcTemplate;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 @Slf4j
 @RequiredArgsConstructor
 public class DatabaseCleanupHooks {
 
+    private static final List<String> SPICEDB_RESOURCE_TYPES = List.of(
+            "institution", "outlet", "course", "lesson", "level", "subject", "topic", "material", "system",
+            "institution_user_group", "outlet_user_group", "course_user_group", "lesson_user_group",
+            "level_user_group", "subject_user_group", "topic_user_group", "material_user_group", "system_user_group"
+    );
+
     private final JdbcTemplate jdbcTemplate;
+    private final RelationshipAuthorizationService relationshipService;
+    private final Keycloak keycloak;
+    private final FakeEmailGateway fakeEmailGateway;
+    private final S3Client testS3Client;
+    private final AwsS3Properties awsS3Properties;
 
     @Before
     public void cleanEnvironment() {
         cleanDatabase();
-        cleanKeycloakResources();
+        cleanSpiceDbRelationships();
+        cleanKeycloakUsers();
+        cleanEmailGateway();
+        cleanS3Bucket();
+    }
+
+    private void cleanS3Bucket() {
+        String bucket = awsS3Properties.getBucketName();
+        log.info("Cleaning S3 bucket {} before scenario", bucket);
+        long start = System.currentTimeMillis();
+
+        ListObjectsV2Response listed = testS3Client.listObjectsV2(
+                ListObjectsV2Request.builder().bucket(bucket).build());
+        if (listed.hasContents() && !listed.contents().isEmpty()) {
+            List<ObjectIdentifier> toDelete = listed.contents().stream()
+                    .map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
+                    .toList();
+            testS3Client.deleteObjects(DeleteObjectsRequest.builder()
+                    .bucket(bucket)
+                    .delete(Delete.builder().objects(toDelete).build())
+                    .build());
+            log.info("Removed {} S3 object(s) from {}", toDelete.size(), bucket);
+        } else {
+            log.info("S3 bucket {} is already empty", bucket);
+        }
+        log.info("S3 cleanup complete in {}ms", System.currentTimeMillis() - start);
+    }
+
+    private void cleanEmailGateway() {
+        int previousCount = fakeEmailGateway.getSent().size();
+        fakeEmailGateway.reset();
+        log.info("Cleared FakeEmailGateway sent list (had {} message(s))", previousCount);
     }
 
     private void cleanDatabase() {
@@ -47,8 +95,25 @@ public class DatabaseCleanupHooks {
         log.info("Database cleanup complete in {}ms", System.currentTimeMillis() - start);
     }
 
-    private void cleanKeycloakResources() {
-        log.info("Cleaning Keycloak authorization resources before scenario");
+    private void cleanSpiceDbRelationships() {
+        log.info("Cleaning SpiceDB relationships before scenario");
+        long start = System.currentTimeMillis();
+
+        for (String resourceType : SPICEDB_RESOURCE_TYPES) {
+            relationshipService.deleteAllRelationships(resourceType);
+        }
+
+        // Re-create the system bootstrap binding plus admin role for the service account.
+        // Mirrors SystemRootRelationshipBootstrap + the new system_user_group role layout.
+        String serviceAccountUserId = getServiceAccountUserId();
+        relationshipService.writeRelationship("system", "aura", "user_group", "system_user_group", "aura");
+        relationshipService.writeRelationship("system_user_group", "aura", "admin", "user", serviceAccountUserId);
+
+        log.info("SpiceDB cleanup complete in {}ms", System.currentTimeMillis() - start);
+    }
+
+    private void cleanKeycloakUsers() {
+        log.info("Cleaning Keycloak users before scenario");
         long start = System.currentTimeMillis();
 
         KeycloakContainer container = KeycloakTestContainer.getSingleton();
@@ -60,60 +125,27 @@ public class DatabaseCleanupHooks {
                 .clientId("admin-cli")
                 .build()) {
 
-            ClientRepresentation client = adminClient.realm("aura")
-                    .clients().findByClientId("aura-application-client").getFirst();
-            ClientResource clientResource = adminClient.realm("aura")
-                    .clients().get(client.getId());
-
-            // Remove dynamically created UMA resources (created during onboarding)
-            // Keep static resources from realm-import.json (simple names without ':')
-            List<ResourceRepresentation> resources = clientResource.authorization()
-                    .resources().resources();
-            List<String> removedResources = new java.util.ArrayList<>();
-            for (ResourceRepresentation resource : resources) {
-                if (resource.getName().contains(":")) {
-                    clientResource.authorization().resources().resource(resource.getId()).remove();
-                    removedResources.add(resource.getName());
-                }
-            }
-            log.info("Removed {} UMA resources: {}", removedResources.size(), removedResources);
-
-            // Remove dynamically created policies (group policies and permissions from onboarding)
-            // Keep the static policies from realm-import.json (prefixed with "aura-admin-")
-            List<PolicyRepresentation> policies = clientResource.authorization()
-                    .policies().policies();
-            List<String> removedPolicies = new java.util.ArrayList<>();
-            for (PolicyRepresentation policy : policies) {
-                if (!policy.getName().startsWith("aura-admin-")) {
-                    clientResource.authorization().policies().policy(policy.getId()).remove();
-                    removedPolicies.add(policy.getName());
-                }
-            }
-            log.info("Removed {} policies: {}", removedPolicies.size(), removedPolicies);
-
-            // Remove dynamically created groups (institution admin groups from onboarding)
-            List<GroupRepresentation> groups = adminClient.realm("aura").groups().groups();
-            List<String> removedGroups = new java.util.ArrayList<>();
-            for (GroupRepresentation group : groups) {
-                if (!group.getName().equals("aura-admin")) {
-                    adminClient.realm("aura").groups().group(group.getId()).remove();
-                    removedGroups.add(group.getName());
-                }
-            }
-            log.info("Removed {} groups: {}", removedGroups.size(), removedGroups);
-
-            // Remove dynamically created users (accounts created during tests)
             List<UserRepresentation> users = adminClient.realm("aura").users().list();
-            List<String> removedUsers = new java.util.ArrayList<>();
+            List<String> removedUsers = new ArrayList<>();
             for (UserRepresentation user : users) {
                 if (!user.getUsername().startsWith("service-account-")) {
                     adminClient.realm("aura").users().delete(user.getId());
                     removedUsers.add(user.getUsername());
                 }
             }
-            log.info("Removed {} users: {}", removedUsers.size(), removedUsers);
+            log.info("Removed {} Keycloak users: {}", removedUsers.size(), removedUsers);
         }
 
         log.info("Keycloak cleanup complete in {}ms", System.currentTimeMillis() - start);
+    }
+
+    private String getServiceAccountUserId() {
+        String token = keycloak.tokenManager().getAccessToken().getToken();
+        String[] parts = token.split("\\.");
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+        // Extract "sub" from JSON payload
+        int subStart = payload.indexOf("\"sub\":\"") + "\"sub\":\"".length();
+        int subEnd = payload.indexOf("\"", subStart);
+        return payload.substring(subStart, subEnd);
     }
 }

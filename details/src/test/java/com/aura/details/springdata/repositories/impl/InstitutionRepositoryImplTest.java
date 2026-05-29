@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@DisplayName("Institution repository")
 @ExtendWith(MockitoExtension.class)
 class InstitutionRepositoryImplTest {
 
@@ -32,6 +34,7 @@ class InstitutionRepositoryImplTest {
         repository = new InstitutionRepositoryImpl(jpaRepository);
     }
 
+    @DisplayName("Should convert string IDs to UUIDs and map results to domain entities")
     @Test
     void findAllByIds_convertsIdsAndMapsResults() {
         UUID uuid1 = UUID.randomUUID();
@@ -70,6 +73,7 @@ class InstitutionRepositoryImplTest {
         assertThat(captor.getValue()).containsExactlyInAnyOrder(uuid1, uuid2);
     }
 
+    @DisplayName("Should return empty list for empty ID set")
     @Test
     void findAllByIds_emptySet_returnsEmptyList() {
         when(jpaRepository.findAllById(anyList())).thenReturn(List.of());

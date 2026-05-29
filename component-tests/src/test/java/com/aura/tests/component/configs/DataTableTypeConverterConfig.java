@@ -1,9 +1,8 @@
 package com.aura.tests.component.configs;
 
-import com.aura.app.codegen.types.CreateInstitutionAdminAccountInput;
+import com.aura.app.codegen.types.CreateAccountInput;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.CreateOutletInput;
-import com.aura.app.codegen.types.CreateParentAccountInput;
 import com.aura.app.codegen.types.RELATIONSHIP;
 import io.cucumber.java.DataTableType;
 import java.util.Map;
@@ -34,8 +33,8 @@ public class DataTableTypeConverterConfig {
     }
 
     @DataTableType
-    public CreateInstitutionAdminAccountInput adminAccountInput(Map<String, String> entry) {
-        return CreateInstitutionAdminAccountInput.newBuilder()
+    public CreateAccountInput accountInput(Map<String, String> entry) {
+        return CreateAccountInput.newBuilder()
                 .email(entry.get("email"))
                 .firstName(entry.get("firstName"))
                 .lastName(entry.get("lastName"))
@@ -43,14 +42,4 @@ public class DataTableTypeConverterConfig {
                 .build();
     }
 
-    @DataTableType
-    public CreateParentAccountInput parentAccountInput(Map<String, String> entry) {
-        return CreateParentAccountInput.newBuilder()
-                .email(entry.get("email"))
-                .firstName(entry.get("firstName"))
-                .lastName(entry.get("lastName"))
-                .contact(Integer.parseInt(entry.get("contact")))
-                .relationship(RELATIONSHIP.valueOf(entry.get("relationship")))
-                .build();
-    }
 }

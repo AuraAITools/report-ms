@@ -6,5 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface OutletQueryUseCase extends TenantAwareQueryUseCase<Outlet> {
+    List<Outlet> findAllByTenantId(String tenantId);
+
     List<Outlet> findAllByTenantIds(Set<String> tenantIds);
 }

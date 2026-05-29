@@ -3,6 +3,8 @@ package com.aura.details.springdata.models.institutions;
 import com.aura.details.springdata.models.base.AuditMetadata;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -43,7 +45,19 @@ public class InstitutionModel extends AuditMetadata {
 
     private String contactNumber;
 
+    @Column(length = 512)
+    private String logoKey;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private STATE state;
+
     @Column(nullable = false)
     private String tenantId;
 
+    public enum STATE {
+        PENDING,
+        ACTIVE,
+        INACTIVE
+    }
 }

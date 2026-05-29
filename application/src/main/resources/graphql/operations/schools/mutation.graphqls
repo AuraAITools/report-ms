@@ -1,0 +1,4 @@
+extend type Mutation {
+    createSchoolInInstitution(createSchoolInput: CreateSchoolInput!): SchoolResponse!
+    deleteSchoolInInstitution(deleteSchoolInInstitutionInput: DeleteSchoolInInstitutionInput!): Boolean!
+}

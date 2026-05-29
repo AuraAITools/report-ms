@@ -53,7 +53,7 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
     @Transactional
     @Override
     public void loadInitialDataForTenant(String tenantId) {
-// INSERT default schools from school_templates
+        // INSERT default schools from school_templates
         List<SchoolTemplateModel> defaultSchoolTemplates = jpaSchoolTemplateRepository.findAll();
         List<SchoolModel> defaultSchoolModels = defaultSchoolTemplates
                 .stream()
@@ -65,7 +65,6 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
         List<LevelTemplateModel> levelTemplateModels = jpaLevelTemplateRepository.findAll();
         List<LevelModel> levelModels = levelTemplateModels.stream().map(ltt -> mapToLevelModel(ltt, tenantId)).toList();
         jpaLevelRepository.saveAll(levelModels);
-
         // insert default subjects from subject templates
         List<SubjectTemplateModel> subjectTemplateModels = jpaSubjectTemplateRepository.findAll();
         List<SubjectModel> subjects = subjectTemplateModels.stream().map(stt -> mapToSubject(stt, tenantId)).toList();
@@ -76,7 +75,7 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
         List<TopicModel> topics = topicTemplateModels.stream().map(ttt -> mapToTopic(ttt, tenantId)).toList();
         jpaTopicRepository.saveAll(topics);
 
-        // ✅ PRE-LOAD all levels and subjects into Maps
+        // PRE-LOAD all levels and subjects into Maps
         Map<String, LevelModel> levelsByName = levelModels.stream()
                 .collect(Collectors.toMap(LevelModel::getName, Function.identity()));
         Map<String, SubjectModel> subjectsByName = subjects.stream()

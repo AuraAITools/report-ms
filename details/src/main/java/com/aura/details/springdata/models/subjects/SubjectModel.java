@@ -1,7 +1,6 @@
 package com.aura.details.springdata.models.subjects;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.lessons.LessonModel;
 import com.aura.details.springdata.models.links.SubjectCourseLinkModel;
 import com.aura.details.springdata.models.links.SubjectEducatorLinkModel;
 import com.aura.details.springdata.models.links.SubjectLevelLinkModel;
@@ -48,12 +47,6 @@ public class SubjectModel extends TenantBaseModel {
     @ToString.Exclude
     @Builder.Default
     private Set<SubjectCourseLinkModel> subjectCourseLinks = new HashSet<>();
-
-    //     NOTE: deleting Subject shouldn't delete all the lessons
-    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
-    @Builder.Default
-    @ToString.Exclude
-    private Set<LessonModel> lessons = new HashSet<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     @ToString.Exclude

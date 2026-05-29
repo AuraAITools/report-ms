@@ -1,0 +1,4 @@
+extend type Query {
+    getAllStudentsInInstitution(institutionId: ID!): [StudentResponse!]!
+    getStudentById(input: GetStudentByIdInput!): StudentResponse!
+}

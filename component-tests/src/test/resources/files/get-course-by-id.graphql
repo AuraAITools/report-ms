@@ -1,0 +1,30 @@
+query GetCourseById($courseId: ID!) {
+    getCourseById(courseId: $courseId) {
+        id
+        name
+        maxSize
+        lessonFrequency
+        courseStartTimestamptz
+        courseEndTimestamptz
+        createdBy
+        updatedBy
+        lessons {
+            id
+            name
+        }
+        educators {
+            id
+        }
+        students {
+            id
+        }
+        subjects {
+            id
+            name
+        }
+        level {
+            id
+            name
+        }
+    }
+}

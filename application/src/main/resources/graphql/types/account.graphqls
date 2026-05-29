@@ -1,15 +1,28 @@
-type AccountResponse implements Auditable @connection{
+type AccountResponse implements Auditable {
     id: ID!
     firstName: String!
     lastName: String!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
-    relationship: RELATIONSHIP
+    userId: ID!
+    status: AccountStatus!
+    parentFeatureEnabled: Boolean!
+    educatorFeatureEnabled: Boolean!
+    staffFeatureEnabled: Boolean!
+    students: [StudentResponse!]!
+    parent: ParentResponse
+    educators: [EducatorResponse!]!
 }
 
-input CreateInstitutionAdminAccountInput {
+enum AccountStatus {
+    VERIFYING
+    ACTIVE
+    RETIRED
+}
+
+input CreateAccountInput {
     institutionId: ID!
     email: String!
     firstName: String!
@@ -17,12 +30,9 @@ input CreateInstitutionAdminAccountInput {
     contact: Int!
 }
 
-input CreateParentAccountInput {
+input CreateParentInAccountInput {
     institutionId: ID!
-    email: String!
-    firstName: String!
-    lastName: String!
-    contact: Int!
+    accountId: ID!
     relationship: RELATIONSHIP!
 }
 
@@ -31,8 +41,36 @@ enum RELATIONSHIP {
     SELF
 }
 
-input AddUserToGroupInput {
-    institutionId: ID!
-    userEmail: String!
-    groupName: String!
+enum AccountFeature {
+    PARENT_FEATURE
+    EDUCATOR_FEATURE
+    STAFF_FEATURE
 }
+
+input EnableAccountFeatureInput {
+    institutionId: ID!
+    accountId: ID!
+    feature: AccountFeature!
+}
+
+input CreateParentAndStudentsInAccountInput {
+    institutionId: ID!
+    accountId: ID!
+    relationship: RELATIONSHIP!
+    students: [AccountStudentDetailsInput!]! @ContainerSize(min: 1, message: "A minimum of 1 student is required")
+}
+
+input AccountStudentDetailsInput {
+    name: String!
+    email: String!
+    dateOfBirth: Date!
+    levelId: ID!
+    schoolId: ID!
+    courseEnrollments: [StudentCourseEnrollmentInput!]!
+}
+
+type CreateParentAndStudentsInAccountResponse {
+    parent: ParentResponse!
+    students: [StudentResponse!]!
+}
+

@@ -1,0 +1,20 @@
+query GetAccountById($accountId: ID!) {
+    getAccountById(accountId: $accountId) {
+        id
+        firstName
+        lastName
+        userId
+        createdBy
+        updatedBy
+        students {
+            id
+        }
+        parent {
+            id
+            relationship
+        }
+        educators {
+            id
+        }
+    }
+}

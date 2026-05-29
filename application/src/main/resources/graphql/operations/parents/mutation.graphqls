@@ -1,0 +1,4 @@
+extend type Mutation {
+    updateParentById(input: UpdateParentByIdInput!): ParentResponse!
+    deleteParentById(input: DeleteParentByIdInput!): Boolean!
+}

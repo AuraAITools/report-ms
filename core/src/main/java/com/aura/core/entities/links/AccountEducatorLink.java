@@ -1,7 +1,5 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.accounts.Account;
-import com.aura.core.entities.educators.Educator;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +21,8 @@ public class AccountEducatorLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Account account;
+    private String accountId;
 
-    private Educator educator;
+    private String educatorId;
 
 }

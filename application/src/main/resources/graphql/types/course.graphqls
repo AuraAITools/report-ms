@@ -7,25 +7,34 @@ input CreateCourseInput {
     courseStartTimestamptz: DateTime!
     courseEndTimestamptz: DateTime!
     outletId:ID!
+    subjectIds: [ID!]!
+    educatorIds: [ID!]!
+    studentIds: [ID!]!
+    levelId: ID
 }
 
 input CreatePriceRecordInput {
-    price: Float
-    frequency: PriceFrequency
+    price: Float!
+    frequency: PriceFrequency!
 }
 
-type CourseResponse implements Auditable @connection{
+type CourseResponse implements Auditable{
     id: ID!
-    lessonFrequency: LessonFrequency
+    lessonFrequency: LessonFrequency!
     priceRecord: PriceRecordResponse
-    name: String
-    maxSize: Int
-    courseStartTimestamptz: Long
-    courseEndTimestamptz: Long
-    createdAt: Long
-    createdBy: ID
+    name: String!
+    maxSize: Int!
+    courseStartTimestamptz: Long!
+    courseEndTimestamptz: Long!
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
+    lessons: [LessonResponse!]!
+    educators: [EducatorResponse!]!
+    students: [StudentResponse!]!
+    level: LevelResponse
+    subjects: [SubjectResponse!]!
 }
 
 enum LessonFrequency {
@@ -36,10 +45,10 @@ enum LessonFrequency {
 
 type PriceRecordResponse {
     id: ID!
-    price: Float
-    frequency: PriceFrequency
-    createdAt: Long
-    createdBy: ID
+    price: Float!
+    frequency: PriceFrequency!
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }

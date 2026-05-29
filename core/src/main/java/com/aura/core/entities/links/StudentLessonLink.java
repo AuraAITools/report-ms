@@ -1,16 +1,7 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.lessons.LessonHomeworkCompletion;
-import com.aura.core.entities.lessons.LessonParticipationReview;
 import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.core.entities.lessons.LessonQuizStudentLessonLink;
-import com.aura.core.entities.lessons.LessonTopicProficiency;
-import com.aura.core.entities.lessons.StudentLessonAttendance;
-import com.aura.core.entities.students.Student;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,20 +22,24 @@ public class StudentLessonLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Student student;
+    private String studentId;
 
-    private Lesson lesson;
+    private String lessonId;
 
     private LessonPlan lessonPlan;
 
-    private LessonHomeworkCompletion lessonHomeworkCompletion;
+    private STATE state;
 
-    private StudentLessonAttendance studentLessonAttendance;
+    private ATTENDANCE_STATE attendanceState;
 
-    private LessonParticipationReview lessonParticipationReview;
+    public enum STATE {
+        REGISTERED,
+        UNREGISTERED
+    }
 
-    private Set<LessonQuizStudentLessonLink> lessonQuizStudentLessonLinks = new HashSet<>();
-
-    private LessonTopicProficiency lessonTopicProficiency;
-
+    public enum ATTENDANCE_STATE {
+        UNFILLED,
+        ATTENDED,
+        NOT_ATTENDED
+    }
 }

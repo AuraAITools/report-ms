@@ -30,6 +30,8 @@ application/target/
 details/target/
 database-runner/target/
 component-tests/target/
+keycloak-theme/target/
 **/.env
 .DS_Store
 docs/superpowers
+.worktrees

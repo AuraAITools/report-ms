@@ -1,0 +1,9 @@
+mutation CreateLevelInInstitution($input: CreateLevelInInstitutionInput!) {
+    createLevelInInstitution(input: $input) {
+        id
+        name
+        category
+        createdBy
+        updatedBy
+    }
+}

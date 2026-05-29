@@ -21,7 +21,7 @@ public class LinkLessonsToCourseUseCaseImpl implements LinkLessonsToCourseUseCas
         // TODO: check what happens when one of the ids cannot be found? does it throw exception?
         List<Lesson> lessons = lessonRepository.findAllById(lessonIds.stream().map(UUID::fromString).toList());
         Course course = ofNullable(courseRepository.findById(courseId)).orElseThrow(() -> new RuntimeException(" course cannot be found"));
-        lessons.forEach(lesson -> lesson.setCourse(course));
+        lessons.forEach(lesson -> lesson.setCourseId(course.getId()));
         return lessonRepository.updateLessons(lessons);
     }
 }

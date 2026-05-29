@@ -1,0 +1,12 @@
+mutation CreateLessonPlanInLesson($input: CreateLessonPlanInLessonInput!) {
+    createLessonPlanInLesson(input: $input) {
+        id
+        plan
+        createdAt
+        createdBy
+        updatedAt
+        updatedBy
+        lesson { id name }
+        topics { id name }
+    }
+}

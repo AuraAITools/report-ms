@@ -1,22 +1,27 @@
 package com.aura.core.usecases.lessons;
 
 import com.aura.core.entities.lessons.Lesson;
+import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.LessonRepository;
-import com.aura.core.repositories.OutletRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+
+
+import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
 public class CreateLessonUseCaseImpl implements CreateLessonUseCase {
     private final LessonRepository lessonRepository;
-    private final OutletRepository outletRepository;
+    private final CourseRepository courseRepository;
 
     @Override
-    public Lesson createStandaloneLesson(Lesson lesson, String outletId) {
-        return Optional.ofNullable(outletRepository.findById(outletId))
-                .map(outlet -> {
-                    lesson.setOutlet(outlet);
+    public Lesson createLessonInCourse(Lesson lesson, String courseId) {
+        return ofNullable(courseRepository.findById(courseId))
+                .map(course -> {
+                    lesson.setOutletId(course.getOutletId());
+                    lesson.setCourseId(course.getId());
+                    lesson.setState(Lesson.LESSON_STATE.CREATED);
                     return lessonRepository.save(lesson);
-                }).orElseThrow(() -> new RuntimeException("outlet not found"));
+                })
+                .orElseThrow(() -> new RuntimeException("course not found"));
     }
 }

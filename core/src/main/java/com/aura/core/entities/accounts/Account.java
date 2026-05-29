@@ -1,16 +1,18 @@
 package com.aura.core.entities.accounts;
 
-import com.aura.core.entities.links.AccountEducatorLink;
-import com.aura.core.entities.links.AccountStudentLink;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
+import org.jspecify.annotations.Nullable;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,18 +30,24 @@ public class Account {
     private String lastName;
 
     private String contact;
-    private RELATIONSHIP relationship;
+    private STATE state;
+    private boolean parentFeatureEnabled;
+    private boolean educatorFeatureEnabled;
+    private boolean staffFeatureEnabled;
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Set<AccountStudentLink> accountStudentLinks = new HashSet<>();
-    private Set<AccountEducatorLink> accountEducatorLinks = new HashSet<>();
 
-    public enum RELATIONSHIP {
-        PARENT,
-        SELF
+    @With
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private @Nullable Parent parent;
+
+    public enum STATE {
+        VERIFYING,
+        ACTIVE,
+        RETIRED
     }
-
 }

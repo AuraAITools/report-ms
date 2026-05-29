@@ -1,0 +1,3 @@
+mutation RevokeUserGroupRole($input: RevokeUserGroupRoleInput!) {
+    revokeUserGroupRole(input: $input)
+}

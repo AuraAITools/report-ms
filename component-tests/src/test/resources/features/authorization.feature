@@ -1,17 +1,18 @@
 @Api
-Feature: Keycloak Authorization Server initial configuration
+Feature: SpiceDB Authorization Schema
 
   @ComponentTest
-  Scenario: Keycloak has the required policies
-    Given Keycloak is set up
-    Then Keycloak should have the following policies:
-      | name                              | type     |
-      | aura-admin-policy                 | group    |
-      | aura-admin-institution-access     | resource |
-      | aura-admin-outlet-access          | resource |
-      | aura-admin-course-access          | resource |
-      | aura-admin-lesson-access          | resource |
-      | aura-admin-subject-access         | resource |
-      | aura-admin-topic-access           | resource |
-      | aura-admin-account-access         | resource |
-      | aura-admin-level-access           | resource |
+  Scenario: SpiceDB has the authorization schema loaded
+    Given SpiceDB is set up with the authorization schema
+    Then the schema should define the following resource types:
+      | type        |
+      | user        |
+      | system      |
+      | institution |
+      | outlet      |
+      | course      |
+      | lesson      |
+      | account     |
+      | level       |
+      | subject     |
+      | topic       |

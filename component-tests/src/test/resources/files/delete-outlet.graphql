@@ -1,0 +1,3 @@
+mutation DeleteOutletById($id: ID!) {
+    deleteOutletById(id: $id)
+}

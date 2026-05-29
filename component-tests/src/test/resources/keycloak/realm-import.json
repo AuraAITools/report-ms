@@ -436,32 +436,7 @@
       ]
     }
   },
-  "groups": [
-    {
-      "id": "1f035ea5-4b56-40ef-ab19-8eafb1154a9e",
-      "name": "admin",
-      "path": "/admin",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {
-        "realm-management": [
-          "manage-users",
-          "query-users",
-          "view-users"
-        ]
-      }
-    },
-    {
-      "id": "a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6",
-      "name": "aura-admin",
-      "path": "/aura-admin",
-      "subGroups": [],
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {}
-    }
-  ],
+  "groups": [],
   "defaultRole": {
     "id": "fd2927dd-2cb0-46b3-8b09-a0d676c98572",
     "name": "default-roles-aura",
@@ -547,9 +522,7 @@
         ]
       },
       "notBefore": 0,
-      "groups": [
-        "/aura-admin"
-      ]
+      "groups": []
     },
     {
       "id": "d635e46f-f3cd-46ad-b016-66d6f0bc735b",
@@ -770,7 +743,7 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
-      "authorizationServicesEnabled": true,
+      "authorizationServicesEnabled": false,
       "publicClient": false,
       "frontchannelLogout": true,
       "protocol": "openid-connect",
@@ -894,247 +867,7 @@
         "phone",
         "offline_access",
         "microprofile-jwt"
-      ],
-      "authorizationSettings": {
-        "allowRemoteResourceManagement": true,
-        "policyEnforcementMode": "ENFORCING",
-        "resources": [
-          {
-            "name": "account",
-            "type": "urn:aura:account",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              },
-              {
-                "name": "manage"
-              }
-            ]
-          },
-          {
-            "name": "institution",
-            "type": "urn:aura:institution",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              },
-              {
-                "name": "manage"
-              },
-              {
-                "name": "delegate"
-              }
-            ]
-          },
-          {
-            "name": "outlet",
-            "type": "urn:aura:outlet",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              },
-              {
-                "name": "manage"
-              }
-            ]
-          },
-          {
-            "name": "course",
-            "type": "urn:aura:course",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              }
-            ]
-          },
-          {
-            "name": "lesson",
-            "type": "urn:aura:lesson",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              }
-            ]
-          },
-          {
-            "name": "subject",
-            "type": "urn:aura:subject",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              },
-              {
-                "name": "manage"
-              }
-            ]
-          },
-          {
-            "name": "topic",
-            "type": "urn:aura:topic",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "create"
-              },
-              {
-                "name": "view"
-              }
-            ]
-          },
-          {
-            "name": "level",
-            "type": "urn:aura:level",
-            "ownerManagedAccess": false,
-            "scopes": [
-              {
-                "name": "view"
-              }
-            ]
-          }
-        ],
-        "policies": [
-          {
-            "name": "aura-admin-policy",
-            "description": "Grants access to users in the aura-admin group",
-            "type": "group",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "groups": "[{\"id\":\"a1b2c3d4-5e6f-7a8b-9c0d-e1f2a3b4c5d6\",\"extendChildren\":false}]"
-            }
-          },
-          {
-            "name": "aura-admin-institution-access",
-            "description": "Aura admin can access all institution resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:institution",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-outlet-access",
-            "description": "Aura admin can access all outlet resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:outlet",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-course-access",
-            "description": "Aura admin can access all course resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:course",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-lesson-access",
-            "description": "Aura admin can access all lesson resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:lesson",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-subject-access",
-            "description": "Aura admin can access all subject resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:subject",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-topic-access",
-            "description": "Aura admin can access all topic resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:topic",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-account-access",
-            "description": "Aura admin can access all account resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:account",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          },
-          {
-            "name": "aura-admin-level-access",
-            "description": "Aura admin can access all level resources",
-            "type": "resource",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "config": {
-              "defaultResourceType": "urn:aura:level",
-              "applyPolicies": "[\"aura-admin-policy\"]"
-            }
-          }
-        ],
-        "scopes": [
-          {
-            "name": "create"
-          },
-          {
-            "name": "view"
-          },
-          {
-            "name": "manage"
-          },
-          {
-            "name": "delete"
-          },
-          {
-            "name": "delegate"
-          }
-        ],
-        "decisionStrategy": "AFFIRMATIVE"
-      }
+      ]
     },
     {
       "id": "f1c75fb5-5bc7-4a10-abd8-029811537a42",
@@ -1162,7 +895,7 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": true,
-      "authorizationServicesEnabled": true,
+      "authorizationServicesEnabled": false,
       "publicClient": false,
       "frontchannelLogout": true,
       "protocol": "openid-connect",
@@ -1240,25 +973,7 @@
         "phone",
         "offline_access",
         "microprofile-jwt"
-      ],
-      "authorizationSettings": {
-        "allowRemoteResourceManagement": true,
-        "policyEnforcementMode": "ENFORCING",
-        "resources": [
-          {
-            "name": "Default Resource",
-            "type": "urn:backend-client:resources:default",
-            "ownerManagedAccess": false,
-            "attributes": {},
-            "uris": [
-              "/*"
-            ]
-          }
-        ],
-        "policies": [],
-        "scopes": [],
-        "decisionStrategy": "UNANIMOUS"
-      }
+      ]
     },
     {
       "id": "ea6066b4-7f8f-44d6-908f-e423f1512a50",

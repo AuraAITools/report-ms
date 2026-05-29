@@ -1,0 +1,4 @@
+extend type Query {
+    getAccountById(accountId: ID!): AccountResponse!
+    getAllAccountsInInstitution(institutionId: ID!): [AccountResponse!]!
+}

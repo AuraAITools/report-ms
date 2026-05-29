@@ -33,6 +33,14 @@ spring:
         - classpath:graphql/operations/institutions/
         - classpath:graphql/operations/topics/
         - classpath:graphql/operations/subjects/
+        - classpath:graphql/operations/permissions/
+        - classpath:graphql/operations/lesson_plans/
+        - classpath:graphql/operations/materials/
+        - classpath:graphql/operations/schools/
+        - classpath:graphql/operations/educators/
+        - classpath:graphql/operations/parents/
+        - classpath:graphql/operations/students/
+        - classpath:graphql/operations/outlet_rooms/
 # actuator
 management:
   endpoints:
@@ -59,6 +67,27 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
   enabled: true
+spicedb:
+  target: ${SPICEDB_TARGET:localhost:50051}
+  preshared-key: ${SPICEDB_PRESHARED_KEY:}
+  plaintext: ${SPICEDB_PLAINTEXT:true}
+aws:
+  region: ${AWS_REGION:ap-southeast-1}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET_NAME:}
+aura:
+  email:
+    enabled: ${AURA_EMAIL_ENABLED:true}
+    from-address: ${AURA_EMAIL_FROM_ADDRESS:no-reply@aura.com}
+    from-display-name: ${AURA_EMAIL_FROM_DISPLAY_NAME:Aura}
+    base-url-app: ${AURA_EMAIL_BASE_URL_APP:https://app.aura.com}
+    retry-delay-millis: ${AURA_EMAIL_RETRY_DELAY_MILLIS:5000}
+    action-token-lifespan-seconds: ${AURA_EMAIL_ACTION_TOKEN_LIFESPAN_SECONDS:86400}
+    action-redirect-uri: ${AURA_EMAIL_ACTION_REDIRECT_URI:https://app.aura.com/auth/complete}
+    weekly-digest:
+      enabled: ${AURA_EMAIL_WEEKLY_DIGEST_ENABLED:false}
+      cron: ${AURA_EMAIL_WEEKLY_DIGEST_CRON:0 0 9 * * MON}
+      zone: ${AURA_EMAIL_WEEKLY_DIGEST_ZONE:Asia/Singapore}
 info:
   app:
     name: report-service

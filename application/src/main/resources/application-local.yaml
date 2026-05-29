@@ -8,10 +8,27 @@ spring:
     url: ${DB_URL}
     driverClassName: org.postgresql.Driver
   jpa:
-    show-sql: true
+    properties:
+      hibernate:
+        generate_statistics: true
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 1 # log slow queries
   graphql:
     graphiql:
       enabled: true # graphql client
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}
 #    properties:
 #      hibernate.envers.default_schema: audit
 oauth2:
@@ -19,9 +36,13 @@ oauth2:
     resource-server:
       jwk-set-uri: ${JWK_SET_URI}
     enabled: true
-#logging:
-#  level:
-#    org:
+logging:
+  level:
+    org:
+      hibernate:
+        stat: DEBUG
+#        SQL: DEBUG # log all sql queries
+#        cache: DEBUG # log cache operations
 #      springframework:
 #        security: TRACE
 # configurations for the backend keycloak client
@@ -31,3 +52,18 @@ keycloak:
     realm: ${KEYCLOAK_CLIENT_REALM}
     clientId: ${KEYCLOAK_CLIENT_ID}
     clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+aws:
+  s3:
+    endpoint-override: ${AWS_S3_ENDPOINT_OVERRIDE:http://localhost:4566}
+aura:
+  email:
+    enabled: true
+    from-address: ${AURA_EMAIL_FROM_ADDRESS:no-reply@aura.local}
+    from-display-name: ${AURA_EMAIL_FROM_DISPLAY_NAME:Aura}
+    base-url-app: ${AURA_EMAIL_BASE_URL_APP:http://localhost:3000}
+    # blank = no post-action redirect, which avoids Keycloak's
+    # Valid-Redirect-URI check on the configured client. Set this to a
+    # registered redirect URI to enable the post-action redirect.
+    action-redirect-uri: ${AURA_EMAIL_ACTION_REDIRECT_URI:http://localhost:3000/api/auth/callback/keycloak}
+    weekly-digest:
+      enabled: false

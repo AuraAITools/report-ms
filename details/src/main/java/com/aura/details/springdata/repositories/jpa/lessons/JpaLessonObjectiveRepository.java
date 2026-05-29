@@ -1,12 +1,20 @@
 package com.aura.details.springdata.repositories.jpa.lessons;
 
 import com.aura.details.springdata.models.lessons.LessonObjectiveModel;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaLessonObjectiveRepository extends JpaRepository<LessonObjectiveModel, UUID>, JpaSpecificationExecutor<LessonObjectiveModel> {
-}
+    List<LessonObjectiveModel> findAllByLessonPlanId(UUID lessonPlanId);
 
+    List<LessonObjectiveModel> findAllByTenantId(String tenantId);
+
+    @Query("SELECT lo.lessonPlan.lesson.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonPlan.lesson.id IN :lessonIds")
+    List<Object[]> findObjectivesByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
+}

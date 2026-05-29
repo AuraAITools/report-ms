@@ -1,0 +1,6 @@
+mutation RequestMaterialUpload($input: RequestMaterialUploadInput!) {
+    requestMaterialUpload(input: $input) {
+        uploadUrl
+        fileKey
+    }
+}

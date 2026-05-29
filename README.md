@@ -27,6 +27,54 @@ Note:
 - details can use core, but not application
 - application can use core & details
 
+## Local environment
+
+The app depends on Postgres, SpiceDB, and S3. For local development, start everything via Docker Compose.
+
+### 1. Start Postgres + LocalStack (app DB + S3)
+
+```bash
+docker compose -f docker-compose-dev.yaml up -d
+```
+
+This brings up:
+
+- **Postgres** on `localhost:5434` (user `postgres` / pass `password` / db `aura`)
+- **LocalStack S3** on `localhost:4566`. The `docker/localstack/init-s3.sh` init hook auto-creates the `aura-dev` bucket
+  on first boot. LocalStack is also configured with `EXTRA_CORS_ALLOWED_ORIGINS=http://localhost:3000` so browser PUTs
+  to presigned URLs from a local frontend work.
+
+Verify the bucket exists:
+
+```bash
+docker exec localstack-dev awslocal s3 ls
+```
+
+### 2. Start SpiceDB (authorization)
+
+```bash
+docker compose -f spice-docker-compose.yaml up -d
+```
+
+This starts a SpiceDB Postgres on `localhost:5435`, runs migrations, then serves SpiceDB on `localhost:50051` (gRPC) and
+`localhost:8443` (HTTP). The preshared key is `dev-secret-key`.
+
+Bootstrap the schema and superadmin (see [SpiceDB section below](#first-time-starting)).
+
+### 3. Required env vars
+
+Request `.env.sample` values (DB / Keycloak) from another developer. In addition, for S3 against LocalStack set:
+
+```bash
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+AWS_REGION=ap-southeast-1
+AWS_S3_BUCKET_NAME=aura-dev
+```
+
+The `local` Spring profile automatically points the S3 client at `http://localhost:4566` via
+`aws.s3.endpoint-override` — no app-side change needed to switch between LocalStack and real S3.
+
 ## Running the application
 
 1. First create `liquibase` schema in your DB
@@ -53,3 +101,26 @@ Java jdk 25
 
 To standardise JDK versions. use `sdk env` to switch to correct sdk in `.sdkmanrc`
 if JDK is not installed, use `sdk env install`
+
+# First time starting
+
+## adding superadmin to spicedb
+
+```shell
+# create compiled zed file from composable .zed files
+zed schema compile index.zed > artifact.zed
+# write schema into spicedb
+zed schema write artifact.zed
+# run applicaiont
+# this will write the system:aura parent system_user_group:aura relationship
+# create system_user_group:aura to system:aura relationship
+# give user admin & group_admin relation of aura system_user_group
+zed relationship create system_user_group:aura admin user:<user_id>
+zed relationship create system_user_group:aura group_admin user:<user_id>
+```
+
+When running the application, it will idempotently(TOUCH) write the relation
+
+```
+zed relationship create system:aura user_group system_user_group:aura
+```

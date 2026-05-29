@@ -1,0 +1,12 @@
+query GetInstitutionsByIds($institutionIds: [ID!]!) {
+    getInstitutionsByIds(institutionIds: $institutionIds) {
+        id
+        name
+        email
+        contactNumber
+        address
+        uen
+        createdBy
+        updatedBy
+    }
+}

@@ -1,4 +1,4 @@
-type OutletResponse implements Auditable @connection{
+type OutletResponse implements Auditable{
     id: ID!
     name: String!
     address: String!
@@ -6,13 +6,24 @@ type OutletResponse implements Auditable @connection{
     contactNumber: Int!
     description: String!
     email: String!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }
 
 input CreateOutletInput {
+    institutionId: ID!
+    name: String!
+    address: String!
+    postalCode: Int!
+    contactNumber: Int!
+    description: String!
+    email: String!
+}
+
+input UpdateOutletInput {
+    id: ID!
     institutionId: ID!
     name: String!
     address: String!

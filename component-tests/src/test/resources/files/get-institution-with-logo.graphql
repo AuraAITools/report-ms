@@ -1,0 +1,8 @@
+query GetInstitutionWithLogo($institutionId: ID!) {
+    getInstitution(institutionId: $institutionId) {
+        id
+        name
+        email
+        logoUrl
+    }
+}

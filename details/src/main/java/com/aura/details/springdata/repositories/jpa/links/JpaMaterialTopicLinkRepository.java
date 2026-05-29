@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaMaterialTopicLinkRepository extends JpaRepository<MaterialTopicLinkModel, UUID>, JpaSpecificationExecutor<MaterialTopicLinkModel> {
-}
 
+    void deleteAllByMaterialId(UUID materialId);
+}

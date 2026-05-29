@@ -1,0 +1,5 @@
+extend type Mutation {
+    createLessonObjective(input: CreateLessonObjectiveInput!): LessonObjectiveResponse!
+    updateLessonObjective(input: UpdateLessonObjectiveInput!): LessonObjectiveResponse!
+    deleteLessonObjectiveById(input: DeleteLessonObjectiveByIdInput!): Boolean!
+}

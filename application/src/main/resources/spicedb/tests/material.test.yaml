@@ -1,0 +1,208 @@
+schemaFile: ../material.zed
+
+# Full coverage: direct material roles, inherited institution roles, transitively-inherited
+# system roles, and negative cases.
+#
+# DIRECT (material_user_group:1):
+#   mat_group_admin_user   — group_admin
+#   mat_group_viewer_user  — group_viewer
+#   mat_admin_user         — admin     (view + update + delete)
+#   mat_modifier_user      — modifier  (view + update; NOT delete)
+#   mat_viewer_user        — viewer    (view only)
+#
+# INHERITED (institution_user_group:1, reaches material via material#parent):
+#   inst_admin_user        — admin (institution)        — inherits view + update + delete
+#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete
+#   inst_viewer_user       — viewer (institution)       — inherits view only
+#   inst_admin_user / inst_modifier_user can create_material on the institution
+#
+# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches material via material#parent -> institution#parent):
+#   sys_admin_user         — admin (system)         — inherits view + update + delete
+#   sys_modifier_user      — modifier (system)      — inherits view + update; NOT delete
+#   sys_viewer_user        — viewer (system)        — inherits view only
+#
+# SUPERADMIN cascade (each *_user_group#parent -> system_user_group):
+#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on material_user_group
+#   sys_group_viewer_user  — group_viewer (system)  — group_view only on each descendant *_user_group
+#
+# Negative:
+#   non_member_user — no relationships
+relationships: |-
+  material_user_group:1#group_admin@user:mat_group_admin_user
+  material_user_group:1#group_viewer@user:mat_group_viewer_user
+  material_user_group:1#admin@user:mat_admin_user
+  material_user_group:1#modifier@user:mat_modifier_user
+  material_user_group:1#viewer@user:mat_viewer_user
+  material:1#user_group@material_user_group:1
+
+  institution_user_group:1#admin@user:inst_admin_user
+  institution_user_group:1#modifier@user:inst_modifier_user
+  institution_user_group:1#viewer@user:inst_viewer_user
+  institution:1#user_group@institution_user_group:1
+
+  system_user_group:aura#group_admin@user:sys_group_admin_user
+  system_user_group:aura#group_viewer@user:sys_group_viewer_user
+  system_user_group:aura#admin@user:sys_admin_user
+  system_user_group:aura#modifier@user:sys_modifier_user
+  system_user_group:aura#viewer@user:sys_viewer_user
+  system:aura#user_group@system_user_group:aura
+
+  material:1#parent@institution:1
+  institution:1#parent@system:aura
+
+  material_user_group:1#parent@system_user_group:aura
+  institution_user_group:1#parent@system_user_group:aura
+
+assertions:
+  assertTrue:
+    # ============================================================
+    # DIRECT material roles
+    # ============================================================
+
+    # ---- mat_group_admin_user — full group-management ----
+    - material_user_group:1#group_view@user:mat_group_admin_user
+    - material_user_group:1#group_add_admin@user:mat_group_admin_user
+    - material_user_group:1#group_add_viewer@user:mat_group_admin_user
+    - material_user_group:1#group_remove_admin@user:mat_group_admin_user
+    - material_user_group:1#group_remove_viewer@user:mat_group_admin_user
+
+    # ---- mat_group_viewer_user — only group_view ----
+    - material_user_group:1#group_view@user:mat_group_viewer_user
+
+    # ---- mat_admin_user — view + update + delete ----
+    - material_user_group:1#view@user:mat_admin_user
+    - material_user_group:1#update@user:mat_admin_user
+    - material_user_group:1#delete@user:mat_admin_user
+    - material:1#view@user:mat_admin_user
+    - material:1#update@user:mat_admin_user
+    - material:1#delete@user:mat_admin_user
+    - material:1#is_admin_or_modifier@user:mat_admin_user
+
+    # ---- mat_modifier_user — view + update; NOT delete ----
+    - material_user_group:1#view@user:mat_modifier_user
+    - material_user_group:1#update@user:mat_modifier_user
+    - material:1#view@user:mat_modifier_user
+    - material:1#update@user:mat_modifier_user
+    - material:1#is_admin_or_modifier@user:mat_modifier_user
+
+    # ---- mat_viewer_user — view only ----
+    - material_user_group:1#view@user:mat_viewer_user
+    - material:1#view@user:mat_viewer_user
+
+    # ============================================================
+    # INHERITED roles via material#parent -> institution
+    # ============================================================
+
+    # ---- inst_admin_user — inherits view + update + delete + can create_material on institution ----
+    - material:1#view@user:inst_admin_user
+    - material:1#update@user:inst_admin_user
+    - material:1#delete@user:inst_admin_user
+    - institution:1#create_material@user:inst_admin_user
+
+    # ---- inst_modifier_user — inherits view + update; NOT delete; can create_material ----
+    - material:1#view@user:inst_modifier_user
+    - material:1#update@user:inst_modifier_user
+    - institution:1#create_material@user:inst_modifier_user
+
+    # ---- inst_viewer_user — inherits view only ----
+    - material:1#view@user:inst_viewer_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED roles via material -> institution -> system
+    # ============================================================
+
+    # ---- sys_admin_user — transitively inherits view + update + delete + create_material ----
+    - material:1#view@user:sys_admin_user
+    - material:1#update@user:sys_admin_user
+    - material:1#delete@user:sys_admin_user
+    - institution:1#create_material@user:sys_admin_user
+
+    # ---- sys_modifier_user — transitively inherits view + update; NOT delete ----
+    - material:1#view@user:sys_modifier_user
+    - material:1#update@user:sys_modifier_user
+    - institution:1#create_material@user:sys_modifier_user
+
+    # ---- sys_viewer_user — transitively inherits view only ----
+    - material:1#view@user:sys_viewer_user
+
+    # ============================================================
+    # SUPERADMIN cascade via material_user_group#parent -> system_user_group
+    # ============================================================
+
+    # ---- sys_group_admin_user — full group-management on material_user_group ----
+    - material_user_group:1#group_view@user:sys_group_admin_user
+    - material_user_group:1#group_add_admin@user:sys_group_admin_user
+    - material_user_group:1#group_add_viewer@user:sys_group_admin_user
+    - material_user_group:1#group_remove_admin@user:sys_group_admin_user
+    - material_user_group:1#group_remove_viewer@user:sys_group_admin_user
+
+    # ---- sys_group_viewer_user — only group_view on material_user_group ----
+    - material_user_group:1#group_view@user:sys_group_viewer_user
+
+  assertFalse:
+    # ============================================================
+    # non_member_user (no relationships anywhere)
+    # ============================================================
+    - material_user_group:1#group_view@user:non_member_user
+    - material_user_group:1#view@user:non_member_user
+    - material_user_group:1#update@user:non_member_user
+    - material_user_group:1#delete@user:non_member_user
+    - material:1#view@user:non_member_user
+    - material:1#update@user:non_member_user
+    - material:1#delete@user:non_member_user
+    - institution:1#create_material@user:non_member_user
+
+    # ============================================================
+    # DIRECT material role exclusions
+    # ============================================================
+
+    # ---- mat_group_admin_user — NO resource access ----
+    - material:1#view@user:mat_group_admin_user
+    - material:1#update@user:mat_group_admin_user
+    - material:1#delete@user:mat_group_admin_user
+
+    # ---- mat_admin_user — NO group-management ----
+    - material_user_group:1#group_view@user:mat_admin_user
+    - material_user_group:1#group_add_admin@user:mat_admin_user
+
+    # ---- mat_modifier_user — no delete, no group-mgmt ----
+    - material_user_group:1#delete@user:mat_modifier_user
+    - material:1#delete@user:mat_modifier_user
+    - material_user_group:1#group_view@user:mat_modifier_user
+
+    # ---- mat_viewer_user — no update/delete, no group-mgmt ----
+    - material:1#update@user:mat_viewer_user
+    - material:1#delete@user:mat_viewer_user
+    - material_user_group:1#group_view@user:mat_viewer_user
+
+    # ============================================================
+    # INHERITED (institution) role exclusions
+    # ============================================================
+
+    # ---- inst_modifier_user — cannot delete material ----
+    - material:1#delete@user:inst_modifier_user
+
+    # ---- inst_viewer_user — cannot update/delete material, cannot create_material ----
+    - material:1#update@user:inst_viewer_user
+    - material:1#delete@user:inst_viewer_user
+    - institution:1#create_material@user:inst_viewer_user
+
+    # ---- Inherited institution users do NOT gain permissions on material_user_group ----
+    - material_user_group:1#view@user:inst_admin_user
+    - material_user_group:1#group_view@user:inst_admin_user
+
+    # ============================================================
+    # TRANSITIVELY INHERITED (system) role exclusions
+    # ============================================================
+
+    # ---- sys_viewer_user — cannot update/delete material ----
+    - material:1#update@user:sys_viewer_user
+    - material:1#delete@user:sys_viewer_user
+    - institution:1#create_material@user:sys_viewer_user
+
+    # ---- Transitively-inherited system users do NOT gain perms on material_user_group ----
+    - material_user_group:1#view@user:sys_admin_user
+
+    # ---- sys_group_admin_user / sys_group_viewer_user — group-mgmt at system confers NO material resource access ----
+    - material:1#view@user:sys_group_admin_user
+    - material:1#view@user:sys_group_viewer_user

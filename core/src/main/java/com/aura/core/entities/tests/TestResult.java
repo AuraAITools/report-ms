@@ -1,7 +1,5 @@
 package com.aura.core.entities.tests;
 
-import com.aura.core.entities.students.Student;
-import com.aura.core.entities.subjects.Subject;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,11 +21,12 @@ public class TestResult {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Test test;
 
-    private Student student;
+    private String testId;
 
-    private Subject subject;
+    private String studentId;
+
+    private String subjectId;
 
 
 }

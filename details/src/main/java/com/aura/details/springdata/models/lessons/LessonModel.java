@@ -3,13 +3,16 @@ package com.aura.details.springdata.models.lessons;
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.courses.CourseModel;
 import com.aura.details.springdata.models.links.EducatorLessonLinkModel;
-import com.aura.details.springdata.models.links.MaterialLessonLinkModel;
+import com.aura.details.springdata.models.links.LevelLessonLinkModel;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.SubjectLessonLinkModel;
+import com.aura.details.springdata.models.links.TopicLessonLinkModel;
 import com.aura.details.springdata.models.outlets.OutletModel;
-import com.aura.details.springdata.models.subjects.SubjectModel;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -56,9 +59,20 @@ public class LessonModel extends TenantBaseModel {
     @Builder.Default
     private String recap = "";
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
     @ToString.Exclude
-    private SubjectModel subject;
+    private Set<SubjectLessonLinkModel> subjectLessonLinks = new HashSet<>();
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<TopicLessonLinkModel> topicLessonLinks = new HashSet<>();
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    @ToString.Exclude
+    private Set<LevelLessonLinkModel> levelLessonLinks = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
@@ -83,22 +97,12 @@ public class LessonModel extends TenantBaseModel {
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
-    private Set<LessonObjectiveModel> lessonObjectives = new HashSet<>();
-
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Builder.Default
-    @ToString.Exclude
     private Set<StudentLessonLinkModel> studentLessonRegistrations = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
     private Set<EducatorLessonLinkModel> educatorLessonLinks = new HashSet<>();
-
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY)
-    @Builder.Default
-    @ToString.Exclude
-    private Set<MaterialLessonLinkModel> materialLessonLinks = new HashSet<>();
 
     @OneToOne(mappedBy = "lesson")
     @ToString.Exclude
@@ -113,9 +117,14 @@ public class LessonModel extends TenantBaseModel {
     @ToString.Exclude
     private OutletModel outlet;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private LESSON_STATE state = LESSON_STATE.CREATED;
 
-    public enum LESSON_STATUS {
-        COMPLETED, CANCELLED, POSTPONED, UPCOMING, ONGOING
+
+    public enum LESSON_STATE {
+        CREATED, ENDED, CANCELLED
     }
 
     public enum LESSON_REVIEW_STATUS {

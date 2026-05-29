@@ -1,6 +1,6 @@
 package com.aura.core.usecases.subjects;
 
-import com.aura.core.entities.links.TopicSubjectLink;
+import com.aura.core.entities.subjects.SubjectWithTopics;
 import com.aura.core.repositories.SubjectRepository;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +11,7 @@ public class CreateTopicSubjectLinksUseCaseImpl implements CreateTopicSubjectLin
     private final SubjectRepository subjectRepository;
 
     @Override
-    public List<TopicSubjectLink> linkTopicsToSubject(UUID subjectId, List<UUID> topicIds, String tenantId) {
+    public SubjectWithTopics linkTopicsToSubject(UUID subjectId, List<UUID> topicIds, String tenantId) {
         return subjectRepository.link(subjectId, topicIds, tenantId);
     }
 }

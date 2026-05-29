@@ -1,0 +1,34 @@
+type LessonObjectiveResponse implements Auditable {
+    id: ID!
+    lessonPlanId: ID!
+    name: String!
+    objective: String!
+    createdAt: Long!
+    createdBy: ID!
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateLessonObjectiveInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonPlanId: ID!
+    name: String!
+    objective: String!
+    topicIds: [ID!]!
+}
+
+input UpdateLessonObjectiveInput {
+    id: ID!
+    institutionId: ID!
+    lessonId: ID!
+    name: String!
+    objective: String!
+    topicIds: [ID!]!
+}
+
+input DeleteLessonObjectiveByIdInput {
+    id: ID!
+    institutionId: ID!
+    lessonId: ID!
+}

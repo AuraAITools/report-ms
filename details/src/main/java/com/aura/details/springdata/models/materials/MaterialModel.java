@@ -2,8 +2,8 @@ package com.aura.details.springdata.models.materials;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.links.LessonPlanMaterialsLinkModel;
-import com.aura.details.springdata.models.links.MaterialLessonLinkModel;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -33,17 +33,20 @@ public class MaterialModel extends TenantBaseModel {
 
     private String name;
 
-    private String fileUrl;
+    @Column(length = 2000)
+    private String description;
+
+    /**
+     * S3 object key (not URL). The presigned URL is generated on read by AssetUrlService.
+     * Null when the material has no associated file.
+     */
+    @Column(length = 512)
+    private String fileKey;
 
     @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
     private Set<MaterialTopicLinkModel> materialTopicLinks = new HashSet<>();
-
-    @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @Builder.Default
-    private Set<MaterialLessonLinkModel> materialLessonLinks = new HashSet<>();
 
     @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
     @ToString.Exclude

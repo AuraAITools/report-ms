@@ -1,0 +1,9 @@
+query LookupPermissions {
+    lookupPermissions {
+        permissions {
+            resourceType
+            resourceId
+            permissions
+        }
+    }
+}

@@ -1,12 +1,11 @@
 package com.aura.core.entities.lessons;
 
-import com.aura.core.entities.courses.Course;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Builder
 @Getter
@@ -22,7 +21,7 @@ public class PriceRecord {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private Course course;
+    private String courseId;
     private Double price;
     private FREQUENCY frequency;
 

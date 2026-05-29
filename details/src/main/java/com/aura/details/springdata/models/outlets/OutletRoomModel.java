@@ -1,9 +1,13 @@
 package com.aura.details.springdata.models.outlets;
 
+import com.aura.core.entities.outlets.OutletRoom.OUTLET_ROOM_TYPE;
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.lessons.LessonOutletRoomBookingModel;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -20,7 +24,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Audited
@@ -47,6 +53,17 @@ public class OutletRoomModel extends TenantBaseModel {
     private String details;
 
     private String fileUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OUTLET_ROOM_TYPE type;
+
+    private String url;
+
+    private String passcode;
+
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    private String description;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude

@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaStudentOutletLinkRepository extends JpaRepository<StudentOutletLinkModel, UUID>, JpaSpecificationExecutor<StudentOutletLinkModel> {
+
+    void deleteAllByStudentId(UUID studentId);
 }
 

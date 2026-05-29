@@ -1,20 +1,28 @@
-type InstitutionResponse implements Auditable @connection{
+type InstitutionResponse implements Auditable{
     id: ID!
     name: String!
     email: String!
     contactNumber: String!
     address: String!
     uen: String!
+    logoUrl: String
+    state: InstitutionState!
     outlets: [OutletResponse!]!
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }
 
+enum InstitutionState {
+    PENDING
+    ACTIVE
+    INACTIVE
+}
+
 interface Auditable {
-    createdAt: Long
-    createdBy: ID
+    createdAt: Long!
+    createdBy: ID!
     updatedAt: Long
     updatedBy: ID
 }

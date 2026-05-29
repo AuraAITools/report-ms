@@ -2,22 +2,19 @@ package com.aura.tests.component.stepdefs;
 
 import com.aura.app.codegen.types.CreateOutletInput;
 import com.aura.app.codegen.types.OutletResponse;
-import com.aura.tests.component.containers.keycloak.KeycloakTestContainer;
 import com.aura.tests.component.contexts.TestContext;
-import dasniko.testcontainers.keycloak.KeycloakContainer;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.ClientResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
 import org.springframework.graphql.client.FieldAccessException;
+
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OutletStepDefs {
 
     private final TestContext testContext;
+    private List<Map<String, Object>> lastGetOutletsResponse;
+    private OutletResponse lastUpdateOutletResponse;
 
     @When("user creates an outlet with details:")
     public void userCreatesAnOutletWithDetails(CreateOutletInput createOutletInput) {
@@ -82,81 +81,89 @@ public class OutletStepDefs {
         assertThat(testContext.getOutletId()).isNotBlank();
     }
 
-    @And("a UMA resource should be registered for the outlet with type {string} and scopes {string}")
-    public void umaResourceRegisteredForOutletWithTypeAndScopes(String expectedType, String scopesCsv) {
-        String outletId = testContext.getOutletId();
-        String expectedResourceName = "outlet:" + outletId;
-        List<String> expectedScopes = List.of(scopesCsv.split(","));
+    @When("user queries all outlets in the institution")
+    @SuppressWarnings("unchecked")
+    public void userQueriesAllOutletsInTheInstitution() {
+        String query = findGraphqlQueryFromFiles("get-outlets-in-institution.graphql");
+        lastGetOutletsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("institutionId", testContext.getInstitutionId()))
+                .retrieveSync("getOutletsInInstitution")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
+    }
 
-        KeycloakContainer container = KeycloakTestContainer.getSingleton();
-        try (Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(container.getAuthServerUrl())
-                .realm("master")
-                .username(container.getAdminUsername())
-                .password(container.getAdminPassword())
-                .clientId("admin-cli")
-                .build()) {
+    @Then("the response should contain {int} outlets")
+    public void theResponseShouldContainOutlets(int expectedCount) {
+        assertThat(lastGetOutletsResponse).hasSize(expectedCount);
+    }
 
-            ClientRepresentation client = adminClient.realm("aura")
-                    .clients().findByClientId("aura-application-client").getFirst();
-            ClientResource adminClientResource = adminClient.realm("aura")
-                    .clients().get(client.getId());
+    @And("the outlets should include names {string}")
+    public void theOutletsShouldIncludeNames(String commaSeparatedNames) {
+        List<String> expected = List.of(commaSeparatedNames.split(","));
+        assertThat(lastGetOutletsResponse).extracting(m -> m.get("name"))
+                .containsExactlyInAnyOrderElementsOf(expected);
+    }
 
-            List<ResourceRepresentation> resources = adminClientResource.authorization()
-                    .resources().findByName(expectedResourceName);
+    @When("user updates the outlet with details:")
+    public void userUpdatesTheOutletWithDetails(DataTable dataTable) {
+        Map<String, String> entry = dataTable.asMaps().get(0);
+        Map<String, Object> input = new HashMap<>();
+        input.put("id", testContext.getOutletId());
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("name", entry.get("name"));
+        input.put("address", entry.get("address"));
+        input.put("postalCode", Integer.parseInt(entry.get("postalCode")));
+        input.put("contactNumber", Integer.parseInt(entry.get("contactNumber")));
+        input.put("description", entry.get("description"));
+        input.put("email", entry.get("email"));
 
-            assertThat(resources)
-                    .as("UMA resource '%s' should be registered in Keycloak", expectedResourceName)
-                    .isNotEmpty();
+        String query = findGraphqlQueryFromFiles("update-outlet.graphql");
+        lastUpdateOutletResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("input", input))
+                .retrieveSync("updateOutlet")
+                .toEntity(OutletResponse.class);
+    }
 
-            ResourceRepresentation resource = resources.getFirst();
-            assertThat(resource.getName()).isEqualTo(expectedResourceName);
-            assertThat(resource.getType())
-                    .as("Resource type should be '%s'", expectedType)
-                    .isEqualTo(expectedType);
-            assertThat(resource.getOwnerManagedAccess())
-                    .as("Resource should have ownerManagedAccess enabled")
-                    .isTrue();
-            assertThat(resource.getScopes())
-                    .extracting("name")
-                    .as("Resource should have scopes %s", expectedScopes)
-                    .containsExactlyInAnyOrderElementsOf(expectedScopes);
+    @Then("the outlet should be updated successfully with name {string}")
+    public void theOutletShouldBeUpdatedSuccessfullyWithName(String expectedName) {
+        assertThat(lastUpdateOutletResponse).isNotNull();
+        assertThat(lastUpdateOutletResponse.getId()).isEqualTo(testContext.getOutletId());
+        assertThat(lastUpdateOutletResponse.getName()).isEqualTo(expectedName);
+    }
+
+    @When("user tries to update a non-existent outlet")
+    public void userTriesToUpdateANonExistentOutlet() {
+        Map<String, Object> input = new HashMap<>();
+        input.put("id", UUID.randomUUID().toString());
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("name", "Whatever");
+        input.put("address", "1 Somewhere");
+        input.put("postalCode", 123456);
+        input.put("contactNumber", 91234567);
+        input.put("description", "Ignored");
+        input.put("email", "ignored@test.com");
+
+        String query = findGraphqlQueryFromFiles("update-outlet.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("input", input))
+                    .retrieveSync("updateOutlet")
+                    .toEntity(OutletResponse.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
         }
     }
 
-    @And("a UMA resource should be registered for the outlet")
-    public void umaResourceShouldBeRegisteredForTheOutlet() {
-        String outletId = testContext.getOutletId();
-        String expectedResourceName = "outlet:" + outletId;
-
-        KeycloakContainer container = KeycloakTestContainer.getSingleton();
-        try (Keycloak adminClient = KeycloakBuilder.builder()
-                .serverUrl(container.getAuthServerUrl())
-                .realm("master")
-                .username(container.getAdminUsername())
-                .password(container.getAdminPassword())
-                .clientId("admin-cli")
-                .build()) {
-
-            ClientRepresentation client = adminClient.realm("aura")
-                    .clients().findByClientId("aura-application-client").getFirst();
-            ClientResource adminClientResource = adminClient.realm("aura")
-                    .clients().get(client.getId());
-
-            List<ResourceRepresentation> resources = adminClientResource.authorization()
-                    .resources().findByName(expectedResourceName);
-
-            assertThat(resources).isNotEmpty();
-
-            ResourceRepresentation resource = resources.getFirst();
-            assertThat(resource.getName()).isEqualTo(expectedResourceName);
-            assertThat(resource.getType()).isEqualTo("urn:aura:outlet");
-            assertThat(resource.getOwnerManagedAccess()).isTrue();
-            assertThat(resource.getScopes())
-                    .extracting("name")
-                    .containsExactlyInAnyOrder("view", "manage", "delegate");
-        }
-    }
 
     private OutletResponse executeCreateOutlet(CreateOutletInput input) {
         String query = findGraphqlQueryFromFiles("create-outlet.graphql");

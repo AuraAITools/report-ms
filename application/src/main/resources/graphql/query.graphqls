@@ -1,3 +1,2 @@
 type Query {
-    _ping: String
 }

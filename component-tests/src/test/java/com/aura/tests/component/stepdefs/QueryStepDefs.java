@@ -81,6 +81,39 @@ public class QueryStepDefs {
                 .contains(testContext.getInstitutionId());
     }
 
+    @When("user queries institutions by ids using their onboarded institution id")
+    public void userQueriesInstitutionsByIdsUsingOnboardedId() {
+        queryInstitutionsByIds(List.of(testContext.getInstitutionId()));
+    }
+
+    @When("user queries institutions by ids with an empty list")
+    public void userQueriesInstitutionsByIdsWithEmptyList() {
+        queryInstitutionsByIds(List.of());
+    }
+
+    private void queryInstitutionsByIds(List<String> institutionIds) {
+        String query = findGraphqlQueryFromFiles("get-institutions-by-ids.graphql");
+        lastUserInstitutionsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("institutionIds", institutionIds))
+                .retrieveSync("getInstitutionsByIds")
+                .toEntityList(InstitutionResponse.class);
+    }
+
+    @Then("the institutions response should contain the onboarded institution")
+    public void theInstitutionsResponseShouldContainTheOnboardedInstitution() {
+        assertThat(lastUserInstitutionsResponse).isNotNull().isNotEmpty();
+        assertThat(lastUserInstitutionsResponse)
+                .extracting(InstitutionResponse::getId)
+                .containsExactly(testContext.getInstitutionId());
+    }
+
+    @Then("the institutions response should be empty")
+    public void theInstitutionsResponseShouldBeEmpty() {
+        assertThat(lastUserInstitutionsResponse).isNotNull().isEmpty();
+    }
+
     @When("user queries levels by page")
     public void userQueriesLevelsByPage() {
         String query = findGraphqlQueryFromFiles("get-levels-by-page.graphql");
@@ -146,6 +179,42 @@ public class QueryStepDefs {
                     testContext.setLastErrorMessage(extensions.get("error_code").toString());
                 }
             }
+        }
+    }
+
+    @When("user tries to query outlets by page")
+    public void userTriesToQueryOutletsByPage() {
+        String query = findGraphqlQueryFromFiles("get-outlets-by-page.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
+                    .retrieveSync("getOutletsByPage")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+            testContext.setLastQuerySucceeded(true);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
+
+    @When("user tries to query levels by page")
+    public void userTriesToQueryLevelsByPage() {
+        String query = findGraphqlQueryFromFiles("get-levels-by-page.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of("institutionId", testContext.getInstitutionId(), "first", 10))
+                    .retrieveSync("getLevelByPage")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+            testContext.setLastQuerySucceeded(true);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
         }
     }
 }

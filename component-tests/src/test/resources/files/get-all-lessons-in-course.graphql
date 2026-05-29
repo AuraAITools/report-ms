@@ -1,0 +1,13 @@
+query GetAllLessonsInCourse($courseId: ID!) {
+    getAllLessonsInCourse(courseId: $courseId) {
+        id
+        name
+        lessonStartTimestamptz
+        lessonEndTimestamptz
+        createdBy
+        updatedBy
+        course {
+            id
+        }
+    }
+}

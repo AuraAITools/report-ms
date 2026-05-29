@@ -2,31 +2,23 @@ package com.aura.details.springdata.mappers.courses;
 
 import com.aura.core.entities.courses.Course;
 import com.aura.details.springdata.mappers.lessons.PriceRecordMapper;
-import com.aura.details.springdata.mappers.levels.LevelMapper;
-import com.aura.details.springdata.mappers.outlets.OutletMapper;
 import com.aura.details.springdata.models.courses.CourseModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {PriceRecordMapper.class, LevelMapper.class, OutletMapper.class})
+@Mapper(uses = {PriceRecordMapper.class})
 public interface CourseMapper {
     CourseMapper INSTANCE = Mappers.getMapper(CourseMapper.class);
 
-    @Mapping(target = "subjectCourseLinks", ignore = true)
-    @Mapping(target = "studentCourseLinks", ignore = true)
-    @Mapping(target = "educatorCourseLinks", ignore = true)
-    @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "level.subjectLevelLinks", ignore = true)
-    @Mapping(target = "level.levelEducatorLinks", ignore = true)
-    @Mapping(target = "level.courses", ignore = true)
-    @Mapping(target = "level.students", ignore = true)
+    @Mapping(source = "outlet.id", target = "outletId")
+    @Mapping(source = "level.id", target = "levelId")
     Course toDomainEntity(CourseModel courseModel);
 
-    @Mapping(target = "subjectCourseLinks", ignore = true)
-    @Mapping(target = "studentCourseLinks", ignore = true)
-    @Mapping(target = "educatorCourseLinks", ignore = true)
-    @Mapping(target = "lessons", ignore = true)
+    // outlet and level are attached separately by CourseRepositoryImpl via Refs.ref(entityManager, ...),
+    // because a builder-stub *Model (id set, @Version null) trips Hibernate's
+    // isTransient check ("Detached entity ... uninitialized version value 'null'") during persist.
+    @Mapping(target = "outlet", ignore = true)
+    @Mapping(target = "level", ignore = true)
     CourseModel toModelEntity(Course course);
 }
-

@@ -1,0 +1,52 @@
+enum OutletRoomType {
+    PHYSICAL
+    VIRTUAL
+}
+
+type OutletRoomResponse implements Auditable {
+    id: ID!
+    outletId: ID!
+    name: String!
+    size: Int!
+    details: String
+    fileUrl: String
+    type: OutletRoomType!
+    url: String
+    passcode: String
+    description: String
+    createdAt: Long!
+    createdBy: ID!
+    updatedAt: Long
+    updatedBy: ID
+}
+
+input CreateOutletRoomInput {
+    institutionId: ID!
+    outletId: ID!
+    name: String!
+    size: Int!
+    details: String
+    fileUrl: String
+    type: OutletRoomType!
+    url: String
+    passcode: String
+    description: String
+}
+
+input UpdateOutletRoomInput {
+    id: ID!
+    institutionId: ID!
+    name: String!
+    size: Int!
+    details: String
+    fileUrl: String
+    type: OutletRoomType!
+    url: String
+    passcode: String
+    description: String
+}
+
+input DeleteOutletRoomByIdInput {
+    id: ID!
+    institutionId: ID!
+}

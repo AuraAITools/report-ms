@@ -1,4 +1,4 @@
 extend type Query {
-    getInstitution(institutionId: ID!): InstitutionResponse
-    getUserInstitutions(institutionId: ID!): [InstitutionResponse!]!
+    getInstitution(institutionId: ID!): InstitutionResponse!
+    getInstitutionsByIds(institutionIds: [ID!]!): [InstitutionResponse!]!
 }

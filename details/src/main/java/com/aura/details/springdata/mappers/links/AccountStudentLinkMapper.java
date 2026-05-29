@@ -1,19 +1,24 @@
 package com.aura.details.springdata.mappers.links;
 
 import com.aura.core.entities.links.AccountStudentLink;
-import com.aura.details.springdata.mappers.accounts.AccountMapper;
-import com.aura.details.springdata.mappers.students.StudentMapper;
 import com.aura.details.springdata.models.links.AccountStudentLinkModel;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {StudentMapper.class, AccountMapper.class})
+@Mapper
 public interface AccountStudentLinkMapper {
 
     AccountStudentLinkMapper INSTANCE = Mappers.getMapper(AccountStudentLinkMapper.class);
 
-    AccountStudentLink toDomain(AccountStudentLinkModel table);
+    @Mapping(source = "account.id", target = "accountId")
+    @Mapping(source = "student.id", target = "studentId")
+    AccountStudentLink toDomain(AccountStudentLinkModel model);
 
-
-    AccountStudentLinkModel toTable(AccountStudentLink domain);
+    // account and student are attached separately by the repository impl via Refs.ref(entityManager, ...),
+    // because a builder-stub *Model (id set, @Version null) trips Hibernate's
+    // isTransient check ("Detached entity ... uninitialized version value 'null'") during persist.
+    @Mapping(target = "account", ignore = true)
+    @Mapping(target = "student", ignore = true)
+    AccountStudentLinkModel toTable(AccountStudentLink link);
 }

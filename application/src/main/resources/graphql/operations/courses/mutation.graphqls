@@ -1,3 +1,4 @@
 extend type Mutation {
-    createCourse(createCourseInput: CreateCourseInput): CourseResponse!
+    createCourse(createCourseInput: CreateCourseInput!): CourseResponse!
+    deleteCourseById(id: ID!): Boolean!
 }

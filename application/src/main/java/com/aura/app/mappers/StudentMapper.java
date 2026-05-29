@@ -1,5 +1,7 @@
 package com.aura.app.mappers;
 
+import com.aura.app.codegen.types.AccountStudentDetailsInput;
+import com.aura.app.codegen.types.CreateParentAndStudentsInAccountInput;
 import com.aura.app.codegen.types.CreateStudentInput;
 import com.aura.app.codegen.types.StudentCourseEnrollmentInput;
 import com.aura.app.codegen.types.StudentResponse;
@@ -18,22 +20,45 @@ public interface StudentMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "testResults", ignore = true)
-    @Mapping(target = "subjectStudentLinks", ignore = true)
-    @Mapping(target = "studentOutletLinks", ignore = true)
-    @Mapping(target = "studentLessonLinks", ignore = true)
-    @Mapping(target = "studentCourseLinks", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "accountStudentLinks", ignore = true)
-    @Mapping(target = "school", ignore = true)
-    @Mapping(target = "level", ignore = true)
-    Student toDomain(CreateStudentInput createStudentInput, String tenantId);
+    @Mapping(target = "schoolId", ignore = true)
+    @Mapping(target = "levelId", ignore = true)
+    @Mapping(target = "tenantId", source = "institutionId")
+    Student toDomain(CreateStudentInput createStudentInput);
 
     @Mapping(target = "studentCourseEnrollmentParams", expression = "java(toParams(createStudentInput.getCourseEnrollments()))")
-    @Mapping(target = "student", expression = "java(toDomain(createStudentInput, tenantId))")
-    AccountService.CreateStudentAccountParams toParams(CreateStudentInput createStudentInput, String tenantId);
+    @Mapping(target = "student", expression = "java(toDomain(createStudentInput))")
+    AccountService.CreateStudentParams toParams(CreateStudentInput createStudentInput);
+
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "schoolId", ignore = true)
+    @Mapping(target = "levelId", ignore = true)
+    @Mapping(target = "tenantId", source = "institutionId")
+    @Mapping(target = "name", source = "input.name")
+    @Mapping(target = "email", source = "input.email")
+    @Mapping(target = "dateOfBirth", source = "input.dateOfBirth")
+    Student toDomain(AccountStudentDetailsInput input, String institutionId);
+
+    @Mapping(target = "accountId", source = "accountId")
+    @Mapping(target = "tenantId", source = "institutionId")
+    @Mapping(target = "levelId", source = "input.levelId")
+    @Mapping(target = "schoolId", source = "input.schoolId")
+    @Mapping(target = "student", expression = "java(toDomain(input, institutionId))")
+    @Mapping(target = "studentCourseEnrollmentParams", expression = "java(toParams(input.getCourseEnrollments()))")
+    AccountService.CreateStudentParams toParams(AccountStudentDetailsInput input, String accountId, String institutionId);
+
+    default List<AccountService.CreateStudentParams> toParams(CreateParentAndStudentsInAccountInput input) {
+        return input.getStudents().stream()
+                .map(s -> toParams(s, input.getAccountId(), input.getInstitutionId()))
+                .toList();
+    }
 
     List<AccountService.CreateStudentCourseEnrollmentParams> toParams(List<StudentCourseEnrollmentInput> studentCourseEnrollmentInputs);
 
@@ -53,5 +78,9 @@ public interface StudentMapper {
     @Mapping(target = "courses", source = "courses")
     StudentResponse toDto(AccountService.CreatedStudentResult createdStudentResult);
 
+    @Mapping(target = "level", ignore = true)
+    @Mapping(target = "school", ignore = true)
+    @Mapping(target = "courses", ignore = true)
+    StudentResponse toDto(Student student);
 
 }

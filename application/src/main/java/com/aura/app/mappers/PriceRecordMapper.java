@@ -12,7 +12,7 @@ public interface PriceRecordMapper {
     PriceRecordMapper INSTANCE = Mappers.getMapper(PriceRecordMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "course", ignore = true)
+    @Mapping(target = "courseId", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

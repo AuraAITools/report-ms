@@ -1,0 +1,12 @@
+mutation CreateMaterialInInstitution($input: CreateMaterialInInstitutionInput!) {
+    createMaterialInInstitution(input: $input) {
+        id
+        name
+        description
+        fileUrl
+        createdAt
+        createdBy
+        updatedAt
+        updatedBy
+    }
+}

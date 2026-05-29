@@ -1,5 +1,5 @@
-mutation CreateLesson($input: CreateLessonInput!) {
-    createLesson(createLesson: $input) {
+mutation CreateLessonInCourse($input: CreateLessonInCourseInput!) {
+    createLessonInCourse(createLessonInCourse: $input) {
         id
         name
         lessonStartTimestamptz
