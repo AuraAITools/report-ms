@@ -212,13 +212,16 @@ public class LessonStepDefs {
         input.put("levelIds", List.of("00000000-0000-0000-0000-000000000001"));
         input.put("subjectIds", List.of("00000000-0000-0000-0000-000000000001"));
         input.put("topicIds", List.of());
-        Map<String, Object> defaultPlan = new HashMap<>();
-        defaultPlan.put("plan", name + " plan");
-        defaultPlan.put("topicIds", List.of());
-        defaultPlan.put("studentIds", List.of());
-        defaultPlan.put("materialIds", List.of());
-        defaultPlan.put("lessonObjectives", List.of());
-        input.put("lessonPlans", List.of(defaultPlan));
+        Map<String, Object> defaultGroupPlan = new HashMap<>();
+        defaultGroupPlan.put("plan", name + " plan");
+        defaultGroupPlan.put("topicIds", List.of());
+        defaultGroupPlan.put("materialIds", List.of());
+        defaultGroupPlan.put("lessonObjectives", List.of());
+        Map<String, Object> defaultGroup = new HashMap<>();
+        defaultGroup.put("name", name + " group");
+        defaultGroup.put("studentIds", List.of());
+        defaultGroup.put("plan", defaultGroupPlan);
+        input.put("lessonGroups", List.of(defaultGroup));
 
         LessonResponse response = testContext.getGraphQLClient()
                 .mutate().build()
@@ -229,6 +232,9 @@ public class LessonStepDefs {
 
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo(name);
+        if (response.getLessonGroups() != null && !response.getLessonGroups().isEmpty()) {
+            testContext.setLessonGroupId(response.getLessonGroups().getFirst().getId());
+        }
         return response;
     }
 }

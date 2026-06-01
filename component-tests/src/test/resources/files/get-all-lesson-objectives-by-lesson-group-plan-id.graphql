@@ -1,0 +1,9 @@
+query GetAllLessonObjectivesByLessonGroupPlanId($institutionId: ID!, $lessonId: ID!, $lessonGroupPlanId: ID!) {
+    getAllLessonObjectivesByLessonGroupPlanId(institutionId: $institutionId, lessonId: $lessonId, lessonGroupPlanId: $lessonGroupPlanId) {
+        id
+        lessonGroupPlanId
+        name
+        objective
+        createdBy { userId accountId name url }
+    }
+}

@@ -22,7 +22,8 @@ public class TestContext {
     private List<String> topicIds = new ArrayList<>();
     private String courseId;
     private String lessonId;
-    private String lessonPlanId;
+    private String lessonGroupId;
+    private String lessonGroupPlanId;
     private String accountId;
     private String educatorId;
     private String studentId;
@@ -34,7 +35,8 @@ public class TestContext {
     private SubjectResponse lastSubjectResponse;
     private SubjectResponseWithTopics lastSubjectTopicResponse;
     private LessonResponse lastLessonResponse;
-    private Map<String, Object> lastLessonPlanResponseMap;
+    private Map<String, Object> lastLessonGroupPlanResponseMap;
+    private Map<String, Object> lastLessonGroupResponseMap;
     private boolean lastQuerySucceeded;
 
     // Error tracking for unhappy path @Then steps

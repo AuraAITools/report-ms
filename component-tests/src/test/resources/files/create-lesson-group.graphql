@@ -1,0 +1,15 @@
+mutation CreateLessonGroupInLesson($input: CreateLessonGroupInLessonInput!) {
+    createLessonGroupInLesson(input: $input) {
+        id
+        name
+        lesson { id }
+        lessonGroupPlan {
+            id
+            plan
+            state
+        }
+        students { id }
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

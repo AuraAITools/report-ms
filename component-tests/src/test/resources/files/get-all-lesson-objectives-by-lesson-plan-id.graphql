@@ -1,9 +1,0 @@
-query GetAllLessonObjectivesByLessonPlanId($institutionId: ID!, $lessonId: ID!, $lessonPlanId: ID!) {
-    getAllLessonObjectivesByLessonPlanId(institutionId: $institutionId, lessonId: $lessonId, lessonPlanId: $lessonPlanId) {
-        id
-        lessonPlanId
-        name
-        objective
-        createdBy { userId accountId name url }
-    }
-}

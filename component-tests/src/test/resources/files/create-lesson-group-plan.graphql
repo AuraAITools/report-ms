@@ -1,0 +1,16 @@
+mutation CreateLessonGroupPlanInLessonGroup($input: CreateLessonGroupPlanInLessonGroupInput!) {
+    createLessonGroupPlanInLessonGroup(input: $input) {
+        id
+        plan
+        recap
+        state
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+        lessonGroup { id name }
+        topics { id name }
+        lessonObjectives { id name }
+        materials { id name }
+    }
+}

@@ -19,14 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RequiredArgsConstructor
-public class LessonPlanStepDefs {
+public class LessonGroupPlanStepDefs {
 
     private final TestContext testContext;
     private final JdbcTemplate jdbcTemplate;
 
-    @When("the user creates a lesson plan in the lesson with plan {string} and {int} topics")
+    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics")
     @SuppressWarnings("unchecked")
-    public void userCreatesLessonPlanInLessonWithPlanAndTopics(String plan, int topicCount) {
+    public void userCreatesLessonGroupPlanInLessonGroupWithPlanAndTopics(String plan, int topicCount) {
         List<String> topicIds = testContext.getTopicIds();
         assertThat(topicIds)
                 .as("Expected at least %d topic(s) in TestContext.topicIds; create them via 'a topic exists with name' steps first",
@@ -34,11 +34,12 @@ public class LessonPlanStepDefs {
                 .hasSizeGreaterThanOrEqualTo(topicCount);
         List<String> selectedTopicIds = topicIds.subList(0, topicCount);
 
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
+        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
 
         Map<String, Object> input = new HashMap<>();
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
+        input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
         input.put("studentIds", List.of());
@@ -49,19 +50,19 @@ public class LessonPlanStepDefs {
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of("input", input))
-                .retrieveSync("createLessonPlanInLesson")
+                .retrieveSync("createLessonGroupPlanInLessonGroup")
                 .toEntity(Map.class);
 
         assertThat(response).isNotNull();
         assertThat(response.get("id")).isNotNull();
 
-        testContext.setLessonPlanId((String) response.get("id"));
-        testContext.setLastLessonPlanResponseMap(response);
+        testContext.setLessonGroupPlanId((String) response.get("id"));
+        testContext.setLastLessonGroupPlanResponseMap(response);
     }
 
-    @When("the user creates a lesson plan in the lesson with plan {string} and {int} topics and {int} lesson objectives")
+    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics and {int} lesson objectives")
     @SuppressWarnings("unchecked")
-    public void userCreatesLessonPlanInLessonWithPlanTopicsAndObjectives(
+    public void userCreatesLessonGroupPlanInLessonGroupWithPlanTopicsAndObjectives(
             String plan, int topicCount, int objectiveCount) {
         List<String> topicIds = testContext.getTopicIds();
         assertThat(topicIds)
@@ -79,11 +80,12 @@ public class LessonPlanStepDefs {
             lessonObjectives.add(objective);
         }
 
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
+        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
 
         Map<String, Object> input = new HashMap<>();
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
+        input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
         input.put("studentIds", List.of());
@@ -94,19 +96,19 @@ public class LessonPlanStepDefs {
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of("input", input))
-                .retrieveSync("createLessonPlanInLesson")
+                .retrieveSync("createLessonGroupPlanInLessonGroup")
                 .toEntity(Map.class);
 
         assertThat(response).isNotNull();
         assertThat(response.get("id")).isNotNull();
 
-        testContext.setLessonPlanId((String) response.get("id"));
-        testContext.setLastLessonPlanResponseMap(response);
+        testContext.setLessonGroupPlanId((String) response.get("id"));
+        testContext.setLastLessonGroupPlanResponseMap(response);
     }
 
-    @When("the user creates a lesson plan in the lesson with plan {string} and {int} topics and {int} students and {int} materials")
+    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics and {int} students and {int} materials")
     @SuppressWarnings("unchecked")
-    public void userCreatesLessonPlanInLessonWithPlanTopicsStudentsMaterials(
+    public void userCreatesLessonGroupPlanInLessonGroupWithPlanTopicsStudentsMaterials(
             String plan, int topicCount, int studentCount, int materialCount) {
         List<String> topicIds = testContext.getTopicIds();
         if (topicCount > 0) {
@@ -130,11 +132,12 @@ public class LessonPlanStepDefs {
             for (int i = 0; i < materialCount; i++) selectedMaterialIds.add(materialId);
         }
 
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
+        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
 
         Map<String, Object> input = new HashMap<>();
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
+        input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
         input.put("studentIds", selectedStudentIds);
@@ -145,36 +148,36 @@ public class LessonPlanStepDefs {
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of("input", input))
-                .retrieveSync("createLessonPlanInLesson")
+                .retrieveSync("createLessonGroupPlanInLessonGroup")
                 .toEntity(Map.class);
 
         assertThat(response).isNotNull();
         assertThat(response.get("id")).isNotNull();
 
-        testContext.setLessonPlanId((String) response.get("id"));
-        testContext.setLastLessonPlanResponseMap(response);
+        testContext.setLessonGroupPlanId((String) response.get("id"));
+        testContext.setLastLessonGroupPlanResponseMap(response);
     }
 
-    @Then("the lesson plan should have {int} linked materials in the database")
-    public void theLessonPlanShouldHaveLinkedMaterialsInTheDatabase(int expectedCount) {
+    @Then("the lesson group plan should have {int} linked materials in the database")
+    public void theLessonGroupPlanShouldHaveLinkedMaterialsInTheDatabase(int expectedCount) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM public.lesson_plan_materials_links WHERE lesson_plan_id = ?::uuid",
-                Integer.class, testContext.getLessonPlanId());
-        assertThat(count).as("lesson_plan_materials_links rows").isEqualTo(expectedCount);
+                "SELECT COUNT(*) FROM public.lesson_group_plan_materials_links WHERE lesson_group_plan_id = ?::uuid",
+                Integer.class, testContext.getLessonGroupPlanId());
+        assertThat(count).as("lesson_group_plan_materials_links rows").isEqualTo(expectedCount);
     }
 
-    @Then("the lesson plan should have {int} linked students in the database")
-    public void theLessonPlanShouldHaveLinkedStudentsInTheDatabase(int expectedCount) {
+    @Then("the lesson group plan should have {int} linked students in the database")
+    public void theLessonGroupPlanShouldHaveLinkedStudentsInTheDatabase(int expectedCount) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM public.student_lesson_links WHERE lesson_plan_id = ?::uuid",
-                Integer.class, testContext.getLessonPlanId());
-        assertThat(count).as("student_lesson_links with lesson_plan_id set").isEqualTo(expectedCount);
+                "SELECT COUNT(*) FROM public.student_lesson_links WHERE lesson_group_id = ?::uuid",
+                Integer.class, testContext.getLessonGroupId());
+        assertThat(count).as("student_lesson_links with lesson_group_id set").isEqualTo(expectedCount);
     }
 
-    @Then("the lesson plan should have {int} lesson objectives")
+    @Then("the lesson group plan should have {int} lesson objectives")
     @SuppressWarnings("unchecked")
-    public void theLessonPlanShouldHaveLessonObjectives(int expectedCount) {
-        String graphqlQuery = findGraphqlQueryFromFiles("get-all-lesson-objectives-by-lesson-plan-id.graphql");
+    public void theLessonGroupPlanShouldHaveLessonObjectives(int expectedCount) {
+        String graphqlQuery = findGraphqlQueryFromFiles("get-all-lesson-objectives-by-lesson-group-plan-id.graphql");
 
         List<Map> objectives = testContext.getGraphQLClient()
                 .mutate().build()
@@ -182,29 +185,30 @@ public class LessonPlanStepDefs {
                 .variables(Map.of(
                         "institutionId", testContext.getInstitutionId(),
                         "lessonId", testContext.getLessonId(),
-                        "lessonPlanId", testContext.getLessonPlanId()))
-                .retrieveSync("getAllLessonObjectivesByLessonPlanId")
+                        "lessonGroupPlanId", testContext.getLessonGroupPlanId()))
+                .retrieveSync("getAllLessonObjectivesByLessonGroupPlanId")
                 .toEntityList(Map.class);
 
         assertThat(objectives).hasSize(expectedCount);
         assertThat(objectives).allSatisfy(o -> {
-            assertThat(o.get("lessonPlanId")).isEqualTo(testContext.getLessonPlanId());
+            assertThat(o.get("lessonGroupPlanId")).isEqualTo(testContext.getLessonGroupPlanId());
             assertThat(o.get("name")).isNotNull();
             assertThat(o.get("objective")).isNotNull();
             assertThat(o.get("createdBy")).isNotNull();
         });
     }
 
-    @When("the unauthorized user tries to create a lesson plan in the lesson with plan {string} and {int} topics")
-    public void unauthorizedUserTriesToCreateLessonPlan(String plan, int topicCount) {
+    @When("the unauthorized user tries to create a lesson group plan in the lesson group with plan {string} and {int} topics")
+    public void unauthorizedUserTriesToCreateLessonGroupPlan(String plan, int topicCount) {
         List<String> topicIds = testContext.getTopicIds();
         List<String> selectedTopicIds = topicIds.subList(0, Math.min(topicCount, topicIds.size()));
 
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
+        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
 
         Map<String, Object> input = new HashMap<>();
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
+        input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
         input.put("studentIds", List.of());
@@ -216,7 +220,7 @@ public class LessonPlanStepDefs {
                     .mutate().build()
                     .document(graphqlQuery)
                     .variables(Map.of("input", input))
-                    .retrieveSync("createLessonPlanInLesson")
+                    .retrieveSync("createLessonGroupPlanInLessonGroup")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
         } catch (FieldAccessException e) {
@@ -235,37 +239,37 @@ public class LessonPlanStepDefs {
         }
     }
 
-    @Then("the lesson plan response should have plan {string}")
-    public void theLessonPlanResponseShouldHavePlan(String expectedPlan) {
-        Map<String, Object> response = testContext.getLastLessonPlanResponseMap();
+    @Then("the lesson group plan response should have plan {string}")
+    public void theLessonGroupPlanResponseShouldHavePlan(String expectedPlan) {
+        Map<String, Object> response = testContext.getLastLessonGroupPlanResponseMap();
         assertThat(response).isNotNull();
         assertThat(response.get("plan")).isEqualTo(expectedPlan);
     }
 
-    @Then("the lesson plan response should have {int} topics")
+    @Then("the lesson group plan response should have {int} topics")
     @SuppressWarnings("unchecked")
-    public void theLessonPlanResponseShouldHaveTopics(int expectedCount) {
-        Map<String, Object> response = testContext.getLastLessonPlanResponseMap();
+    public void theLessonGroupPlanResponseShouldHaveTopics(int expectedCount) {
+        Map<String, Object> response = testContext.getLastLessonGroupPlanResponseMap();
         assertThat(response).isNotNull();
         List<Map<String, Object>> topics = (List<Map<String, Object>>) response.get("topics");
         assertThat(topics).isNotNull().hasSize(expectedCount);
     }
 
-    @Then("the lesson plan response createdBy should be the current user")
-    public void theLessonPlanResponseCreatedByShouldBeTheCurrentUser() {
-        Map<String, Object> response = testContext.getLastLessonPlanResponseMap();
+    @Then("the lesson group plan response createdBy should be the current user")
+    public void theLessonGroupPlanResponseCreatedByShouldBeTheCurrentUser() {
+        Map<String, Object> response = testContext.getLastLessonGroupPlanResponseMap();
         assertThat(response).isNotNull();
         assertThat(response.get("createdBy")).isNotNull();
     }
 
-    @Then("the lesson plan response should reference the lesson")
+    @Then("the lesson group plan response should reference the lesson group")
     @SuppressWarnings("unchecked")
-    public void theLessonPlanResponseShouldReferenceTheLesson() {
-        Map<String, Object> response = testContext.getLastLessonPlanResponseMap();
+    public void theLessonGroupPlanResponseShouldReferenceTheLessonGroup() {
+        Map<String, Object> response = testContext.getLastLessonGroupPlanResponseMap();
         assertThat(response).isNotNull();
-        Map<String, Object> lesson = (Map<String, Object>) response.get("lesson");
-        assertThat(lesson).isNotNull();
-        assertThat(lesson.get("id")).isEqualTo(testContext.getLessonId());
+        Map<String, Object> lessonGroup = (Map<String, Object>) response.get("lessonGroup");
+        assertThat(lessonGroup).isNotNull();
+        assertThat(lessonGroup.get("id")).isEqualTo(testContext.getLessonGroupId());
     }
 
 }

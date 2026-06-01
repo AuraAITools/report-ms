@@ -7,5 +7,17 @@ mutation CreateLessonInCourse($input: CreateLessonInCourseInput!) {
         description
         createdBy { userId accountId name url }
         updatedBy { userId accountId name url }
+        lessonGroups {
+            id
+            name
+            lessonGroupPlan {
+                id
+                plan
+                recap
+                state
+                lessonObjectives { id name }
+                materials { id name }
+            }
+        }
     }
 }
