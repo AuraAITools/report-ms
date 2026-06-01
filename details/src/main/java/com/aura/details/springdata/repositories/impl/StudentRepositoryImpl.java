@@ -150,6 +150,20 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     @Override
+    public Map<String, List<Student>> findAllByLessonGroupIds(List<String> lessonGroupIds) {
+        if (lessonGroupIds.isEmpty()) return Collections.emptyMap();
+        List<UUID> uuids = lessonGroupIds.stream().map(UUID::fromString).toList();
+        Map<String, List<Student>> result = new HashMap<>();
+        for (Object[] row : jpaStudentLessonLinkRepository.findStudentsByLessonGroupIds(uuids)) {
+            String lessonGroupId = row[0].toString();
+            StudentModel studentModel = (StudentModel) row[1];
+            result.computeIfAbsent(lessonGroupId, k -> new ArrayList<>())
+                    .add(StudentMapper.INSTANCE.toDomainEntity(studentModel));
+        }
+        return result;
+    }
+
+    @Override
     public Map<String, List<Student>> findAllByCourseIds(List<String> courseIds) {
         if (courseIds.isEmpty()) return Collections.emptyMap();
         List<UUID> uuids = courseIds.stream().map(UUID::fromString).toList();

@@ -75,7 +75,7 @@ public class MaterialService {
     @Transactional
     public void deleteById(String id) {
         materialRepository.deleteAllTopicLinksByMaterialId(id);
-        materialRepository.deleteAllLessonPlanLinksByMaterialId(id);
+        materialRepository.deleteAllLessonGroupPlanLinksByMaterialId(id);
         deleteMaterialUseCase.deleteById(id);
         relationshipService.deleteAllRelationshipsForResource("material", id);
         relationshipService.deleteAllRelationshipsForResource("material_user_group", id);

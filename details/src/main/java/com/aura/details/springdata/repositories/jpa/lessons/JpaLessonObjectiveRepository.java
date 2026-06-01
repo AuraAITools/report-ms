@@ -17,4 +17,7 @@ public interface JpaLessonObjectiveRepository extends JpaRepository<LessonObject
 
     @Query("SELECT lo.lessonGroupPlan.lessonGroup.lesson.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonGroupPlan.lessonGroup.lesson.id IN :lessonIds")
     List<Object[]> findObjectivesByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
+
+    @Query("SELECT lo.lessonGroupPlan.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonGroupPlan.id IN :planIds")
+    List<Object[]> findObjectivesByLessonGroupPlanIds(@Param("planIds") List<UUID> planIds);
 }

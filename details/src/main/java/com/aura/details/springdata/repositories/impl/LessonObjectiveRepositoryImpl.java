@@ -40,10 +40,24 @@ public class LessonObjectiveRepositoryImpl implements LessonObjectiveRepository 
     }
 
     @Override
-    public List<LessonObjective> findAllByLessonPlanId(String lessonPlanId) {
-        return jpaLessonObjectiveRepository.findAllByLessonGroupPlanId(UUID.fromString(lessonPlanId)).stream()
+    public List<LessonObjective> findAllByLessonGroupPlanId(String lessonGroupPlanId) {
+        return jpaLessonObjectiveRepository.findAllByLessonGroupPlanId(UUID.fromString(lessonGroupPlanId)).stream()
                 .map(LessonObjectiveMapper.INSTANCE::toDomainEntity)
                 .toList();
+    }
+
+    @Override
+    public Map<String, List<LessonObjective>> findAllByLessonGroupPlanIds(List<String> lessonGroupPlanIds) {
+        if (lessonGroupPlanIds.isEmpty()) return Collections.emptyMap();
+        List<UUID> uuids = lessonGroupPlanIds.stream().map(UUID::fromString).toList();
+        Map<String, List<LessonObjective>> result = new HashMap<>();
+        for (Object[] row : jpaLessonObjectiveRepository.findObjectivesByLessonGroupPlanIds(uuids)) {
+            String planId = row[0].toString();
+            LessonObjectiveModel model = (LessonObjectiveModel) row[1];
+            result.computeIfAbsent(planId, k -> new ArrayList<>())
+                    .add(LessonObjectiveMapper.INSTANCE.toDomainEntity(model));
+        }
+        return result;
     }
 
     @Override

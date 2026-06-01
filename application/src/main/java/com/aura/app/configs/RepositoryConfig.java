@@ -8,9 +8,6 @@ import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
-import com.aura.core.repositories.LessonPlanMaterialLinkRepository;
-import com.aura.core.repositories.LessonPlanRepository;
-import com.aura.core.repositories.LessonPlanTopicLinkRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.LevelLessonLinkRepository;
 import com.aura.core.repositories.LevelRepository;
@@ -37,9 +34,6 @@ import com.aura.details.springdata.repositories.impl.InstitutionRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveTopicLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonOutletRoomBookingRepositoryImpl;
-import com.aura.details.springdata.repositories.impl.LessonPlanMaterialLinkRepositoryImpl;
-import com.aura.details.springdata.repositories.impl.LessonPlanRepositoryImpl;
-import com.aura.details.springdata.repositories.impl.LessonPlanTopicLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LevelLessonLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LevelRepositoryImpl;
@@ -64,7 +58,6 @@ import com.aura.details.springdata.repositories.jpa.email.JpaEmailLogRepository;
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonOutletRoomBookingRepository;
-import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonPlanRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaPriceRecordRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
@@ -72,9 +65,8 @@ import com.aura.details.springdata.repositories.jpa.links.JpaAccountEducatorLink
 import com.aura.details.springdata.repositories.jpa.links.JpaAccountStudentLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLessonObjectiveTopicLinkRepository;
-import com.aura.details.springdata.repositories.jpa.links.JpaLessonPlanMaterialsLinkRepository;
-import com.aura.details.springdata.repositories.jpa.links.JpaLessonPlanTopicLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaMaterialTopicLinkRepository;
@@ -202,24 +194,6 @@ public class RepositoryConfig {
     }
 
     @Bean
-    LessonPlanRepository lessonPlanRepository(JpaLessonPlanRepository jpaLessonPlanRepository,
-                                              EntityManager entityManager) {
-        return new LessonPlanRepositoryImpl(jpaLessonPlanRepository, entityManager);
-    }
-
-    @Bean
-    LessonPlanTopicLinkRepository lessonPlanTopicLinkRepository(JpaLessonPlanTopicLinkRepository jpaLessonPlanTopicLinkRepository,
-                                                                EntityManager entityManager) {
-        return new LessonPlanTopicLinkRepositoryImpl(jpaLessonPlanTopicLinkRepository, entityManager);
-    }
-
-    @Bean
-    LessonPlanMaterialLinkRepository lessonPlanMaterialLinkRepository(JpaLessonPlanMaterialsLinkRepository jpaLessonPlanMaterialsLinkRepository,
-                                                                      EntityManager entityManager) {
-        return new LessonPlanMaterialLinkRepositoryImpl(jpaLessonPlanMaterialsLinkRepository, entityManager);
-    }
-
-    @Bean
     LessonObjectiveRepository lessonObjectiveRepository(JpaLessonObjectiveRepository jpaLessonObjectiveRepository,
                                                         JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository,
                                                         EntityManager entityManager) {
@@ -295,8 +269,8 @@ public class RepositoryConfig {
     MaterialRepository materialRepository(JpaMaterialRepository jpaMaterialRepository,
                                           JpaTopicRepository jpaTopicRepository,
                                           JpaMaterialTopicLinkRepository jpaMaterialTopicLinkRepository,
-                                          JpaLessonPlanMaterialsLinkRepository jpaLessonPlanMaterialsLinkRepository) {
+                                          JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository) {
         return new MaterialRepositoryImpl(jpaMaterialRepository, jpaTopicRepository, jpaMaterialTopicLinkRepository,
-                jpaLessonPlanMaterialsLinkRepository);
+                jpaLessonGroupPlanMaterialsLinkRepository);
     }
 }

@@ -1,19 +1,19 @@
 package com.aura.app.mappers;
 
-import com.aura.app.codegen.types.CreateLessonObjectiveInLessonPlanInput;
-import com.aura.app.codegen.types.CreateLessonPlanForLessonInput;
-import com.aura.app.codegen.types.CreateLessonPlanInLessonInput;
-import com.aura.app.codegen.types.LessonPlanResponse;
+import com.aura.app.codegen.types.CreateLessonGroupPlanForLessonGroupInput;
+import com.aura.app.codegen.types.CreateLessonGroupPlanInLessonGroupInput;
+import com.aura.app.codegen.types.CreateLessonObjectiveInLessonGroupPlanInput;
+import com.aura.app.codegen.types.LessonGroupPlanResponse;
+import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonObjective;
-import com.aura.core.entities.lessons.LessonPlan;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
-public interface LessonPlanMapper {
+public interface LessonGroupPlanMapper {
 
-    LessonPlanMapper INSTANCE = Mappers.getMapper(LessonPlanMapper.class);
+    LessonGroupPlanMapper INSTANCE = Mappers.getMapper(LessonGroupPlanMapper.class);
 
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
@@ -22,32 +22,37 @@ public interface LessonPlanMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    LessonPlan toDomainEntity(CreateLessonPlanInLessonInput input);
+    @Mapping(target = "recap", ignore = true)
+    @Mapping(target = "state", ignore = true)
+    LessonGroupPlan toDomainEntity(CreateLessonGroupPlanInLessonGroupInput input);
 
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "tenantId", ignore = true)
-    @Mapping(target = "lessonId", ignore = true)
+    @Mapping(target = "lessonGroupId", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    LessonPlan toDomainEntity(CreateLessonPlanForLessonInput input);
+    @Mapping(target = "recap", ignore = true)
+    @Mapping(target = "state", ignore = true)
+    LessonGroupPlan toDomainEntity(CreateLessonGroupPlanForLessonGroupInput input);
 
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "tenantId", ignore = true)
-    @Mapping(target = "lessonPlanId", ignore = true)
+    @Mapping(target = "lessonGroupPlanId", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    LessonObjective toDomainEntity(CreateLessonObjectiveInLessonPlanInput input);
+    LessonObjective toDomainEntity(CreateLessonObjectiveInLessonGroupPlanInput input);
 
-    // ignore lesson + topics — provided by @BatchMapping resolvers
-    @Mapping(target = "lesson", ignore = true)
+    @Mapping(target = "lessonGroup", ignore = true)
     @Mapping(target = "topics", ignore = true)
+    @Mapping(target = "lessonObjectives", ignore = true)
+    @Mapping(target = "materials", ignore = true)
     @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
     @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
-    LessonPlanResponse toDto(LessonPlan plan);
+    LessonGroupPlanResponse toDto(LessonGroupPlan plan);
 }

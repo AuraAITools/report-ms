@@ -15,11 +15,11 @@ class LessonQuizMapperTest {
 
     private final LessonQuizMapper mapper = LessonQuizMapper.INSTANCE;
 
-    @DisplayName("Should map LessonQuizModel.lessonGroupPlan.id into LessonQuiz.lessonPlanId without traversing back into LessonGroupPlan")
+    @DisplayName("Should map LessonQuizModel.lessonGroupPlan.id into LessonQuiz.lessonGroupPlanId without traversing back into LessonGroupPlan")
     @Test
     void toDomainEntity_extractsLessonPlanIdFromModel() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonPlanId).build();
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
         LessonQuizModel model = LessonQuizModel.builder()
                 .id(UUID.randomUUID())
                 .lessonGroupPlan(lessonGroupPlanModel)
@@ -29,18 +29,18 @@ class LessonQuizMapperTest {
 
         LessonQuiz domain = mapper.toDomainEntity(model);
 
-        assertThat(domain.getLessonPlanId()).isEqualTo(lessonPlanId.toString());
+        assertThat(domain.getLessonGroupPlanId()).isEqualTo(lessonGroupPlanId.toString());
         assertThat(domain.getScore()).isEqualTo(85);
         assertThat(domain.getMaxScore()).isEqualTo(100);
     }
 
-    @DisplayName("Should set LessonQuizModel.lessonGroupPlan to a stub LessonGroupPlanModel populated only with the id from LessonQuiz.lessonPlanId")
+    @DisplayName("Should set LessonQuizModel.lessonGroupPlan to a stub LessonGroupPlanModel populated only with the id from LessonQuiz.lessonGroupPlanId")
     @Test
     void toModelEntity_buildsLessonGroupPlanStubFromLessonPlanId() {
-        UUID lessonPlanId = UUID.randomUUID();
+        UUID lessonGroupPlanId = UUID.randomUUID();
         LessonQuiz domain = LessonQuiz.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonPlanId(lessonPlanId.toString())
+                .lessonGroupPlanId(lessonGroupPlanId.toString())
                 .score(72)
                 .maxScore(120)
                 .build();
@@ -48,18 +48,18 @@ class LessonQuizMapperTest {
         LessonQuizModel model = mapper.toModelEntity(domain);
 
         assertThat(model.getLessonGroupPlan()).isNotNull();
-        assertThat(model.getLessonGroupPlan().getId()).isEqualTo(lessonPlanId);
+        assertThat(model.getLessonGroupPlan().getId()).isEqualTo(lessonGroupPlanId);
         assertThat(model.getLessonGroupPlan().getPlan()).isNull();
         assertThat(model.getScore()).isEqualTo(72);
         assertThat(model.getMaxScore()).isEqualTo(120);
     }
 
-    @DisplayName("Should leave LessonQuizModel.lessonGroupPlan null when LessonQuiz.lessonPlanId is null")
+    @DisplayName("Should leave LessonQuizModel.lessonGroupPlan null when LessonQuiz.lessonGroupPlanId is null")
     @Test
     void toModelEntity_returnsNullLessonGroupPlanWhenLessonPlanIdNull() {
         LessonQuiz domain = LessonQuiz.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonPlanId(null)
+                .lessonGroupPlanId(null)
                 .build();
 
         LessonQuizModel model = mapper.toModelEntity(domain);
@@ -67,11 +67,11 @@ class LessonQuizMapperTest {
         assertThat(model.getLessonGroupPlan()).isNull();
     }
 
-    @DisplayName("Should preserve lessonPlanId across a Model→Domain→Model round-trip")
+    @DisplayName("Should preserve lessonGroupPlanId across a Model→Domain→Model round-trip")
     @Test
     void roundTrip_preservesLessonPlanId() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonPlanId).build();
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
         LessonQuizModel original = LessonQuizModel.builder()
                 .id(UUID.randomUUID())
                 .lessonGroupPlan(lessonGroupPlanModel)
@@ -81,7 +81,7 @@ class LessonQuizMapperTest {
 
         LessonQuizModel roundTripped = mapper.toModelEntity(mapper.toDomainEntity(original));
 
-        assertThat(roundTripped.getLessonGroupPlan().getId()).isEqualTo(lessonPlanId);
+        assertThat(roundTripped.getLessonGroupPlan().getId()).isEqualTo(lessonGroupPlanId);
         assertThat(roundTripped.getScore()).isEqualTo(91);
         assertThat(roundTripped.getMaxScore()).isEqualTo(100);
     }

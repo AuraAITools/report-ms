@@ -13,10 +13,10 @@ import org.mapstruct.factory.Mappers;
 public interface LessonQuizMapper {
     LessonQuizMapper INSTANCE = Mappers.getMapper(LessonQuizMapper.class);
 
-    @Mapping(source = "lessonGroupPlan.id", target = "lessonPlanId")
+    @Mapping(source = "lessonGroupPlan.id", target = "lessonGroupPlanId")
     LessonQuiz toDomainEntity(LessonQuizModel model);
 
-    @Mapping(source = "lessonPlanId", target = "lessonGroupPlan", qualifiedByName = "lessonGroupPlanRef")
+    @Mapping(source = "lessonGroupPlanId", target = "lessonGroupPlan", qualifiedByName = "lessonGroupPlanRef")
     LessonQuizModel toModelEntity(LessonQuiz lessonQuiz);
 
     @Named("lessonGroupPlanRef")

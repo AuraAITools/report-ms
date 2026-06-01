@@ -16,4 +16,7 @@ public interface JpaLessonGroupPlanMaterialsLinkRepository extends JpaRepository
 
     @Query("SELECT lgpm.lessonGroupPlan.lessonGroup.lesson.id, lgpm.material FROM LessonGroupPlanMaterialsLinkModel lgpm WHERE lgpm.lessonGroupPlan.lessonGroup.lesson.id IN :lessonIds")
     List<Object[]> findMaterialsByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
+
+    @Query("SELECT lgpm.lessonGroupPlan.id, lgpm.material FROM LessonGroupPlanMaterialsLinkModel lgpm WHERE lgpm.lessonGroupPlan.id IN :planIds")
+    List<Object[]> findMaterialsByLessonGroupPlanIds(@Param("planIds") List<UUID> planIds);
 }

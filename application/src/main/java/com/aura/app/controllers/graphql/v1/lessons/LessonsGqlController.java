@@ -3,8 +3,7 @@ package com.aura.app.controllers.graphql.v1.lessons;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.CreateLessonInCourseInput;
 import com.aura.app.codegen.types.EducatorResponse;
-import com.aura.app.codegen.types.LessonObjectiveResponse;
-import com.aura.app.codegen.types.LessonPlanResponse;
+import com.aura.app.codegen.types.LessonGroupResponse;
 import com.aura.app.codegen.types.LessonResponse;
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.MaterialResponse;
@@ -16,9 +15,9 @@ import com.aura.app.codegen.types.TopicResponse;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.CourseMapper;
 import com.aura.app.mappers.EducatorMapper;
+import com.aura.app.mappers.LessonGroupMapper;
+import com.aura.app.mappers.LessonGroupPlanMapper;
 import com.aura.app.mappers.LessonMapper;
-import com.aura.app.mappers.LessonObjectiveMapper;
-import com.aura.app.mappers.LessonPlanMapper;
 import com.aura.app.mappers.LevelMapper;
 import com.aura.app.mappers.MaterialMapper;
 import com.aura.app.mappers.OutletMapper;
@@ -30,9 +29,9 @@ import com.aura.core.auth.User;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.lessons.LessonObjective;
+import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonOutletRoomBooking;
-import com.aura.core.entities.lessons.LessonPlan;
 import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.materials.Material;
 import com.aura.core.entities.outlets.Outlet;
@@ -42,9 +41,8 @@ import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorRepository;
-import com.aura.core.repositories.LessonObjectiveRepository;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
-import com.aura.core.repositories.LessonPlanRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.MaterialRepository;
@@ -53,7 +51,7 @@ import com.aura.core.repositories.OutletRoomRepository;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
-import com.aura.details.services.LessonPlanService;
+import com.aura.details.services.LessonGroupPlanService;
 import com.aura.details.services.LessonService;
 import java.util.List;
 import java.util.Map;
@@ -88,23 +86,23 @@ public class LessonsGqlController {
     private final LevelRepository levelRepository;
     private final CourseRepository courseRepository;
     private final TopicRepository topicRepository;
-    private final LessonPlanRepository lessonPlanRepository;
-    private final LessonObjectiveRepository lessonObjectiveRepository;
+    private final LessonGroupRepository lessonGroupRepository;
     private final MaterialRepository materialRepository;
 
     @PreAuthorize("hasPermission(#createLessonInCourseInput.courseId, 'course', 'create_lesson')")
     @MutationMapping(CreateLessonInCourse)
     public LessonResponse createLessonInCourse(@Argument(name = CreateLessonInCourse) CreateLessonInCourseInput createLessonInCourseInput, @ContextValue(name = "user") User user) {
         Lesson lessonToBeCreated = LessonMapper.INSTANCE.toDomainEntity(createLessonInCourseInput);
-        List<LessonService.NewLessonPlan> newLessonPlans = createLessonInCourseInput.getLessonPlans().stream()
-                .map(p -> new LessonService.NewLessonPlan(
-                        LessonPlanMapper.INSTANCE.toDomainEntity(p),
-                        p.getTopicIds(),
-                        p.getStudentIds(),
-                        p.getMaterialIds(),
-                        p.getLessonObjectives().stream()
-                                .map(o -> new LessonPlanService.NewLessonObjective(
-                                        LessonPlanMapper.INSTANCE.toDomainEntity(o), o.getTopicIds()))
+        List<LessonService.NewLessonGroup> newLessonGroups = createLessonInCourseInput.getLessonGroups().stream()
+                .map(g -> new LessonService.NewLessonGroup(
+                        g.getName(),
+                        LessonGroupPlanMapper.INSTANCE.toDomainEntity(g.getPlan()),
+                        g.getPlan().getTopicIds(),
+                        g.getStudentIds(),
+                        g.getPlan().getMaterialIds(),
+                        g.getPlan().getLessonObjectives().stream()
+                                .map(o -> new LessonGroupPlanService.NewLessonObjective(
+                                        LessonGroupPlanMapper.INSTANCE.toDomainEntity(o), o.getTopicIds()))
                                 .toList()))
                 .toList();
         Lesson lesson = lessonService.createLesson(
@@ -116,7 +114,7 @@ public class LessonsGqlController {
                 createLessonInCourseInput.getSubjectIds(),
                 createLessonInCourseInput.getLevelIds(),
                 createLessonInCourseInput.getTopicIds(),
-                newLessonPlans);
+                newLessonGroups);
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
@@ -306,25 +304,14 @@ public class LessonsGqlController {
         ));
     }
 
-    @BatchMapping(typeName = "LessonResponse", field = "lessonPlans")
-    public Map<LessonResponse, List<LessonPlanResponse>> lessonPlans(List<LessonResponse> lessonResponses) {
+    @BatchMapping(typeName = "LessonResponse", field = "lessonGroups")
+    public Map<LessonResponse, List<LessonGroupResponse>> lessonGroups(List<LessonResponse> lessonResponses) {
         List<String> lessonIds = lessonResponses.stream().map(LessonResponse::getId).toList();
-        Map<String, List<LessonPlan>> lessonIdToPlansMap = lessonPlanRepository.findAllByLessonIds(lessonIds);
+        Map<String, List<LessonGroup>> lessonIdToGroupsMap = lessonGroupRepository.findAllByLessonIds(lessonIds);
         return lessonResponses.stream().collect(Collectors.toMap(
                 Function.identity(),
-                l -> lessonIdToPlansMap.getOrDefault(l.getId(), List.of()).stream()
-                        .map(LessonPlanMapper.INSTANCE::toDto).toList()
-        ));
-    }
-
-    @BatchMapping(typeName = "LessonResponse", field = "lessonObjectives")
-    public Map<LessonResponse, List<LessonObjectiveResponse>> lessonObjectives(List<LessonResponse> lessonResponses) {
-        List<String> lessonIds = lessonResponses.stream().map(LessonResponse::getId).toList();
-        Map<String, List<LessonObjective>> lessonIdToObjectivesMap = lessonObjectiveRepository.findAllByLessonIds(lessonIds);
-        return lessonResponses.stream().collect(Collectors.toMap(
-                Function.identity(),
-                l -> lessonIdToObjectivesMap.getOrDefault(l.getId(), List.of()).stream()
-                        .map(LessonObjectiveMapper.INSTANCE::toDto).toList()
+                l -> lessonIdToGroupsMap.getOrDefault(l.getId(), List.of()).stream()
+                        .map(LessonGroupMapper.INSTANCE::toDto).toList()
         ));
     }
 

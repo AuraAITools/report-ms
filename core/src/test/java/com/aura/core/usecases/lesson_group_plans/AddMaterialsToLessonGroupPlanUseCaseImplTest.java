@@ -167,7 +167,12 @@ class AddMaterialsToLessonGroupPlanUseCaseImplTest {
         }
 
         @Override
-        public void deleteAllLessonPlanLinksByMaterialId(String materialId) {
+        public void deleteAllLessonGroupPlanLinksByMaterialId(String materialId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, List<Material>> findAllByLessonGroupPlanIds(List<String> lessonGroupPlanIds) {
             throw new UnsupportedOperationException();
         }
 

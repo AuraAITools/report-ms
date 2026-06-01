@@ -267,6 +267,11 @@ class AddStudentsToLessonUseCaseImplTest {
         }
 
         @Override
+        public java.util.Map<String, List<Student>> findAllByLessonGroupIds(List<String> lessonGroupIds) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public java.util.Map<String, Level> findLevelsByStudentIds(List<String> studentIds) {
             throw new UnsupportedOperationException();
         }

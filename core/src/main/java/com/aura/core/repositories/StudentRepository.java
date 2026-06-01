@@ -39,6 +39,8 @@ public interface StudentRepository {
 
     Map<String, List<Student>> findAllByLessonIds(List<String> lessonIds);
 
+    Map<String, List<Student>> findAllByLessonGroupIds(List<String> lessonGroupIds);
+
     Map<String, List<Student>> findAllByCourseIds(List<String> courseIds);
 
     void deleteAllStudentCourseLinksByCourseId(String courseId);

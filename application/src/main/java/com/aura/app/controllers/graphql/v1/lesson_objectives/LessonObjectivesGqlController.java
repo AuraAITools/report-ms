@@ -30,7 +30,7 @@ public class LessonObjectivesGqlController {
     public LessonObjectiveResponse createLessonObjective(@Argument CreateLessonObjectiveInput input,
                                                          @ContextValue(name = "user") User user) {
         LessonObjective toCreate = LessonObjectiveMapper.INSTANCE.toDomainEntity(input);
-        toCreate.setLessonPlanId(input.getLessonPlanId());
+        toCreate.setLessonGroupPlanId(input.getLessonGroupPlanId());
         LessonObjective created = lessonObjectiveService.createLessonObjective(toCreate, input.getTopicIds());
         return LessonObjectiveMapper.INSTANCE.toDto(created);
     }
@@ -69,11 +69,12 @@ public class LessonObjectivesGqlController {
 
     @PreAuthorize("hasPermission(#lessonId, 'lesson', 'view')")
     @QueryMapping
-    public List<LessonObjectiveResponse> getAllLessonObjectivesByLessonPlanId(
+    public List<LessonObjectiveResponse> getAllLessonObjectivesByLessonGroupPlanId(
+            @Argument("institutionId") String institutionId,
             @Argument("lessonId") String lessonId,
-            @Argument("lessonPlanId") String lessonPlanId,
+            @Argument("lessonGroupPlanId") String lessonGroupPlanId,
             @ContextValue(name = "user") User user) {
-        return lessonObjectiveService.findAllByLessonPlanId(lessonPlanId).stream()
+        return lessonObjectiveService.findAllByLessonGroupPlanId(lessonGroupPlanId).stream()
                 .map(LessonObjectiveMapper.INSTANCE::toDto)
                 .toList();
     }

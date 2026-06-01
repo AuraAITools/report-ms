@@ -25,6 +25,6 @@ public class LessonQuiz {
 
     private int maxScore = 100;
 
-    private String lessonPlanId;
+    private String lessonGroupPlanId;
 
 }

@@ -10,7 +10,9 @@ public interface LessonObjectiveRepository {
 
     @Nullable LessonObjective findById(String id);
 
-    List<LessonObjective> findAllByLessonPlanId(String lessonPlanId);
+    List<LessonObjective> findAllByLessonGroupPlanId(String lessonGroupPlanId);
+
+    Map<String, List<LessonObjective>> findAllByLessonGroupPlanIds(List<String> lessonGroupPlanIds);
 
     List<LessonObjective> findAllByTenantId(String tenantId);
 

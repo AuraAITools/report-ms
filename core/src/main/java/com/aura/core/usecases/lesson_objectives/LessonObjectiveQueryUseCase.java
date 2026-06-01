@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 public interface LessonObjectiveQueryUseCase {
     @Nullable LessonObjective findById(String id);
 
-    List<LessonObjective> findAllByLessonPlanId(String lessonPlanId);
+    List<LessonObjective> findAllByLessonGroupPlanId(String lessonGroupPlanId);
 
     List<LessonObjective> findAllByTenantId(String tenantId);
 }

@@ -27,7 +27,7 @@ public interface LessonObjectiveMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "lessonPlanId", ignore = true)
+    @Mapping(target = "lessonGroupPlanId", ignore = true)
     @Mapping(source = "institutionId", target = "tenantId")
     LessonObjective toDomainEntity(UpdateLessonObjectiveInput input);
 

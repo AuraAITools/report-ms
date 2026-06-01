@@ -16,8 +16,8 @@ public class LessonObjectiveQueryUseCaseImpl implements LessonObjectiveQueryUseC
     }
 
     @Override
-    public List<LessonObjective> findAllByLessonPlanId(String lessonPlanId) {
-        return lessonObjectiveRepository.findAllByLessonPlanId(lessonPlanId);
+    public List<LessonObjective> findAllByLessonGroupPlanId(String lessonGroupPlanId) {
+        return lessonObjectiveRepository.findAllByLessonGroupPlanId(lessonGroupPlanId);
     }
 
     @Override

@@ -46,8 +46,8 @@ public class LessonObjectiveService {
         return lessonObjectiveQueryUseCase.findById(id);
     }
 
-    public List<LessonObjective> findAllByLessonPlanId(String lessonPlanId) {
-        return lessonObjectiveQueryUseCase.findAllByLessonPlanId(lessonPlanId);
+    public List<LessonObjective> findAllByLessonGroupPlanId(String lessonGroupPlanId) {
+        return lessonObjectiveQueryUseCase.findAllByLessonGroupPlanId(lessonGroupPlanId);
     }
 
     @Transactional

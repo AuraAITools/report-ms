@@ -16,6 +16,9 @@ public interface JpaStudentLessonLinkRepository extends JpaRepository<StudentLes
     @Query("SELECT l.lesson.id, l.student FROM StudentLessonLinkModel l WHERE l.lesson.id IN :lessonIds")
     List<Object[]> findStudentsByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
 
+    @Query("SELECT l.lessonGroup.id, l.student FROM StudentLessonLinkModel l WHERE l.lessonGroup.id IN :lessonGroupIds")
+    List<Object[]> findStudentsByLessonGroupIds(@Param("lessonGroupIds") List<UUID> lessonGroupIds);
+
     @Query("SELECT l FROM StudentLessonLinkModel l WHERE l.lesson.id = :lessonId AND l.student.id IN :studentIds")
     List<StudentLessonLinkModel> findAllByLessonIdAndStudentIdIn(@Param("lessonId") UUID lessonId,
                                                                  @Param("studentIds") List<UUID> studentIds);

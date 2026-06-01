@@ -23,7 +23,9 @@ public interface MaterialRepository {
 
     void deleteAllTopicLinksByMaterialId(String materialId);
 
-    void deleteAllLessonPlanLinksByMaterialId(String materialId);
+    void deleteAllLessonGroupPlanLinksByMaterialId(String materialId);
+
+    Map<String, List<Material>> findAllByLessonGroupPlanIds(List<String> lessonGroupPlanIds);
 
     List<MaterialTopicLink> linkTopicsToMaterial(String materialId, List<String> topicIds, String tenantId);
 }

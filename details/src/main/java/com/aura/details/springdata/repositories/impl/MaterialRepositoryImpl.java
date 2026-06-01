@@ -91,8 +91,22 @@ public class MaterialRepositoryImpl implements MaterialRepository {
     }
 
     @Override
-    public void deleteAllLessonPlanLinksByMaterialId(String materialId) {
+    public void deleteAllLessonGroupPlanLinksByMaterialId(String materialId) {
         jpaLessonGroupPlanMaterialsLinkRepository.deleteAllByMaterialId(UUID.fromString(materialId));
+    }
+
+    @Override
+    public Map<String, List<Material>> findAllByLessonGroupPlanIds(List<String> lessonGroupPlanIds) {
+        if (lessonGroupPlanIds.isEmpty()) return Collections.emptyMap();
+        List<UUID> uuids = lessonGroupPlanIds.stream().map(UUID::fromString).toList();
+        Map<String, List<Material>> result = new HashMap<>();
+        for (Object[] row : jpaLessonGroupPlanMaterialsLinkRepository.findMaterialsByLessonGroupPlanIds(uuids)) {
+            String planId = row[0].toString();
+            MaterialModel materialModel = (MaterialModel) row[1];
+            result.computeIfAbsent(planId, k -> new ArrayList<>())
+                    .add(MaterialMapper.INSTANCE.toDomainEntity(materialModel));
+        }
+        return result;
     }
 
     @Override
