@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LessonPlan {
+public class LessonGroupPlan {
 
     private String id;
     private Long version;
@@ -21,15 +21,14 @@ public class LessonPlan {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private String lessonId;
+    private String lessonGroupId;
     private String plan;
     private String recap;
-    private LESSON_PLAN_STATE state;
+    private LESSON_GROUP_PLAN_STATE state;
 
-    public enum LESSON_PLAN_STATE {
+    public enum LESSON_GROUP_PLAN_STATE {
         UNPLANNED,
         DRAFT,
         PLANNED
     }
-
 }
