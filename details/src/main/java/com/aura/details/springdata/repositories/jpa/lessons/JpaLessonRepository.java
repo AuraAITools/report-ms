@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface JpaLessonRepository extends JpaRepository<LessonModel, UUID>, JpaSpecificationExecutor<LessonModel> {
 
     List<LessonModel> findByCourse_IdIn(Collection<UUID> courseIds);
+
+    List<LessonModel> findByOutlet_Id(UUID outletId);
 }

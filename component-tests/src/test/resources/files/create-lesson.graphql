@@ -5,7 +5,7 @@ mutation CreateLessonInCourse($input: CreateLessonInCourseInput!) {
         lessonStartTimestamptz
         lessonEndTimestamptz
         description
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

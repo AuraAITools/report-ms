@@ -173,4 +173,22 @@ class LessonServiceTest {
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("lesson", "lesson-1");
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("lesson_user_group", "lesson-1");
     }
+
+    @DisplayName("Should delegate findAllByEducatorId to the lesson query use case")
+    @Test
+    void findAllByEducatorId_delegatesToQueryUseCase() {
+        Lesson l1 = Lesson.builder().id("l-1").build();
+        when(lessonQueryUseCase.findAllByEducatorId("e-1")).thenReturn(List.of(l1));
+
+        org.assertj.core.api.Assertions.assertThat(lessonService.findAllByEducatorId("e-1")).containsExactly(l1);
+    }
+
+    @DisplayName("Should delegate findAllByStudentId to the lesson query use case")
+    @Test
+    void findAllByStudentId_delegatesToQueryUseCase() {
+        Lesson l1 = Lesson.builder().id("l-1").build();
+        when(lessonQueryUseCase.findAllByStudentId("s-1")).thenReturn(List.of(l1));
+
+        org.assertj.core.api.Assertions.assertThat(lessonService.findAllByStudentId("s-1")).containsExactly(l1);
+    }
 }

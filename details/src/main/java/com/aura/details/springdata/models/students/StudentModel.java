@@ -51,6 +51,9 @@ public class StudentModel extends TenantBaseModel {
 
     private LocalDate dateOfBirth;
 
+    @Column(length = 512)
+    private String profileImageKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private SchoolModel school;

@@ -1,4 +1,4 @@
 extend type Query {
-    getTopicById(topicId: ID!): TopicResponse!
+    getTopicById(institutionId: ID!, topicId: ID!): TopicResponse!
     getAllTopicsInInstitution(institutionId: ID!): [TopicResponse!]!
 }

@@ -3,9 +3,9 @@ type LevelResponse implements Auditable {
     name: String!
     category: SCHOOL_CATEGORY!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input LevelSearchInput {

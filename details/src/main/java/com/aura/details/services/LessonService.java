@@ -49,6 +49,18 @@ public class LessonService {
         return lessonQueryUseCase.findAllByCourseId(courseId);
     }
 
+    public List<Lesson> findAllByOutletId(String outletId) {
+        return lessonQueryUseCase.findAllByOutletId(outletId);
+    }
+
+    public List<Lesson> findAllByEducatorId(String educatorId) {
+        return lessonQueryUseCase.findAllByEducatorId(educatorId);
+    }
+
+    public List<Lesson> findAllByStudentId(String studentId) {
+        return lessonQueryUseCase.findAllByStudentId(studentId);
+    }
+
     @Transactional
     public Lesson createLesson(Lesson lesson,
                                String courseId,

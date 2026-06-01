@@ -1,0 +1,6 @@
+mutation RequestAccountProfileImageUpload($input: RequestAccountProfileImageUploadInput!) {
+    requestAccountProfileImageUpload(input: $input) {
+        uploadUrl
+        fileKey
+    }
+}

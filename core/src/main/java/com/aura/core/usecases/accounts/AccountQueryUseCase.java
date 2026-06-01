@@ -11,6 +11,8 @@ import org.jspecify.annotations.Nullable;
 public interface AccountQueryUseCase {
     @Nullable Account findById(String id);
 
+    @Nullable Account findByUserIdAndTenantId(String userId, String tenantId);
+
     List<Account> findAllByTenantId(String tenantId);
 
     Map<String, List<Student>> findStudentsByAccountIds(List<String> accountIds);

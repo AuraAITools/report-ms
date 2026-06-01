@@ -22,5 +22,5 @@ public final class PermissionRegistry {
     );
 
     public static final String SYSTEM_RESOURCE_TYPE = "system";
-    public static final String SYSTEM_RESOURCE_ID = "global";
+    public static final String SYSTEM_RESOURCE_ID = "aura";
 }

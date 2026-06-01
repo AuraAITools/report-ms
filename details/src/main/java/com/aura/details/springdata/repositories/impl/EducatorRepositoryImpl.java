@@ -241,4 +241,9 @@ public class EducatorRepositoryImpl implements EducatorRepository {
     public void deleteAllEducatorCourseLinksByEducatorId(String educatorId) {
         jpaEducatorCourseLinkRepository.deleteAllByEducatorId(UUID.fromString(educatorId));
     }
+
+    @Override
+    public void updateProfileImageKeyById(String id, @Nullable String profileImageKey) {
+        jpaEducatorRepository.updateProfileImageKeyById(UUID.fromString(id), profileImageKey);
+    }
 }

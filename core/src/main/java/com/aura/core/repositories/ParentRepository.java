@@ -12,6 +12,13 @@ public interface ParentRepository {
 
     @Nullable Parent findById(String id);
 
+    /**
+     * Targeted single-column update for the profile image S3 key. Avoids the
+     * domain-mapper round-trip used by {@link #save(Parent)}, which would
+     * re-attach the linked AccountModel on merge. Pass null to clear the key.
+     */
+    void updateProfileImageKeyById(String id, @Nullable String profileImageKey);
+
     Map<String, Parent> findAllByAccountIds(List<String> accountIds);
 
     List<Parent> findAllByTenantId(String tenantId);

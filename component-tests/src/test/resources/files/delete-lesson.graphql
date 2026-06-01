@@ -1,3 +1,3 @@
-mutation DeleteLessonById($id: ID!) {
-    deleteLessonById(id: $id)
+mutation DeleteLessonById($institutionId: ID!, $id: ID!) {
+    deleteLessonById(institutionId: $institutionId, id: $id)
 }

@@ -1,4 +1,6 @@
 extend type Query {
     getCourseById(courseId: ID!): CourseResponse!
-    getAllCoursesInOutlet(outletId: ID!): [CourseResponse!]!
+    getAllCoursesInOutlet(institutionId: ID!, outletId: ID!): [CourseResponse!]!
+    getCoursesByEducatorId(institutionId: ID!, educatorId: ID!): [CourseResponse!]!
+    getCoursesByStudentId(institutionId: ID!, studentId: ID!): [CourseResponse!]!
 }

@@ -3,8 +3,10 @@ package com.aura.details.springdata.repositories.jpa.educators;
 import com.aura.details.springdata.models.educators.EducatorModel;
 import java.util.List;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,5 +18,9 @@ public interface JpaEducatorRepository extends JpaRepository<EducatorModel, UUID
     List<Object[]> findUserIdsByIds(@Param("educatorIds") List<UUID> educatorIds);
 
     List<EducatorModel> findByTenantId(String tenantId);
+
+    @Modifying
+    @Query("update EducatorModel e set e.profileImageKey = :key where e.id = :id")
+    int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 }
 

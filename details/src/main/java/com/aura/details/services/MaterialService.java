@@ -2,6 +2,7 @@ package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.materials.Material;
+import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.MaterialRepository;
 import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCase;
 import com.aura.core.usecases.materials.DeleteMaterialUseCase;
@@ -9,6 +10,7 @@ import com.aura.core.usecases.materials.MaterialQueryUseCase;
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -64,6 +66,10 @@ public class MaterialService {
 
     public List<Material> findAllByTenantId(String tenantId) {
         return materialQueryUseCase.findAllByTenantId(tenantId);
+    }
+
+    public Map<String, List<Topic>> findTopicsByMaterialIds(List<String> materialIds) {
+        return materialQueryUseCase.findTopicsByMaterialIds(materialIds);
     }
 
     @Transactional

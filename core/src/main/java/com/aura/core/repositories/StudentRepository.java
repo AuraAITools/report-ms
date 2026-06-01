@@ -15,6 +15,14 @@ public interface StudentRepository {
 
     @Nullable Student findById(String id);
 
+    /**
+     * Targeted single-column update for the profile image S3 key. Avoids the
+     * domain-mapper round-trip used by {@link #save(Student)}, which would
+     * re-attach related entities (e.g. level, school) on merge. Pass null to
+     * clear the key.
+     */
+    void updateProfileImageKeyById(String id, @Nullable String profileImageKey);
+
     List<Student> findAllByIds(List<UUID> studentIds);
 
     List<Student> saveAll(List<Student> students);

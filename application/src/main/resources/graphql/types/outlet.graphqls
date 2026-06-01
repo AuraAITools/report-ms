@@ -7,9 +7,9 @@ type OutletResponse implements Auditable{
     description: String!
     email: String!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input CreateOutletInput {

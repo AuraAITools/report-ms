@@ -2,7 +2,7 @@ query GetAllTopicsInInstitution($institutionId: ID!) {
     getAllTopicsInInstitution(institutionId: $institutionId) {
         id
         name
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

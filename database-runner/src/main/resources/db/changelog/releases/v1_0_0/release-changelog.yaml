@@ -65,3 +65,21 @@ databaseChangeLog:
   - include:
       file: public/changelog-2026-05-29-student-lesson-report.sql
       relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-05-30-account-profile-image.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-05-30-institution-profile-image.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-05-30-student-parent-profile-image.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-06-01-recap-and-quizzes-to-lesson-plan.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-06-01-account-feature-states.sql
+      relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-06-01-educator-profile-image.sql
+      relativeToChangeLogFile: true

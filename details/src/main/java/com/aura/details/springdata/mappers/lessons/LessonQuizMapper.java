@@ -1,7 +1,7 @@
 package com.aura.details.springdata.mappers.lessons;
 
 import com.aura.core.entities.lessons.LessonQuiz;
-import com.aura.details.springdata.models.lessons.LessonModel;
+import com.aura.details.springdata.models.lessons.LessonPlanModel;
 import com.aura.details.springdata.models.lessons.LessonQuizModel;
 import java.util.UUID;
 import org.mapstruct.Mapper;
@@ -13,17 +13,17 @@ import org.mapstruct.factory.Mappers;
 public interface LessonQuizMapper {
     LessonQuizMapper INSTANCE = Mappers.getMapper(LessonQuizMapper.class);
 
-    @Mapping(source = "lesson.id", target = "lessonId")
+    @Mapping(source = "lessonPlan.id", target = "lessonPlanId")
     LessonQuiz toDomainEntity(LessonQuizModel model);
 
-    @Mapping(source = "lessonId", target = "lesson", qualifiedByName = "lessonRef")
+    @Mapping(source = "lessonPlanId", target = "lessonPlan", qualifiedByName = "lessonPlanRef")
     LessonQuizModel toModelEntity(LessonQuiz lessonQuiz);
 
-    @Named("lessonRef")
-    default LessonModel lessonRef(String lessonId) {
-        if (lessonId == null) {
+    @Named("lessonPlanRef")
+    default LessonPlanModel lessonPlanRef(String lessonPlanId) {
+        if (lessonPlanId == null) {
             return null;
         }
-        return LessonModel.builder().id(UUID.fromString(lessonId)).build();
+        return LessonPlanModel.builder().id(UUID.fromString(lessonPlanId)).build();
     }
 }

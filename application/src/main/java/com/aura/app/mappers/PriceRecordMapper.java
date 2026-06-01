@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface PriceRecordMapper {
     PriceRecordMapper INSTANCE = Mappers.getMapper(PriceRecordMapper.class);
 
@@ -20,5 +20,7 @@ public interface PriceRecordMapper {
     @Mapping(target = "createdAt", ignore = true)
     PriceRecord toDomainEntity(CreatePriceRecordInput createPriceRecordInput, String tenantId);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     PriceRecordResponse toDto(PriceRecord createPriceRecord);
 }

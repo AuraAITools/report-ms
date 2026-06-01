@@ -112,8 +112,9 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
   permissions
 - Annotate every `@QueryMapping`/`@MutationMapping` controller method with
   `@PreAuthorize("hasPermission(targetId, 'resource', 'scope')")`:
-    - Type-level (no instance ID): `@PreAuthorize("hasPermission(null, 'outlet', 'create')")` — routed to
-      `system:global`
+    - System-scoped (creating top-level resources):
+      `@PreAuthorize("hasPermission('aura', 'system', 'create_institution')")`
+      — checks `create_institution` on `system:aura` (the singleton system instance)
     - Instance-level: `@PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")`
 - `SpiceDbPermissionEvaluator` calls SpiceDB's `CheckPermission` gRPC API — no JWT claim parsing
 - `PreAuthorizeConventionTest` enforces correct usage via ArchUnit + source-level tests (valid resources, scopes, param
@@ -124,21 +125,17 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
   permission inheritance.
 - Relationships are written in `details/services/XService.java` via
   `RelationshipAuthorizationService.writeRelationship(resourceType, resourceId, relation, subjectType, subjectId)`.
-- **Existing relationship patterns** (use as reference for new operations):
-    - Onboard institution → `institution:id#parent_system@system:global`
-    - Create outlet → `outlet:id#parent_institution@institution:tenantId`
-    - Create course → `course:id#parent_outlet@outlet:outletId` + `course:id#educator@user:userId` per educator +
+- **Existing relationship patterns** (use as reference for new operations). Every resource definition uses a single
+  `parent` relation, never `parent_<type>` — the parent's target type (e.g. `relation parent: institution`) makes the
+  intent clear without name suffixes:
+    - Onboard institution → `institution:id#parent@system:aura`
+    - Create outlet → `outlet:id#parent@institution:tenantId`
+    - Create course → `course:id#parent@outlet:outletId` + `course:id#modifier@user:userId` per educator +
       `course:id#viewer@user:userId` per student
-    - Create standalone lesson → `lesson:id#parent_outlet@outlet:outletId`
-    - Create lesson (in course) → `lesson:id#parent_course@course:courseId`
-    - Create institution admin account → `institution:tenantId#admin@user:userId`
-    - Create parent account → `institution:tenantId#parent_user@user:userId`
-    - Create educator in account → `institution:tenantId#educator@user:userId`
-    - Create subject/topic/level → `<type>:id#parent_institution@institution:tenantId`
 - **Two categories of relationships:**
-    1. **Structural (parent):** link resource to its parent for permission inheritance (e.g., `parent_outlet`,
-       `parent_institution`). Always required on entity creation.
-    2. **Role (user):** grant a user a role on a resource (e.g., `admin`, `educator`, `viewer`). Required when assigning
+    1. **Structural (parent):** link resource to its parent for permission inheritance — written as `parent` on every
+       resource, e.g. `outlet:id#parent@institution:tenantId`. Always required on entity creation.
+    2. **Role (user):** grant a user a role on a resource (e.g., `admin`, `viewer`, `modifier`). Required when assigning
        users to resources or creating accounts with specific roles.
 - Tenant isolation remains via `x-tenant-id` header + `TenantSpecification` as defense-in-depth
 - SpiceDB config: `application.yaml` has `spicedb.target`, `spicedb.preshared-key`, `spicedb.plaintext`
@@ -245,6 +242,14 @@ Schema files in `application/src/main/resources/graphql/`:
 
 - Array fields in input types must be non-nullable at both levels: `[ID!]!` not `[ID!]`. This ensures the client always
   sends an explicit list (empty `[]` is fine) instead of omitting it, which avoids null-check bugs in service code.
+- **Every tenant-scoped query and mutation must declare `institutionId: ID!`** — either as a sibling argument
+  (`deleteOutletById(institutionId: ID!, id: ID!)`) or as a field on its input type
+  (`input CreateXInput { institutionId: ID! ... }`). This applies to creates, updates, deletes, AND reads — including
+  single-entity lookups like `getXById`. The only exemptions are system-scoped operations not bound to a tenant (e.g.
+  `createInstitution`, `onboardInstitution`, `getInstitution(id:)` where the id IS the institutionId). The argument
+  does not need to be consumed by the controller or service — its purpose is to ensure `user.getCurrentTenantAccessed`
+  can be derived from the request on every tenant call. Treat a missing `institutionId` on any tenant operation as a
+  bug to fix at schema time.
 
 **Generated types** land in `application/target/generated-sources/com/aura/app/codegen/types/`. Never edit them — they
 are regenerated from schema. Always run `mvn generate-sources -f application/pom.xml` after schema changes.
@@ -311,7 +316,8 @@ Reference: `TopicStepDefs.java` + `create_topic.feature` + `create-topic.graphql
 
 **Environment cleanup (`DatabaseCleanupHooks`):**
 
-- `@Before` hook cleans DB (truncate), SpiceDB relationships (delete all + re-create `system:global#admin`), and
+- `@Before` hook cleans DB (truncate), SpiceDB relationships (delete all + re-create
+  `system:aura#user_group@system_user_group:aura` and `system_user_group:aura#admin@user:<serviceAccountUserId>`), and
   Keycloak test users (preserve `service-account-*`)
 - Log summary of removed items per category (even if empty)
 

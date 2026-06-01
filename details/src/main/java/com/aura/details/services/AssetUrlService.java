@@ -4,6 +4,7 @@ import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
@@ -64,5 +65,37 @@ public class AssetUrlService {
         } catch (NoSuchKeyException e) {
             return false;
         }
+    }
+
+    public byte[] getObjectBytes(String objectKey) {
+        return s3Client.getObjectAsBytes(GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .build())
+                .asByteArray();
+    }
+
+    public long getObjectSizeBytes(String objectKey) {
+        return s3Client.headObject(HeadObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .build())
+                .contentLength();
+    }
+
+    public String getObjectContentType(String objectKey) {
+        return s3Client.headObject(HeadObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectKey)
+                        .build())
+                .contentType();
+    }
+
+    public void deleteObject(String objectKey) {
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build());
+        log.debug("Deleted S3 object key={}", objectKey);
     }
 }

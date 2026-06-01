@@ -1,4 +1,4 @@
 extend type Query {
-    getLessonObjectiveById(lessonId: ID!, id: ID!): LessonObjectiveResponse!
-    getAllLessonObjectivesByLessonPlanId(lessonId: ID!, lessonPlanId: ID!): [LessonObjectiveResponse!]!
+    getLessonObjectiveById(institutionId: ID!, lessonId: ID!, id: ID!): LessonObjectiveResponse!
+    getAllLessonObjectivesByLessonPlanId(institutionId: ID!, lessonId: ID!, lessonPlanId: ID!): [LessonObjectiveResponse!]!
 }

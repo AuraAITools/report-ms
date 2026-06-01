@@ -126,7 +126,9 @@ public class DeleteStepDefs {
             Boolean result = testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("id", id))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "id", id))
                     .retrieveSync(fieldName)
                     .toEntity(Boolean.class);
             testContext.setRequestFailed(false);
@@ -142,7 +144,9 @@ public class DeleteStepDefs {
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of(paramName, id))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            paramName, id))
                     .retrieveSync(fieldName)
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);

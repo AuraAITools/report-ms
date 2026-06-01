@@ -94,7 +94,9 @@ public class SubjectStepDefs {
             lastGetSubjectResponse = testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("subjectId", testContext.getSubjectId()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "subjectId", testContext.getSubjectId()))
                     .retrieveSync("getSubjectById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
@@ -110,7 +112,9 @@ public class SubjectStepDefs {
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("subjectId", UUID.randomUUID().toString()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "subjectId", UUID.randomUUID().toString()))
                     .retrieveSync("getSubjectById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);

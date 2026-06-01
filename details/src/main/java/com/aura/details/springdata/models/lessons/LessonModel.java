@@ -56,9 +56,6 @@ public class LessonModel extends TenantBaseModel {
     @Builder.Default
     private String description = "";
 
-    @Builder.Default
-    private String recap = "";
-
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
@@ -83,11 +80,6 @@ public class LessonModel extends TenantBaseModel {
     @Builder.Default
     @ToString.Exclude
     private Set<LessonCancellationRequestModel> lessonCancellationRequests = new HashSet<>();
-
-    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Builder.Default
-    @ToString.Exclude
-    private Set<LessonQuizModel> lessonQuizzes = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default

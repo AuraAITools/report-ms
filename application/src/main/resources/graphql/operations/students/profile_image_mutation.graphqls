@@ -1,0 +1,4 @@
+extend type Mutation {
+    requestStudentProfileImageUpload(input: RequestStudentProfileImageUploadInput!): StudentProfileImageUploadResponse!
+    confirmStudentProfileImageUpload(input: ConfirmStudentProfileImageUploadInput!): StudentResponse!
+}

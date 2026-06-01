@@ -5,6 +5,8 @@ import com.aura.details.springdata.models.courses.CourseModel;
 import com.aura.details.springdata.models.lessons.LessonModel;
 import com.aura.details.springdata.models.outlets.OutletModel;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaEducatorLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,10 @@ class LessonRepositoryImplTest {
 
     @Mock
     private JpaLessonRepository jpaLessonRepository;
+    @Mock
+    private JpaEducatorLessonLinkRepository jpaEducatorLessonLinkRepository;
+    @Mock
+    private JpaStudentLessonLinkRepository jpaStudentLessonLinkRepository;
     @Mock
     private EntityManager entityManager;
     @InjectMocks
@@ -112,5 +118,47 @@ class LessonRepositoryImplTest {
         UUID courseId = UUID.randomUUID();
         when(jpaLessonRepository.findByCourse_IdIn(List.of(courseId))).thenReturn(List.of());
         assertThat(repository.findAllByCourseId(courseId.toString())).isEmpty();
+    }
+
+    @DisplayName("Should return all lessons taught by the given educator id")
+    @Test
+    void findAllByEducatorId_returnsLessons() {
+        UUID educatorId = UUID.randomUUID();
+        LessonModel m1 = LessonModel.builder().id(UUID.randomUUID()).name("L1").build();
+        LessonModel m2 = LessonModel.builder().id(UUID.randomUUID()).name("L2").build();
+        when(jpaEducatorLessonLinkRepository.findLessonsByEducatorId(educatorId)).thenReturn(List.of(m1, m2));
+
+        List<Lesson> result = repository.findAllByEducatorId(educatorId.toString());
+
+        assertThat(result).extracting(Lesson::getName).containsExactly("L1", "L2");
+    }
+
+    @DisplayName("Should return empty list when educator has no lessons")
+    @Test
+    void findAllByEducatorId_returnsEmpty() {
+        UUID educatorId = UUID.randomUUID();
+        when(jpaEducatorLessonLinkRepository.findLessonsByEducatorId(educatorId)).thenReturn(List.of());
+        assertThat(repository.findAllByEducatorId(educatorId.toString())).isEmpty();
+    }
+
+    @DisplayName("Should return all lessons attended by the given student id")
+    @Test
+    void findAllByStudentId_returnsLessons() {
+        UUID studentId = UUID.randomUUID();
+        LessonModel m1 = LessonModel.builder().id(UUID.randomUUID()).name("L1").build();
+        LessonModel m2 = LessonModel.builder().id(UUID.randomUUID()).name("L2").build();
+        when(jpaStudentLessonLinkRepository.findLessonsByStudentId(studentId)).thenReturn(List.of(m1, m2));
+
+        List<Lesson> result = repository.findAllByStudentId(studentId.toString());
+
+        assertThat(result).extracting(Lesson::getName).containsExactly("L1", "L2");
+    }
+
+    @DisplayName("Should return empty list when student has no lessons")
+    @Test
+    void findAllByStudentId_returnsEmpty() {
+        UUID studentId = UUID.randomUUID();
+        when(jpaStudentLessonLinkRepository.findLessonsByStudentId(studentId)).thenReturn(List.of());
+        assertThat(repository.findAllByStudentId(studentId.toString())).isEmpty();
     }
 }

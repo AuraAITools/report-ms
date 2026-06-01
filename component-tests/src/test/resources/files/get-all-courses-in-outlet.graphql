@@ -1,13 +1,13 @@
-query GetAllCoursesInOutlet($outletId: ID!) {
-    getAllCoursesInOutlet(outletId: $outletId) {
+query GetAllCoursesInOutlet($institutionId: ID!, $outletId: ID!) {
+    getAllCoursesInOutlet(institutionId: $institutionId, outletId: $outletId) {
         id
         name
         maxSize
         lessonFrequency
         courseStartTimestamptz
         courseEndTimestamptz
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         lessons {
             id
         }

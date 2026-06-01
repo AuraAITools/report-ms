@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
@@ -27,6 +28,7 @@ public class Educator {
     private LocalDate dateOfBirth;
     private String email;
     private EMPLOYMENT_TYPE employmentType;
+    private @Nullable String profileImageKey;
 
     public enum EMPLOYMENT_TYPE {
         FULL_TIME,

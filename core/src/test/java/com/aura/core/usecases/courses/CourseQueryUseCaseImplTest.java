@@ -62,11 +62,65 @@ class CourseQueryUseCaseImplTest {
         assertThat(useCase.findAllByOutletId("outlet-empty")).isEmpty();
     }
 
+    @DisplayName("Should return all courses for the given educator id")
+    @Test
+    void returnsAllCoursesForEducatorId() {
+        Course c1 = Course.builder().id("c1").build();
+        Course c2 = Course.builder().id("c2").build();
+        var stub = new StubCourseRepository();
+        stub.findAllByEducatorIdsResult = java.util.Map.of("educator-1", List.of(c1, c2));
+        var useCase = new CourseQueryUseCaseImpl(stub);
+
+        List<Course> result = useCase.findAllByEducatorId("educator-1");
+
+        assertThat(result).containsExactly(c1, c2);
+        assertThat(stub.findAllByEducatorIdsArg).containsExactly("educator-1");
+    }
+
+    @DisplayName("Should return an empty list when educator has no courses")
+    @Test
+    void returnsEmptyListWhenEducatorHasNoCourses() {
+        var stub = new StubCourseRepository();
+        stub.findAllByEducatorIdsResult = java.util.Map.of();
+        var useCase = new CourseQueryUseCaseImpl(stub);
+
+        assertThat(useCase.findAllByEducatorId("educator-empty")).isEmpty();
+    }
+
+    @DisplayName("Should return all courses for the given student id")
+    @Test
+    void returnsAllCoursesForStudentId() {
+        Course c1 = Course.builder().id("c1").build();
+        Course c2 = Course.builder().id("c2").build();
+        var stub = new StubCourseRepository();
+        stub.findAllByStudentIdsResult = java.util.Map.of("student-1", List.of(c1, c2));
+        var useCase = new CourseQueryUseCaseImpl(stub);
+
+        List<Course> result = useCase.findAllByStudentId("student-1");
+
+        assertThat(result).containsExactly(c1, c2);
+        assertThat(stub.findAllByStudentIdsArg).containsExactly("student-1");
+    }
+
+    @DisplayName("Should return an empty list when student has no courses")
+    @Test
+    void returnsEmptyListWhenStudentHasNoCourses() {
+        var stub = new StubCourseRepository();
+        stub.findAllByStudentIdsResult = java.util.Map.of();
+        var useCase = new CourseQueryUseCaseImpl(stub);
+
+        assertThat(useCase.findAllByStudentId("student-empty")).isEmpty();
+    }
+
     private static class StubCourseRepository implements CourseRepository {
         @Nullable Course findByIdResult;
         List<Course> findAllByOutletIdResult = List.of();
+        java.util.Map<String, List<Course>> findAllByEducatorIdsResult = java.util.Map.of();
+        java.util.Map<String, List<Course>> findAllByStudentIdsResult = java.util.Map.of();
         String findByIdArg;
         String findAllByOutletIdArg;
+        List<String> findAllByEducatorIdsArg;
+        List<String> findAllByStudentIdsArg;
 
         @Override
         public Course save(Course course) {
@@ -92,12 +146,14 @@ class CourseQueryUseCaseImplTest {
 
         @Override
         public java.util.Map<String, List<Course>> findAllByStudentIds(List<String> studentIds) {
-            throw new UnsupportedOperationException();
+            this.findAllByStudentIdsArg = studentIds;
+            return findAllByStudentIdsResult;
         }
 
         @Override
         public java.util.Map<String, List<Course>> findAllByEducatorIds(List<String> educatorIds) {
-            throw new UnsupportedOperationException();
+            this.findAllByEducatorIdsArg = educatorIds;
+            return findAllByEducatorIdsResult;
         }
 
         @Override

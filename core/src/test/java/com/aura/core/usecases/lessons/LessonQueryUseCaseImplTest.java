@@ -56,11 +56,77 @@ class LessonQueryUseCaseImplTest {
         assertThat(new LessonQueryUseCaseImpl(stub).findAllByCourseId("c1")).isEmpty();
     }
 
+    @DisplayName("Should return all lessons for the given outlet id")
+    @Test
+    void findAllByOutletId_returnsLessons() {
+        Lesson l1 = Lesson.builder().id("l1").outletId("o1").build();
+        Lesson l2 = Lesson.builder().id("l2").outletId("o1").build();
+        var stub = new StubLessonRepository();
+        stub.findAllByOutletIdResult = List.of(l1, l2);
+
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByOutletId("o1")).containsExactly(l1, l2);
+        assertThat(stub.findAllByOutletIdArg).isEqualTo("o1");
+    }
+
+    @DisplayName("Should return empty list when no lessons in outlet")
+    @Test
+    void findAllByOutletId_returnsEmpty() {
+        var stub = new StubLessonRepository();
+        stub.findAllByOutletIdResult = List.of();
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByOutletId("o1")).isEmpty();
+    }
+
+    @DisplayName("Should return all lessons taught by the given educator id")
+    @Test
+    void findAllByEducatorId_returnsLessons() {
+        Lesson l1 = Lesson.builder().id("l1").build();
+        Lesson l2 = Lesson.builder().id("l2").build();
+        var stub = new StubLessonRepository();
+        stub.findAllByEducatorIdResult = List.of(l1, l2);
+
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByEducatorId("e1")).containsExactly(l1, l2);
+        assertThat(stub.findAllByEducatorIdArg).isEqualTo("e1");
+    }
+
+    @DisplayName("Should return empty list when educator has no lessons")
+    @Test
+    void findAllByEducatorId_returnsEmpty() {
+        var stub = new StubLessonRepository();
+        stub.findAllByEducatorIdResult = List.of();
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByEducatorId("e1")).isEmpty();
+    }
+
+    @DisplayName("Should return all lessons attended by the given student id")
+    @Test
+    void findAllByStudentId_returnsLessons() {
+        Lesson l1 = Lesson.builder().id("l1").build();
+        Lesson l2 = Lesson.builder().id("l2").build();
+        var stub = new StubLessonRepository();
+        stub.findAllByStudentIdResult = List.of(l1, l2);
+
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByStudentId("s1")).containsExactly(l1, l2);
+        assertThat(stub.findAllByStudentIdArg).isEqualTo("s1");
+    }
+
+    @DisplayName("Should return empty list when student has no lessons")
+    @Test
+    void findAllByStudentId_returnsEmpty() {
+        var stub = new StubLessonRepository();
+        stub.findAllByStudentIdResult = List.of();
+        assertThat(new LessonQueryUseCaseImpl(stub).findAllByStudentId("s1")).isEmpty();
+    }
+
     private static class StubLessonRepository implements LessonRepository {
         @Nullable Lesson findByIdResult;
         List<Lesson> findAllByCourseIdResult = List.of();
+        List<Lesson> findAllByOutletIdResult = List.of();
+        List<Lesson> findAllByEducatorIdResult = List.of();
+        List<Lesson> findAllByStudentIdResult = List.of();
         UUID findByIdArg;
         String findAllByCourseIdArg;
+        String findAllByOutletIdArg;
+        String findAllByEducatorIdArg;
+        String findAllByStudentIdArg;
 
         @Override
         public Lesson save(Lesson lesson) {
@@ -97,6 +163,24 @@ class LessonQueryUseCaseImplTest {
         public List<Lesson> findAllByCourseId(String courseId) {
             this.findAllByCourseIdArg = courseId;
             return findAllByCourseIdResult;
+        }
+
+        @Override
+        public List<Lesson> findAllByOutletId(String outletId) {
+            this.findAllByOutletIdArg = outletId;
+            return findAllByOutletIdResult;
+        }
+
+        @Override
+        public List<Lesson> findAllByEducatorId(String educatorId) {
+            this.findAllByEducatorIdArg = educatorId;
+            return findAllByEducatorIdResult;
+        }
+
+        @Override
+        public List<Lesson> findAllByStudentId(String studentId) {
+            this.findAllByStudentIdArg = studentId;
+            return findAllByStudentIdResult;
         }
 
         @Override

@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface LessonMapper {
     LessonMapper INSTANCE = Mappers.getMapper(LessonMapper.class);
 
@@ -22,12 +22,13 @@ public interface LessonMapper {
     @Mapping(target = "lessonPlans", ignore = true)
     @Mapping(target = "lessonObjectives", ignore = true)
     @Mapping(target = "materials", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonResponse toResponseDto(Lesson lesson);
 
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "recap", ignore = true)
     @Mapping(target = "outletId", ignore = true)
     @Mapping(target = "lessonOutletRoomBooking", ignore = true)
     @Mapping(target = "id", ignore = true)

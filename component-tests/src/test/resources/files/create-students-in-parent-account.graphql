@@ -3,6 +3,6 @@ mutation CreateStudentsInParentAccount($input: [CreateStudentInput]) {
         id
         name
         email
-        createdBy
+        createdBy { userId accountId name url }
     }
 }

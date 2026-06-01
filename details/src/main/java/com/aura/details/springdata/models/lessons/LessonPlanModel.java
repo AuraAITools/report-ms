@@ -45,6 +45,9 @@ public class LessonPlanModel extends TenantBaseModel {
     @Column(nullable = false, columnDefinition = "TEXT DEFAULT ''")
     private String plan;
 
+    @Column(nullable = false, columnDefinition = "TEXT DEFAULT ''")
+    private String recap;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
@@ -68,6 +71,11 @@ public class LessonPlanModel extends TenantBaseModel {
     @ToString.Exclude
     @Builder.Default
     private Set<LessonObjectiveModel> lessonObjectives = new HashSet<>();
+
+    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @Builder.Default
+    private Set<LessonQuizModel> lessonQuizzes = new HashSet<>();
 
     public enum LESSON_PLAN_STATE {
         UNPLANNED,

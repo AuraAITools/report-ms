@@ -1,5 +1,6 @@
 package com.aura.tests.component.stepdefs;
 
+import com.aura.app.codegen.types.AccountMinimalDetail;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.tests.component.contexts.TestContext;
@@ -45,8 +46,8 @@ public class InstitutionStepDefs {
                 .contactNumber("96228693")
                 .address("address")
                 .uen("test")
-                .createdBy("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7")
-                .updatedBy("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7")
+                .createdBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
+                .updatedBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
                 .build();
 
         assertThat(institutionResponse)
@@ -144,8 +145,8 @@ public class InstitutionStepDefs {
                 .contactNumber(input.getContactNumber())
                 .address(input.getAddress())
                 .uen(input.getUen())
-                .createdBy("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7")
-                .updatedBy("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7")
+                .createdBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
+                .updatedBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
                 .build();
 
         assertThat(response)

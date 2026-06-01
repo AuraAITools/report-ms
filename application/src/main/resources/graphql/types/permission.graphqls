@@ -26,6 +26,7 @@ enum UserGroupRole {
 }
 
 input GrantUserGroupRoleInput {
+    institutionId: ID!
     userGroupType: UserGroupType!
     userGroupId: ID!
     role: UserGroupRole!
@@ -33,6 +34,7 @@ input GrantUserGroupRoleInput {
 }
 
 input RevokeUserGroupRoleInput {
+    institutionId: ID!
     userGroupType: UserGroupType!
     userGroupId: ID!
     role: UserGroupRole!

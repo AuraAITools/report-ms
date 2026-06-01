@@ -1,0 +1,10 @@
+mutation ConfirmEducatorProfileImageUpload($input: ConfirmEducatorProfileImageUploadInput!) {
+    confirmEducatorProfileImageUpload(input: $input) {
+        id
+        name
+        email
+        profileImageUrl
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

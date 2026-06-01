@@ -1,0 +1,8 @@
+query GetOutletsInInstitutionWithMinimalAudit($institutionId: ID!) {
+    getOutletsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

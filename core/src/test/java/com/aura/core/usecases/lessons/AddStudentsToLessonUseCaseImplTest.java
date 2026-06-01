@@ -135,6 +135,21 @@ class AddStudentsToLessonUseCaseImplTest {
         }
 
         @Override
+        public List<Lesson> findAllByOutletId(String outletId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findAllByEducatorId(String educatorId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findAllByStudentId(String studentId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void deleteById(String id) {
             throw new UnsupportedOperationException();
         }
@@ -160,6 +175,10 @@ class AddStudentsToLessonUseCaseImplTest {
         @Override
         public Student findById(String id) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void updateProfileImageKeyById(String id, String profileImageKey) {
         }
 
         @Override

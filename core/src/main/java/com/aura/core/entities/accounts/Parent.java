@@ -26,6 +26,8 @@ public class Parent {
 
     private @Nullable String accountId;
 
+    private @Nullable String profileImageKey;
+
     public enum RELATIONSHIP {
         PARENT,
         SELF

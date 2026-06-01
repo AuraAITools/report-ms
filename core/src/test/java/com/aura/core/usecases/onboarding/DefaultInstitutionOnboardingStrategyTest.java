@@ -31,6 +31,10 @@ class DefaultInstitutionOnboardingStrategyTest {
             }
 
             @Override
+            public void updateProfileImageKeyById(String id, String profileImageKey) {
+            }
+
+            @Override
             public List<Institution> findAll() {
                 return List.of();
             }

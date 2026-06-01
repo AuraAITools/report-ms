@@ -1,10 +1,13 @@
 package com.aura.app.controllers.graphql.v1.students;
 
+import com.aura.app.codegen.types.ConfirmStudentProfileImageUploadInput;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.DeleteStudentByIdInput;
 import com.aura.app.codegen.types.GetStudentByIdInput;
 import com.aura.app.codegen.types.LevelResponse;
+import com.aura.app.codegen.types.RequestStudentProfileImageUploadInput;
 import com.aura.app.codegen.types.SchoolResponse;
+import com.aura.app.codegen.types.StudentProfileImageUploadResponse;
 import com.aura.app.codegen.types.StudentResponse;
 import com.aura.app.codegen.types.UpdateStudentByIdInput;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
@@ -19,10 +22,14 @@ import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.details.services.AssetUrlService;
 import com.aura.details.services.StudentService;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +47,12 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class StudentsGqlController {
 
+    private static final Duration PROFILE_IMAGE_URL_TTL = Duration.ofMinutes(15);
+
     private final StudentService studentService;
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
+    private final AssetUrlService assetUrlService;
 
     @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping
@@ -80,6 +90,47 @@ public class StudentsGqlController {
                                      @ContextValue("user") User user) {
         studentService.deleteById(input.getId());
         return true;
+    }
+
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public StudentProfileImageUploadResponse requestStudentProfileImageUpload(
+            @Argument RequestStudentProfileImageUploadInput input,
+            @ContextValue("user") User user) {
+        StudentService.PresignedProfileImageUpload presigned = studentService.requestProfileImageUpload(
+                input.getInstitutionId(), input.getStudentId(), input.getContentType());
+        return StudentProfileImageUploadResponse.newBuilder()
+                .uploadUrl(presigned.uploadUrl())
+                .fileKey(presigned.fileKey())
+                .build();
+    }
+
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public StudentResponse confirmStudentProfileImageUpload(
+            @Argument ConfirmStudentProfileImageUploadInput input,
+            @ContextValue("user") User user) {
+        Student updated = studentService.confirmProfileImageUpload(
+                input.getInstitutionId(), input.getStudentId(), input.getFileKey());
+        return StudentMapper.INSTANCE.toDto(updated);
+    }
+
+    @BatchMapping(typeName = "StudentResponse", field = "profileImageUrl")
+    public Map<StudentResponse, String> profileImageUrl(List<StudentResponse> students) {
+        Set<String> ids = students.stream().map(StudentResponse::getId).collect(Collectors.toSet());
+
+        Map<String, String> keysById = ids.stream()
+                .map(studentService::findById)
+                .filter(Objects::nonNull)
+                .filter(s -> s.getProfileImageKey() != null)
+                .collect(Collectors.toMap(Student::getId, Student::getProfileImageKey));
+
+        return students.stream()
+                .filter(s -> keysById.containsKey(s.getId()))
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        s -> assetUrlService.presignGet(keysById.get(s.getId()), PROFILE_IMAGE_URL_TTL)
+                ));
     }
 
     @BatchMapping(typeName = "StudentResponse", field = "level")

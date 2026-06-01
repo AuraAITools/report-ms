@@ -6,10 +6,36 @@ type StudentResponse implements Auditable{
     level: LevelResponse!
     school: SchoolResponse!
     courses: [CourseResponse!]!
+    """Presigned S3 GET URL for the student's profile image. Null if no image is set."""
+    profileImageUrl: String
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
+}
+
+"""
+Response from requestStudentProfileImageUpload — the client uses uploadUrl to PUT bytes
+directly to S3, then passes fileKey back to confirmStudentProfileImageUpload to
+validate dimensions/size and persist the key on the student.
+"""
+type StudentProfileImageUploadResponse {
+    uploadUrl: String!
+    fileKey: String!
+}
+
+input RequestStudentProfileImageUploadInput {
+    institutionId: ID!
+    studentId: ID!
+    """Must be one of: image/png, image/jpeg, image/webp."""
+    contentType: String!
+}
+
+input ConfirmStudentProfileImageUploadInput {
+    institutionId: ID!
+    studentId: ID!
+    """The fileKey returned from requestStudentProfileImageUpload, after the PUT completes."""
+    fileKey: String!
 }
 input CreateStudentsInput {
     institutionId: ID!

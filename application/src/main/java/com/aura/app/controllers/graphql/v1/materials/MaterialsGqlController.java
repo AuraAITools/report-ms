@@ -5,18 +5,25 @@ import com.aura.app.codegen.types.DeleteMaterialByIdInput;
 import com.aura.app.codegen.types.MaterialResponse;
 import com.aura.app.codegen.types.MaterialUploadResponse;
 import com.aura.app.codegen.types.RequestMaterialUploadInput;
+import com.aura.app.codegen.types.TopicResponse;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.MaterialMapper;
+import com.aura.app.mappers.TopicMapper;
 import com.aura.core.auth.User;
 import com.aura.core.entities.materials.Material;
+import com.aura.core.entities.topics.Topic;
 import com.aura.details.services.AssetUrlService;
 import com.aura.details.services.MaterialService;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -93,5 +100,16 @@ public class MaterialsGqlController {
         return Optional.ofNullable(materialService.findById(material.getId()))
                 .map(stored -> assetUrlService.presignGet(stored.getFileKey(), FILE_URL_TTL))
                 .orElse(null);
+    }
+
+    @BatchMapping(typeName = "MaterialResponse", field = "topics")
+    public Map<MaterialResponse, List<TopicResponse>> topics(List<MaterialResponse> materialResponses) {
+        List<String> materialIds = materialResponses.stream().map(MaterialResponse::getId).toList();
+        Map<String, List<Topic>> topicsByMaterialId = materialService.findTopicsByMaterialIds(materialIds);
+        return materialResponses.stream().collect(Collectors.toMap(
+                Function.identity(),
+                m -> topicsByMaterialId.getOrDefault(m.getId(), List.of()).stream()
+                        .map(TopicMapper.INSTANCE::toDto).toList()
+        ));
     }
 }

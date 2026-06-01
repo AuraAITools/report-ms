@@ -42,6 +42,14 @@ public class CourseService {
         return courseQueryUseCase.findAllByOutletId(outletId);
     }
 
+    public List<Course> findAllByEducatorId(String educatorId) {
+        return courseQueryUseCase.findAllByEducatorId(educatorId);
+    }
+
+    public List<Course> findAllByStudentId(String studentId) {
+        return courseQueryUseCase.findAllByStudentId(studentId);
+    }
+
     @Transactional
     public Course createCourseInOutlet(Course course, String outletId,
                                        List<String> subjectIds, List<String> educatorIds, List<String> studentIds) {
@@ -62,8 +70,7 @@ public class CourseService {
         if (!educatorIds.isEmpty()) {
             educatorRepository.createEducatorCourseLinks(educatorIds, courseId, tenantId);
             Map<String, String> educatorUserIds = educatorRepository.findUserIdsByEducatorIds(educatorIds);
-            List<String> userIds = new ArrayList<>(educatorUserIds.values());
-            for (String userId : userIds) {
+            for (String userId : educatorUserIds.values()) {
                 relationships.add(new RelationshipAuthorizationService.Relationship(
                         "course_user_group", courseId, "modifier", "user", userId));
             }
@@ -72,8 +79,7 @@ public class CourseService {
         if (!studentIds.isEmpty()) {
             Map<String, String> studentUserIds = studentRepository.findUserIdsByStudentIds(studentIds);
             studentRepository.createStudentCourseLinks(studentIds, courseId, tenantId);
-            List<String> userIds = new ArrayList<>(studentUserIds.values());
-            for (String userId : userIds) {
+            for (String userId : studentUserIds.values()) {
                 relationships.add(new RelationshipAuthorizationService.Relationship(
                         "course_user_group", courseId, "viewer", "user", userId));
             }

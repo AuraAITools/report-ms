@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   <li>Resource names must be from a known set</li>
  *   <li>Scope names must be from a known set</li>
  *   <li>#paramName references must match method parameter names</li>
- *   <li>Type-level checks must use null as first argument</li>
  * </ul>
  */
 @AnalyzeClasses(packages = "com.aura.app.controllers")
@@ -49,14 +48,15 @@ class PreAuthorizeConventionTest {
 
     private static final Set<String> VALID_RESOURCES = Set.of(
             "institution", "outlet", "outlet_room", "course", "lesson",
-            "level", "subject", "topic", "account"
+            "level", "subject", "topic", "account", "material", "system"
     );
 
     private static final Set<String> VALID_SCOPES = Set.of(
             "view", "create", "manage", "delegate", "update", "delete",
             "create_institution", "create_outlet", "create_course",
             "create_lesson", "create_account", "create_subject",
-            "create_lesson_plan", "create_outlet_room", "create_lesson_objective"
+            "create_lesson_plan", "create_outlet_room", "create_lesson_objective",
+            "create_material", "create_level", "create_school", "delete_school"
     );
 
     private static final Path CONTROLLERS_ROOT = findControllersRoot();
@@ -202,24 +202,6 @@ class PreAuthorizeConventionTest {
                                     .as("#%s at %s:%d must match a method parameter. Found: %s",
                                             rootParamName, match.file().getFileName(), match.lineNumber(), parameterNames)
                                     .contains(rootParamName);
-                        }
-                ));
-    }
-
-    @TestFactory
-    @DisplayName("Type-level checks must use null as first argument")
-    Stream<DynamicTest> type_level_checks_must_use_null_first_arg() throws IOException {
-        return findPreAuthorizeAnnotations().stream()
-                .filter(match -> match.value().contains("hasPermission("))
-                .filter(match -> !match.value().contains("#"))
-                .map(match -> DynamicTest.dynamicTest(
-                        match.file().getFileName() + ":" + match.lineNumber() + " type-level must use null first arg",
-                        () -> {
-                            String firstArg = extractRawArgument(match.value(), 0);
-                            assertThat(firstArg)
-                                    .as("Type-level hasPermission at %s:%d must use null as first arg, found: %s",
-                                            match.file().getFileName(), match.lineNumber(), firstArg)
-                                    .isEqualTo("null");
                         }
                 ));
     }

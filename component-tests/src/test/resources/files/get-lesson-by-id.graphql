@@ -1,11 +1,11 @@
-query GetLessonById($lessonId: ID!) {
-    getLessonById(lessonId: $lessonId) {
+query GetLessonById($institutionId: ID!, $lessonId: ID!) {
+    getLessonById(institutionId: $institutionId, lessonId: $lessonId) {
         id
         name
         lessonStartTimestamptz
         lessonEndTimestamptz
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         course {
             id
             name

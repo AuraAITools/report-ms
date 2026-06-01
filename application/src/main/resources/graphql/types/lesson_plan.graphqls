@@ -1,13 +1,14 @@
 type LessonPlanResponse implements Auditable {
     id: ID!
     plan: String!
+    recap: String!
     state: LessonPlanState!
     lesson: LessonResponse!
     topics: [TopicResponse!]!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 enum LessonPlanState {
@@ -17,6 +18,7 @@ enum LessonPlanState {
 }
 
 input CreateLessonPlanInLessonInput {
+    institutionId: ID!
     lessonId: ID!
     plan: String!
     topicIds: [ID!]!

@@ -1,0 +1,13 @@
+query GetAllLessonsInOutlet($institutionId: ID!, $outletId: ID!) {
+    getAllLessonsInOutlet(institutionId: $institutionId, outletId: $outletId) {
+        id
+        name
+        lessonStartTimestamptz
+        lessonEndTimestamptz
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+        outlet {
+            id
+        }
+    }
+}

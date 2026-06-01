@@ -3,7 +3,7 @@ mutation CreateAccount($input: CreateAccountInput!) {
         id
         firstName
         lastName
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

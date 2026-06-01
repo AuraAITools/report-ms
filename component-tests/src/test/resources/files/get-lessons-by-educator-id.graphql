@@ -1,0 +1,13 @@
+query GetLessonsByEducatorId($institutionId: ID!, $educatorId: ID!) {
+    getLessonsByEducatorId(institutionId: $institutionId, educatorId: $educatorId) {
+        id
+        name
+        lessonStartTimestamptz
+        lessonEndTimestamptz
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+        course {
+            id
+        }
+    }
+}

@@ -1,8 +1,11 @@
 package com.aura.app.controllers.graphql.v1.institutions;
 
+import com.aura.app.codegen.types.ConfirmInstitutionProfileImageUploadInput;
 import com.aura.app.codegen.types.CreateInstitutionInput;
+import com.aura.app.codegen.types.InstitutionProfileImageUploadResponse;
 import com.aura.app.codegen.types.InstitutionResponse;
 import com.aura.app.codegen.types.OutletResponse;
+import com.aura.app.codegen.types.RequestInstitutionProfileImageUploadInput;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.InstitutionMapper;
 import com.aura.app.mappers.OutletMapper;
@@ -12,6 +15,7 @@ import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.outlets.OutletQueryUseCase;
 import com.aura.details.services.AssetUrlService;
+import com.aura.details.services.InstitutionService;
 import com.aura.details.services.OnboardingService;
 import java.time.Duration;
 import java.util.List;
@@ -34,10 +38,12 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class InstitutionsGqlController {
     private static final Duration LOGO_URL_TTL = Duration.ofMinutes(15);
+    private static final Duration PROFILE_IMAGE_URL_TTL = Duration.ofMinutes(15);
 
     private final InstitutionQueryUseCase institutionQueryUseCase;
     private final OutletQueryUseCase outletQueryUseCase;
     private final OnboardingService onboardingService;
+    private final InstitutionService institutionService;
     private final AssetUrlService assetUrlService;
 
     @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
@@ -69,6 +75,29 @@ public class InstitutionsGqlController {
         return InstitutionMapper.INSTANCE.from(onboardedInstitution);
     }
 
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public InstitutionProfileImageUploadResponse requestInstitutionProfileImageUpload(
+            @Argument RequestInstitutionProfileImageUploadInput input,
+            @ContextValue(name = "user") User user) {
+        InstitutionService.PresignedProfileImageUpload presigned =
+                institutionService.requestProfileImageUpload(input.getInstitutionId(), input.getContentType());
+        return InstitutionProfileImageUploadResponse.newBuilder()
+                .uploadUrl(presigned.uploadUrl())
+                .fileKey(presigned.fileKey())
+                .build();
+    }
+
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public InstitutionResponse confirmInstitutionProfileImageUpload(
+            @Argument ConfirmInstitutionProfileImageUploadInput input,
+            @ContextValue(name = "user") User user) {
+        Institution updated = institutionService.confirmProfileImageUpload(
+                input.getInstitutionId(), input.getFileKey());
+        return InstitutionMapper.INSTANCE.from(updated);
+    }
+
     @BatchMapping(typeName = "InstitutionResponse", field = "logoUrl")
     public Map<InstitutionResponse, String> logoUrl(List<InstitutionResponse> institutions) {
         Set<String> ids = institutions.stream()
@@ -84,6 +113,24 @@ public class InstitutionsGqlController {
                 .collect(Collectors.toMap(
                         inst -> inst,
                         inst -> assetUrlService.presignGet(logoKeysById.get(inst.getId()), LOGO_URL_TTL)
+                ));
+    }
+
+    @BatchMapping(typeName = "InstitutionResponse", field = "profileImageUrl")
+    public Map<InstitutionResponse, String> profileImageUrl(List<InstitutionResponse> institutions) {
+        Set<String> ids = institutions.stream()
+                .map(InstitutionResponse::getId)
+                .collect(Collectors.toSet());
+
+        Map<String, String> keysById = institutionQueryUseCase.findAllByIds(ids).stream()
+                .filter(i -> i.getProfileImageKey() != null)
+                .collect(Collectors.toMap(Institution::getId, Institution::getProfileImageKey));
+
+        return institutions.stream()
+                .filter(inst -> keysById.containsKey(inst.getId()))
+                .collect(Collectors.toMap(
+                        inst -> inst,
+                        inst -> assetUrlService.presignGet(keysById.get(inst.getId()), PROFILE_IMAGE_URL_TTL)
                 ));
     }
 

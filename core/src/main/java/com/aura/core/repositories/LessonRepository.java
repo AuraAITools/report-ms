@@ -21,6 +21,12 @@ public interface LessonRepository {
 
     List<Lesson> findAllByCourseId(String courseId);
 
+    List<Lesson> findAllByOutletId(String outletId);
+
+    List<Lesson> findAllByEducatorId(String educatorId);
+
+    List<Lesson> findAllByStudentId(String studentId);
+
     void deleteById(String id);
 
     void deleteAllLessonLinksByLessonId(String lessonId);

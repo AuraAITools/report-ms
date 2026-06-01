@@ -27,6 +27,14 @@ Note:
 - details can use core, but not application
 - application can use core & details
 
+## Reserved values
+
+- **`00000000-0000-0000-0000-000000000000`** — reserved account id for the **system account**. Returned as
+  `AccountMinimalDetail.accountId` on audit fields (`createdBy` / `updatedBy`) when the request has no tenant
+  context (e.g. system-scoped queries like `getUserInstitutions`) and a real `Account` lookup is impossible. Paired
+  with `name = "system"` and `url = ""`. No row with this id exists in the database; clients should treat it as a
+  sentinel, not query for it.
+
 ## Local environment
 
 The app depends on Postgres, SpiceDB, and S3. For local development, start everything via Docker Compose.

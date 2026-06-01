@@ -130,6 +130,7 @@ public class UserGroupRoleStepDefs {
 
     private void executeGrant(String role, String resourceType, String resourceId, String targetUserId) {
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("userGroupType", resourceType);
         input.put("userGroupId", resourceId);
         input.put("role", role);
@@ -202,6 +203,7 @@ public class UserGroupRoleStepDefs {
 
     private void executeRevoke(String role, String resourceType, String resourceId, String targetUserId) {
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("userGroupType", resourceType);
         input.put("userGroupId", resourceId);
         input.put("role", role);

@@ -1,9 +1,9 @@
-query GetSubjectById($subjectId: ID!) {
-    getSubjectById(subjectId: $subjectId) {
+query GetSubjectById($institutionId: ID!, $subjectId: ID!) {
+    getSubjectById(institutionId: $institutionId, subjectId: $subjectId) {
         id
         name
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         topics {
             id
             name

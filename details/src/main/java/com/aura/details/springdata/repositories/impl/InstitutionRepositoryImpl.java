@@ -46,6 +46,11 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
     }
 
     @Override
+    public void updateProfileImageKeyById(String id, @Nullable String profileImageKey) {
+        jpaRepository.updateProfileImageKeyById(UUID.fromString(id), profileImageKey);
+    }
+
+    @Override
     public List<Institution> findAll() {
         List<InstitutionModel> institutionModels = jpaRepository.findAll();
         return institutionModels.stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList();

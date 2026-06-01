@@ -54,6 +54,9 @@ public class EducatorModel extends TenantBaseModel {
     @Enumerated(EnumType.STRING)
     private EMPLOYMENT_TYPE employmentType;
 
+    @Column(length = 512)
+    private String profileImageKey;
+
     @OneToMany(mappedBy = "educator", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default

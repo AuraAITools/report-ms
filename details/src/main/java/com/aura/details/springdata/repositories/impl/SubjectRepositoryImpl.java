@@ -4,7 +4,6 @@ import com.aura.core.entities.links.SubjectCourseLink;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.subjects.SubjectWithTopics;
 import com.aura.core.entities.topics.Topic;
-import com.aura.core.exceptions.TechnicalException;
 import com.aura.core.repositories.SubjectRepository;
 import com.aura.details.springdata.mappers.links.SubjectCourseLinkMapper;
 import com.aura.details.springdata.mappers.subjects.SubjectMapper;
@@ -104,25 +103,17 @@ public class SubjectRepositoryImpl implements SubjectRepository {
         if (subjectIds.isEmpty()) return Collections.emptyList();
 
         CourseModel courseModel = jpaCourseRepository.getReferenceById(UUID.fromString(courseId));
-        var foundSubjects = jpaSubjectRepository.findAllById(subjectIds.stream().map(UUID::fromString).toList());
-        if (foundSubjects.size() != subjectIds.size()) {
-            throw new TechnicalException("some subjects are non-existent");
+        List<SubjectCourseLink> saved = new ArrayList<>(subjectIds.size());
+        for (String subjectId : subjectIds) {
+            SubjectModel subjectModel = jpaSubjectRepository.getReferenceById(UUID.fromString(subjectId));
+            SubjectCourseLinkModel linkModel = SubjectCourseLinkModel.builder()
+                    .course(courseModel)
+                    .subject(subjectModel)
+                    .tenantId(tenantId)
+                    .build();
+            saved.add(SubjectCourseLinkMapper.INSTANCE.toDomain(jpaSubjectCourseLinkRepository.save(linkModel)));
         }
-
-        List<SubjectCourseLinkModel> subjectCourseLinkModels = foundSubjects
-                .stream()
-                .<SubjectCourseLinkModel>map(subjectModel -> SubjectCourseLinkModel.builder()
-                        .course(courseModel)
-                        .subject(subjectModel)
-                        .tenantId(tenantId)
-                        .build())
-                .toList();
-
-        return jpaSubjectCourseLinkRepository
-                .saveAll(subjectCourseLinkModels)
-                .stream()
-                .map(SubjectCourseLinkMapper.INSTANCE::toDomain)
-                .toList();
+        return saved;
     }
 
     @Override

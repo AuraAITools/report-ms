@@ -1,0 +1,10 @@
+query GetAccountByUserId($institutionId: ID!, $userId: ID!) {
+    getAccountByUserId(institutionId: $institutionId, userId: $userId) {
+        id
+        firstName
+        lastName
+        userId
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

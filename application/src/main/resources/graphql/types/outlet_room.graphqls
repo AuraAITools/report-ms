@@ -15,9 +15,9 @@ type OutletRoomResponse implements Auditable {
     passcode: String
     description: String
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input CreateOutletRoomInput {

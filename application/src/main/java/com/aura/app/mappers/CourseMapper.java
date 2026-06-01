@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class, PriceRecordMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, PriceRecordMapper.class, AccountMinimalDetailMapper.class})
 public interface CourseMapper {
     CourseMapper INSTANCE = Mappers.getMapper(CourseMapper.class);
 
@@ -43,5 +43,7 @@ public interface CourseMapper {
     @Mapping(target = "courseId", ignore = true)
     PriceRecord mapPriceRecord(CreatePriceRecordInput createPriceRecordInput, String tenantId);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     CourseResponse toDto(Course course);
 }

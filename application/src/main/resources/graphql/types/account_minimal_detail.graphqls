@@ -1,0 +1,17 @@
+"""
+Minimal projection of an account, used to populate audit fields (createdBy / updatedBy)
+on every Auditable response. Resolved lazily via @BatchMapping in
+AccountMinimalDetailGqlController.
+
+Only `userId` is guaranteed: it always reflects the Keycloak subject stored by
+AuditorAwareImpl. The remaining fields are resolved from the matching Account in
+the current tenant; they are null when no such Account exists (e.g. system-level
+audits, deleted accounts, or cross-tenant references).
+"""
+type AccountMinimalDetail {
+    userId: ID!
+    accountId: ID
+    name: String
+    """Presigned S3 GET URL for the account's profile image. Null if no image is set."""
+    url: String
+}

@@ -1,5 +1,6 @@
 package com.aura.details.springdata.repositories.jpa.links;
 
+import com.aura.details.springdata.models.lessons.LessonModel;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,9 @@ public interface JpaStudentLessonLinkRepository extends JpaRepository<StudentLes
     @Query("SELECT l FROM StudentLessonLinkModel l WHERE l.lesson.id = :lessonId AND l.student.id IN :studentIds")
     List<StudentLessonLinkModel> findAllByLessonIdAndStudentIdIn(@Param("lessonId") UUID lessonId,
                                                                  @Param("studentIds") List<UUID> studentIds);
+
+    @Query("SELECT l.lesson FROM StudentLessonLinkModel l WHERE l.student.id = :studentId")
+    List<LessonModel> findLessonsByStudentId(@Param("studentId") UUID studentId);
 
     void deleteAllByLessonId(UUID lessonId);
 

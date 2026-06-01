@@ -1,0 +1,10 @@
+mutation ConfirmAccountProfileImageUpload($input: ConfirmAccountProfileImageUploadInput!) {
+    confirmAccountProfileImageUpload(input: $input) {
+        id
+        firstName
+        lastName
+        profileImageUrl
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

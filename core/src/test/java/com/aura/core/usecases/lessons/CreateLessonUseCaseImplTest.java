@@ -26,7 +26,7 @@ class CreateLessonUseCaseImplTest {
     @DisplayName("Should set outlet and course on lesson, save it, and return the saved lesson")
     @Test
     void setsOutletAndCourseOnLessonSavesAndReturns() {
-        Course course = Course.builder().id("course-1").name("Test Course").build();
+        Course course = Course.builder().id("course-1").name("Test Course").outletId("outlet-1").build();
         Lesson inputLesson = Lesson.builder().id(UUID.randomUUID().toString()).name("Test Lesson").build();
         Lesson savedLesson = Lesson.builder().id(inputLesson.getId()).name("Test Lesson").outletId("outlet-1").courseId("course-1").build();
 
@@ -44,10 +44,11 @@ class CreateLessonUseCaseImplTest {
     @DisplayName("Should throw RuntimeException when outlet is not found")
     @Test
     void throwsWhenOutletNotFound() {
+        Course courseWithoutOutlet = Course.builder().id("course-1").name("Test Course").build();
         Lesson inputLesson = Lesson.builder().id(UUID.randomUUID().toString()).name("Test Lesson").build();
 
         var stubLessonRepo = new StubLessonRepository(null);
-        var stubCourseRepo = new StubCourseRepository(null);
+        var stubCourseRepo = new StubCourseRepository(courseWithoutOutlet);
         var useCase = new CreateLessonUseCaseImpl(stubLessonRepo, stubCourseRepo);
 
         RuntimeException ex = assertThrows(RuntimeException.class,
@@ -112,6 +113,21 @@ class CreateLessonUseCaseImplTest {
 
         @Override
         public List<Lesson> findAllByCourseId(String courseId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findAllByOutletId(String outletId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findAllByEducatorId(String educatorId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findAllByStudentId(String studentId) {
             throw new UnsupportedOperationException();
         }
 

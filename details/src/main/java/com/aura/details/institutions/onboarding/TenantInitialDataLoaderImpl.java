@@ -1,5 +1,6 @@
 package com.aura.details.institutions.onboarding;
 
+import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
 import com.aura.details.springdata.models.levels.LevelModel;
 import com.aura.details.springdata.models.levels.LevelTemplateModel;
@@ -37,6 +38,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
 
+    // Marks rows seeded by the tenant initial-data loader as authored by the system, since onboarding
+    // runs without an authenticated principal and Spring Data auditing would otherwise leave these null.
+    private static final String SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000";
+
     private final JpaSchoolTemplateRepository jpaSchoolTemplateRepository;
     private final JpaSchoolRepository jpaSchoolRepository;
     private final JpaLevelTemplateRepository jpaLevelTemplateRepository;
@@ -49,6 +54,7 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
     private final JpaTopicRepository jpaTopicRepository;
     private final JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository;
     private final JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository;
+    private final RelationshipAuthorizationService relationshipService;
 
     @Transactional
     @Override
@@ -65,15 +71,27 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
         List<LevelTemplateModel> levelTemplateModels = jpaLevelTemplateRepository.findAll();
         List<LevelModel> levelModels = levelTemplateModels.stream().map(ltt -> mapToLevelModel(ltt, tenantId)).toList();
         jpaLevelRepository.saveAll(levelModels);
+        for (LevelModel level : levelModels) {
+            relationshipService.writeRelationship(
+                    "level", level.getId().toString(), "parent", "institution", tenantId);
+        }
         // insert default subjects from subject templates
         List<SubjectTemplateModel> subjectTemplateModels = jpaSubjectTemplateRepository.findAll();
         List<SubjectModel> subjects = subjectTemplateModels.stream().map(stt -> mapToSubject(stt, tenantId)).toList();
         jpaSubjectRepository.saveAll(subjects);
+        for (SubjectModel subject : subjects) {
+            relationshipService.writeRelationship(
+                    "subject", subject.getId().toString(), "parent", "institution", tenantId);
+        }
 
         // insert default topics
         List<TopicTemplateModel> topicTemplateModels = jpaTopicTemplateRepository.findAll();
         List<TopicModel> topics = topicTemplateModels.stream().map(ttt -> mapToTopic(ttt, tenantId)).toList();
         jpaTopicRepository.saveAll(topics);
+        for (TopicModel topic : topics) {
+            relationshipService.writeRelationship(
+                    "topic", topic.getId().toString(), "parent", "institution", tenantId);
+        }
 
         // PRE-LOAD all levels and subjects into Maps
         Map<String, LevelModel> levelsByName = levelModels.stream()
@@ -105,6 +123,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                 .builder()
                 .name(subjectTemplateModel.getName())
                 .tenantId(tenantId)
+                .createdBy(SYSTEM_USER_ID)
+                .updatedBy(SYSTEM_USER_ID)
                 .build();
     }
 
@@ -114,6 +134,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                 .name(levelTemplateModel.getName())
                 .tenantId(tenantId)
                 .category(levelTemplateModel.getSchoolCategory())
+                .createdBy(SYSTEM_USER_ID)
+                .updatedBy(SYSTEM_USER_ID)
                 .build();
     }
 
@@ -123,6 +145,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                 .name(schoolTemplateModel.getName())
                 .tenantId(tenantId)
                 .schoolCategory(schoolTemplateModel.getSchoolCategory())
+                .createdBy(SYSTEM_USER_ID)
+                .updatedBy(SYSTEM_USER_ID)
                 .build();
     }
 
@@ -131,6 +155,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                 .builder()
                 .name(topicTemplateModel.getName())
                 .tenantId(tenantId)
+                .createdBy(SYSTEM_USER_ID)
+                .updatedBy(SYSTEM_USER_ID)
                 .build();
     }
 
@@ -149,6 +175,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                     .subject(subject)
                     .topic(topic)
                     .tenantId(tenantId)
+                    .createdBy(SYSTEM_USER_ID)
+                    .updatedBy(SYSTEM_USER_ID)
                     .build());
         }
         return Stream.empty();
@@ -169,6 +197,8 @@ public class TenantInitialDataLoaderImpl implements TenantInitialDataLoader {
                     .level(level)
                     .subject(subject)
                     .tenantId(tenantId)
+                    .createdBy(SYSTEM_USER_ID)
+                    .updatedBy(SYSTEM_USER_ID)
                     .build());
         }
         return Stream.empty();
