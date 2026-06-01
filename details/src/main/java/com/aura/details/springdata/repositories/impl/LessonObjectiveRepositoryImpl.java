@@ -4,7 +4,7 @@ import com.aura.core.entities.lessons.LessonObjective;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.details.springdata.mappers.lessons.LessonObjectiveMapper;
 import com.aura.details.springdata.models.lessons.LessonObjectiveModel;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
+import com.aura.details.springdata.models.lessons.LessonGroupPlanModel;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLessonObjectiveTopicLinkRepository;
 import jakarta.persistence.EntityManager;
@@ -27,7 +27,7 @@ public class LessonObjectiveRepositoryImpl implements LessonObjectiveRepository 
     @Override
     public LessonObjective save(LessonObjective lessonObjective) {
         LessonObjectiveModel toCreate = LessonObjectiveMapper.INSTANCE.toModelEntity(lessonObjective);
-        toCreate.setLessonPlan(Refs.ref(entityManager, LessonPlanModel.class, lessonObjective.getLessonPlanId()));
+        toCreate.setLessonGroupPlan(Refs.ref(entityManager, LessonGroupPlanModel.class, lessonObjective.getLessonGroupPlanId()));
         LessonObjectiveModel created = jpaLessonObjectiveRepository.save(toCreate);
         return LessonObjectiveMapper.INSTANCE.toDomainEntity(created);
     }
@@ -41,7 +41,7 @@ public class LessonObjectiveRepositoryImpl implements LessonObjectiveRepository 
 
     @Override
     public List<LessonObjective> findAllByLessonPlanId(String lessonPlanId) {
-        return jpaLessonObjectiveRepository.findAllByLessonPlanId(UUID.fromString(lessonPlanId)).stream()
+        return jpaLessonObjectiveRepository.findAllByLessonGroupPlanId(UUID.fromString(lessonPlanId)).stream()
                 .map(LessonObjectiveMapper.INSTANCE::toDomainEntity)
                 .toList();
     }

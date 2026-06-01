@@ -1,7 +1,7 @@
 package com.aura.details.springdata.models.materials;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.LessonPlanMaterialsLinkModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanMaterialsLinkModel;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,5 +51,5 @@ public class MaterialModel extends TenantBaseModel {
     @OneToMany(mappedBy = "material", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private Set<LessonPlanMaterialsLinkModel> lessonPlanMaterialsLinks = new HashSet<>();
+    private Set<LessonGroupPlanMaterialsLinkModel> lessonGroupPlanMaterialsLinks = new HashSet<>();
 }

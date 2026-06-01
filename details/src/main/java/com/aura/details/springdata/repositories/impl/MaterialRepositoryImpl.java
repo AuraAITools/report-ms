@@ -10,7 +10,7 @@ import com.aura.details.springdata.mappers.topics.TopicMapper;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
 import com.aura.details.springdata.models.materials.MaterialModel;
 import com.aura.details.springdata.models.topics.TopicModel;
-import com.aura.details.springdata.repositories.jpa.links.JpaLessonPlanMaterialsLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaMaterialTopicLinkRepository;
 import com.aura.details.springdata.repositories.jpa.materials.JpaMaterialRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
@@ -29,7 +29,7 @@ public class MaterialRepositoryImpl implements MaterialRepository {
     private final JpaMaterialRepository jpaMaterialRepository;
     private final JpaTopicRepository jpaTopicRepository;
     private final JpaMaterialTopicLinkRepository jpaMaterialTopicLinkRepository;
-    private final JpaLessonPlanMaterialsLinkRepository jpaLessonPlanMaterialsLinkRepository;
+    private final JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository;
 
     @Override
     public Material save(Material material) {
@@ -57,7 +57,7 @@ public class MaterialRepositoryImpl implements MaterialRepository {
         if (lessonIds.isEmpty()) return Collections.emptyMap();
         List<UUID> uuids = lessonIds.stream().map(UUID::fromString).toList();
         Map<String, List<Material>> result = new HashMap<>();
-        for (Object[] row : jpaLessonPlanMaterialsLinkRepository.findMaterialsByLessonIds(uuids)) {
+        for (Object[] row : jpaLessonGroupPlanMaterialsLinkRepository.findMaterialsByLessonIds(uuids)) {
             String lessonId = row[0].toString();
             MaterialModel materialModel = (MaterialModel) row[1];
             result.computeIfAbsent(lessonId, k -> new ArrayList<>())
@@ -92,7 +92,7 @@ public class MaterialRepositoryImpl implements MaterialRepository {
 
     @Override
     public void deleteAllLessonPlanLinksByMaterialId(String materialId) {
-        jpaLessonPlanMaterialsLinkRepository.deleteAllByMaterialId(UUID.fromString(materialId));
+        jpaLessonGroupPlanMaterialsLinkRepository.deleteAllByMaterialId(UUID.fromString(materialId));
     }
 
     @Override

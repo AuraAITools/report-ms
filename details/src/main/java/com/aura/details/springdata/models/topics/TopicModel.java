@@ -3,7 +3,7 @@ package com.aura.details.springdata.models.topics;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.links.LessonObjectiveTopicLinkModel;
-import com.aura.details.springdata.models.links.LessonPlanTopicLinkModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanTopicLinkModel;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
 import com.aura.details.springdata.models.links.TopicSubjectLinkModel;
 import jakarta.persistence.Entity;
@@ -60,6 +60,6 @@ public class TopicModel extends TenantBaseModel {
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private Set<LessonPlanTopicLinkModel> lessonPlanTopicLinks = new HashSet<>();
+    private Set<LessonGroupPlanTopicLinkModel> lessonGroupPlanTopicLinks = new HashSet<>();
 
 }

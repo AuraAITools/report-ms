@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaLessonObjectiveRepository extends JpaRepository<LessonObjectiveModel, UUID>, JpaSpecificationExecutor<LessonObjectiveModel> {
-    List<LessonObjectiveModel> findAllByLessonPlanId(UUID lessonPlanId);
+    List<LessonObjectiveModel> findAllByLessonGroupPlanId(UUID lessonGroupPlanId);
 
     List<LessonObjectiveModel> findAllByTenantId(String tenantId);
 
-    @Query("SELECT lo.lessonPlan.lesson.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonPlan.lesson.id IN :lessonIds")
+    @Query("SELECT lo.lessonGroupPlan.lessonGroup.lesson.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonGroupPlan.lessonGroup.lesson.id IN :lessonIds")
     List<Object[]> findObjectivesByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
 }
