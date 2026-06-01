@@ -17,8 +17,7 @@ type LessonResponse implements Auditable{
     levels: [LevelResponse!]!
     subjects: [SubjectResponse!]!
     topics: [TopicResponse!]!
-    lessonPlans: [LessonPlanResponse!]!
-    lessonObjectives: [LessonObjectiveResponse!]!
+    lessonGroups: [LessonGroupResponse!]!
     materials: [MaterialResponse!]!
 }
 
@@ -41,5 +40,5 @@ input CreateLessonInCourseInput {
     levelIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 level")
     subjectIds: [ID!]! @Size(min: 1, message: "lesson must have at least 1 subject")
     topicIds: [ID!]!
-    lessonPlans: [CreateLessonPlanForLessonInput!]! @Size(min: 1, message: "lesson must have at least 1 lesson plan")
+    lessonGroups: [CreateLessonGroupForLessonInput!]! @Size(min: 1, message: "lesson must have at least 1 lesson group")
 }

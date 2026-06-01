@@ -1,0 +1,43 @@
+type LessonGroupPlanResponse implements Auditable {
+    id: ID!
+    plan: String!
+    recap: String!
+    state: LessonGroupPlanState!
+    lessonGroup: LessonGroupResponse!
+    topics: [TopicResponse!]!
+    lessonObjectives: [LessonObjectiveResponse!]!
+    materials: [MaterialResponse!]!
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+enum LessonGroupPlanState {
+    UNPLANNED
+    DRAFT
+    PLANNED
+}
+
+input CreateLessonGroupPlanInLessonGroupInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupId: ID!
+    plan: String!
+    topicIds: [ID!]!
+    materialIds: [ID!]!
+    lessonObjectives: [CreateLessonObjectiveInLessonGroupPlanInput!]!
+}
+
+input CreateLessonGroupPlanForLessonGroupInput {
+    plan: String!
+    topicIds: [ID!]!
+    materialIds: [ID!]!
+    lessonObjectives: [CreateLessonObjectiveInLessonGroupPlanInput!]!
+}
+
+input CreateLessonObjectiveInLessonGroupPlanInput {
+    name: String!
+    objective: String!
+    topicIds: [ID!]!
+}

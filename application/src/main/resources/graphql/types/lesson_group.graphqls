@@ -1,0 +1,25 @@
+type LessonGroupResponse implements Auditable {
+    id: ID!
+    name: String!
+    lesson: LessonResponse!
+    lessonGroupPlan: LessonGroupPlanResponse!
+    students: [StudentResponse!]!
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+input CreateLessonGroupInLessonInput {
+    institutionId: ID!
+    lessonId: ID!
+    name: String!
+    studentIds: [ID!]!
+    plan: CreateLessonGroupPlanForLessonGroupInput!
+}
+
+input CreateLessonGroupForLessonInput {
+    name: String!
+    studentIds: [ID!]!
+    plan: CreateLessonGroupPlanForLessonGroupInput!
+}

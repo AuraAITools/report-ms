@@ -1,0 +1,3 @@
+extend type Mutation {
+    createLessonGroupInLesson(input: CreateLessonGroupInLessonInput!): LessonGroupResponse!
+}
