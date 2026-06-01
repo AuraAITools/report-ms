@@ -59,8 +59,9 @@ class LessonPlanServiceTest {
     @DisplayName("Should delegate to both use cases and return the created plan when topicIds is non-empty")
     @Test
     void createLessonGroupPlan_withTopics_delegatesToBothUseCases() {
-        String lessonGroupId = "group-001";
-        String lessonId = "lesson-001";
+        UUID lessonGroupUuid = UUID.randomUUID();
+        String lessonGroupId = lessonGroupUuid.toString();
+        String lessonId = UUID.randomUUID().toString();
         String tenantId = "tenant-123";
         List<String> topicIds = List.of("topic-1", "topic-2");
 
@@ -73,7 +74,7 @@ class LessonPlanServiceTest {
                 .plan("My plan")
                 .build();
 
-        when(lessonGroupRepository.findById(UUID.fromString(lessonGroupId))).thenReturn(group);
+        when(lessonGroupRepository.findById(lessonGroupUuid)).thenReturn(group);
         when(topicLessonLinkRepository.findTopicIdsByLessonId(lessonId))
                 .thenReturn(Set.of("topic-1", "topic-2", "topic-3"));
         when(createLessonGroupPlanUseCase.createLessonGroupPlan(input, lessonGroupId)).thenReturn(created);
@@ -92,8 +93,9 @@ class LessonPlanServiceTest {
     @DisplayName("Should skip addTopicsToLessonGroupPlanUseCase when topicIds is empty")
     @Test
     void createLessonGroupPlan_withEmptyTopics_skipsAddTopicsUseCase() {
-        String lessonGroupId = "group-001";
-        String lessonId = "lesson-001";
+        UUID lessonGroupUuid = UUID.randomUUID();
+        String lessonGroupId = lessonGroupUuid.toString();
+        String lessonId = UUID.randomUUID().toString();
         String tenantId = "tenant-123";
 
         LessonGroup group = LessonGroup.builder().id(lessonGroupId).lessonId(lessonId).build();
@@ -105,7 +107,7 @@ class LessonPlanServiceTest {
                 .plan("My plan")
                 .build();
 
-        when(lessonGroupRepository.findById(UUID.fromString(lessonGroupId))).thenReturn(group);
+        when(lessonGroupRepository.findById(lessonGroupUuid)).thenReturn(group);
         when(createLessonGroupPlanUseCase.createLessonGroupPlan(input, lessonGroupId)).thenReturn(created);
 
         LessonGroupPlan result = lessonGroupPlanService.createLessonGroupPlan(
@@ -122,14 +124,15 @@ class LessonPlanServiceTest {
     @DisplayName("Should reject creation when any topicId is not linked to the lesson")
     @Test
     void createLessonGroupPlan_withTopicNotInLesson_throws() {
-        String lessonGroupId = "group-001";
-        String lessonId = "lesson-001";
+        UUID lessonGroupUuid = UUID.randomUUID();
+        String lessonGroupId = lessonGroupUuid.toString();
+        String lessonId = UUID.randomUUID().toString();
         List<String> topicIds = List.of("topic-1", "topic-rogue");
 
         LessonGroup group = LessonGroup.builder().id(lessonGroupId).lessonId(lessonId).build();
         LessonGroupPlan input = LessonGroupPlan.builder().plan("My plan").build();
 
-        when(lessonGroupRepository.findById(UUID.fromString(lessonGroupId))).thenReturn(group);
+        when(lessonGroupRepository.findById(lessonGroupUuid)).thenReturn(group);
         when(topicLessonLinkRepository.findTopicIdsByLessonId(lessonId))
                 .thenReturn(Set.of("topic-1", "topic-2"));
 
@@ -145,8 +148,9 @@ class LessonPlanServiceTest {
     @DisplayName("Should delegate to AddMaterialsToLessonGroupPlanUseCase when materialIds is non-empty")
     @Test
     void createLessonGroupPlan_withMaterials_delegates() {
-        String lessonGroupId = "group-001";
-        String lessonId = "lesson-001";
+        UUID lessonGroupUuid = UUID.randomUUID();
+        String lessonGroupId = lessonGroupUuid.toString();
+        String lessonId = UUID.randomUUID().toString();
         String tenantId = "tenant-123";
         List<String> materialIds = List.of("mat-1", "mat-2");
 
@@ -159,7 +163,7 @@ class LessonPlanServiceTest {
                 .plan("My plan")
                 .build();
 
-        when(lessonGroupRepository.findById(UUID.fromString(lessonGroupId))).thenReturn(group);
+        when(lessonGroupRepository.findById(lessonGroupUuid)).thenReturn(group);
         when(createLessonGroupPlanUseCase.createLessonGroupPlan(input, lessonGroupId)).thenReturn(created);
 
         lessonGroupPlanService.createLessonGroupPlan(
@@ -172,8 +176,9 @@ class LessonPlanServiceTest {
     @DisplayName("Should create each lesson objective with the created plan's id and tenant when provided")
     @Test
     void createLessonGroupPlan_withObjectives_createsEachObjectiveAndItsTopicLinks() {
-        String lessonGroupId = "group-001";
-        String lessonId = "lesson-001";
+        UUID lessonGroupUuid = UUID.randomUUID();
+        String lessonGroupId = lessonGroupUuid.toString();
+        String lessonId = UUID.randomUUID().toString();
         String tenantId = "tenant-123";
 
         LessonGroup group = LessonGroup.builder().id(lessonGroupId).lessonId(lessonId).build();
@@ -194,7 +199,7 @@ class LessonPlanServiceTest {
                 new LessonGroupPlanService.NewLessonObjective(obj1, obj1Topics),
                 new LessonGroupPlanService.NewLessonObjective(obj2, obj2Topics));
 
-        when(lessonGroupRepository.findById(UUID.fromString(lessonGroupId))).thenReturn(group);
+        when(lessonGroupRepository.findById(lessonGroupUuid)).thenReturn(group);
         when(createLessonGroupPlanUseCase.createLessonGroupPlan(input, lessonGroupId)).thenReturn(created);
 
         LessonGroupPlan result = lessonGroupPlanService.createLessonGroupPlan(

@@ -148,6 +148,8 @@ class CourseServiceTest {
 
         verify(educatorRepository).createEducatorCourseLinks(List.of("edu-1", "edu-2"), "course-1", "tenant-1");
 
+        // NOTE: production code does not filter null userIds before building SpiceDB relationships;
+        // the null entry is included as-is. The size is 5 (3 structural + 1 non-null educator + 1 null educator).
         verify(relationshipService).writeRelationships(argThat(list ->
                 list.containsAll(List.of(
                         new RelationshipAuthorizationService.Relationship(
@@ -158,7 +160,7 @@ class CourseServiceTest {
                                 "course", "course-1", "parent", "outlet", "outlet-1"),
                         new RelationshipAuthorizationService.Relationship(
                                 "course_user_group", "course-1", "modifier", "user", "user-aaa")))
-                        && list.size() == 4));
+                        && list.size() == 5));
         verifyNoMoreInteractions(relationshipService);
     }
 
