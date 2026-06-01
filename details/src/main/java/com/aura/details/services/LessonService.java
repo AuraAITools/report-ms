@@ -2,8 +2,9 @@ package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.lessons.Lesson;
+import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonOutletRoomBooking;
-import com.aura.core.entities.lessons.LessonPlan;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -39,7 +40,9 @@ public class LessonService {
     private final RelationshipAuthorizationService relationshipService;
     private final EducatorRepository educatorRepository;
     private final StudentRepository studentRepository;
-    private final LessonPlanService lessonPlanService;
+    private final LessonGroupService lessonGroupService;
+    private final LessonGroupPlanService lessonGroupPlanService;
+    private final StudentLessonReportService studentLessonReportService;
 
     public @Nullable Lesson findById(UUID id) {
         return lessonQueryUseCase.findById(id);
@@ -68,7 +71,7 @@ public class LessonService {
                                List<String> educatorIds, List<String> studentIds,
                                List<String> subjectIds, List<String> levelIds,
                                List<String> topicIds,
-                               List<NewLessonPlan> lessonPlans) {
+                               List<NewLessonGroup> lessonGroups) {
         Lesson created = createLessonUseCase.createLessonInCourse(lesson, courseId);
 
         String lessonId = created.getId();
@@ -122,20 +125,31 @@ public class LessonService {
 
         relationshipService.writeRelationships(relationships);
 
-        for (NewLessonPlan newPlan : lessonPlans) {
-            lessonPlanService.createLessonPlan(
-                    newPlan.plan(), lessonId, newPlan.topicIds(),
-                    newPlan.studentIds(), newPlan.materialIds(), newPlan.lessonObjectives());
+        for (NewLessonGroup newGroup : lessonGroups) {
+            LessonGroup group = lessonGroupService.createLessonGroup(
+                    LessonGroup.builder().name(newGroup.name()).build(),
+                    lessonId);
+            if (!newGroup.studentIds().isEmpty()) {
+                lessonGroupService.addStudentsToLessonGroup(group.getId(), newGroup.studentIds(), created.getTenantId());
+            }
+            lessonGroupPlanService.createLessonGroupPlan(
+                    newGroup.plan(), group.getId(),
+                    newGroup.topicIds(), newGroup.materialIds(), newGroup.lessonObjectives());
+            if (!newGroup.studentIds().isEmpty()) {
+                studentLessonReportService.createReportsForStudentsInGroup(
+                        lessonId, newGroup.studentIds(), newGroup.topicIds(), created.getTenantId());
+            }
         }
 
         return created;
     }
 
-    public record NewLessonPlan(LessonPlan plan,
-                                List<String> topicIds,
-                                List<String> studentIds,
-                                List<String> materialIds,
-                                List<LessonPlanService.NewLessonObjective> lessonObjectives) {
+    public record NewLessonGroup(String name,
+                                 LessonGroupPlan plan,
+                                 List<String> topicIds,
+                                 List<String> studentIds,
+                                 List<String> materialIds,
+                                 List<LessonGroupPlanService.NewLessonObjective> lessonObjectives) {
     }
 
     @Transactional

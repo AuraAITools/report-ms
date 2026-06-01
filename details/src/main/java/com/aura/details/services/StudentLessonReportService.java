@@ -14,8 +14,8 @@ public class StudentLessonReportService {
     private final StudentLessonLinkRepository studentLessonLinkRepository;
 
     @Transactional
-    public void createReportsForStudentsInPlan(String lessonId, List<String> studentIds,
-                                               List<String> topicIds, String tenantId) {
+    public void createReportsForStudentsInGroup(String lessonId, List<String> studentIds,
+                                                List<String> topicIds, String tenantId) {
         if (studentIds.isEmpty()) return;
         List<StudentLessonLink> links = studentLessonLinkRepository
                 .findAllByLessonIdAndStudentIds(lessonId, studentIds);
