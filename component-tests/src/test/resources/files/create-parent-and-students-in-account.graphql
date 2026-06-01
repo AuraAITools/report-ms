@@ -9,7 +9,7 @@ mutation CreateParentAndStudentsInAccount($input: CreateParentAndStudentsInAccou
             name
             email
             dateOfBirth
-            createdBy
+            createdBy { userId accountId name url }
         }
     }
 }

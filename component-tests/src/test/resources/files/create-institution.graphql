@@ -7,8 +7,8 @@ mutation CreateInstitution($input: CreateInstitutionInput!) {
         address
         uen
         createdAt
-        createdBy
+        createdBy { userId accountId name url }
         updatedAt
-        updatedBy
+        updatedBy { userId accountId name url }
     }
 }

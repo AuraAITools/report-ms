@@ -4,6 +4,7 @@ import com.aura.core.clients.IdentityService;
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.accounts.AccountFeature;
+import com.aura.core.entities.accounts.AccountFeatureState;
 import com.aura.core.entities.accounts.Parent;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.educators.Educator;
@@ -27,10 +28,13 @@ import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
 import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +48,9 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 public class AccountService {
     private static final List<String> ACCOUNT_REQUIRED_ACTIONS = List.of("VERIFY_EMAIL", "UPDATE_PASSWORD");
+    private static final Duration PROFILE_IMAGE_UPLOAD_TTL = Duration.ofMinutes(5);
+    private static final Pattern PROFILE_IMAGE_KEY_PATTERN =
+            Pattern.compile("^institutions/([^/]+)/accounts/([^/]+)/profile\\.(png|jpg|webp)$");
 
     private final CreateAccountUseCase createAccountUseCase;
     private final CreateStudentsInParentAccountUseCase createStudentsInParentAccountUseCase;
@@ -62,6 +69,8 @@ public class AccountService {
     private final String actionRedirectUri;
     private final ParentRepository parentRepository;
     private final AccountQueryUseCase accountQueryUseCase;
+    private final AssetUrlService assetUrlService;
+    private final ProfileImageValidator profileImageValidator;
 
     @Transactional
     public @Nullable Account findById(String id) {
@@ -70,10 +79,25 @@ public class AccountService {
     }
 
     @Transactional
+    public @Nullable Account findByUserIdAndTenantId(String userId, String tenantId) {
+        Account account = accountQueryUseCase.findByUserIdAndTenantId(userId, tenantId);
+        return account == null ? null : reconcileVerifyingState(account);
+    }
+
+    @Transactional
     public List<Account> findAllByTenantId(String tenantId) {
         return accountQueryUseCase.findAllByTenantId(tenantId).stream()
                 .map(this::reconcileVerifyingState)
                 .toList();
+    }
+
+    /**
+     * Batch-loads accounts for the given userIds within the tenant, keyed by userId.
+     * Used by AccountMinimalDetailGqlController to resolve audit-field projections.
+     */
+    @Transactional
+    public Map<String, Account> findAllByUserIdsAndTenantId(List<String> userIds, String tenantId) {
+        return accountRepository.findAllByUserIdsAndTenantId(userIds, tenantId);
     }
 
     /**
@@ -177,8 +201,8 @@ public class AccountService {
     }
 
     @Transactional
-    public Account enableAccountFeature(String accountId, AccountFeature feature) {
-        accountRepository.enableFeature(accountId, feature);
+    public Account updateAccountFeatureState(String accountId, AccountFeature feature, AccountFeatureState state) {
+        accountRepository.updateFeatureState(accountId, feature, state);
         return ofNullable(accountRepository.findById(accountId))
                 .orElseThrow(() -> new RuntimeException("account does not exist"));
     }
@@ -228,5 +252,53 @@ public class AccountService {
     }
 
     public record ParentAndStudentsResult(Parent parent, List<CreatedStudentResult> students) {
+    }
+
+    public PresignedProfileImageUpload requestProfileImageUpload(
+            String institutionId, String accountId, String contentType) {
+        if (!ProfileImageValidator.ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new ProfileImageValidator.ProfileImageRejectedException(
+                    "content type '" + contentType + "' is not allowed; must be one of "
+                            + ProfileImageValidator.ALLOWED_CONTENT_TYPES);
+        }
+        String ext = ProfileImageValidator.extensionFor(contentType);
+        String fileKey = "institutions/" + institutionId + "/accounts/" + accountId + "/profile." + ext;
+        String uploadUrl = assetUrlService.presignPut(fileKey, contentType, PROFILE_IMAGE_UPLOAD_TTL);
+        return new PresignedProfileImageUpload(uploadUrl, fileKey);
+    }
+
+    @Transactional
+    public Account confirmProfileImageUpload(String institutionId, String accountId, String fileKey) {
+        Matcher matcher = PROFILE_IMAGE_KEY_PATTERN.matcher(fileKey);
+        if (!matcher.matches()
+                || !matcher.group(1).equals(institutionId)
+                || !matcher.group(2).equals(accountId)) {
+            throw new IllegalArgumentException("fileKey does not match expected scheme for this account: " + fileKey);
+        }
+        Account account = accountQueryUseCase.findById(accountId);
+        if (account == null || !institutionId.equals(account.getTenantId())) {
+            throw new IllegalArgumentException("account " + accountId + " not in institution " + institutionId);
+        }
+        if (!assetUrlService.objectExists(fileKey)) {
+            throw new IllegalStateException("uploaded file not found at key " + fileKey);
+        }
+        String actualContentType = assetUrlService.getObjectContentType(fileKey);
+        long sizeBytes = assetUrlService.getObjectSizeBytes(fileKey);
+        byte[] bytes = assetUrlService.getObjectBytes(fileKey);
+        try {
+            profileImageValidator.validate(bytes, actualContentType, sizeBytes);
+        } catch (ProfileImageValidator.ProfileImageRejectedException e) {
+            assetUrlService.deleteObject(fileKey);
+            throw e;
+        }
+        String previousKey = account.getProfileImageKey();
+        if (previousKey != null && !previousKey.equals(fileKey)) {
+            assetUrlService.deleteObject(previousKey);
+        }
+        accountRepository.updateProfileImageKeyById(accountId, fileKey);
+        return accountQueryUseCase.findById(accountId);
+    }
+
+    public record PresignedProfileImageUpload(String uploadUrl, String fileKey) {
     }
 }

@@ -2,9 +2,11 @@ package com.aura.details.springdata.repositories.impl;
 
 import com.aura.core.entities.links.MaterialTopicLink;
 import com.aura.core.entities.materials.Material;
+import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.MaterialRepository;
 import com.aura.details.springdata.mappers.links.MaterialTopicLinkMapper;
 import com.aura.details.springdata.mappers.materials.MaterialMapper;
+import com.aura.details.springdata.mappers.topics.TopicMapper;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
 import com.aura.details.springdata.models.materials.MaterialModel;
 import com.aura.details.springdata.models.topics.TopicModel;
@@ -60,6 +62,20 @@ public class MaterialRepositoryImpl implements MaterialRepository {
             MaterialModel materialModel = (MaterialModel) row[1];
             result.computeIfAbsent(lessonId, k -> new ArrayList<>())
                     .add(MaterialMapper.INSTANCE.toDomainEntity(materialModel));
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, List<Topic>> findTopicsByMaterialIds(List<String> materialIds) {
+        if (materialIds.isEmpty()) return Collections.emptyMap();
+        List<UUID> uuids = materialIds.stream().map(UUID::fromString).toList();
+        Map<String, List<Topic>> result = new HashMap<>();
+        for (Object[] row : jpaMaterialTopicLinkRepository.findTopicsByMaterialIds(uuids)) {
+            String materialId = row[0].toString();
+            TopicModel topicModel = (TopicModel) row[1];
+            result.computeIfAbsent(materialId, k -> new ArrayList<>())
+                    .add(TopicMapper.INSTANCE.toDomainEntity(topicModel));
         }
         return result;
     }

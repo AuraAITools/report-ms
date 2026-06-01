@@ -3,9 +3,9 @@ type SchoolResponse implements Auditable {
     name: String!
     schoolCategory: SchoolCategory!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 enum SchoolCategory {

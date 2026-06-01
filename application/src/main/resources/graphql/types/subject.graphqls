@@ -7,9 +7,9 @@ type SubjectResponse implements Auditable {
     id: ID!
     name: String!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
     topics: [TopicResponse!]!
 }
 
@@ -17,9 +17,9 @@ type SubjectResponseWithTopics {
     id: ID!
     name: String!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
     topics: [TopicResponse!]!
 }
 

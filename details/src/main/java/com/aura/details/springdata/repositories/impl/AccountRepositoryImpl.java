@@ -2,6 +2,7 @@ package com.aura.details.springdata.repositories.impl;
 
 import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.accounts.AccountFeature;
+import com.aura.core.entities.accounts.AccountFeatureState;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.links.AccountEducatorLink;
 import com.aura.core.entities.links.AccountStudentLink;
@@ -60,13 +61,18 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public void enableFeature(String id, AccountFeature feature) {
+    public void updateFeatureState(String id, AccountFeature feature, AccountFeatureState state) {
         UUID uuid = UUID.fromString(id);
         switch (feature) {
-            case PARENT_FEATURE -> jpaAccountRepository.enableParentFeatureById(uuid);
-            case EDUCATOR_FEATURE -> jpaAccountRepository.enableEducatorFeatureById(uuid);
-            case STAFF_FEATURE -> jpaAccountRepository.enableStaffFeatureById(uuid);
+            case PARENT_FEATURE -> jpaAccountRepository.updateParentFeatureStateById(uuid, state);
+            case EDUCATOR_FEATURE -> jpaAccountRepository.updateEducatorFeatureStateById(uuid, state);
+            case STAFF_FEATURE -> jpaAccountRepository.updateStaffFeatureStateById(uuid, state);
         }
+    }
+
+    @Override
+    public void updateProfileImageKeyById(String id, @Nullable String profileImageKey) {
+        jpaAccountRepository.updateProfileImageKeyById(UUID.fromString(id), profileImageKey);
     }
 
     @Override
@@ -127,6 +133,16 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public @Nullable Account findByUserIdAndTenantId(String userId, String tenantId) {
         return Optional.ofNullable(jpaAccountRepository.findByUserIdAndTenantId(userId, tenantId)).map(AccountMapper.INSTANCE::toDomainEntity).orElse(null);
+    }
+
+    @Override
+    public Map<String, Account> findAllByUserIdsAndTenantId(List<String> userIds, String tenantId) {
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+        return jpaAccountRepository.findAllByUserIdInAndTenantId(userIds, tenantId).stream()
+                .map(AccountMapper.INSTANCE::toDomainEntity)
+                .collect(java.util.stream.Collectors.toMap(Account::getUserId, java.util.function.Function.identity()));
     }
 
     @Override

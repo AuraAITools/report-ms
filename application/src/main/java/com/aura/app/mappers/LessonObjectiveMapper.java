@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface LessonObjectiveMapper {
 
     LessonObjectiveMapper INSTANCE = Mappers.getMapper(LessonObjectiveMapper.class);
@@ -31,5 +31,7 @@ public interface LessonObjectiveMapper {
     @Mapping(source = "institutionId", target = "tenantId")
     LessonObjective toDomainEntity(UpdateLessonObjectiveInput input);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonObjectiveResponse toDto(LessonObjective lessonObjective);
 }

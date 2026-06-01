@@ -36,8 +36,6 @@ public class Lesson {
 
     private String description = "";
 
-    private String recap = "";
-
     private LessonOutletRoomBooking lessonOutletRoomBooking;
 
     private String courseId;

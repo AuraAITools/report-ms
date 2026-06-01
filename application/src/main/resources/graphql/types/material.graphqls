@@ -5,9 +5,10 @@ type MaterialResponse implements Auditable {
     """Presigned S3 GET URL for the material file. Null if the material has no file."""
     fileUrl: String
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
+    topics: [TopicResponse!]!
 }
 
 """

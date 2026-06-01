@@ -27,9 +27,9 @@ type CourseResponse implements Auditable{
     courseStartTimestamptz: Long!
     courseEndTimestamptz: Long!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
     lessons: [LessonResponse!]!
     educators: [EducatorResponse!]!
     students: [StudentResponse!]!
@@ -48,9 +48,9 @@ type PriceRecordResponse {
     price: Float!
     frequency: PriceFrequency!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 enum PriceFrequency {

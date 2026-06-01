@@ -1,0 +1,6 @@
+mutation RequestEducatorProfileImageUpload($input: RequestEducatorProfileImageUploadInput!) {
+    requestEducatorProfileImageUpload(input: $input) {
+        uploadUrl
+        fileKey
+    }
+}

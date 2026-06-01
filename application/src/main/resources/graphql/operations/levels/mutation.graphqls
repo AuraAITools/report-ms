@@ -1,4 +1,4 @@
 extend type Mutation {
-    deleteLevelById(id: ID!): Boolean!
+    deleteLevelById(institutionId: ID!, id: ID!): Boolean!
     createLevelInInstitution(input: CreateLevelInInstitutionInput!): LevelResponse!
 }

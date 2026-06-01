@@ -1,5 +1,5 @@
 extend type Mutation {
     createOutlet(createOutletInput: CreateOutletInput!): OutletResponse!
     updateOutlet(updateOutletInput: UpdateOutletInput!): OutletResponse!
-    deleteOutletById(id: ID!): Boolean!
+    deleteOutletById(institutionId: ID!, id: ID!): Boolean!
 }

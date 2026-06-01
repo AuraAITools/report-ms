@@ -48,6 +48,9 @@ public class InstitutionModel extends AuditMetadata {
     @Column(length = 512)
     private String logoKey;
 
+    @Column(length = 512)
+    private String profileImageKey;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private STATE state;

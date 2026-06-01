@@ -1,5 +1,6 @@
 package com.aura.details.springdata.repositories.jpa.accounts;
 
+import com.aura.core.entities.accounts.AccountFeatureState;
 import com.aura.details.springdata.models.accounts.AccountModel;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +30,8 @@ public interface JpaAccountRepository extends JpaRepository<AccountModel, UUID>,
 
     @Nullable AccountModel findByUserIdAndTenantId(String userId, String tenantId);
 
+    List<AccountModel> findAllByUserIdInAndTenantId(List<String> userIds, String tenantId);
+
     List<AccountModel> findByTenantId(String tenantId);
 
     @Modifying
@@ -36,15 +39,19 @@ public interface JpaAccountRepository extends JpaRepository<AccountModel, UUID>,
     int updateStateById(@Param("id") UUID id, @Param("state") AccountModel.STATE state);
 
     @Modifying
-    @Query("update AccountModel a set a.parentFeatureEnabled = true where a.id = :id")
-    int enableParentFeatureById(@Param("id") UUID id);
+    @Query("update AccountModel a set a.parentFeatureState = :state where a.id = :id")
+    int updateParentFeatureStateById(@Param("id") UUID id, @Param("state") AccountFeatureState state);
 
     @Modifying
-    @Query("update AccountModel a set a.educatorFeatureEnabled = true where a.id = :id")
-    int enableEducatorFeatureById(@Param("id") UUID id);
+    @Query("update AccountModel a set a.educatorFeatureState = :state where a.id = :id")
+    int updateEducatorFeatureStateById(@Param("id") UUID id, @Param("state") AccountFeatureState state);
 
     @Modifying
-    @Query("update AccountModel a set a.staffFeatureEnabled = true where a.id = :id")
-    int enableStaffFeatureById(@Param("id") UUID id);
+    @Query("update AccountModel a set a.staffFeatureState = :state where a.id = :id")
+    int updateStaffFeatureStateById(@Param("id") UUID id, @Param("state") AccountFeatureState state);
+
+    @Modifying
+    @Query("update AccountModel a set a.profileImageKey = :key where a.id = :id")
+    int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 }
 

@@ -30,7 +30,7 @@ public class SubjectService {
     public Subject createSubject(Subject subject) {
         Subject created = createSubjectUseCase.createSubject(subject);
         relationshipService.writeRelationship(
-                "subject", created.getId(), "parent_institution", "institution", created.getTenantId());
+                "subject", created.getId(), "parent", "institution", created.getTenantId());
         return created;
     }
 

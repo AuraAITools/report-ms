@@ -4,8 +4,8 @@ query GetAccountById($accountId: ID!) {
         firstName
         lastName
         userId
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         students {
             id
         }

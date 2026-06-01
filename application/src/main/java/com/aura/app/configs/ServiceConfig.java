@@ -136,8 +136,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceConfig {
     @Bean
-    TenantInitialDataLoader tenantInitialDataLoader(JpaSchoolTemplateRepository jpaSchoolTemplateRepository, JpaSchoolRepository jpaSchoolRepository, JpaLevelTemplateRepository jpaLevelTemplateRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectTemplateRepository jpaSubjectTemplateRepository, JpaSubjectRepository jpaSubjectRepository, JpaSubjectLevelLinkTemplateRepository jpaSubjectLevelLinkTemplateRepository, JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository, JpaTopicTemplateRepository jpaTopicTemplateRepository, JpaTopicRepository jpaTopicRepository, JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository, JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository) {
-        return new TenantInitialDataLoaderImpl(jpaSchoolTemplateRepository, jpaSchoolRepository, jpaLevelTemplateRepository, jpaLevelRepository, jpaSubjectTemplateRepository, jpaSubjectRepository, jpaSubjectLevelLinkTemplateRepository, jpaSubjectLevelLinkRepository, jpaTopicTemplateRepository, jpaTopicRepository, jpaTopicSubjectLinkTemplateRepository, jpaTopicSubjectLinkRepository);
+    TenantInitialDataLoader tenantInitialDataLoader(JpaSchoolTemplateRepository jpaSchoolTemplateRepository, JpaSchoolRepository jpaSchoolRepository, JpaLevelTemplateRepository jpaLevelTemplateRepository, JpaLevelRepository jpaLevelRepository, JpaSubjectTemplateRepository jpaSubjectTemplateRepository, JpaSubjectRepository jpaSubjectRepository, JpaSubjectLevelLinkTemplateRepository jpaSubjectLevelLinkTemplateRepository, JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository, JpaTopicTemplateRepository jpaTopicTemplateRepository, JpaTopicRepository jpaTopicRepository, JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository, JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository, RelationshipAuthorizationService relationshipService) {
+        return new TenantInitialDataLoaderImpl(jpaSchoolTemplateRepository, jpaSchoolRepository, jpaLevelTemplateRepository, jpaLevelRepository, jpaSubjectTemplateRepository, jpaSubjectRepository, jpaSubjectLevelLinkTemplateRepository, jpaSubjectLevelLinkRepository, jpaTopicTemplateRepository, jpaTopicRepository, jpaTopicSubjectLinkTemplateRepository, jpaTopicSubjectLinkRepository, relationshipService);
     }
 
     @Bean
@@ -150,6 +150,16 @@ public class ServiceConfig {
     @Bean
     InstitutionQueryUseCase institutionQueryService(InstitutionRepository institutionRepository) {
         return new InstitutionQueryUseCaseImpl(institutionRepository);
+    }
+
+    @Bean
+    com.aura.details.services.InstitutionService institutionService(
+            InstitutionRepository institutionRepository,
+            InstitutionQueryUseCase institutionQueryUseCase,
+            AssetUrlService assetUrlService,
+            com.aura.details.services.ProfileImageValidator profileImageValidator) {
+        return new com.aura.details.services.InstitutionService(
+                institutionRepository, institutionQueryUseCase, assetUrlService, profileImageValidator);
     }
 
     @Bean
@@ -174,7 +184,9 @@ public class ServiceConfig {
                                   org.springframework.context.ApplicationEventPublisher applicationEventPublisher,
                                   @Value("${aura.email.action-redirect-uri}") String actionRedirectUri,
                                   ParentRepository parentRepository,
-                                  AccountQueryUseCase accountQueryUseCase) {
+                                  AccountQueryUseCase accountQueryUseCase,
+                                  AssetUrlService assetUrlService,
+                                  com.aura.details.services.ProfileImageValidator profileImageValidator) {
         return new AccountService(createAccountUseCase,
                 createStudentsInParentAccountUseCase,
                 tagStudentToLevelUseCase,
@@ -191,7 +203,14 @@ public class ServiceConfig {
                 applicationEventPublisher,
                 actionRedirectUri,
                 parentRepository,
-                accountQueryUseCase);
+                accountQueryUseCase,
+                assetUrlService,
+                profileImageValidator);
+    }
+
+    @Bean
+    com.aura.details.services.ProfileImageValidator profileImageValidator() {
+        return new com.aura.details.services.ProfileImageValidator();
     }
 
     @Bean
@@ -322,23 +341,33 @@ public class ServiceConfig {
     StudentService studentService(StudentQueryUseCase studentQueryUseCase,
                                   UpdateStudentUseCase updateStudentUseCase,
                                   DeleteStudentUseCase deleteStudentUseCase,
-                                  StudentRepository studentRepository) {
-        return new StudentService(studentQueryUseCase, updateStudentUseCase, deleteStudentUseCase, studentRepository);
+                                  StudentRepository studentRepository,
+                                  AssetUrlService assetUrlService,
+                                  com.aura.details.services.ProfileImageValidator profileImageValidator) {
+        return new StudentService(studentQueryUseCase, updateStudentUseCase, deleteStudentUseCase,
+                studentRepository, assetUrlService, profileImageValidator);
     }
 
     @Bean
     EducatorService educatorService(EducatorQueryUseCase educatorQueryUseCase,
                                     UpdateEducatorUseCase updateEducatorUseCase,
                                     DeleteEducatorUseCase deleteEducatorUseCase,
-                                    EducatorRepository educatorRepository) {
-        return new EducatorService(educatorQueryUseCase, updateEducatorUseCase, deleteEducatorUseCase, educatorRepository);
+                                    EducatorRepository educatorRepository,
+                                    AssetUrlService assetUrlService,
+                                    com.aura.details.services.ProfileImageValidator profileImageValidator) {
+        return new EducatorService(educatorQueryUseCase, updateEducatorUseCase, deleteEducatorUseCase,
+                educatorRepository, assetUrlService, profileImageValidator);
     }
 
     @Bean
     ParentService parentService(ParentQueryUseCase parentQueryUseCase,
                                 UpdateParentUseCase updateParentUseCase,
-                                DeleteParentUseCase deleteParentUseCase) {
-        return new ParentService(parentQueryUseCase, updateParentUseCase, deleteParentUseCase);
+                                DeleteParentUseCase deleteParentUseCase,
+                                ParentRepository parentRepository,
+                                AssetUrlService assetUrlService,
+                                com.aura.details.services.ProfileImageValidator profileImageValidator) {
+        return new ParentService(parentQueryUseCase, updateParentUseCase, deleteParentUseCase,
+                parentRepository, assetUrlService, profileImageValidator);
     }
 
     @Bean

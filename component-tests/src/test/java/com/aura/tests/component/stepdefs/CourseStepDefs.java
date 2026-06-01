@@ -249,7 +249,9 @@ public class CourseStepDefs {
         lastCoursesResponse = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("outletId", testContext.getOutletId()))
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "outletId", testContext.getOutletId()))
                 .retrieveSync("getAllCoursesInOutlet")
                 .toEntityList(Map.class)
                 .stream()
@@ -260,6 +262,40 @@ public class CourseStepDefs {
     @Then("the response should contain {int} courses")
     public void theResponseShouldContainCourses(int expectedCount) {
         assertThat(lastCoursesResponse).hasSize(expectedCount);
+    }
+
+    @When("user queries courses by a random educator id")
+    @SuppressWarnings("unchecked")
+    public void userQueriesCoursesByARandomEducatorId() {
+        String query = findGraphqlQueryFromFiles("get-courses-by-educator-id.graphql");
+        lastCoursesResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "educatorId", UUID.randomUUID().toString()))
+                .retrieveSync("getCoursesByEducatorId")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
+    }
+
+    @When("user queries courses by a random student id")
+    @SuppressWarnings("unchecked")
+    public void userQueriesCoursesByARandomStudentId() {
+        String query = findGraphqlQueryFromFiles("get-courses-by-student-id.graphql");
+        lastCoursesResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "studentId", UUID.randomUUID().toString()))
+                .retrieveSync("getCoursesByStudentId")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
     }
 
     @And("the courses should include names {string}")

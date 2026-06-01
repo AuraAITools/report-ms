@@ -2,9 +2,9 @@ type TopicResponse implements Auditable {
     id: ID!
     name: String!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input TopicInput {

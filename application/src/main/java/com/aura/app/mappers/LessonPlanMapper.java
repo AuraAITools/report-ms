@@ -10,7 +10,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface LessonPlanMapper {
 
     LessonPlanMapper INSTANCE = Mappers.getMapper(LessonPlanMapper.class);
@@ -47,5 +47,7 @@ public interface LessonPlanMapper {
     // ignore lesson + topics — provided by @BatchMapping resolvers
     @Mapping(target = "lesson", ignore = true)
     @Mapping(target = "topics", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonPlanResponse toDto(LessonPlan plan);
 }

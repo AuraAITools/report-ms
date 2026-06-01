@@ -1,3 +1,3 @@
-mutation DeleteLevelById($id: ID!) {
-    deleteLevelById(id: $id)
+mutation DeleteLevelById($institutionId: ID!, $id: ID!) {
+    deleteLevelById(institutionId: $institutionId, id: $id)
 }

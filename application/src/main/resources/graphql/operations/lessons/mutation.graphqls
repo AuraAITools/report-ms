@@ -1,4 +1,4 @@
 extend type Mutation {
     createLessonInCourse(createLessonInCourse:CreateLessonInCourseInput!): LessonResponse!
-    deleteLessonById(id: ID!): Boolean!
+    deleteLessonById(institutionId: ID!, id: ID!): Boolean!
 }

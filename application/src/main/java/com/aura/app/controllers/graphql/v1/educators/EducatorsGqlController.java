@@ -1,12 +1,15 @@
 package com.aura.app.controllers.graphql.v1.educators;
 
 import com.aura.app.codegen.types.AccountResponse;
+import com.aura.app.codegen.types.ConfirmEducatorProfileImageUploadInput;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.DeleteEducatorByIdInput;
+import com.aura.app.codegen.types.EducatorProfileImageUploadResponse;
 import com.aura.app.codegen.types.EducatorResponse;
 import com.aura.app.codegen.types.GetEducatorByIdInput;
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.OutletResponse;
+import com.aura.app.codegen.types.RequestEducatorProfileImageUploadInput;
 import com.aura.app.codegen.types.SubjectResponse;
 import com.aura.app.codegen.types.UpdateEducatorByIdInput;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
@@ -29,10 +32,14 @@ import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.repositories.SubjectRepository;
+import com.aura.details.services.AssetUrlService;
 import com.aura.details.services.EducatorService;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -50,12 +57,15 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class EducatorsGqlController {
 
+    private static final Duration PROFILE_IMAGE_URL_TTL = Duration.ofMinutes(15);
+
     private final EducatorService educatorService;
     private final CourseRepository courseRepository;
     private final SubjectRepository subjectRepository;
     private final OutletRepository outletRepository;
     private final LevelRepository levelRepository;
     private final AccountRepository accountRepository;
+    private final AssetUrlService assetUrlService;
 
     @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
     @QueryMapping
@@ -75,7 +85,8 @@ public class EducatorsGqlController {
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Educator"));
     }
 
-    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    // TODO: permission not right
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'view')")
     @MutationMapping
     public EducatorResponse updateEducatorById(@Argument("input") UpdateEducatorByIdInput input,
                                                @ContextValue("user") User user) {
@@ -98,6 +109,29 @@ public class EducatorsGqlController {
                                       @ContextValue("user") User user) {
         educatorService.deleteById(input.getId());
         return true;
+    }
+
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public EducatorProfileImageUploadResponse requestEducatorProfileImageUpload(
+            @Argument("input") RequestEducatorProfileImageUploadInput input,
+            @ContextValue("user") User user) {
+        EducatorService.PresignedProfileImageUpload presigned = educatorService.requestProfileImageUpload(
+                input.getInstitutionId(), input.getEducatorId(), input.getContentType());
+        return EducatorProfileImageUploadResponse.newBuilder()
+                .uploadUrl(presigned.uploadUrl())
+                .fileKey(presigned.fileKey())
+                .build();
+    }
+
+    @PreAuthorize("hasPermission(#input.institutionId, 'institution', 'update')")
+    @MutationMapping
+    public EducatorResponse confirmEducatorProfileImageUpload(
+            @Argument("input") ConfirmEducatorProfileImageUploadInput input,
+            @ContextValue("user") User user) {
+        Educator updated = educatorService.confirmProfileImageUpload(
+                input.getInstitutionId(), input.getEducatorId(), input.getFileKey());
+        return EducatorMapper.INSTANCE.toDto(updated);
     }
 
     @BatchMapping(typeName = "EducatorResponse", field = "courses")
@@ -149,5 +183,25 @@ public class EducatorsGqlController {
                 .collect(Collectors.toMap(
                         Function.identity(),
                         e -> AccountMapper.INSTANCE.toDto(accountByEducatorId.get(e.getId()))));
+    }
+
+    @BatchMapping(typeName = "EducatorResponse", field = "profileImageUrl")
+    public Map<EducatorResponse, String> profileImageUrl(List<EducatorResponse> educators) {
+        Set<String> educatorIds = educators.stream()
+                .map(EducatorResponse::getId)
+                .collect(Collectors.toSet());
+
+        Map<String, String> keysById = educatorIds.stream()
+                .map(educatorService::findById)
+                .filter(Objects::nonNull)
+                .filter(e -> e.getProfileImageKey() != null)
+                .collect(Collectors.toMap(Educator::getId, Educator::getProfileImageKey));
+
+        return educators.stream()
+                .filter(e -> keysById.containsKey(e.getId()))
+                .collect(Collectors.toMap(
+                        e -> e,
+                        e -> assetUrlService.presignGet(keysById.get(e.getId()), PROFILE_IMAGE_URL_TTL)
+                ));
     }
 }

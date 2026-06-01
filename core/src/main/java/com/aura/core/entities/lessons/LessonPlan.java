@@ -23,6 +23,7 @@ public class LessonPlan {
     private String tenantId;
     private String lessonId;
     private String plan;
+    private String recap;
     private LESSON_PLAN_STATE state;
 
     public enum LESSON_PLAN_STATE {

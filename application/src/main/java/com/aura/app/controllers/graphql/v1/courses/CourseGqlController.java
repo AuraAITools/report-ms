@@ -96,6 +96,26 @@ public class CourseGqlController {
                 .toList();
     }
 
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public List<CourseResponse> getCoursesByEducatorId(@Argument("institutionId") String institutionId,
+                                                       @Argument("educatorId") String educatorId,
+                                                       @ContextValue(name = "user") User user) {
+        return courseService.findAllByEducatorId(educatorId).stream()
+                .map(CourseMapper.INSTANCE::toDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public List<CourseResponse> getCoursesByStudentId(@Argument("institutionId") String institutionId,
+                                                      @Argument("studentId") String studentId,
+                                                      @ContextValue(name = "user") User user) {
+        return courseService.findAllByStudentId(studentId).stream()
+                .map(CourseMapper.INSTANCE::toDto)
+                .toList();
+    }
+
     @BatchMapping(typeName = "CourseResponse", field = "lessons")
     public Map<CourseResponse, List<LessonResponse>> lessons(List<CourseResponse> courseResponses) {
         List<String> courseIds = courseResponses.stream().map(CourseResponse::getId).toList();

@@ -4,7 +4,7 @@ query GetAllAccountsInInstitution($institutionId: ID!) {
         firstName
         lastName
         userId
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

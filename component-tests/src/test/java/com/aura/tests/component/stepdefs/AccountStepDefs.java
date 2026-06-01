@@ -1,5 +1,6 @@
 package com.aura.tests.component.stepdefs;
 
+import com.aura.app.codegen.types.AccountMinimalDetail;
 import com.aura.app.codegen.types.AccountResponse;
 import com.aura.app.codegen.types.CreateAccountInput;
 import com.aura.core.clients.RelationshipAuthorizationService;
@@ -36,6 +37,7 @@ public class AccountStepDefs {
     private final JdbcTemplate jdbcTemplate;
     private Map<String, Object> lastGetAccountResponse;
     private List<Map<String, Object>> lastGetAccountsResponse;
+    private String lastCreatedAccountUserId;
 
     @And("user in {string} group creates an institution admin account with details:")
     public void userWithRoleCreatesInstitutionAdminAccount(String role, CreateAccountInput input) {
@@ -66,6 +68,7 @@ public class AccountStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getId()).isNotNull();
         testContext.setAccountId(response.getId());
+        lastCreatedAccountUserId = response.getUserId();
     }
 
     @When("user tries to create an institution admin account without a tenant with details:")
@@ -306,8 +309,8 @@ public class AccountStepDefs {
         AccountResponse expected = AccountResponse.newBuilder()
                 .firstName(input.getFirstName())
                 .lastName(input.getLastName())
-                .createdBy(TestConstants.AURA_ADMIN_USER_ID)
-                .updatedBy(TestConstants.AURA_ADMIN_USER_ID)
+                .createdBy(AccountMinimalDetail.newBuilder().userId(TestConstants.AURA_ADMIN_USER_ID).build())
+                .updatedBy(AccountMinimalDetail.newBuilder().userId(TestConstants.AURA_ADMIN_USER_ID).build())
                 .build();
 
         assertThat(response)
@@ -454,6 +457,50 @@ public class AccountStepDefs {
         } catch (FieldAccessException e) {
             handleErr(e);
         }
+    }
+
+    @When("user queries account by user id")
+    public void userQueriesAccountByUserId() {
+        String query = findGraphqlQueryFromFiles("get-account-by-user-id.graphql");
+        try {
+            lastGetAccountResponse = testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "userId", lastCreatedAccountUserId))
+                    .retrieveSync("getAccountByUserId")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            handleErr(e);
+        }
+    }
+
+    @When("user queries account by a non-existent user id")
+    public void userQueriesAccountByNonExistentUserId() {
+        String query = findGraphqlQueryFromFiles("get-account-by-user-id.graphql");
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(query)
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "userId", java.util.UUID.randomUUID().toString()))
+                    .retrieveSync("getAccountByUserId")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            handleErr(e);
+        }
+    }
+
+    @Then("the account by user id should be returned with first name {string} and last name {string}")
+    public void theAccountByUserIdShouldBeReturnedWithName(String firstName, String lastName) {
+        assertThat(lastGetAccountResponse).isNotNull();
+        assertThat(lastGetAccountResponse.get("firstName")).isEqualTo(firstName);
+        assertThat(lastGetAccountResponse.get("lastName")).isEqualTo(lastName);
+        assertThat(lastGetAccountResponse.get("userId")).isEqualTo(lastCreatedAccountUserId);
     }
 
     @When("user queries account with non-existent id")

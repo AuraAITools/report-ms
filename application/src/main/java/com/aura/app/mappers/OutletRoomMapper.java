@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface OutletRoomMapper {
     OutletRoomMapper INSTANCE = Mappers.getMapper(OutletRoomMapper.class);
 
@@ -30,5 +30,7 @@ public interface OutletRoomMapper {
     @Mapping(source = "institutionId", target = "tenantId")
     OutletRoom toDomainEntity(UpdateOutletRoomInput updateOutletRoomInput);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     OutletRoomResponse toDto(OutletRoom outletRoom);
 }

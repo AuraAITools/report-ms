@@ -1,0 +1,4 @@
+extend type Mutation {
+    requestParentProfileImageUpload(input: RequestParentProfileImageUploadInput!): ParentProfileImageUploadResponse!
+    confirmParentProfileImageUpload(input: ConfirmParentProfileImageUploadInput!): ParentResponse!
+}

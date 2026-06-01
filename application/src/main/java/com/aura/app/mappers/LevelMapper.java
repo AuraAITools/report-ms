@@ -7,10 +7,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = DateToEpochMapper.class)
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface LevelMapper {
     LevelMapper INSTANCE = Mappers.getMapper(LevelMapper.class);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LevelResponse mapToDto(Level levelModel);
 
     @Mapping(target = "id", ignore = true)

@@ -64,6 +64,11 @@ public class StudentRepositoryImpl implements StudentRepository {
     }
 
     @Override
+    public void updateProfileImageKeyById(String id, @Nullable String profileImageKey) {
+        jpaStudentRepository.updateProfileImageKeyById(UUID.fromString(id), profileImageKey);
+    }
+
+    @Override
     public List<Student> findAllByIds(List<UUID> studentIds) {
         return jpaStudentRepository.findAllById(studentIds).stream().map(StudentMapper.INSTANCE::toDomainEntity).toList();
     }

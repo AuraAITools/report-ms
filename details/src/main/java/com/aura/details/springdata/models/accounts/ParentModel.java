@@ -1,6 +1,7 @@
 package com.aura.details.springdata.models.accounts;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,6 +36,9 @@ public class ParentModel extends TenantBaseModel {
 
     @Enumerated(EnumType.STRING)
     private RELATIONSHIP relationship;
+
+    @Column(length = 512)
+    private String profileImageKey;
 
     public enum RELATIONSHIP {
         PARENT,

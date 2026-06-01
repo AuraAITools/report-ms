@@ -41,6 +41,23 @@ class AccountQueryUseCaseImplTest {
     }
 
     @Test
+    @DisplayName("Should delegate findByUserIdAndTenantId to the account repository")
+    void findByUserIdAndTenantId_delegates() {
+        Account account = Account.builder().id("acc-1").userId("user-1").tenantId("tenant-1").build();
+        when(accountRepository.findByUserIdAndTenantId("user-1", "tenant-1")).thenReturn(account);
+
+        assertThat(useCase.findByUserIdAndTenantId("user-1", "tenant-1")).isEqualTo(account);
+    }
+
+    @Test
+    @DisplayName("Should return null when no account matches the given user and tenant")
+    void findByUserIdAndTenantId_returnsNullWhenMissing() {
+        when(accountRepository.findByUserIdAndTenantId("user-missing", "tenant-1")).thenReturn(null);
+
+        assertThat(useCase.findByUserIdAndTenantId("user-missing", "tenant-1")).isNull();
+    }
+
+    @Test
     @DisplayName("Should delegate findAllByTenantId to the account repository")
     void findAllByTenantId_delegates() {
         Account a1 = Account.builder().id("acc-1").tenantId("tenant-1").build();

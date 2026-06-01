@@ -22,6 +22,11 @@ public class AccountQueryUseCaseImpl implements AccountQueryUseCase {
     }
 
     @Override
+    public @Nullable Account findByUserIdAndTenantId(String userId, String tenantId) {
+        return accountRepository.findByUserIdAndTenantId(userId, tenantId);
+    }
+
+    @Override
     public List<Account> findAllByTenantId(String tenantId) {
         return accountRepository.findAllByTenantId(tenantId);
     }

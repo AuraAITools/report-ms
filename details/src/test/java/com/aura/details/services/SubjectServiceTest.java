@@ -38,9 +38,9 @@ class SubjectServiceTest {
     @InjectMocks
     private SubjectService subjectService;
 
-    @DisplayName("Should create subject and write parent_institution relationship")
+    @DisplayName("Should create subject and write parent relationship")
     @Test
-    void createSubject_writesParentInstitutionRelationship() {
+    void createSubject_writesParentRelationship() {
         Subject input = Subject.builder().name("Math").tenantId("tenant-1").build();
         Subject created = Subject.builder().id("sub-1").name("Math").tenantId("tenant-1").build();
         when(createSubjectUseCase.createSubject(input)).thenReturn(created);
@@ -49,7 +49,7 @@ class SubjectServiceTest {
 
         assertThat(result).isEqualTo(created);
         verify(relationshipService).writeRelationship(
-                "subject", "sub-1", "parent_institution", "institution", "tenant-1");
+                "subject", "sub-1", "parent", "institution", "tenant-1");
     }
 
     @DisplayName("Should delete subject and wipe spicedb relationships in order")

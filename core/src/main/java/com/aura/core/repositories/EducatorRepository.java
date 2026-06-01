@@ -52,4 +52,6 @@ public interface EducatorRepository {
     void deleteAllAccountEducatorLinksByEducatorId(String educatorId);
 
     void deleteAllEducatorCourseLinksByEducatorId(String educatorId);
+
+    void updateProfileImageKeyById(String id, @Nullable String profileImageKey);
 }

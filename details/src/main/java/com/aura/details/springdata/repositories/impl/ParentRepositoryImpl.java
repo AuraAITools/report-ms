@@ -39,6 +39,11 @@ public class ParentRepositoryImpl implements ParentRepository {
     }
 
     @Override
+    public void updateProfileImageKeyById(String id, @Nullable String profileImageKey) {
+        jpaParentRepository.updateProfileImageKeyById(UUID.fromString(id), profileImageKey);
+    }
+
+    @Override
     public Map<String, Parent> findAllByAccountIds(List<String> accountIds) {
         if (accountIds.isEmpty()) return Collections.emptyMap();
         List<UUID> uuids = accountIds.stream().map(UUID::fromString).toList();

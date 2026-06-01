@@ -16,29 +16,26 @@ class LookupPermissionsUseCaseImplTest {
     @DisplayName("Should aggregate permissions across resource types")
     void shouldAggregatePermissions() {
         var stub = new StubRelationshipAuthorizationService();
-        // system:global — user has "view" and "manage"
-        stub.addCheckPermissionResult("system", "global", "view", true);
-        stub.addCheckPermissionResult("system", "global", "manage", true);
-        stub.addCheckPermissionResult("system", "global", "create_institution", false);
-        stub.addCheckPermissionResult("system", "global", "create_account", false);
-        stub.addCheckPermissionResult("system", "global", "delegate", false);
+        // system:aura — user has "view" and "update"
+        stub.addCheckPermissionResult("system", "aura", "view", true);
+        stub.addCheckPermissionResult("system", "aura", "update", true);
+        stub.addCheckPermissionResult("system", "aura", "delete", false);
+        stub.addCheckPermissionResult("system", "aura", "create_institution", false);
         // outlet — user can view outlet-1
         stub.addLookupResult("outlet", "view", List.of("outlet-1"));
-        stub.addLookupResult("outlet", "manage", List.of());
+        stub.addLookupResult("outlet", "update", List.of());
+        stub.addLookupResult("outlet", "delete", List.of());
         stub.addLookupResult("outlet", "create_course", List.of());
-        stub.addLookupResult("outlet", "create_lesson", List.of());
-        stub.addLookupResult("outlet", "view_all", List.of());
-        stub.addLookupResult("outlet", "delegate", List.of());
 
         var useCase = new LookupPermissionsUseCaseImpl(stub);
         List<ResourcePermission> result = useCase.lookupPermissions("user-1");
 
-        // Should contain system:global with [view, manage]
+        // Should contain system:aura with [view, update]
         var systemPerms = result.stream()
-                .filter(rp -> rp.resourceType().equals("system") && rp.resourceId().equals("global"))
+                .filter(rp -> rp.resourceType().equals("system") && rp.resourceId().equals("aura"))
                 .findFirst();
         assertThat(systemPerms).isPresent();
-        assertThat(systemPerms.get().permissions()).containsExactlyInAnyOrder("view", "manage");
+        assertThat(systemPerms.get().permissions()).containsExactlyInAnyOrder("view", "update");
 
         // Should contain outlet:outlet-1 with [view]
         var outletPerms = result.stream()
@@ -67,7 +64,7 @@ class LookupPermissionsUseCaseImplTest {
         var stub = new StubRelationshipAuthorizationService();
         stub.setDefaultCheckResult(false);
         stub.addLookupResult("institution", "view", List.of("inst-1"));
-        stub.addLookupResult("institution", "manage", List.of("inst-1"));
+        stub.addLookupResult("institution", "update", List.of("inst-1"));
         stub.addLookupResult("institution", "create_outlet", List.of("inst-1"));
 
         var useCase = new LookupPermissionsUseCaseImpl(stub);
@@ -77,7 +74,7 @@ class LookupPermissionsUseCaseImplTest {
                 .filter(rp -> rp.resourceType().equals("institution") && rp.resourceId().equals("inst-1"))
                 .findFirst();
         assertThat(instPerms).isPresent();
-        assertThat(instPerms.get().permissions()).containsExactlyInAnyOrder("view", "manage", "create_outlet");
+        assertThat(instPerms.get().permissions()).containsExactlyInAnyOrder("view", "update", "create_outlet");
     }
 
     // --- Stub ---

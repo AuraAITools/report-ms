@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 
 @Getter
@@ -32,4 +33,6 @@ public class Student {
     private String schoolId;
 
     private String levelId;
+
+    private @Nullable String profileImageKey;
 }

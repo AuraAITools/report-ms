@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface ParentMapper {
     ParentMapper INSTANCE = Mappers.getMapper(ParentMapper.class);
 
@@ -30,5 +30,8 @@ public interface ParentMapper {
     @Mapping(target = "tenantId", source = "institutionId")
     Parent toDomainEntity(CreateParentAndStudentsInAccountInput input);
 
+    @Mapping(target = "profileImageUrl", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     ParentResponse toDto(Parent parent);
 }

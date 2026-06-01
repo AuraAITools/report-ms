@@ -5,8 +5,8 @@ mutation CreateMaterialInInstitution($input: CreateMaterialInInstitutionInput!) 
         description
         fileUrl
         createdAt
-        createdBy
+        createdBy { userId accountId name url }
         updatedAt
-        updatedBy
+        updatedBy { userId accountId name url }
     }
 }

@@ -7,7 +7,7 @@ mutation CreateOutlet($input: CreateOutletInput!) {
         contactNumber
         description
         email
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

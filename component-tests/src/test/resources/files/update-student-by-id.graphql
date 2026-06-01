@@ -4,7 +4,7 @@ mutation UpdateStudentById($input: UpdateStudentByIdInput!) {
         name
         email
         dateOfBirth
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

@@ -1,5 +1,6 @@
 package com.aura.details.springdata.models.accounts;
 
+import com.aura.core.entities.accounts.AccountFeatureState;
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.links.AccountEducatorLinkModel;
 import com.aura.details.springdata.models.links.AccountStudentLinkModel;
@@ -74,13 +75,22 @@ public class AccountModel extends TenantBaseModel {
     private STATE state;
 
     @Column(nullable = false)
-    private boolean parentFeatureEnabled;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AccountFeatureState parentFeatureState = AccountFeatureState.NOT_ONBOARDED;
 
     @Column(nullable = false)
-    private boolean educatorFeatureEnabled;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AccountFeatureState educatorFeatureState = AccountFeatureState.NOT_ONBOARDED;
 
     @Column(nullable = false)
-    private boolean staffFeatureEnabled;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AccountFeatureState staffFeatureState = AccountFeatureState.NOT_ONBOARDED;
+
+    @Column(length = 512)
+    private String profileImageKey;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     @ToString.Exclude

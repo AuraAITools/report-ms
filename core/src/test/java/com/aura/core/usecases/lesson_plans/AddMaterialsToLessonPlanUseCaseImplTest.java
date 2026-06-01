@@ -151,6 +151,11 @@ class AddMaterialsToLessonPlanUseCaseImplTest {
         }
 
         @Override
+        public java.util.Map<String, List<com.aura.core.entities.topics.Topic>> findTopicsByMaterialIds(List<String> materialIds) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void deleteById(String id) {
             throw new UnsupportedOperationException();
         }

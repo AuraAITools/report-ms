@@ -3,6 +3,6 @@ extend type Mutation {
     createParentInAccount(createParentInAccountInput: CreateParentInAccountInput!): ParentResponse!
     createStudentsInAccount(createStudentsInput: CreateStudentsInput!): [StudentResponse!]!
     createEducatorsInAccount(createEducatorsInput: CreateEducatorsInput!): [EducatorResponse!]!
-    enableAccountFeature(enableAccountFeatureInput: EnableAccountFeatureInput!): AccountResponse!
+    updateAccountFeatureState(updateAccountFeatureStateInput: UpdateAccountFeatureStateInput!): AccountResponse!
     createParentAndStudentsInAccount(createParentAndStudentsInAccountInput: CreateParentAndStudentsInAccountInput!): CreateParentAndStudentsInAccountResponse!
 }

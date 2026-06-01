@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = {DateToEpochMapper.class})
+@Mapper(uses = {DateToEpochMapper.class, AccountMinimalDetailMapper.class})
 public interface MaterialMapper {
 
     MaterialMapper INSTANCE = Mappers.getMapper(MaterialMapper.class);
@@ -22,5 +22,7 @@ public interface MaterialMapper {
     Material toDomainEntity(CreateMaterialInInstitutionInput input);
 
     @Mapping(target = "fileUrl", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     MaterialResponse toDto(Material material);
 }

@@ -3,7 +3,8 @@ mutation CreateInstitutionAdminAccount($input: CreateAccountInput!) {
         id
         firstName
         lastName
-        createdBy
-        updatedBy
+        userId
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

@@ -80,6 +80,27 @@ public class LessonRepositoryImpl implements LessonRepository {
     }
 
     @Override
+    public List<Lesson> findAllByOutletId(String outletId) {
+        return jpaLessonRepository.findByOutlet_Id(UUID.fromString(outletId)).stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<Lesson> findAllByEducatorId(String educatorId) {
+        return jpaEducatorLessonLinkRepository.findLessonsByEducatorId(UUID.fromString(educatorId)).stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public List<Lesson> findAllByStudentId(String studentId) {
+        return jpaStudentLessonLinkRepository.findLessonsByStudentId(UUID.fromString(studentId)).stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public void deleteById(String id) {
         jpaLessonRepository.deleteById(UUID.fromString(id));
     }

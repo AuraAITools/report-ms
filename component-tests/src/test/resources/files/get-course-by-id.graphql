@@ -6,8 +6,8 @@ query GetCourseById($courseId: ID!) {
         lessonFrequency
         courseStartTimestamptz
         courseEndTimestamptz
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         lessons {
             id
             name

@@ -58,7 +58,9 @@ public class LessonStepDefs {
             lastLessonResponseMap = testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("lessonId", testContext.getLessonId()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "lessonId", testContext.getLessonId()))
                     .retrieveSync("getLessonById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
@@ -81,7 +83,9 @@ public class LessonStepDefs {
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("lessonId", UUID.randomUUID().toString()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "lessonId", UUID.randomUUID().toString()))
                     .retrieveSync("getLessonById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
@@ -119,8 +123,27 @@ public class LessonStepDefs {
         lastLessonsResponse = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(query)
-                .variables(Map.of("courseId", testContext.getCourseId()))
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "courseId", testContext.getCourseId()))
                 .retrieveSync("getAllLessonsInCourse")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
+    }
+
+    @When("user queries all lessons in the outlet")
+    @SuppressWarnings("unchecked")
+    public void userQueriesAllLessonsInTheOutlet() {
+        String query = findGraphqlQueryFromFiles("get-all-lessons-in-outlet.graphql");
+        lastLessonsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "outletId", testContext.getOutletId()))
+                .retrieveSync("getAllLessonsInOutlet")
                 .toEntityList(Map.class)
                 .stream()
                 .map(m -> (Map<String, Object>) m)
@@ -130,6 +153,40 @@ public class LessonStepDefs {
     @Then("the response should contain {int} lessons")
     public void theResponseShouldContainLessons(int expectedCount) {
         assertThat(lastLessonsResponse).hasSize(expectedCount);
+    }
+
+    @When("user queries lessons by a random educator id")
+    @SuppressWarnings("unchecked")
+    public void userQueriesLessonsByARandomEducatorId() {
+        String query = findGraphqlQueryFromFiles("get-lessons-by-educator-id.graphql");
+        lastLessonsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "educatorId", UUID.randomUUID().toString()))
+                .retrieveSync("getLessonsByEducatorId")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
+    }
+
+    @When("user queries lessons by a random student id")
+    @SuppressWarnings("unchecked")
+    public void userQueriesLessonsByARandomStudentId() {
+        String query = findGraphqlQueryFromFiles("get-lessons-by-student-id.graphql");
+        lastLessonsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
+                        "studentId", UUID.randomUUID().toString()))
+                .retrieveSync("getLessonsByStudentId")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
     }
 
     @And("the lessons should include names {string}")

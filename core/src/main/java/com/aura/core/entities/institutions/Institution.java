@@ -18,6 +18,7 @@ public class Institution {
     private String address;
     private String contactNumber;
     private String logoKey;
+    private String profileImageKey;
     private STATE state;
     private Instant createdAt;
     private String createdBy;

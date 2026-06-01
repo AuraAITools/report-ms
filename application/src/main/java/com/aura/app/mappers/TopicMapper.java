@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = { DateToEpochMapper.class })
+@Mapper(uses = { DateToEpochMapper.class, AccountMinimalDetailMapper.class })
 public interface TopicMapper {
 
     TopicMapper INSTANCE = Mappers.getMapper(TopicMapper.class);
@@ -21,5 +21,7 @@ public interface TopicMapper {
     @Mapping(source = "institutionId", target = "tenantId")
     Topic toDomainEntity(TopicInput topicInput);
 
+    @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
+    @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     TopicResponse toDto(Topic topic);
 }

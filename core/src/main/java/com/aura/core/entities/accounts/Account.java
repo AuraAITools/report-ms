@@ -31,9 +31,12 @@ public class Account {
 
     private String contact;
     private STATE state;
-    private boolean parentFeatureEnabled;
-    private boolean educatorFeatureEnabled;
-    private boolean staffFeatureEnabled;
+    private AccountFeatureState parentFeatureState;
+    private AccountFeatureState educatorFeatureState;
+    private AccountFeatureState staffFeatureState;
+
+    private @Nullable String profileImageKey;
+
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;

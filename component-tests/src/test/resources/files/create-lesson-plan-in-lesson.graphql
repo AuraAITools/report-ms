@@ -3,9 +3,9 @@ mutation CreateLessonPlanInLesson($input: CreateLessonPlanInLessonInput!) {
         id
         plan
         createdAt
-        createdBy
+        createdBy { userId accountId name url }
         updatedAt
-        updatedBy
+        updatedBy { userId accountId name url }
         lesson { id name }
         topics { id name }
     }

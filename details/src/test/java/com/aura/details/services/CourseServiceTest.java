@@ -195,6 +195,24 @@ class CourseServiceTest {
         assertThat(courseService.findAllByOutletId("o-1")).containsExactly(c1, c2);
     }
 
+    @DisplayName("Should delegate findAllByEducatorId to the course query use case")
+    @Test
+    void findAllByEducatorId_delegatesToQueryUseCase() {
+        Course c1 = Course.builder().id("c-1").build();
+        when(courseQueryUseCase.findAllByEducatorId("e-1")).thenReturn(List.of(c1));
+
+        assertThat(courseService.findAllByEducatorId("e-1")).containsExactly(c1);
+    }
+
+    @DisplayName("Should delegate findAllByStudentId to the course query use case")
+    @Test
+    void findAllByStudentId_delegatesToQueryUseCase() {
+        Course c1 = Course.builder().id("c-1").build();
+        when(courseQueryUseCase.findAllByStudentId("s-1")).thenReturn(List.of(c1));
+
+        assertThat(courseService.findAllByStudentId("s-1")).containsExactly(c1);
+    }
+
     @DisplayName("Should cascade-delete child lessons, clear course links, delete course, then wipe spicedb")
     @Test
     void deleteById_cascadeDeletesLessonsAndCleansUp() {

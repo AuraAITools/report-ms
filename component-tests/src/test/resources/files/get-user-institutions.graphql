@@ -6,7 +6,7 @@ query GetUserInstitutions($institutionId: ID!) {
         contactNumber
         address
         uen
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

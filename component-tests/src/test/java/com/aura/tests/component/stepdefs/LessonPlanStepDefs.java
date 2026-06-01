@@ -37,6 +37,7 @@ public class LessonPlanStepDefs {
         String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
@@ -81,6 +82,7 @@ public class LessonPlanStepDefs {
         String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
@@ -131,6 +133,7 @@ public class LessonPlanStepDefs {
         String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
@@ -177,6 +180,7 @@ public class LessonPlanStepDefs {
                 .mutate().build()
                 .document(graphqlQuery)
                 .variables(Map.of(
+                        "institutionId", testContext.getInstitutionId(),
                         "lessonId", testContext.getLessonId(),
                         "lessonPlanId", testContext.getLessonPlanId()))
                 .retrieveSync("getAllLessonObjectivesByLessonPlanId")
@@ -199,6 +203,7 @@ public class LessonPlanStepDefs {
         String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-plan-in-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);

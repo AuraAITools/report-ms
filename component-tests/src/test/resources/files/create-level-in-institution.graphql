@@ -3,7 +3,7 @@ mutation CreateLevelInInstitution($input: CreateLevelInInstitutionInput!) {
         id
         name
         category
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

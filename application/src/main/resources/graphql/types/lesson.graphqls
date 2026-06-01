@@ -4,12 +4,11 @@ type LessonResponse implements Auditable{
     lessonStartTimestamptz: Long!
     lessonEndTimestamptz: Long!
     description: String
-    recap: String
     state: LessonState!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
     outlet: OutletResponse!
     outletRoom: OutletRoomResponse
     course: CourseResponse!

@@ -6,12 +6,14 @@ type InstitutionResponse implements Auditable{
     address: String!
     uen: String!
     logoUrl: String
+    """Presigned S3 GET URL for the institution's profile image. Null if no image is set."""
+    profileImageUrl: String
     state: InstitutionState!
     outlets: [OutletResponse!]!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 enum InstitutionState {
@@ -22,9 +24,9 @@ enum InstitutionState {
 
 interface Auditable {
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input CreateInstitutionInput {
@@ -42,9 +44,7 @@ input InstitutionSearchInput {
     address: String
     uen: String
     createdAt: Long
-    createdBy: ID
     updatedAt: Long
-    updatedBy: ID
 }
 
 input SortInput {
@@ -55,4 +55,26 @@ input SortInput {
 enum SortDirection {
     ASCENDING
     DESCENDING
+}
+
+"""
+Response from requestInstitutionProfileImageUpload — the client uses uploadUrl to PUT
+bytes directly to S3, then passes fileKey back to confirmInstitutionProfileImageUpload
+to validate dimensions/size and persist the key on the institution.
+"""
+type InstitutionProfileImageUploadResponse {
+    uploadUrl: String!
+    fileKey: String!
+}
+
+input RequestInstitutionProfileImageUploadInput {
+    institutionId: ID!
+    """Must be one of: image/png, image/jpeg, image/webp."""
+    contentType: String!
+}
+
+input ConfirmInstitutionProfileImageUploadInput {
+    institutionId: ID!
+    """The fileKey returned from requestInstitutionProfileImageUpload, after the PUT completes."""
+    fileKey: String!
 }

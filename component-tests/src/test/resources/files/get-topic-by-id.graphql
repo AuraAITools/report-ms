@@ -1,8 +1,8 @@
-query GetTopicById($topicId: ID!) {
-    getTopicById(topicId: $topicId) {
+query GetTopicById($institutionId: ID!, $topicId: ID!) {
+    getTopicById(institutionId: $institutionId, topicId: $topicId) {
         id
         name
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

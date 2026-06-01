@@ -138,6 +138,35 @@ public class LessonsGqlController {
                 .toList();
     }
 
+    @PreAuthorize("hasPermission(#outletId, 'outlet', 'view')")
+    @QueryMapping
+    public List<LessonResponse> getAllLessonsInOutlet(@Argument("outletId") String outletId,
+                                                      @ContextValue(name = "user") User user) {
+        return lessonService.findAllByOutletId(outletId).stream()
+                .map(LessonMapper.INSTANCE::toResponseDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public List<LessonResponse> getLessonsByEducatorId(@Argument("institutionId") String institutionId,
+                                                       @Argument("educatorId") String educatorId,
+                                                       @ContextValue(name = "user") User user) {
+        return lessonService.findAllByEducatorId(educatorId).stream()
+                .map(LessonMapper.INSTANCE::toResponseDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public List<LessonResponse> getLessonsByStudentId(@Argument("institutionId") String institutionId,
+                                                      @Argument("studentId") String studentId,
+                                                      @ContextValue(name = "user") User user) {
+        return lessonService.findAllByStudentId(studentId).stream()
+                .map(LessonMapper.INSTANCE::toResponseDto)
+                .toList();
+    }
+
     @PreAuthorize("hasPermission(#id, 'lesson', 'delete')")
     @MutationMapping
     public Boolean deleteLessonById(@Argument("id") String id, @ContextValue(name = "user") User user) {

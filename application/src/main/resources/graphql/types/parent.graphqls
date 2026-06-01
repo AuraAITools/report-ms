@@ -1,10 +1,12 @@
 type ParentResponse implements Auditable{
     id: ID!
     relationship: RELATIONSHIP!
+    """Presigned S3 GET URL for the parent's profile image. Null if no image is set."""
+    profileImageUrl: String
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
 }
 
 input GetParentByIdInput {
@@ -21,4 +23,28 @@ input UpdateParentByIdInput {
 input DeleteParentByIdInput {
     id: ID!
     institutionId: ID!
+}
+
+"""
+Response from requestParentProfileImageUpload — the client uses uploadUrl to PUT bytes
+directly to S3, then passes fileKey back to confirmParentProfileImageUpload to
+validate dimensions/size and persist the key on the parent.
+"""
+type ParentProfileImageUploadResponse {
+    uploadUrl: String!
+    fileKey: String!
+}
+
+input RequestParentProfileImageUploadInput {
+    institutionId: ID!
+    parentId: ID!
+    """Must be one of: image/png, image/jpeg, image/webp."""
+    contentType: String!
+}
+
+input ConfirmParentProfileImageUploadInput {
+    institutionId: ID!
+    parentId: ID!
+    """The fileKey returned from requestParentProfileImageUpload, after the PUT completes."""
+    fileKey: String!
 }

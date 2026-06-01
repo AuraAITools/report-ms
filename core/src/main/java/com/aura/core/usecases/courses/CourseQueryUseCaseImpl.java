@@ -19,4 +19,16 @@ public class CourseQueryUseCaseImpl implements CourseQueryUseCase {
     public List<Course> findAllByOutletId(String outletId) {
         return courseRepository.findAllByOutletId(outletId);
     }
+
+    @Override
+    public List<Course> findAllByEducatorId(String educatorId) {
+        return courseRepository.findAllByEducatorIds(List.of(educatorId))
+                .getOrDefault(educatorId, List.of());
+    }
+
+    @Override
+    public List<Course> findAllByStudentId(String studentId) {
+        return courseRepository.findAllByStudentIds(List.of(studentId))
+                .getOrDefault(studentId, List.of());
+    }
 }

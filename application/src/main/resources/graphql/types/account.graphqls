@@ -3,14 +3,16 @@ type AccountResponse implements Auditable {
     firstName: String!
     lastName: String!
     createdAt: Long!
-    createdBy: ID!
+    createdBy: AccountMinimalDetail!
     updatedAt: Long
-    updatedBy: ID
+    updatedBy: AccountMinimalDetail
     userId: ID!
     status: AccountStatus!
-    parentFeatureEnabled: Boolean!
-    educatorFeatureEnabled: Boolean!
-    staffFeatureEnabled: Boolean!
+    parentFeatureState: AccountFeatureState!
+    educatorFeatureState: AccountFeatureState!
+    staffFeatureState: AccountFeatureState!
+    """Presigned S3 GET URL for the account's profile image. Null if no image is set."""
+    profileImageUrl: String
     students: [StudentResponse!]!
     parent: ParentResponse
     educators: [EducatorResponse!]!
@@ -47,10 +49,18 @@ enum AccountFeature {
     STAFF_FEATURE
 }
 
-input EnableAccountFeatureInput {
+enum AccountFeatureState {
+    NOT_ONBOARDED
+    ONBOARDING_IN_PROCESS
+    ACTIVE
+    INACTIVE
+}
+
+input UpdateAccountFeatureStateInput {
     institutionId: ID!
     accountId: ID!
     feature: AccountFeature!
+    state: AccountFeatureState!
 }
 
 input CreateParentAndStudentsInAccountInput {
@@ -72,5 +82,29 @@ input AccountStudentDetailsInput {
 type CreateParentAndStudentsInAccountResponse {
     parent: ParentResponse!
     students: [StudentResponse!]!
+}
+
+"""
+Response from requestAccountProfileImageUpload — the client uses uploadUrl to PUT
+bytes directly to S3, then passes fileKey back to confirmAccountProfileImageUpload
+to validate dimensions/size and persist the key on the account.
+"""
+type AccountProfileImageUploadResponse {
+    uploadUrl: String!
+    fileKey: String!
+}
+
+input RequestAccountProfileImageUploadInput {
+    institutionId: ID!
+    accountId: ID!
+    """Must be one of: image/png, image/jpeg, image/webp."""
+    contentType: String!
+}
+
+input ConfirmAccountProfileImageUploadInput {
+    institutionId: ID!
+    accountId: ID!
+    """The fileKey returned from requestAccountProfileImageUpload, after the PUT completes."""
+    fileKey: String!
 }
 

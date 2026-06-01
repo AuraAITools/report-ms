@@ -1,6 +1,8 @@
 package com.aura.app.controllers.graphql.v1.accounts;
 
+import com.aura.app.codegen.types.AccountProfileImageUploadResponse;
 import com.aura.app.codegen.types.AccountResponse;
+import com.aura.app.codegen.types.ConfirmAccountProfileImageUploadInput;
 import com.aura.app.codegen.types.CreateAccountInput;
 import com.aura.app.codegen.types.CreateEducatorsInput;
 import com.aura.app.codegen.types.CreateParentAndStudentsInAccountInput;
@@ -8,8 +10,9 @@ import com.aura.app.codegen.types.CreateParentAndStudentsInAccountResponse;
 import com.aura.app.codegen.types.CreateParentInAccountInput;
 import com.aura.app.codegen.types.CreateStudentsInput;
 import com.aura.app.codegen.types.EducatorResponse;
-import com.aura.app.codegen.types.EnableAccountFeatureInput;
+import com.aura.app.codegen.types.UpdateAccountFeatureStateInput;
 import com.aura.app.codegen.types.ParentResponse;
+import com.aura.app.codegen.types.RequestAccountProfileImageUploadInput;
 import com.aura.app.codegen.types.StudentResponse;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.AccountMapper;
@@ -22,9 +25,13 @@ import com.aura.core.entities.accounts.Parent;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.students.Student;
 import com.aura.details.services.AccountService;
+import com.aura.details.services.AssetUrlService;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -48,15 +55,18 @@ import static com.aura.app.codegen.DgsConstants.MUTATION.CreateEducatorsInAccoun
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateParentAndStudentsInAccount;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateParentInAccount;
 import static com.aura.app.codegen.DgsConstants.MUTATION.CreateStudentsInAccount;
-import static com.aura.app.codegen.DgsConstants.MUTATION.ENABLEACCOUNTFEATURE_INPUT_ARGUMENT.EnableAccountFeatureInput;
-import static com.aura.app.codegen.DgsConstants.MUTATION.EnableAccountFeature;
+import static com.aura.app.codegen.DgsConstants.MUTATION.UPDATEACCOUNTFEATURESTATE_INPUT_ARGUMENT.UpdateAccountFeatureStateInput;
+import static com.aura.app.codegen.DgsConstants.MUTATION.UpdateAccountFeatureState;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class AccountsGqlController {
 
+    private static final Duration PROFILE_IMAGE_URL_TTL = Duration.ofMinutes(15);
+
     private final AccountService accountService;
+    private final AssetUrlService assetUrlService;
 
     @PreAuthorize("hasPermission(#createAccountInput.institutionId, 'institution', 'create_account')")
     @MutationMapping(name = CreateAccount)
@@ -91,12 +101,36 @@ public class AccountsGqlController {
         return results.stream().map(EducatorMapper.INSTANCE::toDto).toList();
     }
 
-    @PreAuthorize("hasPermission(#enableAccountFeatureInput.accountId, 'account', 'update')")
-    @MutationMapping(name = EnableAccountFeature)
-    public AccountResponse enableAccountFeature(@Argument(value = EnableAccountFeatureInput) EnableAccountFeatureInput enableAccountFeatureInput, @ContextValue(name = "user") User user) {
-        Account updated = accountService.enableAccountFeature(
-                enableAccountFeatureInput.getAccountId(),
-                AccountMapper.INSTANCE.toDomain(enableAccountFeatureInput.getFeature()));
+    @PreAuthorize("hasPermission(#updateAccountFeatureStateInput.accountId, 'account', 'update')")
+    @MutationMapping(name = UpdateAccountFeatureState)
+    public AccountResponse updateAccountFeatureState(@Argument(value = UpdateAccountFeatureStateInput) UpdateAccountFeatureStateInput updateAccountFeatureStateInput, @ContextValue(name = "user") User user) {
+        Account updated = accountService.updateAccountFeatureState(
+                updateAccountFeatureStateInput.getAccountId(),
+                AccountMapper.INSTANCE.toDomain(updateAccountFeatureStateInput.getFeature()),
+                AccountMapper.INSTANCE.toDomain(updateAccountFeatureStateInput.getState()));
+        return AccountMapper.INSTANCE.toDto(updated);
+    }
+
+    @PreAuthorize("hasPermission(#input.accountId, 'account', 'update')")
+    @MutationMapping
+    public AccountProfileImageUploadResponse requestAccountProfileImageUpload(
+            @Argument RequestAccountProfileImageUploadInput input,
+            @ContextValue(name = "user") User user) {
+        AccountService.PresignedProfileImageUpload presigned = accountService.requestProfileImageUpload(
+                input.getInstitutionId(), input.getAccountId(), input.getContentType());
+        return AccountProfileImageUploadResponse.newBuilder()
+                .uploadUrl(presigned.uploadUrl())
+                .fileKey(presigned.fileKey())
+                .build();
+    }
+
+    @PreAuthorize("hasPermission(#input.accountId, 'account', 'update')")
+    @MutationMapping
+    public AccountResponse confirmAccountProfileImageUpload(
+            @Argument ConfirmAccountProfileImageUploadInput input,
+            @ContextValue(name = "user") User user) {
+        Account updated = accountService.confirmProfileImageUpload(
+                input.getInstitutionId(), input.getAccountId(), input.getFileKey());
         return AccountMapper.INSTANCE.toDto(updated);
     }
 
@@ -120,6 +154,16 @@ public class AccountsGqlController {
     public AccountResponse getAccountById(@Argument("accountId") String accountId,
                                           @ContextValue(name = "user") User user) {
         return Optional.ofNullable(accountService.findById(accountId))
+                .map(AccountMapper.INSTANCE::toDto)
+                .orElseThrow(() -> new ResourceNotFoundBusinessException("Account"));
+    }
+
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public AccountResponse getAccountByUserId(@Argument("institutionId") String institutionId,
+                                              @Argument("userId") String userId,
+                                              @ContextValue(name = "user") User user) {
+        return Optional.ofNullable(accountService.findByUserIdAndTenantId(userId, institutionId))
                 .map(AccountMapper.INSTANCE::toDto)
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("Account"));
     }
@@ -153,6 +197,26 @@ public class AccountsGqlController {
                 a -> educatorsByAccountId.getOrDefault(a.getId(), List.of()).stream()
                         .map(EducatorMapper.INSTANCE::toDto).toList()
         ));
+    }
+
+    @BatchMapping(typeName = "AccountResponse", field = "profileImageUrl")
+    public Map<AccountResponse, String> profileImageUrl(List<AccountResponse> accountResponses) {
+        Set<String> accountIds = accountResponses.stream()
+                .map(AccountResponse::getId)
+                .collect(Collectors.toSet());
+
+        Map<String, String> keysById = accountIds.stream()
+                .map(accountService::findById)
+                .filter(Objects::nonNull)
+                .filter(a -> a.getProfileImageKey() != null)
+                .collect(Collectors.toMap(Account::getId, Account::getProfileImageKey));
+
+        return accountResponses.stream()
+                .filter(a -> keysById.containsKey(a.getId()))
+                .collect(Collectors.toMap(
+                        a -> a,
+                        a -> assetUrlService.presignGet(keysById.get(a.getId()), PROFILE_IMAGE_URL_TTL)
+                ));
     }
 
     @BatchMapping(typeName = "AccountResponse", field = "parent")

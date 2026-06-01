@@ -70,4 +70,41 @@ class AccountRepositoryImplTest {
         assertThat(result.get(educatorId1.toString()).getEmail()).isEqualTo("a1@e.com");
         assertThat(result.get(educatorId2.toString()).getEmail()).isEqualTo("a2@e.com");
     }
+
+    @Test
+    @DisplayName("Should batch-load accounts for the given userIds within the tenant")
+    void findAllByUserIdsAndTenantId_returnsAccountsKeyedByUserId() {
+        String tenantId = "tenant-1";
+        AccountModel m1 = AccountModel.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                .userId("user-a")
+                .firstName("Alice")
+                .lastName("A")
+                .build();
+        AccountModel m2 = AccountModel.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000002"))
+                .userId("user-b")
+                .firstName("Bob")
+                .lastName("B")
+                .build();
+
+        when(jpaAccountRepository.findAllByUserIdInAndTenantId(List.of("user-a", "user-b"), tenantId))
+                .thenReturn(List.of(m1, m2));
+
+        Map<String, Account> result = accountRepositoryImpl.findAllByUserIdsAndTenantId(
+                List.of("user-a", "user-b"), tenantId);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get("user-a").getUserId()).isEqualTo("user-a");
+        assertThat(result.get("user-b").getUserId()).isEqualTo("user-b");
+    }
+
+    @Test
+    @DisplayName("Should return an empty map when no userIds are provided")
+    void findAllByUserIdsAndTenantId_emptyInput_returnsEmptyMap() {
+        Map<String, Account> result = accountRepositoryImpl.findAllByUserIdsAndTenantId(List.of(), "tenant-1");
+
+        assertThat(result).isEmpty();
+        verifyNoInteractions(jpaAccountRepository);
+    }
 }

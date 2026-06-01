@@ -8,4 +8,8 @@ public interface CourseQueryUseCase {
     @Nullable Course findById(String id);
 
     List<Course> findAllByOutletId(String outletId);
+
+    List<Course> findAllByEducatorId(String educatorId);
+
+    List<Course> findAllByStudentId(String studentId);
 }

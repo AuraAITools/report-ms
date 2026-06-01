@@ -1,0 +1,12 @@
+query GetCoursesByStudentId($institutionId: ID!, $studentId: ID!) {
+    getCoursesByStudentId(institutionId: $institutionId, studentId: $studentId) {
+        id
+        name
+        maxSize
+        lessonFrequency
+        courseStartTimestamptz
+        courseEndTimestamptz
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

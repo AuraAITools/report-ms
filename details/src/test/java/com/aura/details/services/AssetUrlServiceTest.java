@@ -10,8 +10,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
@@ -24,6 +27,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Asset URL service")
@@ -104,6 +108,47 @@ class AssetUrlServiceTest {
                         .build());
 
         assertThat(assetUrlService.objectExists("missing")).isFalse();
+    }
+
+    @DisplayName("Should return object bytes from S3 GetObject")
+    @Test
+    void getObjectBytes_returnsBytes() {
+        byte[] payload = new byte[]{1, 2, 3, 4};
+        when(s3Client.getObjectAsBytes(GetObjectRequest.builder()
+                .bucket(BUCKET).key("some/key").build()))
+                .thenReturn(ResponseBytes.fromByteArray(
+                        GetObjectResponse.builder().build(),
+                        payload));
+
+        assertThat(assetUrlService.getObjectBytes("some/key")).containsExactly(1, 2, 3, 4);
+    }
+
+    @DisplayName("Should return HEAD content-length for the object")
+    @Test
+    void getObjectSizeBytes_returnsContentLength() {
+        when(s3Client.headObject(HeadObjectRequest.builder()
+                .bucket(BUCKET).key("some/key").build()))
+                .thenReturn(HeadObjectResponse.builder().contentLength(12345L).build());
+
+        assertThat(assetUrlService.getObjectSizeBytes("some/key")).isEqualTo(12345L);
+    }
+
+    @DisplayName("Should return HEAD content-type for the object")
+    @Test
+    void getObjectContentType_returnsContentType() {
+        when(s3Client.headObject(HeadObjectRequest.builder()
+                .bucket(BUCKET).key("some/key").build()))
+                .thenReturn(HeadObjectResponse.builder().contentType("image/png").build());
+
+        assertThat(assetUrlService.getObjectContentType("some/key")).isEqualTo("image/png");
+    }
+
+    @DisplayName("Should issue DeleteObject for the configured bucket and given key")
+    @Test
+    void deleteObject_callsDeleteObject() {
+        assetUrlService.deleteObject("some/key");
+        verify(s3Client).deleteObject(DeleteObjectRequest.builder()
+                .bucket(BUCKET).key("some/key").build());
     }
 
     private PresignedGetObjectRequest mockedSignedGet(String url) throws Exception {

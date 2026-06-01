@@ -54,17 +54,17 @@ class SpiceDbPermissionEvaluatorTest {
     }
 
     @Test
-    @DisplayName("Should route type-level checks to system:global when targetId is null")
-    void hasPermission_nullTargetId_routesToSystemGlobal() {
+    @DisplayName("Should check create_institution against system:aura when explicitly targeted")
+    void hasPermission_systemAuraTarget_passesThrough() {
         Jwt jwt = buildJwt("user-123");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("system", "global", "create_institution", "user", "user-123"))
+        when(relationshipService.checkPermission("system", "aura", "create_institution", "user", "user-123"))
                 .thenReturn(true);
 
-        boolean result = evaluator.hasPermission(auth, null, "institution", "create_institution");
+        boolean result = evaluator.hasPermission(auth, "aura", "system", "create_institution");
 
         assertThat(result).isTrue();
-        verify(relationshipService).checkPermission("system", "global", "create_institution", "user", "user-123");
+        verify(relationshipService).checkPermission("system", "aura", "create_institution", "user", "user-123");
     }
 
     @Test
@@ -86,10 +86,10 @@ class SpiceDbPermissionEvaluatorTest {
     void hasPermission_denied_returnsFalse() {
         Jwt jwt = buildJwt("user-789");
         Authentication auth = new TestingAuthenticationToken(jwt, null);
-        when(relationshipService.checkPermission("system", "global", "create_institution", "user", "user-789"))
+        when(relationshipService.checkPermission("institution", "inst-001", "create_outlet", "user", "user-789"))
                 .thenReturn(false);
 
-        boolean result = evaluator.hasPermission(auth, null, "institution", "create_institution");
+        boolean result = evaluator.hasPermission(auth, "inst-001", "institution", "create_outlet");
 
         assertThat(result).isFalse();
     }

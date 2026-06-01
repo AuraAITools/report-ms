@@ -83,7 +83,9 @@ public class TopicStepDefs {
             lastGetTopicResponse = testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("topicId", testContext.getTopicId()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "topicId", testContext.getTopicId()))
                     .retrieveSync("getTopicById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);
@@ -99,7 +101,9 @@ public class TopicStepDefs {
             testContext.getGraphQLClient()
                     .mutate().build()
                     .document(query)
-                    .variables(Map.of("topicId", UUID.randomUUID().toString()))
+                    .variables(Map.of(
+                            "institutionId", testContext.getInstitutionId(),
+                            "topicId", UUID.randomUUID().toString()))
                     .retrieveSync("getTopicById")
                     .toEntity(Map.class);
             testContext.setRequestFailed(false);

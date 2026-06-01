@@ -1,0 +1,4 @@
+extend type Mutation {
+    requestAccountProfileImageUpload(input: RequestAccountProfileImageUploadInput!): AccountProfileImageUploadResponse!
+    confirmAccountProfileImageUpload(input: ConfirmAccountProfileImageUploadInput!): AccountResponse!
+}

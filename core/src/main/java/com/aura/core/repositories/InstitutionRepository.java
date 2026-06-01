@@ -14,6 +14,14 @@ public interface InstitutionRepository {
 
     @Nullable Institution findById(String id);
 
+    /**
+     * Targeted single-column update for the profile image S3 key. Avoids the
+     * domain-mapper round-trip used by {@link #save(Institution)}, which would
+     * detach related entities (e.g. outlets, accounts) on merge. Pass null to
+     * clear the key.
+     */
+    void updateProfileImageKeyById(String id, @Nullable String profileImageKey);
+
     List<Institution> findAll();
 
     List<Institution> findAllByIds(Set<String> ids);

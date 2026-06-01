@@ -1,8 +1,10 @@
 package com.aura.core.usecases.materials;
 
 import com.aura.core.entities.materials.Material;
+import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.MaterialRepository;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -19,5 +21,10 @@ public class MaterialQueryUseCaseImpl implements MaterialQueryUseCase {
     @Override
     public List<Material> findAllByTenantId(String tenantId) {
         return materialRepository.findAllByTenantId(tenantId);
+    }
+
+    @Override
+    public Map<String, List<Topic>> findTopicsByMaterialIds(List<String> materialIds) {
+        return materialRepository.findTopicsByMaterialIds(materialIds);
     }
 }

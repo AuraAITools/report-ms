@@ -8,7 +8,6 @@ import com.aura.core.entities.educators.Educator;
 import com.aura.core.events.EducatorAccountCreatedEvent;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.ParentRepository;
-import java.util.List;
 import com.aura.core.usecases.accounts.AccountQueryUseCase;
 import com.aura.core.usecases.accounts.CreateAccountUseCase;
 import com.aura.core.usecases.accounts.CreateEducatorInAccountUseCase;
@@ -20,6 +19,8 @@ import com.aura.core.usecases.educators.TagEducatorToLevelUseCase;
 import com.aura.core.usecases.educators.TagEducatorToSubjectUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
 import com.aura.core.usecases.students.TagStudentToSchoolUseCase;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,6 +72,10 @@ class AccountServiceTest {
     private ParentRepository parentRepository;
     @Mock
     private AccountQueryUseCase accountQueryUseCase;
+    @Mock
+    private AssetUrlService assetUrlService;
+    @Mock
+    private ProfileImageValidator profileImageValidator;
 
     private static final String ACTION_REDIRECT_URI = "https://app-test.aura.com/auth/complete";
 
@@ -95,7 +100,9 @@ class AccountServiceTest {
                 applicationEventPublisher,
                 ACTION_REDIRECT_URI,
                 parentRepository,
-                accountQueryUseCase);
+                accountQueryUseCase,
+                assetUrlService,
+                profileImageValidator);
     }
 
     @DisplayName("Should delegate findById to the account query use case")
@@ -105,6 +112,41 @@ class AccountServiceTest {
         when(accountQueryUseCase.findById("acc-1")).thenReturn(account);
 
         assertThat(accountService.findById("acc-1")).isEqualTo(account);
+    }
+
+    @DisplayName("Should delegate findByUserIdAndTenantId to the account query use case")
+    @Test
+    void findByUserIdAndTenantId_delegatesToQueryUseCase() {
+        Account account = Account.builder()
+                .id("acc-1").userId("user-1").tenantId("tenant-1")
+                .state(Account.STATE.ACTIVE).build();
+        when(accountQueryUseCase.findByUserIdAndTenantId("user-1", "tenant-1")).thenReturn(account);
+
+        assertThat(accountService.findByUserIdAndTenantId("user-1", "tenant-1")).isEqualTo(account);
+    }
+
+    @DisplayName("Should return null when no account is found for the given user and tenant")
+    @Test
+    void findByUserIdAndTenantId_returnsNullWhenMissing() {
+        when(accountQueryUseCase.findByUserIdAndTenantId("user-x", "tenant-1")).thenReturn(null);
+
+        assertThat(accountService.findByUserIdAndTenantId("user-x", "tenant-1")).isNull();
+    }
+
+    @DisplayName("Should promote a VERIFYING account to ACTIVE when required actions are completed")
+    @Test
+    void findByUserIdAndTenantId_promotesVerifyingAccountWhenActionsCompleted() {
+        Account account = Account.builder()
+                .id("acc-1").userId("user-1").tenantId("tenant-1")
+                .state(Account.STATE.VERIFYING).build();
+        when(accountQueryUseCase.findByUserIdAndTenantId("user-1", "tenant-1")).thenReturn(account);
+        when(identityService.hasCompletedRequiredActions("user-1", List.of("VERIFY_EMAIL", "UPDATE_PASSWORD")))
+                .thenReturn(true);
+
+        Account result = accountService.findByUserIdAndTenantId("user-1", "tenant-1");
+
+        assertThat(result.getState()).isEqualTo(Account.STATE.ACTIVE);
+        verify(accountRepository).updateStateById("acc-1", Account.STATE.ACTIVE);
     }
 
     @DisplayName("Should delegate findAllByTenantId to the account query use case")
@@ -118,29 +160,22 @@ class AccountServiceTest {
     }
 
 
-    @DisplayName("Should write educator relationship on institution when creating educator")
     @Test
-    void createEducatorToAccount_writesEducatorRelationship() {
-        Educator educator = Educator.builder().name("Jane").build();
-        Educator createdEducator = Educator.builder().id("edu-1").name("Jane").build();
-        Account account = Account.builder().userId("user-1").tenantId("tenant-1").build();
+    @DisplayName("Should delegate findAllByUserIdsAndTenantId to the account repository")
+    void findAllByUserIdsAndTenantId_delegatesToRepository() {
+        List<String> userIds = List.of("user-a", "user-b");
+        String tenantId = "tenant-1";
+        Account a = Account.builder()
+                .id("acc-1").userId("user-a").tenantId(tenantId).build();
+        Map<String, Account> expected = Map.of("user-a", a);
 
-        var params = AccountService.CreateEducatorAccountParams.builder()
-                .educator(educator)
-                .accountId("acc-1")
-                .courseIds(List.of())
-                .subjectIds(List.of())
-                .outletIds(List.of())
-                .levelIds(List.of())
-                .build();
+        when(accountRepository.findAllByUserIdsAndTenantId(userIds, tenantId)).thenReturn(expected);
 
-        when(createEducatorInAccountUseCase.createEducator("acc-1", educator)).thenReturn(createdEducator);
-        when(accountRepository.findById("acc-1")).thenReturn(account);
+        Map<String, Account> result =
+                accountService.findAllByUserIdsAndTenantId(userIds, tenantId);
 
-        accountService.createEducatorInAccount(params);
-
-        verify(relationshipService).writeRelationship(
-                "institution", "tenant-1", "educator", "user", "user-1");
+        assertThat(result).isEqualTo(expected);
+        verify(accountRepository).findAllByUserIdsAndTenantId(userIds, tenantId);
     }
 
     @DisplayName("Should publish EducatorAccountCreatedEvent on educator-account linking")

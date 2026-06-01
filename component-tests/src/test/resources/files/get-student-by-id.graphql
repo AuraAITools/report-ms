@@ -4,8 +4,8 @@ query GetStudentById($input: GetStudentByIdInput!) {
         name
         email
         dateOfBirth
-        createdBy
-        updatedBy
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
         createdAt
         updatedAt
         level {
