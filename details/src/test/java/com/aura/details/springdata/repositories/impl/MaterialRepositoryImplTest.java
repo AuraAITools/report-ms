@@ -5,7 +5,7 @@ import com.aura.core.entities.materials.Material;
 import com.aura.details.springdata.models.links.MaterialTopicLinkModel;
 import com.aura.details.springdata.models.materials.MaterialModel;
 import com.aura.details.springdata.models.topics.TopicModel;
-import com.aura.details.springdata.repositories.jpa.links.JpaLessonPlanMaterialsLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaMaterialTopicLinkRepository;
 import com.aura.details.springdata.repositories.jpa.materials.JpaMaterialRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
@@ -36,7 +36,7 @@ class MaterialRepositoryImplTest {
     @Mock
     private JpaMaterialTopicLinkRepository jpaMaterialTopicLinkRepository;
     @Mock
-    private JpaLessonPlanMaterialsLinkRepository jpaLessonPlanMaterialsLinkRepository;
+    private JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository;
     @InjectMocks
     private MaterialRepositoryImpl repository;
 
@@ -135,7 +135,7 @@ class MaterialRepositoryImplTest {
         MaterialModel m1 = MaterialModel.builder().id(UUID.randomUUID()).name("Worksheet").build();
         MaterialModel m2 = MaterialModel.builder().id(UUID.randomUUID()).name("Slides").build();
         MaterialModel m3 = MaterialModel.builder().id(UUID.randomUUID()).name("Video").build();
-        when(jpaLessonPlanMaterialsLinkRepository.findMaterialsByLessonIds(List.of(lesson1, lesson2)))
+        when(jpaLessonGroupPlanMaterialsLinkRepository.findMaterialsByLessonIds(List.of(lesson1, lesson2)))
                 .thenReturn(List.of(
                         new Object[]{lesson1, m1},
                         new Object[]{lesson1, m2},

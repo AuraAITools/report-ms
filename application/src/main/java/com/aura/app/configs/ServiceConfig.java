@@ -8,8 +8,9 @@ import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
-import com.aura.core.repositories.LessonPlanRepository;
-import com.aura.core.repositories.LessonPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.MaterialRepository;
@@ -48,10 +49,11 @@ import com.aura.core.usecases.lesson_objectives.CreateLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.DeleteLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCase;
 import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCase;
-import com.aura.core.usecases.lesson_plans.AddMaterialsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.AddStudentsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.AddTopicsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.CreateLessonPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.AddMaterialsToLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddStudentsToLessonUseCase;
@@ -102,8 +104,9 @@ import com.aura.details.services.AssetUrlService;
 import com.aura.details.services.AuthorizationService;
 import com.aura.details.services.CourseService;
 import com.aura.details.services.EducatorService;
+import com.aura.details.services.LessonGroupPlanService;
+import com.aura.details.services.LessonGroupService;
 import com.aura.details.services.LessonObjectiveService;
-import com.aura.details.services.LessonPlanService;
 import com.aura.details.services.LessonService;
 import com.aura.details.services.LevelService;
 import com.aura.details.services.MaterialService;
@@ -267,29 +270,37 @@ public class ServiceConfig {
                                 RelationshipAuthorizationService relationshipService,
                                 EducatorRepository educatorRepository,
                                 StudentRepository studentRepository,
-                                LessonPlanService lessonPlanService) {
+                                LessonGroupService lessonGroupService,
+                                LessonGroupPlanService lessonGroupPlanService,
+                                StudentLessonReportService studentLessonReportService) {
         return new LessonService(createLessonUseCase, addEducatorsToLessonUseCase,
                 addStudentsToLessonUseCase, addSubjectsToLessonUseCase,
                 addLevelsToLessonUseCase, addTopicsToLessonUseCase, lessonQueryUseCase,
                 deleteLessonUseCase, lessonRepository, lessonOutletRoomBookingRepository,
                 relationshipService, educatorRepository, studentRepository,
-                lessonPlanService);
+                lessonGroupService, lessonGroupPlanService, studentLessonReportService);
     }
 
     @Bean
-    LessonPlanService lessonPlanService(CreateLessonPlanUseCase createLessonPlanUseCase,
-                                        AddTopicsToLessonPlanUseCase addTopicsToLessonPlanUseCase,
-                                        AddMaterialsToLessonPlanUseCase addMaterialsToLessonPlanUseCase,
-                                        AddStudentsToLessonPlanUseCase addStudentsToLessonPlanUseCase,
-                                        LessonPlanRepository lessonPlanRepository,
-                                        LessonPlanTopicLinkRepository lessonPlanTopicLinkRepository,
-                                        TopicLessonLinkRepository topicLessonLinkRepository,
-                                        LessonObjectiveService lessonObjectiveService,
-                                        StudentLessonReportService studentLessonReportService) {
-        return new LessonPlanService(createLessonPlanUseCase, addTopicsToLessonPlanUseCase,
-                addMaterialsToLessonPlanUseCase, addStudentsToLessonPlanUseCase,
-                lessonPlanRepository, lessonPlanTopicLinkRepository, topicLessonLinkRepository,
-                lessonObjectiveService, studentLessonReportService);
+    LessonGroupService lessonGroupService(CreateLessonGroupUseCase createLessonGroupUseCase,
+                                          AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase,
+                                          LessonGroupRepository lessonGroupRepository) {
+        return new LessonGroupService(createLessonGroupUseCase, addStudentsToLessonGroupUseCase, lessonGroupRepository);
+    }
+
+    @Bean
+    LessonGroupPlanService lessonGroupPlanService(CreateLessonGroupPlanUseCase createLessonGroupPlanUseCase,
+                                                   AddTopicsToLessonGroupPlanUseCase addTopicsToLessonGroupPlanUseCase,
+                                                   AddMaterialsToLessonGroupPlanUseCase addMaterialsToLessonGroupPlanUseCase,
+                                                   LessonGroupPlanRepository lessonGroupPlanRepository,
+                                                   LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository,
+                                                   TopicLessonLinkRepository topicLessonLinkRepository,
+                                                   LessonGroupRepository lessonGroupRepository,
+                                                   LessonObjectiveService lessonObjectiveService) {
+        return new LessonGroupPlanService(createLessonGroupPlanUseCase, addTopicsToLessonGroupPlanUseCase,
+                addMaterialsToLessonGroupPlanUseCase, lessonGroupPlanRepository,
+                lessonGroupPlanTopicLinkRepository, topicLessonLinkRepository,
+                lessonGroupRepository, lessonObjectiveService);
     }
 
     @Bean

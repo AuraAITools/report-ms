@@ -59,7 +59,7 @@ class LessonQuizStudentLessonLinkMapperTest {
 
         assertThat(model.getLessonQuizTable()).isNotNull();
         assertThat(model.getLessonQuizTable().getId()).isEqualTo(lessonQuizId);
-        assertThat(model.getLessonQuizTable().getLessonPlan()).isNull();
+        assertThat(model.getLessonQuizTable().getLessonGroupPlan()).isNull();
     }
 
     @DisplayName("Should set LessonQuizStudentLessonLinkModel.studentLessonReport to a stub StudentLessonReportModel populated only with the id from LessonQuizStudentLessonLink.studentLessonReportId")

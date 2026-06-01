@@ -1,8 +1,8 @@
 package com.aura.details.springdata.mappers.links;
 
-import com.aura.core.entities.links.LessonPlanMaterialLink;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
-import com.aura.details.springdata.models.links.LessonPlanMaterialsLinkModel;
+import com.aura.core.entities.links.LessonGroupPlanMaterialLink;
+import com.aura.details.springdata.models.lessons.LessonGroupPlanModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanMaterialsLinkModel;
 import com.aura.details.springdata.models.materials.MaterialModel;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -11,115 +11,115 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("LessonPlanMaterialLinkMapper")
+@DisplayName("LessonGroupPlanMaterialLinkMapper")
 class LessonPlanMaterialLinkMapperTest {
 
-    private final LessonPlanMaterialLinkMapper mapper = LessonPlanMaterialLinkMapper.INSTANCE;
+    private final LessonGroupPlanMaterialLinkMapper mapper = LessonGroupPlanMaterialLinkMapper.INSTANCE;
 
-    @DisplayName("Should map LessonPlanMaterialsLinkModel.lessonPlan.id into LessonPlanMaterialLink.lessonPlanId without traversing back into LessonPlan")
+    @DisplayName("Should map LessonGroupPlanMaterialsLinkModel.lessonGroupPlan.id into LessonGroupPlanMaterialLink.lessonGroupPlanId without traversing back into LessonGroupPlan")
     @Test
-    void toDomain_extractsLessonPlanIdFromModel() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonPlanModel lessonPlanModel = LessonPlanModel.builder().id(lessonPlanId).build();
-        LessonPlanMaterialsLinkModel model = LessonPlanMaterialsLinkModel.builder()
+    void toDomain_extractsLessonGroupPlanIdFromModel() {
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
+        LessonGroupPlanMaterialsLinkModel model = LessonGroupPlanMaterialsLinkModel.builder()
                 .id(UUID.randomUUID())
-                .lessonPlan(lessonPlanModel)
+                .lessonGroupPlan(lessonGroupPlanModel)
                 .build();
 
-        LessonPlanMaterialLink domain = mapper.toDomain(model);
+        LessonGroupPlanMaterialLink domain = mapper.toDomain(model);
 
-        assertThat(domain.getLessonPlanId()).isEqualTo(lessonPlanId.toString());
+        assertThat(domain.getLessonGroupPlanId()).isEqualTo(lessonGroupPlanId.toString());
     }
 
-    @DisplayName("Should map LessonPlanMaterialsLinkModel.material.id into LessonPlanMaterialLink.materialId without traversing back into Material")
+    @DisplayName("Should map LessonGroupPlanMaterialsLinkModel.material.id into LessonGroupPlanMaterialLink.materialId without traversing back into Material")
     @Test
     void toDomain_extractsMaterialIdFromModel() {
         UUID materialId = UUID.randomUUID();
         MaterialModel materialModel = MaterialModel.builder().id(materialId).build();
-        LessonPlanMaterialsLinkModel model = LessonPlanMaterialsLinkModel.builder()
+        LessonGroupPlanMaterialsLinkModel model = LessonGroupPlanMaterialsLinkModel.builder()
                 .id(UUID.randomUUID())
                 .material(materialModel)
                 .build();
 
-        LessonPlanMaterialLink domain = mapper.toDomain(model);
+        LessonGroupPlanMaterialLink domain = mapper.toDomain(model);
 
         assertThat(domain.getMaterialId()).isEqualTo(materialId.toString());
     }
 
-    @DisplayName("Should set LessonPlanMaterialsLinkModel.lessonPlan to a stub LessonPlanModel populated only with the id from LessonPlanMaterialLink.lessonPlanId")
+    @DisplayName("Should set LessonGroupPlanMaterialsLinkModel.lessonGroupPlan to a stub LessonGroupPlanModel populated only with the id from LessonGroupPlanMaterialLink.lessonGroupPlanId")
     @Test
-    void toTable_buildsLessonPlanStubFromLessonPlanId() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonPlanMaterialLink domain = LessonPlanMaterialLink.builder()
+    void toTable_buildsLessonGroupPlanStubFromLessonGroupPlanId() {
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanMaterialLink domain = LessonGroupPlanMaterialLink.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonPlanId(lessonPlanId.toString())
+                .lessonGroupPlanId(lessonGroupPlanId.toString())
                 .build();
 
-        LessonPlanMaterialsLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanMaterialsLinkModel model = mapper.toTable(domain);
 
-        assertThat(model.getLessonPlan()).isNotNull();
-        assertThat(model.getLessonPlan().getId()).isEqualTo(lessonPlanId);
-        assertThat(model.getLessonPlan().getLesson()).isNull();
+        assertThat(model.getLessonGroupPlan()).isNotNull();
+        assertThat(model.getLessonGroupPlan().getId()).isEqualTo(lessonGroupPlanId);
+        assertThat(model.getLessonGroupPlan().getLessonGroup()).isNull();
     }
 
-    @DisplayName("Should set LessonPlanMaterialsLinkModel.material to a stub MaterialModel populated only with the id from LessonPlanMaterialLink.materialId")
+    @DisplayName("Should set LessonGroupPlanMaterialsLinkModel.material to a stub MaterialModel populated only with the id from LessonGroupPlanMaterialLink.materialId")
     @Test
     void toTable_buildsMaterialStubFromMaterialId() {
         UUID materialId = UUID.randomUUID();
-        LessonPlanMaterialLink domain = LessonPlanMaterialLink.builder()
+        LessonGroupPlanMaterialLink domain = LessonGroupPlanMaterialLink.builder()
                 .id(UUID.randomUUID().toString())
                 .materialId(materialId.toString())
                 .build();
 
-        LessonPlanMaterialsLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanMaterialsLinkModel model = mapper.toTable(domain);
 
         assertThat(model.getMaterial()).isNotNull();
         assertThat(model.getMaterial().getId()).isEqualTo(materialId);
         assertThat(model.getMaterial().getName()).isNull();
     }
 
-    @DisplayName("Should leave LessonPlanMaterialsLinkModel.lessonPlan null when LessonPlanMaterialLink.lessonPlanId is null")
+    @DisplayName("Should leave LessonGroupPlanMaterialsLinkModel.lessonGroupPlan null when LessonGroupPlanMaterialLink.lessonGroupPlanId is null")
     @Test
-    void toTable_returnsNullLessonPlanWhenLessonPlanIdNull() {
-        LessonPlanMaterialLink domain = LessonPlanMaterialLink.builder()
+    void toTable_returnsNullLessonGroupPlanWhenLessonGroupPlanIdNull() {
+        LessonGroupPlanMaterialLink domain = LessonGroupPlanMaterialLink.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonPlanId(null)
+                .lessonGroupPlanId(null)
                 .build();
 
-        LessonPlanMaterialsLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanMaterialsLinkModel model = mapper.toTable(domain);
 
-        assertThat(model.getLessonPlan()).isNull();
+        assertThat(model.getLessonGroupPlan()).isNull();
     }
 
-    @DisplayName("Should leave LessonPlanMaterialsLinkModel.material null when LessonPlanMaterialLink.materialId is null")
+    @DisplayName("Should leave LessonGroupPlanMaterialsLinkModel.material null when LessonGroupPlanMaterialLink.materialId is null")
     @Test
     void toTable_returnsNullMaterialWhenMaterialIdNull() {
-        LessonPlanMaterialLink domain = LessonPlanMaterialLink.builder()
+        LessonGroupPlanMaterialLink domain = LessonGroupPlanMaterialLink.builder()
                 .id(UUID.randomUUID().toString())
                 .materialId(null)
                 .build();
 
-        LessonPlanMaterialsLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanMaterialsLinkModel model = mapper.toTable(domain);
 
         assertThat(model.getMaterial()).isNull();
     }
 
-    @DisplayName("Should preserve lessonPlanId and materialId across a Model→Domain→Model round-trip")
+    @DisplayName("Should preserve lessonGroupPlanId and materialId across a Model→Domain→Model round-trip")
     @Test
-    void roundTrip_preservesLessonPlanIdAndMaterialId() {
-        UUID lessonPlanId = UUID.randomUUID();
+    void roundTrip_preservesLessonGroupPlanIdAndMaterialId() {
+        UUID lessonGroupPlanId = UUID.randomUUID();
         UUID materialId = UUID.randomUUID();
-        LessonPlanModel lessonPlanModel = LessonPlanModel.builder().id(lessonPlanId).build();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
         MaterialModel materialModel = MaterialModel.builder().id(materialId).build();
-        LessonPlanMaterialsLinkModel original = LessonPlanMaterialsLinkModel.builder()
+        LessonGroupPlanMaterialsLinkModel original = LessonGroupPlanMaterialsLinkModel.builder()
                 .id(UUID.randomUUID())
-                .lessonPlan(lessonPlanModel)
+                .lessonGroupPlan(lessonGroupPlanModel)
                 .material(materialModel)
                 .build();
 
-        LessonPlanMaterialsLinkModel roundTripped = mapper.toTable(mapper.toDomain(original));
+        LessonGroupPlanMaterialsLinkModel roundTripped = mapper.toTable(mapper.toDomain(original));
 
-        assertThat(roundTripped.getLessonPlan().getId()).isEqualTo(lessonPlanId);
+        assertThat(roundTripped.getLessonGroupPlan().getId()).isEqualTo(lessonGroupPlanId);
         assertThat(roundTripped.getMaterial().getId()).isEqualTo(materialId);
     }
 }

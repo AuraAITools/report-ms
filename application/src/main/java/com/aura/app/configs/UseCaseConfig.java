@@ -9,9 +9,10 @@ import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
-import com.aura.core.repositories.LessonPlanMaterialLinkRepository;
-import com.aura.core.repositories.LessonPlanRepository;
-import com.aura.core.repositories.LessonPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.LevelLessonLinkRepository;
 import com.aura.core.repositories.LevelRepository;
@@ -82,14 +83,16 @@ import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCase;
 import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCaseImpl;
 import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCaseImpl;
-import com.aura.core.usecases.lesson_plans.AddMaterialsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.AddMaterialsToLessonPlanUseCaseImpl;
-import com.aura.core.usecases.lesson_plans.AddStudentsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.AddStudentsToLessonPlanUseCaseImpl;
-import com.aura.core.usecases.lesson_plans.AddTopicsToLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.AddTopicsToLessonPlanUseCaseImpl;
-import com.aura.core.usecases.lesson_plans.CreateLessonPlanUseCase;
-import com.aura.core.usecases.lesson_plans.CreateLessonPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.AddMaterialsToLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.AddMaterialsToLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCaseImpl;
+import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCaseImpl;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
@@ -330,9 +333,15 @@ public class UseCaseConfig {
     }
 
     @Bean
-    CreateLessonPlanUseCase createLessonPlanUseCase(LessonPlanRepository lessonPlanRepository,
-                                                    LessonRepository lessonRepository) {
-        return new CreateLessonPlanUseCaseImpl(lessonPlanRepository, lessonRepository);
+    CreateLessonGroupPlanUseCase createLessonGroupPlanUseCase(LessonGroupPlanRepository lessonGroupPlanRepository,
+                                                              LessonGroupRepository lessonGroupRepository) {
+        return new CreateLessonGroupPlanUseCaseImpl(lessonGroupPlanRepository, lessonGroupRepository);
+    }
+
+    @Bean
+    CreateLessonGroupUseCase createLessonGroupUseCase(LessonGroupRepository lessonGroupRepository,
+                                                      LessonRepository lessonRepository) {
+        return new CreateLessonGroupUseCaseImpl(lessonGroupRepository, lessonRepository);
     }
 
     @Bean
@@ -341,23 +350,23 @@ public class UseCaseConfig {
     }
 
     @Bean
-    AddTopicsToLessonPlanUseCase addTopicsToLessonPlanUseCase(LessonPlanTopicLinkRepository lessonPlanTopicLinkRepository,
-                                                              LessonPlanRepository lessonPlanRepository,
-                                                              TopicRepository topicRepository) {
-        return new AddTopicsToLessonPlanUseCaseImpl(lessonPlanTopicLinkRepository, lessonPlanRepository, topicRepository);
+    AddTopicsToLessonGroupPlanUseCase addTopicsToLessonGroupPlanUseCase(LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository,
+                                                                        LessonGroupPlanRepository lessonGroupPlanRepository,
+                                                                        TopicRepository topicRepository) {
+        return new AddTopicsToLessonGroupPlanUseCaseImpl(lessonGroupPlanTopicLinkRepository, lessonGroupPlanRepository, topicRepository);
     }
 
     @Bean
-    AddMaterialsToLessonPlanUseCase addMaterialsToLessonPlanUseCase(LessonPlanMaterialLinkRepository lessonPlanMaterialLinkRepository,
-                                                                    LessonPlanRepository lessonPlanRepository,
-                                                                    MaterialRepository materialRepository) {
-        return new AddMaterialsToLessonPlanUseCaseImpl(lessonPlanMaterialLinkRepository, lessonPlanRepository, materialRepository);
+    AddMaterialsToLessonGroupPlanUseCase addMaterialsToLessonGroupPlanUseCase(LessonGroupPlanMaterialLinkRepository lessonGroupPlanMaterialLinkRepository,
+                                                                               LessonGroupPlanRepository lessonGroupPlanRepository,
+                                                                               MaterialRepository materialRepository) {
+        return new AddMaterialsToLessonGroupPlanUseCaseImpl(lessonGroupPlanMaterialLinkRepository, lessonGroupPlanRepository, materialRepository);
     }
 
     @Bean
-    AddStudentsToLessonPlanUseCase addStudentsToLessonPlanUseCase(LessonPlanRepository lessonPlanRepository,
-                                                                  StudentLessonLinkRepository studentLessonLinkRepository) {
-        return new AddStudentsToLessonPlanUseCaseImpl(lessonPlanRepository, studentLessonLinkRepository);
+    AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase(LessonGroupRepository lessonGroupRepository,
+                                                                    StudentLessonLinkRepository studentLessonLinkRepository) {
+        return new AddStudentsToLessonGroupUseCaseImpl(lessonGroupRepository, studentLessonLinkRepository);
     }
 
     @Bean

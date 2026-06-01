@@ -1,8 +1,8 @@
 package com.aura.details.springdata.mappers.links;
 
-import com.aura.core.entities.links.LessonPlanTopicLink;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
-import com.aura.details.springdata.models.links.LessonPlanTopicLinkModel;
+import com.aura.core.entities.links.LessonGroupPlanTopicLink;
+import com.aura.details.springdata.models.lessons.LessonGroupPlanModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanTopicLinkModel;
 import com.aura.details.springdata.models.topics.TopicModel;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -11,86 +11,86 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("LessonPlanTopicLinkMapper")
+@DisplayName("LessonGroupPlanTopicLinkMapper")
 class LessonPlanTopicLinkMapperTest {
 
-    private final LessonPlanTopicLinkMapper mapper = LessonPlanTopicLinkMapper.INSTANCE;
+    private final LessonGroupPlanTopicLinkMapper mapper = LessonGroupPlanTopicLinkMapper.INSTANCE;
 
-    @DisplayName("Should map LessonPlanTopicLinkModel.lessonPlan.id into LessonPlanTopicLink.lessonPlanId without traversing back into LessonPlan")
+    @DisplayName("Should map LessonGroupPlanTopicLinkModel.lessonGroupPlan.id into LessonGroupPlanTopicLink.lessonGroupPlanId without traversing back into LessonGroupPlan")
     @Test
-    void toDomain_extractsLessonPlanIdFromModel() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonPlanModel lessonPlanModel = LessonPlanModel.builder().id(lessonPlanId).build();
-        LessonPlanTopicLinkModel model = LessonPlanTopicLinkModel.builder()
+    void toDomain_extractsLessonGroupPlanIdFromModel() {
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
+        LessonGroupPlanTopicLinkModel model = LessonGroupPlanTopicLinkModel.builder()
                 .id(UUID.randomUUID())
-                .lessonPlan(lessonPlanModel)
+                .lessonGroupPlan(lessonGroupPlanModel)
                 .build();
 
-        LessonPlanTopicLink domain = mapper.toDomain(model);
+        LessonGroupPlanTopicLink domain = mapper.toDomain(model);
 
-        assertThat(domain.getLessonPlanId()).isEqualTo(lessonPlanId.toString());
+        assertThat(domain.getLessonGroupPlanId()).isEqualTo(lessonGroupPlanId.toString());
     }
 
-    @DisplayName("Should map LessonPlanTopicLinkModel.topic.id into LessonPlanTopicLink.topicId without traversing back into Topic")
+    @DisplayName("Should map LessonGroupPlanTopicLinkModel.topic.id into LessonGroupPlanTopicLink.topicId without traversing back into Topic")
     @Test
     void toDomain_extractsTopicIdFromModel() {
         UUID topicId = UUID.randomUUID();
         TopicModel topicModel = TopicModel.builder().id(topicId).build();
-        LessonPlanTopicLinkModel model = LessonPlanTopicLinkModel.builder()
+        LessonGroupPlanTopicLinkModel model = LessonGroupPlanTopicLinkModel.builder()
                 .id(UUID.randomUUID())
                 .topic(topicModel)
                 .build();
 
-        LessonPlanTopicLink domain = mapper.toDomain(model);
+        LessonGroupPlanTopicLink domain = mapper.toDomain(model);
 
         assertThat(domain.getTopicId()).isEqualTo(topicId.toString());
     }
 
-    @DisplayName("Should leave LessonPlanTopicLinkModel.lessonPlan null because lessonPlan is attached by repository impl via EntityManager.getReference, not by the mapper")
+    @DisplayName("Should leave LessonGroupPlanTopicLinkModel.lessonGroupPlan null because lessonGroupPlan is attached by repository impl via EntityManager.getReference, not by the mapper")
     @Test
-    void toTable_doesNotBuildLessonPlanStub() {
-        UUID lessonPlanId = UUID.randomUUID();
-        LessonPlanTopicLink domain = LessonPlanTopicLink.builder()
+    void toTable_doesNotBuildLessonGroupPlanStub() {
+        UUID lessonGroupPlanId = UUID.randomUUID();
+        LessonGroupPlanTopicLink domain = LessonGroupPlanTopicLink.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonPlanId(lessonPlanId.toString())
+                .lessonGroupPlanId(lessonGroupPlanId.toString())
                 .build();
 
-        LessonPlanTopicLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanTopicLinkModel model = mapper.toTable(domain);
 
-        assertThat(model.getLessonPlan()).isNull();
+        assertThat(model.getLessonGroupPlan()).isNull();
     }
 
-    @DisplayName("Should leave LessonPlanTopicLinkModel.topic null because topic is attached by repository impl via EntityManager.getReference, not by the mapper")
+    @DisplayName("Should leave LessonGroupPlanTopicLinkModel.topic null because topic is attached by repository impl via EntityManager.getReference, not by the mapper")
     @Test
     void toTable_doesNotBuildTopicStub() {
         UUID topicId = UUID.randomUUID();
-        LessonPlanTopicLink domain = LessonPlanTopicLink.builder()
+        LessonGroupPlanTopicLink domain = LessonGroupPlanTopicLink.builder()
                 .id(UUID.randomUUID().toString())
                 .topicId(topicId.toString())
                 .build();
 
-        LessonPlanTopicLinkModel model = mapper.toTable(domain);
+        LessonGroupPlanTopicLinkModel model = mapper.toTable(domain);
 
         assertThat(model.getTopic()).isNull();
     }
 
-    @DisplayName("Should preserve link id across a Model→Domain→Model round-trip (lessonPlan and topic are not roundtripped through the mapper)")
+    @DisplayName("Should preserve link id across a Model→Domain→Model round-trip (lessonGroupPlan and topic are not roundtripped through the mapper)")
     @Test
     void roundTrip_preservesLinkId() {
-        UUID lessonPlanId = UUID.randomUUID();
+        UUID lessonGroupPlanId = UUID.randomUUID();
         UUID topicId = UUID.randomUUID();
         UUID linkId = UUID.randomUUID();
-        LessonPlanModel lessonPlanModel = LessonPlanModel.builder().id(lessonPlanId).build();
+        LessonGroupPlanModel lessonGroupPlanModel = LessonGroupPlanModel.builder().id(lessonGroupPlanId).build();
         TopicModel topicModel = TopicModel.builder().id(topicId).build();
-        LessonPlanTopicLinkModel original = LessonPlanTopicLinkModel.builder()
+        LessonGroupPlanTopicLinkModel original = LessonGroupPlanTopicLinkModel.builder()
                 .id(linkId)
-                .lessonPlan(lessonPlanModel)
+                .lessonGroupPlan(lessonGroupPlanModel)
                 .topic(topicModel)
                 .build();
 
-        LessonPlanTopicLinkModel roundTripped = mapper.toTable(mapper.toDomain(original));
+        LessonGroupPlanTopicLinkModel roundTripped = mapper.toTable(mapper.toDomain(original));
 
-        assertThat(roundTripped.getLessonPlan()).isNull();
+        assertThat(roundTripped.getLessonGroupPlan()).isNull();
         assertThat(roundTripped.getTopic()).isNull();
         assertThat(roundTripped.getId()).isEqualTo(linkId);
     }

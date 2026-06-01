@@ -1,9 +1,9 @@
 package com.aura.details.springdata.repositories.impl;
 
-import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.details.springdata.models.lessons.LessonModel;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
-import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonPlanRepository;
+import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.details.springdata.models.lessons.LessonGroupModel;
+import com.aura.details.springdata.models.lessons.LessonGroupPlanModel;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupPlanRepository;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
@@ -22,184 +22,174 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@DisplayName("Lesson plan repository implementation")
+@DisplayName("Lesson group plan repository implementation")
 @ExtendWith(MockitoExtension.class)
 class LessonPlanRepositoryImplTest {
 
     @Mock
-    private JpaLessonPlanRepository jpaLessonPlanRepository;
+    private JpaLessonGroupPlanRepository jpaLessonGroupPlanRepository;
     @Mock
     private EntityManager entityManager;
     @InjectMocks
-    private LessonPlanRepositoryImpl lessonPlanRepositoryImpl;
+    private LessonGroupPlanRepositoryImpl lessonGroupPlanRepositoryImpl;
 
-    @DisplayName("Should attach managed lesson proxy via EntityManager.getReference and persist on save")
+    @DisplayName("Should attach managed lesson group proxy via EntityManager.getReference and persist on save")
     @Test
     void save_mapsDomainToModelAndBack() {
         UUID id = UUID.randomUUID();
-        UUID lessonId = UUID.randomUUID();
-        LessonPlan domain = LessonPlan.builder()
-                .lessonId(lessonId.toString())
+        UUID lessonGroupId = UUID.randomUUID();
+        LessonGroupPlan domain = LessonGroupPlan.builder()
+                .lessonGroupId(lessonGroupId.toString())
                 .plan("Some plan text")
                 .tenantId("tenant-1")
                 .build();
 
-        LessonModel lessonProxy = LessonModel.builder().id(lessonId).build();
-        when(entityManager.getReference(LessonModel.class, lessonId)).thenReturn(lessonProxy);
+        LessonGroupModel lessonGroupProxy = LessonGroupModel.builder().id(lessonGroupId).build();
+        when(entityManager.getReference(LessonGroupModel.class, lessonGroupId)).thenReturn(lessonGroupProxy);
 
-        LessonPlanModel savedModel = LessonPlanModel.builder()
+        LessonGroupPlanModel savedModel = LessonGroupPlanModel.builder()
                 .id(id)
-                .lesson(LessonModel.builder().id(lessonId).build())
+                .lessonGroup(LessonGroupModel.builder().id(lessonGroupId).build())
                 .plan("Some plan text")
                 .tenantId("tenant-1")
                 .build();
-        when(jpaLessonPlanRepository.save(any(LessonPlanModel.class))).thenReturn(savedModel);
+        when(jpaLessonGroupPlanRepository.save(any(LessonGroupPlanModel.class))).thenReturn(savedModel);
 
-        LessonPlan result = lessonPlanRepositoryImpl.save(domain);
+        LessonGroupPlan result = lessonGroupPlanRepositoryImpl.save(domain);
 
-        ArgumentCaptor<LessonPlanModel> captor = ArgumentCaptor.forClass(LessonPlanModel.class);
-        verify(jpaLessonPlanRepository).save(captor.capture());
-        assertThat(captor.getValue().getLesson()).isSameAs(lessonProxy);
+        ArgumentCaptor<LessonGroupPlanModel> captor = ArgumentCaptor.forClass(LessonGroupPlanModel.class);
+        verify(jpaLessonGroupPlanRepository).save(captor.capture());
+        assertThat(captor.getValue().getLessonGroup()).isSameAs(lessonGroupProxy);
         assertThat(captor.getValue().getPlan()).isEqualTo("Some plan text");
         assertThat(captor.getValue().getTenantId()).isEqualTo("tenant-1");
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(id.toString());
-        assertThat(result.getLessonId()).isEqualTo(lessonId.toString());
+        assertThat(result.getLessonGroupId()).isEqualTo(lessonGroupId.toString());
         assertThat(result.getPlan()).isEqualTo("Some plan text");
         assertThat(result.getTenantId()).isEqualTo("tenant-1");
     }
 
-    @DisplayName("Should return the lesson plan found by UUID id")
+    @DisplayName("Should return the lesson group plan found by UUID id")
     @Test
-    void findById_returnsLessonPlan() {
+    void findById_returnsLessonGroupPlan() {
         UUID id = UUID.randomUUID();
-        UUID lessonId = UUID.randomUUID();
-        LessonPlanModel model = LessonPlanModel.builder()
+        UUID lessonGroupId = UUID.randomUUID();
+        LessonGroupPlanModel model = LessonGroupPlanModel.builder()
                 .id(id)
-                .lesson(LessonModel.builder().id(lessonId).build())
+                .lessonGroup(LessonGroupModel.builder().id(lessonGroupId).build())
                 .plan("plan")
                 .build();
-        when(jpaLessonPlanRepository.findById(id)).thenReturn(Optional.of(model));
+        when(jpaLessonGroupPlanRepository.findById(id)).thenReturn(Optional.of(model));
 
-        LessonPlan result = lessonPlanRepositoryImpl.findById(id);
+        LessonGroupPlan result = lessonGroupPlanRepositoryImpl.findById(id);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(id.toString());
-        assertThat(result.getLessonId()).isEqualTo(lessonId.toString());
+        assertThat(result.getLessonGroupId()).isEqualTo(lessonGroupId.toString());
         assertThat(result.getPlan()).isEqualTo("plan");
     }
 
-    @DisplayName("Should return null when lesson plan not found by id")
+    @DisplayName("Should return null when lesson group plan not found by id")
     @Test
     void findById_returnsNullWhenMissing() {
         UUID id = UUID.randomUUID();
-        when(jpaLessonPlanRepository.findById(id)).thenReturn(Optional.empty());
+        when(jpaLessonGroupPlanRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThat(lessonPlanRepositoryImpl.findById(id)).isNull();
+        assertThat(lessonGroupPlanRepositoryImpl.findById(id)).isNull();
     }
 
-    @DisplayName("Should convert lessonId string to UUID and return all matching lesson plans")
+    @DisplayName("Should return the lesson group plan found by lessonGroupId")
     @Test
-    void findAllByLessonId_returnsLessonPlans() {
-        UUID lessonId = UUID.randomUUID();
-        UUID planId1 = UUID.randomUUID();
-        UUID planId2 = UUID.randomUUID();
-        LessonPlanModel model1 = LessonPlanModel.builder()
-                .id(planId1)
-                .lesson(LessonModel.builder().id(lessonId).build())
-                .plan("plan 1")
+    void findByLessonGroupId_returnsLessonGroupPlan() {
+        UUID id = UUID.randomUUID();
+        UUID lessonGroupId = UUID.randomUUID();
+        LessonGroupPlanModel model = LessonGroupPlanModel.builder()
+                .id(id)
+                .lessonGroup(LessonGroupModel.builder().id(lessonGroupId).build())
+                .plan("plan")
                 .build();
-        LessonPlanModel model2 = LessonPlanModel.builder()
-                .id(planId2)
-                .lesson(LessonModel.builder().id(lessonId).build())
-                .plan("plan 2")
-                .build();
-        when(jpaLessonPlanRepository.findAllByLessonId(lessonId)).thenReturn(java.util.List.of(model1, model2));
+        when(jpaLessonGroupPlanRepository.findByLessonGroupId(lessonGroupId)).thenReturn(Optional.of(model));
 
-        java.util.List<LessonPlan> result = lessonPlanRepositoryImpl.findAllByLessonId(lessonId.toString());
+        LessonGroupPlan result = lessonGroupPlanRepositoryImpl.findByLessonGroupId(lessonGroupId.toString());
 
-        assertThat(result).hasSize(2);
-        assertThat(result).extracting(LessonPlan::getId)
-                .containsExactlyInAnyOrder(planId1.toString(), planId2.toString());
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(id.toString());
+        assertThat(result.getLessonGroupId()).isEqualTo(lessonGroupId.toString());
     }
 
-    @DisplayName("Should return empty list when no lesson plan exists for the given lesson id")
+    @DisplayName("Should return null when no lesson group plan found for the given lessonGroupId")
     @Test
-    void findAllByLessonId_returnsEmptyWhenMissing() {
-        UUID lessonId = UUID.randomUUID();
-        when(jpaLessonPlanRepository.findAllByLessonId(lessonId)).thenReturn(java.util.List.of());
+    void findByLessonGroupId_returnsNullWhenMissing() {
+        UUID lessonGroupId = UUID.randomUUID();
+        when(jpaLessonGroupPlanRepository.findByLessonGroupId(lessonGroupId)).thenReturn(Optional.empty());
 
-        assertThat(lessonPlanRepositoryImpl.findAllByLessonId(lessonId.toString())).isEmpty();
+        assertThat(lessonGroupPlanRepositoryImpl.findByLessonGroupId(lessonGroupId.toString())).isNull();
     }
 
-    @DisplayName("Should return all lesson plans for the given ids")
+    @DisplayName("Should return all lesson group plans for the given ids")
     @Test
-    void findAllByIds_returnsMappedLessonPlans() {
+    void findAllByIds_returnsMappedLessonGroupPlans() {
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
-        UUID lesson1 = UUID.randomUUID();
-        UUID lesson2 = UUID.randomUUID();
-        LessonPlanModel m1 = LessonPlanModel.builder()
+        UUID group1 = UUID.randomUUID();
+        UUID group2 = UUID.randomUUID();
+        LessonGroupPlanModel m1 = LessonGroupPlanModel.builder()
                 .id(id1)
-                .lesson(LessonModel.builder().id(lesson1).build())
+                .lessonGroup(LessonGroupModel.builder().id(group1).build())
                 .plan("p1")
                 .build();
-        LessonPlanModel m2 = LessonPlanModel.builder()
+        LessonGroupPlanModel m2 = LessonGroupPlanModel.builder()
                 .id(id2)
-                .lesson(LessonModel.builder().id(lesson2).build())
+                .lessonGroup(LessonGroupModel.builder().id(group2).build())
                 .plan("p2")
                 .build();
-        when(jpaLessonPlanRepository.findAllById(List.of(id1, id2))).thenReturn(List.of(m1, m2));
+        when(jpaLessonGroupPlanRepository.findAllById(List.of(id1, id2))).thenReturn(List.of(m1, m2));
 
-        List<LessonPlan> result = lessonPlanRepositoryImpl.findAllByIds(List.of(id1, id2));
+        List<LessonGroupPlan> result = lessonGroupPlanRepositoryImpl.findAllByIds(List.of(id1, id2));
 
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(LessonPlan::getId)
+        assertThat(result).extracting(LessonGroupPlan::getId)
                 .containsExactly(id1.toString(), id2.toString());
-        assertThat(result).extracting(LessonPlan::getLessonId)
-                .containsExactly(lesson1.toString(), lesson2.toString());
+        assertThat(result).extracting(LessonGroupPlan::getLessonGroupId)
+                .containsExactly(group1.toString(), group2.toString());
     }
 
     @DisplayName("Should return empty list when no plans match the given ids")
     @Test
     void findAllByIds_returnsEmptyWhenNoMatches() {
         UUID id = UUID.randomUUID();
-        when(jpaLessonPlanRepository.findAllById(List.of(id))).thenReturn(List.of());
+        when(jpaLessonGroupPlanRepository.findAllById(List.of(id))).thenReturn(List.of());
 
-        assertThat(lessonPlanRepositoryImpl.findAllByIds(List.of(id))).isEmpty();
+        assertThat(lessonGroupPlanRepositoryImpl.findAllByIds(List.of(id))).isEmpty();
     }
 
-    @DisplayName("Should group plans by lessonId when querying by lesson ids")
+    @DisplayName("Should group plans by lessonGroupId when querying by lesson group ids")
     @Test
-    void findAllByLessonIds_groupsByLesson() {
-        UUID lesson1 = UUID.randomUUID();
-        UUID lesson2 = UUID.randomUUID();
+    void findAllByLessonGroupIds_groupsByLessonGroup() {
+        UUID group1 = UUID.randomUUID();
+        UUID group2 = UUID.randomUUID();
         UUID plan1 = UUID.randomUUID();
         UUID plan2 = UUID.randomUUID();
-        UUID plan3 = UUID.randomUUID();
 
-        LessonPlanModel m1 = LessonPlanModel.builder().id(plan1)
-                .lesson(LessonModel.builder().id(lesson1).build()).plan("p1").build();
-        LessonPlanModel m2 = LessonPlanModel.builder().id(plan2)
-                .lesson(LessonModel.builder().id(lesson1).build()).plan("p2").build();
-        LessonPlanModel m3 = LessonPlanModel.builder().id(plan3)
-                .lesson(LessonModel.builder().id(lesson2).build()).plan("p3").build();
+        LessonGroupPlanModel m1 = LessonGroupPlanModel.builder().id(plan1)
+                .lessonGroup(LessonGroupModel.builder().id(group1).build()).plan("p1").build();
+        LessonGroupPlanModel m2 = LessonGroupPlanModel.builder().id(plan2)
+                .lessonGroup(LessonGroupModel.builder().id(group2).build()).plan("p2").build();
 
-        when(jpaLessonPlanRepository.findAllByLessonIdIn(List.of(lesson1, lesson2)))
-                .thenReturn(List.of(m1, m2, m3));
+        when(jpaLessonGroupPlanRepository.findAllByLessonGroupIdIn(List.of(group1, group2)))
+                .thenReturn(List.of(m1, m2));
 
-        var result = lessonPlanRepositoryImpl.findAllByLessonIds(List.of(lesson1.toString(), lesson2.toString()));
+        var result = lessonGroupPlanRepositoryImpl.findAllByLessonGroupIds(List.of(group1.toString(), group2.toString()));
 
-        assertThat(result.get(lesson1.toString())).extracting(LessonPlan::getId)
-                .containsExactlyInAnyOrder(plan1.toString(), plan2.toString());
-        assertThat(result.get(lesson2.toString())).extracting(LessonPlan::getId)
-                .containsExactly(plan3.toString());
+        assertThat(result).hasSize(2);
+        assertThat(result.get(group1.toString()).getId()).isEqualTo(plan1.toString());
+        assertThat(result.get(group2.toString()).getId()).isEqualTo(plan2.toString());
     }
 
-    @DisplayName("Should return empty map when no lesson ids provided")
+    @DisplayName("Should return empty map when no lesson group ids provided")
     @Test
-    void findAllByLessonIds_returnsEmptyForEmptyInput() {
-        assertThat(lessonPlanRepositoryImpl.findAllByLessonIds(List.of())).isEmpty();
+    void findAllByLessonGroupIds_returnsEmptyForEmptyInput() {
+        assertThat(lessonGroupPlanRepositoryImpl.findAllByLessonGroupIds(List.of())).isEmpty();
     }
 }

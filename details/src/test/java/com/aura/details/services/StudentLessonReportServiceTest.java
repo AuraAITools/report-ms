@@ -30,7 +30,7 @@ class StudentLessonReportServiceTest {
 
     @DisplayName("Should look up the student lesson links and create one report per link with the plan's topics")
     @Test
-    void createReportsForStudentsInPlan_createsReportPerLink() {
+    void createReportsForStudentsInGroup_createsReportPerLink() {
         String lessonId = "lesson-1";
         String tenantId = "tenant-A";
         List<String> studentIds = List.of("stu-1", "stu-2");
@@ -41,7 +41,7 @@ class StudentLessonReportServiceTest {
         when(studentLessonLinkRepository.findAllByLessonIdAndStudentIds(lessonId, studentIds))
                 .thenReturn(List.of(link1, link2));
 
-        service.createReportsForStudentsInPlan(lessonId, studentIds, topicIds, tenantId);
+        service.createReportsForStudentsInGroup(lessonId, studentIds, topicIds, tenantId);
 
         verify(createStudentLessonReportUseCase).createEmptyReport("link-1", topicIds, tenantId);
         verify(createStudentLessonReportUseCase).createEmptyReport("link-2", topicIds, tenantId);
@@ -49,8 +49,8 @@ class StudentLessonReportServiceTest {
 
     @DisplayName("Should do nothing when studentIds is empty")
     @Test
-    void createReportsForStudentsInPlan_withEmptyStudents_doesNothing() {
-        service.createReportsForStudentsInPlan("lesson-1", List.of(), List.of("topic-a"), "tenant-A");
+    void createReportsForStudentsInGroup_withEmptyStudents_doesNothing() {
+        service.createReportsForStudentsInGroup("lesson-1", List.of(), List.of("topic-a"), "tenant-A");
 
         verifyNoInteractions(studentLessonLinkRepository, createStudentLessonReportUseCase);
     }

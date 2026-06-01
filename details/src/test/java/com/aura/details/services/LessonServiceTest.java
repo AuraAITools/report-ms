@@ -2,7 +2,8 @@ package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.lessons.LessonPlan;
+import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -15,7 +16,6 @@ import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
-import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -53,8 +53,6 @@ class LessonServiceTest {
     @Mock
     private AddTopicsToLessonUseCase addTopicsToLessonUseCase;
     @Mock
-    private LinkLessonsToCourseUseCase linkLessonsToCourseUseCase;
-    @Mock
     private DeleteLessonUseCase deleteLessonUseCase;
     @Mock
     private LessonRepository lessonRepository;
@@ -69,7 +67,11 @@ class LessonServiceTest {
     @Mock
     private StudentRepository studentRepository;
     @Mock
-    private LessonPlanService lessonPlanService;
+    private LessonGroupService lessonGroupService;
+    @Mock
+    private LessonGroupPlanService lessonGroupPlanService;
+    @Mock
+    private StudentLessonReportService studentLessonReportService;
 
     @InjectMocks
     private LessonService lessonService;
@@ -133,33 +135,44 @@ class LessonServiceTest {
         verify(addSubjectsToLessonUseCase).addSubjectsToLesson("lesson-123", subjectIds, tenantId);
         verify(addLevelsToLessonUseCase).addLevelsToLesson("lesson-123", levelIds, tenantId);
         verify(addTopicsToLessonUseCase).addTopicsToLesson("lesson-123", topicIds, tenantId);
-        verifyNoInteractions(lessonPlanService);
+        verifyNoInteractions(lessonGroupService, lessonGroupPlanService, studentLessonReportService);
     }
 
-    @DisplayName("Should delegate each lesson plan to LessonPlanService.createLessonPlan after lesson creation")
+    @DisplayName("Should delegate each lesson group to LessonGroupService.createLessonGroup after lesson creation")
     @Test
-    void createLesson_withLessonPlans_delegatesToLessonPlanService() {
+    void createLesson_withLessonGroups_delegatesToLessonGroupService() {
         String courseId = "course-001";
         String tenantId = "tenant-789";
-        Lesson input = Lesson.builder().name("Lesson w/ Plans").build();
-        Lesson created = Lesson.builder().id("lesson-123").name("Lesson w/ Plans").tenantId(tenantId).build();
+        Lesson input = Lesson.builder().name("Lesson w/ Groups").build();
+        Lesson created = Lesson.builder().id("lesson-123").name("Lesson w/ Groups").tenantId(tenantId).build();
         when(createLessonUseCase.createLessonInCourse(any(), eq(courseId))).thenReturn(created);
 
-        LessonPlan plan1 = LessonPlan.builder().plan("Plan A").build();
-        LessonPlan plan2 = LessonPlan.builder().plan("Plan B").build();
-        LessonService.NewLessonPlan np1 = new LessonService.NewLessonPlan(
-                plan1, List.of("top-1"), List.of("stu-1"), List.of("mat-1"), List.of());
-        LessonService.NewLessonPlan np2 = new LessonService.NewLessonPlan(
-                plan2, List.of(), List.of(), List.of(), List.of());
+        LessonGroupPlan plan1 = LessonGroupPlan.builder().plan("Plan A").build();
+        LessonGroupPlan plan2 = LessonGroupPlan.builder().plan("Plan B").build();
+
+        LessonGroup createdGroup1 = LessonGroup.builder().id("group-1").build();
+        LessonGroup createdGroup2 = LessonGroup.builder().id("group-2").build();
+
+        LessonService.NewLessonGroup ng1 = new LessonService.NewLessonGroup(
+                "Group A", plan1, List.of("top-1"), List.of("stu-1"), List.of("mat-1"), List.of());
+        LessonService.NewLessonGroup ng2 = new LessonService.NewLessonGroup(
+                "Group B", plan2, List.of(), List.of(), List.of(), List.of());
+
+        when(lessonGroupService.createLessonGroup(any(), eq("lesson-123")))
+                .thenReturn(createdGroup1).thenReturn(createdGroup2);
 
         lessonService.createLesson(input, courseId, "room-1",
                 List.of(), List.of(), List.of(), List.of(), List.of(),
-                List.of(np1, np2));
+                List.of(ng1, ng2));
 
-        verify(lessonPlanService).createLessonPlan(
-                plan1, "lesson-123", List.of("top-1"), List.of("stu-1"), List.of("mat-1"), List.of());
-        verify(lessonPlanService).createLessonPlan(
-                plan2, "lesson-123", List.of(), List.of(), List.of(), List.of());
+        verify(lessonGroupService).createLessonGroup(
+                argThat(g -> "Group A".equals(g.getName())), eq("lesson-123"));
+        verify(lessonGroupService).createLessonGroup(
+                argThat(g -> "Group B".equals(g.getName())), eq("lesson-123"));
+        verify(lessonGroupPlanService).createLessonGroupPlan(
+                plan1, "group-1", List.of("top-1"), List.of("mat-1"), List.of());
+        verify(lessonGroupPlanService).createLessonGroupPlan(
+                plan2, "group-2", List.of(), List.of(), List.of());
     }
 
     @DisplayName("Should delete lesson and wipe spicedb relationships in order")
