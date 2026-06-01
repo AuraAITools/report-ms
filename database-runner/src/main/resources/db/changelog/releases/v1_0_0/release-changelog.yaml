@@ -89,3 +89,6 @@ databaseChangeLog:
   - include:
       file: audit/changelog-2026-06-01-lesson-groups-audit.sql
       relativeToChangeLogFile: true
+  - include:
+      file: public/changelog-2026-06-02-lesson-group-plan-recap-nullable.sql
+      relativeToChangeLogFile: true

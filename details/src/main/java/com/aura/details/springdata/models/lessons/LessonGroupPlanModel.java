@@ -46,7 +46,7 @@ public class LessonGroupPlanModel extends TenantBaseModel {
     @Column(nullable = false, columnDefinition = "TEXT DEFAULT ''")
     private String plan;
 
-    @Column(nullable = false, columnDefinition = "TEXT DEFAULT ''")
+    @Column(columnDefinition = "TEXT")
     private String recap;
 
     @Enumerated(EnumType.STRING)

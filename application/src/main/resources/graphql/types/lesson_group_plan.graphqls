@@ -1,7 +1,7 @@
 type LessonGroupPlanResponse implements Auditable {
     id: ID!
     plan: String!
-    recap: String!
+    recap: String
     state: LessonGroupPlanState!
     lessonGroup: LessonGroupResponse!
     topics: [TopicResponse!]!

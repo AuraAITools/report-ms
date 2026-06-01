@@ -5,6 +5,10 @@ import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
@@ -31,6 +35,10 @@ import com.aura.details.springdata.repositories.impl.EducatorLessonLinkRepositor
 import com.aura.details.springdata.repositories.impl.EducatorRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EmailLogRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.InstitutionRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonGroupPlanMaterialLinkRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonGroupPlanRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonGroupPlanTopicLinkRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonGroupRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveTopicLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonOutletRoomBookingRepositoryImpl;
@@ -56,6 +64,8 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.educators.JpaEducatorRepository;
 import com.aura.details.springdata.repositories.jpa.email.JpaEmailLogRepository;
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupPlanRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonOutletRoomBookingRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
@@ -66,6 +76,7 @@ import com.aura.details.springdata.repositories.jpa.links.JpaAccountStudentLinkR
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanTopicLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLessonObjectiveTopicLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelLessonLinkRepository;
@@ -186,6 +197,30 @@ public class RepositoryConfig {
     LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository(JpaLessonOutletRoomBookingRepository jpaRepository,
                                                                         EntityManager entityManager) {
         return new LessonOutletRoomBookingRepositoryImpl(jpaRepository, entityManager);
+    }
+
+    @Bean
+    LessonGroupRepository lessonGroupRepository(JpaLessonGroupRepository jpaLessonGroupRepository,
+                                                EntityManager entityManager) {
+        return new LessonGroupRepositoryImpl(jpaLessonGroupRepository, entityManager);
+    }
+
+    @Bean
+    LessonGroupPlanRepository lessonGroupPlanRepository(JpaLessonGroupPlanRepository jpaLessonGroupPlanRepository,
+                                                        EntityManager entityManager) {
+        return new LessonGroupPlanRepositoryImpl(jpaLessonGroupPlanRepository, entityManager);
+    }
+
+    @Bean
+    LessonGroupPlanMaterialLinkRepository lessonGroupPlanMaterialLinkRepository(JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository,
+                                                                                EntityManager entityManager) {
+        return new LessonGroupPlanMaterialLinkRepositoryImpl(jpaLessonGroupPlanMaterialsLinkRepository, entityManager);
+    }
+
+    @Bean
+    LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository(JpaLessonGroupPlanTopicLinkRepository jpaLessonGroupPlanTopicLinkRepository,
+                                                                          EntityManager entityManager) {
+        return new LessonGroupPlanTopicLinkRepositoryImpl(jpaLessonGroupPlanTopicLinkRepository, entityManager);
     }
 
     @Bean
