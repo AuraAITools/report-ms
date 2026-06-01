@@ -3,8 +3,8 @@ package com.aura.details.springdata.repositories.impl;
 import com.aura.core.entities.links.StudentLessonLink;
 import com.aura.core.repositories.StudentLessonLinkRepository;
 import com.aura.details.springdata.mappers.links.StudentLessonLinkMapper;
+import com.aura.details.springdata.models.lessons.LessonGroupModel;
 import com.aura.details.springdata.models.lessons.LessonModel;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import com.aura.details.springdata.models.students.StudentModel;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRepository;
@@ -42,13 +42,13 @@ public class StudentLessonLinkRepositoryImpl implements StudentLessonLinkReposit
     }
 
     @Override
-    public List<StudentLessonLink> assignLessonPlanToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonPlanId) {
+    public List<StudentLessonLink> assignLessonGroupToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonGroupId) {
         if (studentIds.isEmpty()) return List.of();
         List<StudentLessonLinkModel> models = jpaStudentLessonLinkRepository.findAllByLessonIdAndStudentIdIn(
                 UUID.fromString(lessonId),
                 studentIds.stream().map(UUID::fromString).toList());
-        LessonPlanModel planRef = Refs.ref(entityManager, LessonPlanModel.class, lessonPlanId);
-        for (StudentLessonLinkModel m : models) m.setLessonPlan(planRef);
+        LessonGroupModel groupRef = Refs.ref(entityManager, LessonGroupModel.class, lessonGroupId);
+        for (StudentLessonLinkModel m : models) m.setLessonGroup(groupRef);
         return models.stream().map(StudentLessonLinkMapper.INSTANCE::toDomainEntity).toList();
     }
 

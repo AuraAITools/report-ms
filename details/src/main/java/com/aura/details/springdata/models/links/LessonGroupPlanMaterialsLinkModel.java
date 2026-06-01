@@ -1,7 +1,7 @@
 package com.aura.details.springdata.models.links;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
+import com.aura.details.springdata.models.lessons.LessonGroupPlanModel;
 import com.aura.details.springdata.models.materials.MaterialModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,21 +26,20 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = {}, callSuper = true)
-@Table(name = "LessonPlanMaterialsLinks", uniqueConstraints = {
+@Table(name = "LessonGroupPlanMaterialsLinks", uniqueConstraints = {
         @UniqueConstraint(
-                name = "uk_lesson_plan_material",
-                columnNames = {"lesson_plan_id", "material_id"}
+                name = "uk_lesson_group_plan_material",
+                columnNames = {"lesson_group_plan_id", "material_id"}
         )
 })
-public class LessonPlanMaterialsLinkModel extends TenantBaseModel {
+public class LessonGroupPlanMaterialsLinkModel extends TenantBaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinColumn(name = "lesson_plan_id")
-    private LessonPlanModel lessonPlan;
+    @JoinColumn(name = "lesson_group_plan_id")
+    private LessonGroupPlanModel lessonGroupPlan;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "material_id")
     private MaterialModel material;
-
 }

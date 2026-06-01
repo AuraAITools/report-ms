@@ -10,13 +10,13 @@ import org.mapstruct.factory.Mappers;
 public interface LessonObjectiveMapper {
     LessonObjectiveMapper INSTANCE = Mappers.getMapper(LessonObjectiveMapper.class);
 
-    @Mapping(source = "lessonPlan.id", target = "lessonPlanId")
+    @Mapping(source = "lessonGroupPlan.id", target = "lessonGroupPlanId")
     LessonObjective toDomainEntity(LessonObjectiveModel model);
 
-    // lessonPlan is attached separately by LessonObjectiveRepositoryImpl via Refs.ref(entityManager, ...),
+    // lessonGroupPlan is attached separately by LessonObjectiveRepositoryImpl via Refs.ref(entityManager, ...),
     // because a builder-stub *Model (id set, @Version null) trips Hibernate's
     // isTransient check ("Detached entity ... uninitialized version value 'null'") during persist.
-    @Mapping(target = "lessonPlan", ignore = true)
+    @Mapping(target = "lessonGroupPlan", ignore = true)
     @Mapping(target = "lessonObjectiveTopicLinks", ignore = true)
     LessonObjectiveModel toModelEntity(LessonObjective lessonObjective);
 }

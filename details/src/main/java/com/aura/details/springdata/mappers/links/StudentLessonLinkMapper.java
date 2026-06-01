@@ -1,14 +1,14 @@
 package com.aura.details.springdata.mappers.links;
 
 import com.aura.core.entities.links.StudentLessonLink;
-import com.aura.details.springdata.mappers.lessons.LessonPlanMapper;
+import com.aura.details.springdata.mappers.lessons.LessonGroupMapper;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = {
-        LessonPlanMapper.class
+        LessonGroupMapper.class
 })
 public interface StudentLessonLinkMapper {
     StudentLessonLinkMapper INSTANCE = Mappers.getMapper(StudentLessonLinkMapper.class);
@@ -17,11 +17,12 @@ public interface StudentLessonLinkMapper {
     @Mapping(source = "lesson.id", target = "lessonId")
     StudentLessonLink toDomainEntity(StudentLessonLinkModel studentLessonLinkModel);
 
-    // student and lesson are attached separately by StudentLessonLinkRepositoryImpl via Refs.ref(entityManager, ...),
-    // because a builder-stub *Model (id set, @Version null) trips Hibernate's
+    // student, lesson, and lessonGroup are attached separately by StudentLessonLinkRepositoryImpl via
+    // Refs.ref(entityManager, ...), because a builder-stub *Model (id set, @Version null) trips Hibernate's
     // isTransient check ("Detached entity ... uninitialized version value 'null'") during persist.
     @Mapping(target = "student", ignore = true)
     @Mapping(target = "lesson", ignore = true)
+    @Mapping(target = "lessonGroup", ignore = true)
     @Mapping(target = "studentLessonReport", ignore = true)
     StudentLessonLinkModel toModelEntity(StudentLessonLink studentLessonLink);
 }
