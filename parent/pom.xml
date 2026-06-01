@@ -51,7 +51,7 @@
         <extentreports.version>5.1.2</extentreports.version>
         <extentreports-cucumber7-adapater.version>1.14.0</extentreports-cucumber7-adapater.version>
         <authzed.version>1.5.4</authzed.version>
-        <grpc.version>1.72.0</grpc.version>
+        <grpc.version>1.75.0</grpc.version>
         <shedlock.version>5.16.0</shedlock.version>
         <jsoup.version>1.18.3</jsoup.version>
         <aws.sdk.version>2.30.0</aws.sdk.version>
