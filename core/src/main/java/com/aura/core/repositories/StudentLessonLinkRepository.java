@@ -10,5 +10,5 @@ public interface StudentLessonLinkRepository {
 
     List<StudentLessonLink> findAllByLessonIdAndStudentIds(String lessonId, List<String> studentIds);
 
-    List<StudentLessonLink> assignLessonPlanToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonPlanId);
+    List<StudentLessonLink> assignLessonGroupToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonGroupId);
 }

@@ -1,8 +1,8 @@
-package com.aura.core.usecases.lesson_plans;
+package com.aura.core.usecases.lesson_groups;
 
-import com.aura.core.entities.lessons.LessonPlan;
+import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.links.StudentLessonLink;
-import com.aura.core.repositories.LessonPlanRepository;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.StudentLessonLinkRepository;
 import java.util.List;
 import java.util.Set;
@@ -15,16 +15,16 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
 @RequiredArgsConstructor
-public class AddStudentsToLessonPlanUseCaseImpl implements AddStudentsToLessonPlanUseCase {
-    private final LessonPlanRepository lessonPlanRepository;
+public class AddStudentsToLessonGroupUseCaseImpl implements AddStudentsToLessonGroupUseCase {
+    private final LessonGroupRepository lessonGroupRepository;
     private final StudentLessonLinkRepository studentLessonLinkRepository;
 
     @Override
-    public List<StudentLessonLink> addStudentsToLessonPlan(String planId, List<String> studentIds, String tenantId) {
+    public List<StudentLessonLink> addStudentsToLessonGroup(String lessonGroupId, List<String> studentIds, String tenantId) {
         if (studentIds.isEmpty()) return emptyList();
-        LessonPlan plan = ofNullable(lessonPlanRepository.findById(UUID.fromString(planId)))
-                .orElseThrow(() -> new RuntimeException("no lesson plan id found"));
-        String lessonId = plan.getLessonId();
+        LessonGroup group = ofNullable(lessonGroupRepository.findById(UUID.fromString(lessonGroupId)))
+                .orElseThrow(() -> new RuntimeException("no lesson group id found"));
+        String lessonId = group.getLessonId();
 
         List<StudentLessonLink> existing = studentLessonLinkRepository
                 .findAllByLessonIdAndStudentIds(lessonId, studentIds);
@@ -39,6 +39,6 @@ public class AddStudentsToLessonPlanUseCaseImpl implements AddStudentsToLessonPl
         }
 
         return studentLessonLinkRepository
-                .assignLessonPlanToStudentLessonLinks(lessonId, studentIds, plan.getId());
+                .assignLessonGroupToStudentLessonLinks(lessonId, studentIds, lessonGroupId);
     }
 }
