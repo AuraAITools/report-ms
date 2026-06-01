@@ -34,7 +34,8 @@ spring:
         - classpath:graphql/operations/topics/
         - classpath:graphql/operations/subjects/
         - classpath:graphql/operations/permissions/
-        - classpath:graphql/operations/lesson_plans/
+        - classpath:graphql/operations/lesson_group_plans/
+        - classpath:graphql/operations/lesson_groups/
         - classpath:graphql/operations/materials/
         - classpath:graphql/operations/schools/
         - classpath:graphql/operations/educators/
