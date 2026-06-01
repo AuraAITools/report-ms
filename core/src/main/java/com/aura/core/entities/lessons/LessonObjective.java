@@ -21,7 +21,7 @@ public class LessonObjective {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private String lessonPlanId;
+    private String lessonGroupPlanId;
     private String name;
     private String objective;
 

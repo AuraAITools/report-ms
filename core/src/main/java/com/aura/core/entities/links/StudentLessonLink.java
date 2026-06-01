@@ -1,6 +1,6 @@
 package com.aura.core.entities.links;
 
-import com.aura.core.entities.lessons.LessonPlan;
+import com.aura.core.entities.lessons.LessonGroup;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class StudentLessonLink {
 
     private String lessonId;
 
-    private LessonPlan lessonPlan;
+    private LessonGroup lessonGroup;
 
     private STATE state;
 

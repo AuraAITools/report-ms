@@ -2,17 +2,17 @@ package com.aura.core.entities.links;
 
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LessonPlanTopicLink {
+public class LessonGroupPlanMaterialLink {
     private String id;
     private Long version;
     private Instant createdAt;
@@ -20,8 +20,6 @@ public class LessonPlanTopicLink {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
-    private String lessonPlanId;
-
-    private String topicId;
-
+    private String lessonGroupPlanId;
+    private String materialId;
 }
