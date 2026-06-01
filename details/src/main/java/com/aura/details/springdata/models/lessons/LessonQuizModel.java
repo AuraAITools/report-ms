@@ -39,7 +39,7 @@ public class LessonQuizModel extends TenantBaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
-    private LessonPlanModel lessonPlan;
+    private LessonGroupPlanModel lessonGroupPlan;
 
     @OneToMany(mappedBy = "lessonQuizTable", fetch = FetchType.LAZY)
     @ToString.Exclude

@@ -2,7 +2,7 @@ package com.aura.details.springdata.models.links;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
 import com.aura.details.springdata.models.lessons.LessonModel;
-import com.aura.details.springdata.models.lessons.LessonPlanModel;
+import com.aura.details.springdata.models.lessons.LessonGroupModel;
 import com.aura.details.springdata.models.students.StudentModel;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -57,7 +57,7 @@ public class StudentLessonLinkModel extends TenantBaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
-    private LessonPlanModel lessonPlan;
+    private LessonGroupModel lessonGroup;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

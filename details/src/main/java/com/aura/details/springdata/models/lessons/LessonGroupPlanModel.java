@@ -1,16 +1,16 @@
 package com.aura.details.springdata.models.lessons;
 
 import com.aura.details.springdata.models.base.TenantBaseModel;
-import com.aura.details.springdata.models.links.LessonPlanMaterialsLinkModel;
-import com.aura.details.springdata.models.links.LessonPlanTopicLinkModel;
-import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanMaterialsLinkModel;
+import com.aura.details.springdata.models.links.LessonGroupPlanTopicLinkModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.HashSet;
@@ -33,14 +33,15 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = {}, callSuper = true)
-@Table(name = "LessonPlans", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_lesson_plans_lesson_id", columnNames = {"lesson_id"})
+@Table(name = "LessonGroupPlans", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_lesson_group_plans_lesson_group_id", columnNames = {"lesson_group_id"})
 })
-public class LessonPlanModel extends TenantBaseModel {
+public class LessonGroupPlanModel extends TenantBaseModel {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_group_id", nullable = false)
     @ToString.Exclude
-    private LessonModel lesson;
+    private LessonGroupModel lessonGroup;
 
     @Column(nullable = false, columnDefinition = "TEXT DEFAULT ''")
     private String plan;
@@ -51,36 +52,31 @@ public class LessonPlanModel extends TenantBaseModel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private LESSON_PLAN_STATE state = LESSON_PLAN_STATE.UNPLANNED;
+    private LESSON_GROUP_PLAN_STATE state = LESSON_GROUP_PLAN_STATE.UNPLANNED;
 
-    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private Set<StudentLessonLinkModel> registeredStudents;
-
-    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lessonGroupPlan", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private Set<LessonPlanMaterialsLinkModel> lessonPlanMaterialsLinks = new HashSet<>();
+    private Set<LessonGroupPlanMaterialsLinkModel> lessonGroupPlanMaterialsLinks = new HashSet<>();
 
-    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lessonGroupPlan", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private Set<LessonPlanTopicLinkModel> lessonPlanTopicLinks = new HashSet<>();
+    private Set<LessonGroupPlanTopicLinkModel> lessonGroupPlanTopicLinks = new HashSet<>();
 
-    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lessonGroupPlan", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
     private Set<LessonObjectiveModel> lessonObjectives = new HashSet<>();
 
-    @OneToMany(mappedBy = "lessonPlan", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "lessonGroupPlan", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
     private Set<LessonQuizModel> lessonQuizzes = new HashSet<>();
 
-    public enum LESSON_PLAN_STATE {
+    public enum LESSON_GROUP_PLAN_STATE {
         UNPLANNED,
         DRAFT,
         PLANNED
     }
-
 }

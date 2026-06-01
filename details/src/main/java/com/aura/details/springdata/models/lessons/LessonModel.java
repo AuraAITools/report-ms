@@ -84,7 +84,7 @@ public class LessonModel extends TenantBaseModel {
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     @ToString.Exclude
-    private Set<LessonPlanModel> lessonPlans = new HashSet<>();
+    private Set<LessonGroupModel> lessonGroups = new HashSet<>();
 
     @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
