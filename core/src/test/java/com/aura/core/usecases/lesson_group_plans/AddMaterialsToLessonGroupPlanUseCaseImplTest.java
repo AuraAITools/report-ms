@@ -1,14 +1,15 @@
-package com.aura.core.usecases.lesson_plans;
+package com.aura.core.usecases.lesson_group_plans;
 
-import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.core.entities.links.LessonPlanMaterialLink;
+import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.entities.links.LessonGroupPlanMaterialLink;
 import com.aura.core.entities.links.MaterialTopicLink;
 import com.aura.core.entities.materials.Material;
-import com.aura.core.repositories.LessonPlanMaterialLinkRepository;
-import com.aura.core.repositories.LessonPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.MaterialRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
@@ -18,18 +19,18 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("Add materials to lesson plan use case")
-class AddMaterialsToLessonPlanUseCaseImplTest {
+@DisplayName("Add materials to lesson group plan use case")
+class AddMaterialsToLessonGroupPlanUseCaseImplTest {
 
     @DisplayName("Should return empty list when materialIds is empty")
     @Test
     void emptyMaterialIds_returnsEmpty() {
-        var linkRepo = new StubLessonPlanMaterialLinkRepository();
-        var planRepo = new StubLessonPlanRepository(null);
+        var linkRepo = new StubLessonGroupPlanMaterialLinkRepository();
+        var planRepo = new StubLessonGroupPlanRepository(null);
         var matRepo = new StubMaterialRepository(List.of());
-        var useCase = new AddMaterialsToLessonPlanUseCaseImpl(linkRepo, planRepo, matRepo);
+        var useCase = new AddMaterialsToLessonGroupPlanUseCaseImpl(linkRepo, planRepo, matRepo);
 
-        List<LessonPlanMaterialLink> result = useCase.addMaterialsToLessonPlan("plan-id", List.of(), "tenant-1");
+        List<LessonGroupPlanMaterialLink> result = useCase.addMaterialsToLessonGroupPlan("plan-id", List.of(), "tenant-1");
 
         assertThat(result).isEmpty();
         assertThat(linkRepo.savedAll).isEmpty();
@@ -39,24 +40,24 @@ class AddMaterialsToLessonPlanUseCaseImplTest {
     @Test
     void createsLinks() {
         UUID planUuid = UUID.randomUUID();
-        LessonPlan plan = LessonPlan.builder().id(planUuid.toString()).plan("p").build();
+        LessonGroupPlan plan = LessonGroupPlan.builder().id(planUuid.toString()).plan("p").build();
         Material m1 = Material.builder().id("mat-1").name("m1").build();
         Material m2 = Material.builder().id("mat-2").name("m2").build();
 
-        var linkRepo = new StubLessonPlanMaterialLinkRepository();
-        var planRepo = new StubLessonPlanRepository(plan);
+        var linkRepo = new StubLessonGroupPlanMaterialLinkRepository();
+        var planRepo = new StubLessonGroupPlanRepository(plan);
         var matRepo = new StubMaterialRepository(List.of(m1, m2));
-        var useCase = new AddMaterialsToLessonPlanUseCaseImpl(linkRepo, planRepo, matRepo);
+        var useCase = new AddMaterialsToLessonGroupPlanUseCaseImpl(linkRepo, planRepo, matRepo);
 
-        List<LessonPlanMaterialLink> result = useCase.addMaterialsToLessonPlan(
+        List<LessonGroupPlanMaterialLink> result = useCase.addMaterialsToLessonGroupPlan(
                 planUuid.toString(), List.of("mat-1", "mat-2"), "tenant-1");
 
         assertThat(result).hasSize(2);
         assertThat(result).allSatisfy(link -> {
-            assertThat(link.getLessonPlanId()).isEqualTo(plan.getId());
+            assertThat(link.getLessonGroupPlanId()).isEqualTo(plan.getId());
             assertThat(link.getTenantId()).isEqualTo("tenant-1");
         });
-        assertThat(result).extracting(LessonPlanMaterialLink::getMaterialId)
+        assertThat(result).extracting(LessonGroupPlanMaterialLink::getMaterialId)
                 .containsExactlyInAnyOrder("mat-1", "mat-2");
     }
 
@@ -64,15 +65,15 @@ class AddMaterialsToLessonPlanUseCaseImplTest {
     @Test
     void missingMaterial_throws() {
         UUID planUuid = UUID.randomUUID();
-        LessonPlan plan = LessonPlan.builder().id(planUuid.toString()).plan("p").build();
+        LessonGroupPlan plan = LessonGroupPlan.builder().id(planUuid.toString()).plan("p").build();
         Material m1 = Material.builder().id("mat-1").name("m1").build();
 
-        var linkRepo = new StubLessonPlanMaterialLinkRepository();
-        var planRepo = new StubLessonPlanRepository(plan);
+        var linkRepo = new StubLessonGroupPlanMaterialLinkRepository();
+        var planRepo = new StubLessonGroupPlanRepository(plan);
         var matRepo = new StubMaterialRepository(List.of(m1));
-        var useCase = new AddMaterialsToLessonPlanUseCaseImpl(linkRepo, planRepo, matRepo);
+        var useCase = new AddMaterialsToLessonGroupPlanUseCaseImpl(linkRepo, planRepo, matRepo);
 
-        assertThatThrownBy(() -> useCase.addMaterialsToLessonPlan(
+        assertThatThrownBy(() -> useCase.addMaterialsToLessonGroupPlan(
                 planUuid.toString(), List.of("mat-1", "mat-missing"), "tenant-1"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("mat-missing");
@@ -80,45 +81,45 @@ class AddMaterialsToLessonPlanUseCaseImplTest {
 
     // --- Stubs ---
 
-    private static class StubLessonPlanMaterialLinkRepository implements LessonPlanMaterialLinkRepository {
-        final List<List<LessonPlanMaterialLink>> savedAll = new ArrayList<>();
+    private static class StubLessonGroupPlanMaterialLinkRepository implements LessonGroupPlanMaterialLinkRepository {
+        final List<List<LessonGroupPlanMaterialLink>> savedAll = new ArrayList<>();
 
         @Override
-        public List<LessonPlanMaterialLink> saveAll(List<LessonPlanMaterialLink> links) {
+        public List<LessonGroupPlanMaterialLink> saveAll(List<LessonGroupPlanMaterialLink> links) {
             savedAll.add(links);
             return links;
         }
     }
 
-    private static class StubLessonPlanRepository implements LessonPlanRepository {
-        private final LessonPlan planToReturn;
+    private static class StubLessonGroupPlanRepository implements LessonGroupPlanRepository {
+        private final LessonGroupPlan planToReturn;
 
-        StubLessonPlanRepository(LessonPlan planToReturn) {
+        StubLessonGroupPlanRepository(LessonGroupPlan planToReturn) {
             this.planToReturn = planToReturn;
         }
 
         @Override
-        public LessonPlan save(LessonPlan lessonPlan) {
+        public LessonGroupPlan save(LessonGroupPlan plan) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public LessonPlan findById(UUID id) {
+        public LessonGroupPlan findById(UUID id) {
             return planToReturn;
         }
 
         @Override
-        public List<LessonPlan> findAllByLessonId(String lessonId) {
+        public LessonGroupPlan findByLessonGroupId(String lessonGroupId) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public List<LessonPlan> findAllByIds(List<UUID> ids) {
+        public List<LessonGroupPlan> findAllByIds(List<UUID> ids) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.util.Map<String, List<LessonPlan>> findAllByLessonIds(List<String> lessonIds) {
+        public Map<String, LessonGroupPlan> findAllByLessonGroupIds(List<String> lessonGroupIds) {
             throw new UnsupportedOperationException();
         }
     }
@@ -146,12 +147,12 @@ class AddMaterialsToLessonPlanUseCaseImplTest {
         }
 
         @Override
-        public java.util.Map<String, List<Material>> findAllByLessonIds(List<String> lessonIds) {
+        public Map<String, List<Material>> findAllByLessonIds(List<String> lessonIds) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.util.Map<String, List<com.aura.core.entities.topics.Topic>> findTopicsByMaterialIds(List<String> materialIds) {
+        public Map<String, List<com.aura.core.entities.topics.Topic>> findTopicsByMaterialIds(List<String> materialIds) {
             throw new UnsupportedOperationException();
         }
 

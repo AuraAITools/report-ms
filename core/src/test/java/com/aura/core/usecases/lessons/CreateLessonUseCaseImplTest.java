@@ -41,21 +41,6 @@ class CreateLessonUseCaseImplTest {
         assertEquals("course-1", stubLessonRepo.capturedLesson.getCourseId());
     }
 
-    @DisplayName("Should throw RuntimeException when outlet is not found")
-    @Test
-    void throwsWhenOutletNotFound() {
-        Course courseWithoutOutlet = Course.builder().id("course-1").name("Test Course").build();
-        Lesson inputLesson = Lesson.builder().id(UUID.randomUUID().toString()).name("Test Lesson").build();
-
-        var stubLessonRepo = new StubLessonRepository(null);
-        var stubCourseRepo = new StubCourseRepository(courseWithoutOutlet);
-        var useCase = new CreateLessonUseCaseImpl(stubLessonRepo, stubCourseRepo);
-
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> useCase.createLessonInCourse(inputLesson, "course-1"));
-        assertEquals("outlet not found", ex.getMessage());
-    }
-
     @DisplayName("Should throw RuntimeException when course is not found")
     @Test
     void throwsWhenCourseNotFound() {

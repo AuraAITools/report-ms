@@ -1,10 +1,10 @@
-package com.aura.core.usecases.lesson_plans;
+package com.aura.core.usecases.lesson_group_plans;
 
-import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.core.entities.links.LessonPlanTopicLink;
+import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.entities.links.LessonGroupPlanTopicLink;
 import com.aura.core.entities.topics.Topic;
-import com.aura.core.repositories.LessonPlanRepository;
-import com.aura.core.repositories.LessonPlanTopicLinkRepository;
+import com.aura.core.repositories.LessonGroupPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
 import com.aura.core.repositories.TopicRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,98 +17,98 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Add topics to lesson plan use case")
-class AddTopicsToLessonPlanUseCaseImplTest {
+@DisplayName("Add topics to lesson group plan use case")
+class AddTopicsToLessonGroupPlanUseCaseImplTest {
 
     @DisplayName("Should return empty list when topicIds is empty")
     @Test
     void returnsEmptyListWhenTopicIdsEmpty() {
-        var stubLinkRepo = new StubLessonPlanTopicLinkRepository();
-        var stubLessonPlanRepo = new StubLessonPlanRepository(null);
+        var stubLinkRepo = new StubLessonGroupPlanTopicLinkRepository();
+        var stubLessonGroupPlanRepo = new StubLessonGroupPlanRepository(null);
         var stubTopicRepo = new StubTopicRepository(List.of());
-        var useCase = new AddTopicsToLessonPlanUseCaseImpl(stubLinkRepo, stubLessonPlanRepo, stubTopicRepo);
+        var useCase = new AddTopicsToLessonGroupPlanUseCaseImpl(stubLinkRepo, stubLessonGroupPlanRepo, stubTopicRepo);
 
-        List<LessonPlanTopicLink> result = useCase.addTopicsToLessonPlan("plan-id", List.of(), "tenant-1");
+        List<LessonGroupPlanTopicLink> result = useCase.addTopicsToLessonGroupPlan("plan-id", List.of(), "tenant-1");
 
         assertTrue(result.isEmpty());
         assertTrue(stubLinkRepo.savedAll.isEmpty());
     }
 
-    @DisplayName("Should create lesson-plan-topic links for each topic ID")
+    @DisplayName("Should create lesson-group-plan-topic links for each topic ID")
     @Test
-    void createsLessonPlanTopicLinksForEachTopicId() {
+    void createsLessonGroupPlanTopicLinksForEachTopicId() {
         UUID planUuid = UUID.randomUUID();
         UUID topicUuid1 = UUID.randomUUID();
         UUID topicUuid2 = UUID.randomUUID();
 
-        LessonPlan plan = LessonPlan.builder().id(planUuid.toString()).plan("My plan").build();
+        LessonGroupPlan plan = LessonGroupPlan.builder().id(planUuid.toString()).plan("My plan").build();
         Topic topic1 = Topic.builder().id(topicUuid1.toString()).name("Topic 1").build();
         Topic topic2 = Topic.builder().id(topicUuid2.toString()).name("Topic 2").build();
 
-        var stubLinkRepo = new StubLessonPlanTopicLinkRepository();
-        var stubLessonPlanRepo = new StubLessonPlanRepository(plan);
+        var stubLinkRepo = new StubLessonGroupPlanTopicLinkRepository();
+        var stubLessonGroupPlanRepo = new StubLessonGroupPlanRepository(plan);
         var stubTopicRepo = new StubTopicRepository(List.of(topic1, topic2));
-        var useCase = new AddTopicsToLessonPlanUseCaseImpl(stubLinkRepo, stubLessonPlanRepo, stubTopicRepo);
+        var useCase = new AddTopicsToLessonGroupPlanUseCaseImpl(stubLinkRepo, stubLessonGroupPlanRepo, stubTopicRepo);
 
-        List<LessonPlanTopicLink> result = useCase.addTopicsToLessonPlan(
+        List<LessonGroupPlanTopicLink> result = useCase.addTopicsToLessonGroupPlan(
                 planUuid.toString(),
                 List.of(topicUuid1.toString(), topicUuid2.toString()),
                 "tenant-1");
 
         assertEquals(2, result.size());
-        result.forEach(link -> assertEquals(plan.getId(), link.getLessonPlanId()));
+        result.forEach(link -> assertEquals(plan.getId(), link.getLessonGroupPlanId()));
         result.forEach(link -> assertEquals("tenant-1", link.getTenantId()));
-        var topicIds = result.stream().map(LessonPlanTopicLink::getTopicId).toList();
+        var topicIds = result.stream().map(LessonGroupPlanTopicLink::getTopicId).toList();
         assertTrue(topicIds.contains(topicUuid1.toString()));
         assertTrue(topicIds.contains(topicUuid2.toString()));
     }
 
     // --- Stubs ---
 
-    private static class StubLessonPlanTopicLinkRepository implements LessonPlanTopicLinkRepository {
-        final List<List<LessonPlanTopicLink>> savedAll = new ArrayList<>();
+    private static class StubLessonGroupPlanTopicLinkRepository implements LessonGroupPlanTopicLinkRepository {
+        final List<List<LessonGroupPlanTopicLink>> savedAll = new ArrayList<>();
 
         @Override
-        public List<LessonPlanTopicLink> saveAll(List<LessonPlanTopicLink> links) {
+        public List<LessonGroupPlanTopicLink> saveAll(List<LessonGroupPlanTopicLink> links) {
             savedAll.add(links);
             return links;
         }
 
         @Override
-        public Map<String, List<Topic>> findTopicsByLessonPlanIds(List<String> planIds) {
+        public Map<String, List<Topic>> findTopicsByLessonGroupPlanIds(List<String> lessonGroupPlanIds) {
             throw new UnsupportedOperationException();
         }
     }
 
-    private static class StubLessonPlanRepository implements LessonPlanRepository {
-        private final LessonPlan planToReturn;
+    private static class StubLessonGroupPlanRepository implements LessonGroupPlanRepository {
+        private final LessonGroupPlan planToReturn;
 
-        StubLessonPlanRepository(LessonPlan planToReturn) {
+        StubLessonGroupPlanRepository(LessonGroupPlan planToReturn) {
             this.planToReturn = planToReturn;
         }
 
         @Override
-        public LessonPlan save(LessonPlan lessonPlan) {
+        public LessonGroupPlan save(LessonGroupPlan plan) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public LessonPlan findById(UUID id) {
+        public LessonGroupPlan findById(UUID id) {
             return planToReturn;
         }
 
         @Override
-        public List<LessonPlan> findAllByLessonId(String lessonId) {
+        public LessonGroupPlan findByLessonGroupId(String lessonGroupId) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public List<LessonPlan> findAllByIds(List<UUID> ids) {
+        public List<LessonGroupPlan> findAllByIds(List<UUID> ids) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.util.Map<String, List<LessonPlan>> findAllByLessonIds(List<String> lessonIds) {
+        public Map<String, LessonGroupPlan> findAllByLessonGroupIds(List<String> lessonGroupIds) {
             throw new UnsupportedOperationException();
         }
     }
@@ -141,7 +141,7 @@ class AddTopicsToLessonPlanUseCaseImplTest {
         }
 
         @Override
-        public java.util.Map<String, List<Topic>> findAllByLessonIds(List<String> lessonIds) {
+        public Map<String, List<Topic>> findAllByLessonIds(List<String> lessonIds) {
             throw new UnsupportedOperationException();
         }
 

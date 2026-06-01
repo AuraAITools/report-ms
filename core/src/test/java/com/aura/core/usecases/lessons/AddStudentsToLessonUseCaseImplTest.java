@@ -87,7 +87,7 @@ class AddStudentsToLessonUseCaseImplTest {
         }
 
         @Override
-        public List<StudentLessonLink> assignLessonPlanToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonPlanId) {
+        public List<StudentLessonLink> assignLessonGroupToStudentLessonLinks(String lessonId, List<String> studentIds, String lessonGroupId) {
             throw new UnsupportedOperationException();
         }
     }

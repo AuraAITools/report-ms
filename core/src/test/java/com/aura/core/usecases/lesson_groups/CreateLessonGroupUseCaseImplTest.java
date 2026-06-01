@@ -1,94 +1,91 @@
-package com.aura.core.usecases.lesson_plans;
+package com.aura.core.usecases.lesson_groups;
 
 import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.lessons.LessonPlan;
-import com.aura.core.repositories.LessonPlanRepository;
+import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("Create lesson plan use case")
-class CreateLessonPlanUseCaseImplTest {
+@DisplayName("CreateLessonGroupUseCaseImpl")
+class CreateLessonGroupUseCaseImplTest {
 
-    @DisplayName("Should set lessonId and tenantId on plan, save it, and return the saved plan")
+    @DisplayName("Should create lesson group with lessonId and tenantId from lesson")
     @Test
-    void setsLessonIdAndTenantSavesAndReturns() {
-        UUID lessonUuid = UUID.randomUUID();
-        Lesson lesson = Lesson.builder().id(lessonUuid.toString()).tenantId("tenant-1").name("Test Lesson").build();
-        LessonPlan inputPlan = LessonPlan.builder().plan("My plan content").build();
-        LessonPlan savedPlan = LessonPlan.builder()
+    void setsLessonIdAndTenantIdFromLesson() {
+        String lessonId = UUID.randomUUID().toString();
+        Lesson lesson = Lesson.builder().id(lessonId).tenantId("tenant-1").name("Test Lesson").build();
+        LessonGroup savedGroup = LessonGroup.builder()
                 .id(UUID.randomUUID().toString())
-                .lessonId(lessonUuid.toString())
+                .lessonId(lessonId)
                 .tenantId("tenant-1")
-                .plan("My plan content")
+                .name("Group A")
                 .build();
 
         var stubLessonRepo = new StubLessonRepository(lesson);
-        var stubLessonPlanRepo = new StubLessonPlanRepository(savedPlan);
-        var useCase = new CreateLessonPlanUseCaseImpl(stubLessonPlanRepo, stubLessonRepo);
+        var stubLessonGroupRepo = new StubLessonGroupRepository(savedGroup);
+        var useCase = new CreateLessonGroupUseCaseImpl(stubLessonGroupRepo, stubLessonRepo);
 
-        LessonPlan result = useCase.createLessonPlan(inputPlan, lessonUuid.toString());
+        LessonGroup result = useCase.createLessonGroup(LessonGroup.builder().name("Group A").build(), lessonId);
 
-        assertSame(savedPlan, result);
-        assertEquals(lessonUuid.toString(), stubLessonPlanRepo.capturedPlan.getLessonId());
-        assertEquals("tenant-1", stubLessonPlanRepo.capturedPlan.getTenantId());
+        assertEquals(lessonId, stubLessonGroupRepo.capturedGroup.getLessonId());
+        assertEquals("tenant-1", stubLessonGroupRepo.capturedGroup.getTenantId());
+        assertEquals(lessonId, result.getLessonId());
+        assertEquals("tenant-1", result.getTenantId());
     }
 
-    @DisplayName("Should throw RuntimeException when lesson is not found")
+    @DisplayName("Should throw when lesson not found")
     @Test
     void throwsWhenLessonNotFound() {
-        UUID lessonUuid = UUID.randomUUID();
-        LessonPlan inputPlan = LessonPlan.builder().plan("My plan content").build();
-
         var stubLessonRepo = new StubLessonRepository(null);
-        var stubLessonPlanRepo = new StubLessonPlanRepository(null);
-        var useCase = new CreateLessonPlanUseCaseImpl(stubLessonPlanRepo, stubLessonRepo);
+        var stubLessonGroupRepo = new StubLessonGroupRepository(null);
+        var useCase = new CreateLessonGroupUseCaseImpl(stubLessonGroupRepo, stubLessonRepo);
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> useCase.createLessonPlan(inputPlan, lessonUuid.toString()));
+                () -> useCase.createLessonGroup(LessonGroup.builder().name("Group A").build(), UUID.randomUUID().toString()));
         assertEquals("lesson not found", ex.getMessage());
     }
 
     // --- Stubs ---
 
-    private static class StubLessonPlanRepository implements LessonPlanRepository {
-        private final LessonPlan saveResult;
-        LessonPlan capturedPlan;
+    private static class StubLessonGroupRepository implements LessonGroupRepository {
+        private final LessonGroup saveResult;
+        LessonGroup capturedGroup;
 
-        StubLessonPlanRepository(LessonPlan saveResult) {
+        StubLessonGroupRepository(LessonGroup saveResult) {
             this.saveResult = saveResult;
         }
 
         @Override
-        public LessonPlan save(LessonPlan lessonPlan) {
-            this.capturedPlan = lessonPlan;
+        public LessonGroup save(LessonGroup lessonGroup) {
+            this.capturedGroup = lessonGroup;
             return saveResult;
         }
 
         @Override
-        public LessonPlan findById(UUID id) {
+        public LessonGroup findById(UUID id) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public List<LessonPlan> findAllByLessonId(String lessonId) {
+        public List<LessonGroup> findAllByLessonId(String lessonId) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public List<LessonPlan> findAllByIds(List<UUID> ids) {
+        public List<LessonGroup> findAllByIds(List<UUID> ids) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public java.util.Map<String, List<LessonPlan>> findAllByLessonIds(List<String> lessonIds) {
+        public Map<String, List<LessonGroup>> findAllByLessonIds(List<String> lessonIds) {
             throw new UnsupportedOperationException();
         }
     }
@@ -126,7 +123,7 @@ class CreateLessonPlanUseCaseImplTest {
         }
 
         @Override
-        public java.util.Map<String, List<Lesson>> findAllByCourseIds(List<String> courseIds) {
+        public Map<String, List<Lesson>> findAllByCourseIds(List<String> courseIds) {
             throw new UnsupportedOperationException();
         }
 
