@@ -71,6 +71,7 @@ public class CourseService {
             educatorRepository.createEducatorCourseLinks(educatorIds, courseId, tenantId);
             Map<String, String> educatorUserIds = educatorRepository.findUserIdsByEducatorIds(educatorIds);
             for (String userId : educatorUserIds.values()) {
+                if (userId == null) continue;
                 relationships.add(new RelationshipAuthorizationService.Relationship(
                         "course_user_group", courseId, "modifier", "user", userId));
             }
@@ -80,6 +81,7 @@ public class CourseService {
             Map<String, String> studentUserIds = studentRepository.findUserIdsByStudentIds(studentIds);
             studentRepository.createStudentCourseLinks(studentIds, courseId, tenantId);
             for (String userId : studentUserIds.values()) {
+                if (userId == null) continue;
                 relationships.add(new RelationshipAuthorizationService.Relationship(
                         "course_user_group", courseId, "viewer", "user", userId));
             }
