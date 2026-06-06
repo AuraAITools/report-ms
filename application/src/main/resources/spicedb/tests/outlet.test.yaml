@@ -3,6 +3,11 @@ schemaFile: ../outlet.zed
 # Full coverage: direct outlet roles, inherited institution roles, transitively-inherited
 # system roles, and negative cases.
 #
+# outlet_user_group#parent chains hierarchically:
+#   outlet_user_group:1 -> institution_user_group:1 -> system_user_group:aura
+# so group-management on the outlet_user_group cascades from both the institution and
+# system user_groups.
+#
 # DIRECT (outlet_user_group:1):
 #   out_group_admin_user   — group_admin
 #   out_group_viewer_user  — group_viewer
@@ -10,21 +15,19 @@ schemaFile: ../outlet.zed
 #   out_modifier_user      — modifier  (view + update; NOT delete)
 #   out_viewer_user        — viewer    (view only)
 #
-# INHERITED (institution_user_group:1, reaches outlet via outlet#parent):
-#   inst_group_admin_user  — group_admin (institution) — NO inherited outlet access
-#   inst_group_viewer_user — group_viewer (institution) — NO inherited outlet access
-#   inst_admin_user        — admin (institution)        — inherits view + update + delete
-#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete
-#   inst_viewer_user       — viewer (institution)       — inherits view only
+# INHERITED (institution_user_group:1, reaches outlet#parent for resource + outlet_user_group#parent for group-mgmt):
+#   inst_group_admin_user  — group_admin (institution) — gains full group-mgmt on outlet_user_group, NO resource access
+#   inst_group_viewer_user — group_viewer (institution) — gains group_view on outlet_user_group, NO resource access
+#   inst_admin_user        — admin (institution)        — inherits view + update + delete; NO group-mgmt on outlet_user_group
+#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete; NO group-mgmt
+#   inst_viewer_user       — viewer (institution)       — inherits view only; NO group-mgmt
 #
-# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches outlet via outlet#parent -> institution#parent):
+# TRANSITIVELY INHERITED (system_user_group:aura, via outlet -> institution -> system AND outlet_user_group -> institution_user_group -> system_user_group):
 #   sys_admin_user         — admin (system)         — inherits view + update + delete
 #   sys_modifier_user      — modifier (system)      — inherits view + update; NOT delete
 #   sys_viewer_user        — viewer (system)        — inherits view only
-#
-# SUPERADMIN cascade via outlet_user_group#parent -> system_user_group AND institution_user_group#parent -> system_user_group:
-#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on outlet_user_group AND institution_user_group
-#   sys_group_viewer_user  — group_viewer (system)  — group_view only on outlet_user_group AND institution_user_group
+#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on outlet_user_group (via chained parent)
+#   sys_group_viewer_user  — group_viewer (system)  — group_view only on outlet_user_group
 #
 # Negative:
 #   non_member_user — no relationships
@@ -53,7 +56,7 @@ relationships: |-
   outlet:1#parent@institution:1
   institution:1#parent@system:aura
 
-  outlet_user_group:1#parent@system_user_group:aura
+  outlet_user_group:1#parent@institution_user_group:1
   institution_user_group:1#parent@system_user_group:aura
 
 assertions:
@@ -125,6 +128,26 @@ assertions:
     - outlet:1#view@user:inst_viewer_user
 
     # ============================================================
+    # INHERITED group-mgmt via outlet_user_group#parent -> institution_user_group
+    # ============================================================
+
+    # ---- inst_group_admin_user — full group-mgmt on outlet_user_group ----
+    - outlet_user_group:1#group_view@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_viewer@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_viewer@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_modifier@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_modifier@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_group_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_group_admin@user:inst_group_admin_user
+    - outlet_user_group:1#group_add_group_viewer@user:inst_group_admin_user
+    - outlet_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — only group_view on outlet_user_group ----
+    - outlet_user_group:1#group_view@user:inst_group_viewer_user
+
+    # ============================================================
     # TRANSITIVELY INHERITED roles via outlet -> institution -> system
     # ============================================================
 
@@ -145,7 +168,7 @@ assertions:
     - outlet:1#view@user:sys_viewer_user
 
     # ============================================================
-    # SUPERADMIN cascade via outlet_user_group#parent -> system_user_group
+    # TRANSITIVE SUPERADMIN cascade via outlet_user_group -> institution_user_group -> system_user_group
     # ============================================================
 
     # ---- sys_group_admin_user — full group-management on outlet_user_group ----
@@ -216,7 +239,7 @@ assertions:
     - outlet:1#update@user:out_group_viewer_user
     - outlet:1#delete@user:out_group_viewer_user
 
-    # ---- out_admin_user — NO group-management ----
+    # ---- out_admin_user — NO group-management (decoupling) ----
     - outlet_user_group:1#group_view@user:out_admin_user
     - outlet_user_group:1#group_add_admin@user:out_admin_user
     - outlet_user_group:1#group_add_viewer@user:out_admin_user
@@ -261,21 +284,22 @@ assertions:
     # INHERITED (institution) role exclusions
     # ============================================================
 
-    # ---- inst_group_admin_user — group mgmt at institution confers NO outlet access ----
+    # ---- inst_group_admin_user — group mgmt only; NO inherited outlet resource access (decoupling) ----
     - outlet:1#view@user:inst_group_admin_user
     - outlet:1#update@user:inst_group_admin_user
     - outlet:1#delete@user:inst_group_admin_user
-    - outlet_user_group:1#group_add_modifier@user:inst_group_admin_user
-    - outlet_user_group:1#group_remove_modifier@user:inst_group_admin_user
-    - outlet_user_group:1#group_add_group_admin@user:inst_group_admin_user
-    - outlet_user_group:1#group_remove_group_admin@user:inst_group_admin_user
-    - outlet_user_group:1#group_add_group_viewer@user:inst_group_admin_user
-    - outlet_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
 
-    # ---- inst_group_viewer_user — same: no inherited outlet access ----
+    # ---- inst_group_viewer_user — group_view only; NO inherited outlet resource access ----
     - outlet:1#view@user:inst_group_viewer_user
     - outlet:1#update@user:inst_group_viewer_user
     - outlet:1#delete@user:inst_group_viewer_user
+    - outlet_user_group:1#group_add_admin@user:inst_group_viewer_user
+    - outlet_user_group:1#group_add_modifier@user:inst_group_viewer_user
+    - outlet_user_group:1#group_remove_modifier@user:inst_group_viewer_user
+    - outlet_user_group:1#group_add_group_admin@user:inst_group_viewer_user
+    - outlet_user_group:1#group_remove_group_admin@user:inst_group_viewer_user
+    - outlet_user_group:1#group_add_group_viewer@user:inst_group_viewer_user
+    - outlet_user_group:1#group_remove_group_viewer@user:inst_group_viewer_user
 
     # ---- inst_modifier_user — cannot delete outlet (institution modifier lacks delete) ----
     - outlet:1#delete@user:inst_modifier_user
@@ -284,11 +308,13 @@ assertions:
     - outlet:1#update@user:inst_viewer_user
     - outlet:1#delete@user:inst_viewer_user
 
-    # ---- Inherited institution users do NOT gain permissions on outlet_user_group ----
+    # ---- Inherited institution RESOURCE roles do NOT confer outlet_user_group group-mgmt (decoupling) ----
     - outlet_user_group:1#view@user:inst_admin_user
     - outlet_user_group:1#update@user:inst_admin_user
     - outlet_user_group:1#delete@user:inst_admin_user
     - outlet_user_group:1#group_view@user:inst_admin_user
+    - outlet_user_group:1#group_add_admin@user:inst_admin_user
+    - outlet_user_group:1#group_add_modifier@user:inst_admin_user
 
     # ============================================================
     # TRANSITIVELY INHERITED (system) role exclusions
@@ -345,7 +371,7 @@ assertions:
     - outlet:1#update@user:sys_viewer_user
     - outlet:1#delete@user:sys_viewer_user
 
-    # ---- Transitively-inherited system users do NOT gain perms on outlet_user_group ----
+    # ---- Transitively-inherited system RESOURCE roles do NOT gain perms on outlet_user_group ----
     - outlet_user_group:1#view@user:sys_admin_user
     - outlet_user_group:1#update@user:sys_admin_user
     - outlet_user_group:1#delete@user:sys_admin_user

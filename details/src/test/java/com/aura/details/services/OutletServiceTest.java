@@ -64,7 +64,7 @@ class OutletServiceTest {
                         new RelationshipAuthorizationService.Relationship(
                                 "outlet", "outlet-123", "user_group", "outlet_user_group", "outlet-123"),
                         new RelationshipAuthorizationService.Relationship(
-                                "outlet_user_group", "outlet-123", "parent", "system_user_group", "aura"),
+                                "outlet_user_group", "outlet-123", "parent", "institution_user_group", "tenant-789"),
                         new RelationshipAuthorizationService.Relationship(
                                 "outlet", "outlet-123", "parent", "institution", "tenant-789")))
                         && list.size() == 3));

@@ -92,7 +92,7 @@ public class LessonService {
                 new RelationshipAuthorizationService.Relationship(
                         "lesson", lessonId, "user_group", "lesson_user_group", lessonId),
                 new RelationshipAuthorizationService.Relationship(
-                        "lesson_user_group", lessonId, "parent", "system_user_group", "aura"),
+                        "lesson_user_group", lessonId, "parent", "course_user_group", courseId),
                 new RelationshipAuthorizationService.Relationship(
                         "lesson", lessonId, "parent", "course", courseId)));
 

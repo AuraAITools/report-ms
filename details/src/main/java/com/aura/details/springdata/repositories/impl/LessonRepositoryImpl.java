@@ -87,6 +87,13 @@ public class LessonRepositoryImpl implements LessonRepository {
     }
 
     @Override
+    public List<Lesson> findAllByTenantId(String tenantId) {
+        return jpaLessonRepository.findByTenantId(tenantId).stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public List<Lesson> findAllByEducatorId(String educatorId) {
         return jpaEducatorLessonLinkRepository.findLessonsByEducatorId(UUID.fromString(educatorId)).stream()
                 .map(LessonMapper.INSTANCE::toDomainEntity)

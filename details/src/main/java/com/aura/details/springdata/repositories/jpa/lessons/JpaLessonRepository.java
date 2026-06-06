@@ -14,4 +14,6 @@ public interface JpaLessonRepository extends JpaRepository<LessonModel, UUID>, J
     List<LessonModel> findByCourse_IdIn(Collection<UUID> courseIds);
 
     List<LessonModel> findByOutlet_Id(UUID outletId);
+
+    List<LessonModel> findByTenantId(String tenantId);
 }

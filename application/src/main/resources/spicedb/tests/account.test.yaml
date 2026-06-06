@@ -3,6 +3,11 @@ schemaFile: ../account.zed
 # Full coverage: direct account roles, inherited institution roles, transitively-inherited
 # system roles, and negative cases.
 #
+# account_user_group#parent chains hierarchically:
+#   account_user_group:1 -> institution_user_group:1 -> system_user_group:aura
+# so group-management on the account_user_group cascades from both the institution and
+# system user_groups.
+#
 # DIRECT (account_user_group:1):
 #   acc_group_admin_user   — group_admin
 #   acc_group_viewer_user  — group_viewer
@@ -10,21 +15,19 @@ schemaFile: ../account.zed
 #   acc_modifier_user      — modifier  (view + update; NOT delete)
 #   acc_viewer_user        — viewer    (view only)
 #
-# INHERITED (institution_user_group:1, reaches account via account#parent):
-#   inst_group_admin_user  — group_admin (institution) — NO inherited account access
-#   inst_group_viewer_user — group_viewer (institution) — NO inherited account access
-#   inst_admin_user        — admin (institution)        — inherits view + update + delete
-#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete
-#   inst_viewer_user       — viewer (institution)       — inherits view only
+# INHERITED (institution_user_group:1):
+#   inst_group_admin_user  — group_admin (institution) — gains full group-mgmt on account_user_group; NO account resource access
+#   inst_group_viewer_user — group_viewer (institution) — gains group_view on account_user_group; NO account resource access
+#   inst_admin_user        — admin (institution)        — inherits view + update + delete; NO group-mgmt
+#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete; NO group-mgmt
+#   inst_viewer_user       — viewer (institution)       — inherits view only; NO group-mgmt
 #
-# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches account via account#parent -> institution#parent):
+# TRANSITIVELY INHERITED (system_user_group:aura):
 #   sys_admin_user         — admin (system)         — inherits view + update + delete
 #   sys_modifier_user      — modifier (system)      — inherits view + update; NOT delete
 #   sys_viewer_user        — viewer (system)        — inherits view only
-#
-# SUPERADMIN cascade via account_user_group#parent -> system_user_group AND institution_user_group#parent -> system_user_group:
-#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on account_user_group AND institution_user_group
-#   sys_group_viewer_user  — group_viewer (system)  — group_view only on account_user_group AND institution_user_group
+#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on account_user_group (via chained parent)
+#   sys_group_viewer_user  — group_viewer (system)  — group_view only on account_user_group
 #
 # Negative:
 #   non_member_user — no relationships
@@ -53,7 +56,7 @@ relationships: |-
   account:1#parent@institution:1
   institution:1#parent@system:aura
 
-  account_user_group:1#parent@system_user_group:aura
+  account_user_group:1#parent@institution_user_group:1
   institution_user_group:1#parent@system_user_group:aura
 
 assertions:
@@ -117,6 +120,26 @@ assertions:
     - account:1#view@user:inst_viewer_user
 
     # ============================================================
+    # INHERITED group-mgmt via account_user_group#parent -> institution_user_group
+    # ============================================================
+
+    # ---- inst_group_admin_user — full group-mgmt on account_user_group ----
+    - account_user_group:1#group_view@user:inst_group_admin_user
+    - account_user_group:1#group_add_admin@user:inst_group_admin_user
+    - account_user_group:1#group_add_viewer@user:inst_group_admin_user
+    - account_user_group:1#group_remove_admin@user:inst_group_admin_user
+    - account_user_group:1#group_remove_viewer@user:inst_group_admin_user
+    - account_user_group:1#group_add_modifier@user:inst_group_admin_user
+    - account_user_group:1#group_remove_modifier@user:inst_group_admin_user
+    - account_user_group:1#group_add_group_admin@user:inst_group_admin_user
+    - account_user_group:1#group_remove_group_admin@user:inst_group_admin_user
+    - account_user_group:1#group_add_group_viewer@user:inst_group_admin_user
+    - account_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — only group_view on account_user_group ----
+    - account_user_group:1#group_view@user:inst_group_viewer_user
+
+    # ============================================================
     # TRANSITIVELY INHERITED roles via account -> institution -> system
     # ============================================================
 
@@ -133,7 +156,7 @@ assertions:
     - account:1#view@user:sys_viewer_user
 
     # ============================================================
-    # SUPERADMIN cascade via account_user_group#parent -> system_user_group
+    # TRANSITIVE SUPERADMIN cascade via account_user_group -> institution_user_group -> system_user_group
     # ============================================================
 
     # ---- sys_group_admin_user — full group-management on account_user_group ----
@@ -200,7 +223,7 @@ assertions:
     - account:1#update@user:acc_group_viewer_user
     - account:1#delete@user:acc_group_viewer_user
 
-    # ---- acc_admin_user — NO group-management ----
+    # ---- acc_admin_user — NO group-management (decoupling) ----
     - account_user_group:1#group_view@user:acc_admin_user
     - account_user_group:1#group_add_admin@user:acc_admin_user
     - account_user_group:1#group_add_viewer@user:acc_admin_user
@@ -243,21 +266,22 @@ assertions:
     # INHERITED (institution) role exclusions
     # ============================================================
 
-    # ---- inst_group_admin_user — group mgmt at institution confers NO account access ----
+    # ---- inst_group_admin_user — group-mgmt only; NO inherited account resource access (decoupling) ----
     - account:1#view@user:inst_group_admin_user
     - account:1#update@user:inst_group_admin_user
     - account:1#delete@user:inst_group_admin_user
-    - account_user_group:1#group_add_modifier@user:inst_group_admin_user
-    - account_user_group:1#group_remove_modifier@user:inst_group_admin_user
-    - account_user_group:1#group_add_group_admin@user:inst_group_admin_user
-    - account_user_group:1#group_remove_group_admin@user:inst_group_admin_user
-    - account_user_group:1#group_add_group_viewer@user:inst_group_admin_user
-    - account_user_group:1#group_remove_group_viewer@user:inst_group_admin_user
 
-    # ---- inst_group_viewer_user — same: no inherited account access ----
+    # ---- inst_group_viewer_user — group_view only; NO inherited account resource access; NO group mutations ----
     - account:1#view@user:inst_group_viewer_user
     - account:1#update@user:inst_group_viewer_user
     - account:1#delete@user:inst_group_viewer_user
+    - account_user_group:1#group_add_admin@user:inst_group_viewer_user
+    - account_user_group:1#group_add_modifier@user:inst_group_viewer_user
+    - account_user_group:1#group_remove_modifier@user:inst_group_viewer_user
+    - account_user_group:1#group_add_group_admin@user:inst_group_viewer_user
+    - account_user_group:1#group_remove_group_admin@user:inst_group_viewer_user
+    - account_user_group:1#group_add_group_viewer@user:inst_group_viewer_user
+    - account_user_group:1#group_remove_group_viewer@user:inst_group_viewer_user
 
     # ---- inst_modifier_user — cannot delete account (institution modifier lacks delete) ----
     - account:1#delete@user:inst_modifier_user
@@ -266,11 +290,12 @@ assertions:
     - account:1#update@user:inst_viewer_user
     - account:1#delete@user:inst_viewer_user
 
-    # ---- Inherited institution users do NOT gain permissions on account_user_group ----
+    # ---- Inherited institution RESOURCE roles do NOT confer account_user_group group-mgmt (decoupling) ----
     - account_user_group:1#view@user:inst_admin_user
     - account_user_group:1#update@user:inst_admin_user
     - account_user_group:1#delete@user:inst_admin_user
     - account_user_group:1#group_view@user:inst_admin_user
+    - account_user_group:1#group_add_admin@user:inst_admin_user
 
     # ============================================================
     # TRANSITIVELY INHERITED (system) role exclusions
@@ -327,7 +352,7 @@ assertions:
     - account:1#update@user:sys_viewer_user
     - account:1#delete@user:sys_viewer_user
 
-    # ---- Transitively-inherited system users do NOT gain perms on account_user_group ----
+    # ---- Transitively-inherited system RESOURCE roles do NOT gain perms on account_user_group ----
     - account_user_group:1#view@user:sys_admin_user
     - account_user_group:1#update@user:sys_admin_user
     - account_user_group:1#delete@user:sys_admin_user

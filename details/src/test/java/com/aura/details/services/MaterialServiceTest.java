@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -53,7 +54,7 @@ class MaterialServiceTest {
         assertThat(result.fileKey()).startsWith("institutions/inst-1/materials/");
     }
 
-    @DisplayName("Should persist the material and write parent SpiceDB relationship when no fileKey is set")
+    @DisplayName("Should persist the material and write structural SpiceDB relationships when no fileKey is set")
     @Test
     void create_persistsAndWritesRelationshipWithoutFileKey() {
         Material toCreate = Material.builder().name("Algebra").tenantId("tenant-1").build();
@@ -64,8 +65,15 @@ class MaterialServiceTest {
 
         assertThat(result).isSameAs(persisted);
         verify(assetUrlService, never()).objectExists(anyString());
-        verify(relationshipService, times(1))
-                .writeRelationship("material", "mat-1", "parent", "institution", "tenant-1");
+        verify(relationshipService, times(1)).writeRelationships(argThat(list ->
+                list.containsAll(List.of(
+                        new RelationshipAuthorizationService.Relationship(
+                                "material", "mat-1", "parent", "institution", "tenant-1"),
+                        new RelationshipAuthorizationService.Relationship(
+                                "material", "mat-1", "user_group", "material_user_group", "mat-1"),
+                        new RelationshipAuthorizationService.Relationship(
+                                "material_user_group", "mat-1", "parent", "institution_user_group", "tenant-1")))
+                        && list.size() == 3));
     }
 
     @DisplayName("Should verify file exists in S3 then persist the material when fileKey is set")

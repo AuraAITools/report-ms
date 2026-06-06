@@ -140,6 +140,11 @@ class AddStudentsToLessonUseCaseImplTest {
         }
 
         @Override
+        public List<Lesson> findAllByTenantId(String tenantId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<Lesson> findAllByEducatorId(String educatorId) {
             throw new UnsupportedOperationException();
         }

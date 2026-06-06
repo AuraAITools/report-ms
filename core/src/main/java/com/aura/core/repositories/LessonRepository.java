@@ -23,6 +23,8 @@ public interface LessonRepository {
 
     List<Lesson> findAllByOutletId(String outletId);
 
+    List<Lesson> findAllByTenantId(String tenantId);
+
     List<Lesson> findAllByEducatorId(String educatorId);
 
     List<Lesson> findAllByStudentId(String studentId);

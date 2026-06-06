@@ -15,6 +15,8 @@ public interface JpaCourseRepository extends JpaRepository<CourseModel, UUID>, J
 
     List<CourseModel> findByOutlet_Id(UUID outletId);
 
+    List<CourseModel> findByTenantId(String tenantId);
+
     @Query("SELECT c.id, c.level FROM CourseModel c WHERE c.id IN :courseIds AND c.level IS NOT NULL")
     List<Object[]> findLevelsByCourseIds(@Param("courseIds") List<UUID> courseIds);
 

@@ -93,7 +93,7 @@ class LessonServiceTest {
                         new RelationshipAuthorizationService.Relationship(
                                 "lesson", "lesson-123", "user_group", "lesson_user_group", "lesson-123"),
                         new RelationshipAuthorizationService.Relationship(
-                                "lesson_user_group", "lesson-123", "parent", "system_user_group", "aura"),
+                                "lesson_user_group", "lesson-123", "parent", "course_user_group", "course-001"),
                         new RelationshipAuthorizationService.Relationship(
                                 "lesson", "lesson-123", "parent", "course", "course-001")))
                         && list.size() == 3));

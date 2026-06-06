@@ -63,7 +63,7 @@ public class CourseService {
         relationships.add(new RelationshipAuthorizationService.Relationship(
                 "course", courseId, "user_group", "course_user_group", courseId));
         relationships.add(new RelationshipAuthorizationService.Relationship(
-                "course_user_group", courseId, "parent", "system_user_group", "aura"));
+                "course_user_group", courseId, "parent", "outlet_user_group", outletId));
         relationships.add(new RelationshipAuthorizationService.Relationship(
                 "course", courseId, "parent", "outlet", outletId));
 

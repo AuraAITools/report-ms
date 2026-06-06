@@ -12,6 +12,8 @@ public interface CourseRepository {
 
     List<Course> findAllByOutletId(String outletId);
 
+    List<Course> findAllByTenantId(String tenantId);
+
     List<Course> findAllByIds(List<String> courseIds);
 
     Map<String, List<Course>> findAllByStudentIds(List<String> studentIds);

@@ -140,6 +140,11 @@ class CourseQueryUseCaseImplTest {
         }
 
         @Override
+        public List<Course> findAllByTenantId(String tenantId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<Course> findAllByIds(List<String> courseIds) {
             throw new UnsupportedOperationException();
         }

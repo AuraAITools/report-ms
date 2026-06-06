@@ -3,6 +3,11 @@ schemaFile: ../material.zed
 # Full coverage: direct material roles, inherited institution roles, transitively-inherited
 # system roles, and negative cases.
 #
+# material_user_group#parent chains hierarchically:
+#   material_user_group:1 -> institution_user_group:1 -> system_user_group:aura
+# so group-management on the material_user_group cascades from both the institution and
+# system user_groups.
+#
 # DIRECT (material_user_group:1):
 #   mat_group_admin_user   — group_admin
 #   mat_group_viewer_user  — group_viewer
@@ -10,20 +15,19 @@ schemaFile: ../material.zed
 #   mat_modifier_user      — modifier  (view + update; NOT delete)
 #   mat_viewer_user        — viewer    (view only)
 #
-# INHERITED (institution_user_group:1, reaches material via material#parent):
-#   inst_admin_user        — admin (institution)        — inherits view + update + delete
-#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete
+# INHERITED (institution_user_group:1):
+#   inst_group_admin_user  — group_admin (institution) — gains full group-mgmt on material_user_group
+#   inst_group_viewer_user — group_viewer (institution) — gains group_view on material_user_group
+#   inst_admin_user        — admin (institution)        — inherits view + update + delete + create_material on institution
+#   inst_modifier_user     — modifier (institution)     — inherits view + update; NOT delete; can create_material
 #   inst_viewer_user       — viewer (institution)       — inherits view only
-#   inst_admin_user / inst_modifier_user can create_material on the institution
 #
-# TRANSITIVELY INHERITED resource roles (system_user_group:aura, reaches material via material#parent -> institution#parent):
-#   sys_admin_user         — admin (system)         — inherits view + update + delete
+# TRANSITIVELY INHERITED (system_user_group:aura):
+#   sys_admin_user         — admin (system)         — inherits view + update + delete + create_material
 #   sys_modifier_user      — modifier (system)      — inherits view + update; NOT delete
 #   sys_viewer_user        — viewer (system)        — inherits view only
-#
-# SUPERADMIN cascade (each *_user_group#parent -> system_user_group):
-#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on material_user_group
-#   sys_group_viewer_user  — group_viewer (system)  — group_view only on each descendant *_user_group
+#   sys_group_admin_user   — group_admin (system)   — superadmin: full group-mgmt on material_user_group (via chained parent)
+#   sys_group_viewer_user  — group_viewer (system)  — group_view only on material_user_group
 #
 # Negative:
 #   non_member_user — no relationships
@@ -35,6 +39,8 @@ relationships: |-
   material_user_group:1#viewer@user:mat_viewer_user
   material:1#user_group@material_user_group:1
 
+  institution_user_group:1#group_admin@user:inst_group_admin_user
+  institution_user_group:1#group_viewer@user:inst_group_viewer_user
   institution_user_group:1#admin@user:inst_admin_user
   institution_user_group:1#modifier@user:inst_modifier_user
   institution_user_group:1#viewer@user:inst_viewer_user
@@ -50,7 +56,7 @@ relationships: |-
   material:1#parent@institution:1
   institution:1#parent@system:aura
 
-  material_user_group:1#parent@system_user_group:aura
+  material_user_group:1#parent@institution_user_group:1
   institution_user_group:1#parent@system_user_group:aura
 
 assertions:
@@ -108,6 +114,20 @@ assertions:
     - material:1#view@user:inst_viewer_user
 
     # ============================================================
+    # INHERITED group-mgmt via material_user_group#parent -> institution_user_group
+    # ============================================================
+
+    # ---- inst_group_admin_user — full group-mgmt on material_user_group ----
+    - material_user_group:1#group_view@user:inst_group_admin_user
+    - material_user_group:1#group_add_admin@user:inst_group_admin_user
+    - material_user_group:1#group_add_viewer@user:inst_group_admin_user
+    - material_user_group:1#group_remove_admin@user:inst_group_admin_user
+    - material_user_group:1#group_remove_viewer@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — only group_view on material_user_group ----
+    - material_user_group:1#group_view@user:inst_group_viewer_user
+
+    # ============================================================
     # TRANSITIVELY INHERITED roles via material -> institution -> system
     # ============================================================
 
@@ -126,7 +146,7 @@ assertions:
     - material:1#view@user:sys_viewer_user
 
     # ============================================================
-    # SUPERADMIN cascade via material_user_group#parent -> system_user_group
+    # TRANSITIVE SUPERADMIN cascade via material_user_group -> institution_user_group -> system_user_group
     # ============================================================
 
     # ---- sys_group_admin_user — full group-management on material_user_group ----
@@ -161,7 +181,7 @@ assertions:
     - material:1#update@user:mat_group_admin_user
     - material:1#delete@user:mat_group_admin_user
 
-    # ---- mat_admin_user — NO group-management ----
+    # ---- mat_admin_user — NO group-management (decoupling) ----
     - material_user_group:1#group_view@user:mat_admin_user
     - material_user_group:1#group_add_admin@user:mat_admin_user
 
@@ -179,6 +199,16 @@ assertions:
     # INHERITED (institution) role exclusions
     # ============================================================
 
+    # ---- inst_group_admin_user — group-mgmt only; NO inherited material resource access ----
+    - material:1#view@user:inst_group_admin_user
+    - material:1#update@user:inst_group_admin_user
+    - material:1#delete@user:inst_group_admin_user
+
+    # ---- inst_group_viewer_user — group_view only; NO inherited material resource access; NO group mutations ----
+    - material:1#view@user:inst_group_viewer_user
+    - material_user_group:1#group_add_admin@user:inst_group_viewer_user
+    - material_user_group:1#group_remove_admin@user:inst_group_viewer_user
+
     # ---- inst_modifier_user — cannot delete material ----
     - material:1#delete@user:inst_modifier_user
 
@@ -187,9 +217,10 @@ assertions:
     - material:1#delete@user:inst_viewer_user
     - institution:1#create_material@user:inst_viewer_user
 
-    # ---- Inherited institution users do NOT gain permissions on material_user_group ----
+    # ---- Inherited institution RESOURCE roles do NOT confer material_user_group group-mgmt (decoupling) ----
     - material_user_group:1#view@user:inst_admin_user
     - material_user_group:1#group_view@user:inst_admin_user
+    - material_user_group:1#group_add_admin@user:inst_admin_user
 
     # ============================================================
     # TRANSITIVELY INHERITED (system) role exclusions
@@ -200,9 +231,15 @@ assertions:
     - material:1#delete@user:sys_viewer_user
     - institution:1#create_material@user:sys_viewer_user
 
-    # ---- Transitively-inherited system users do NOT gain perms on material_user_group ----
+    # ---- Transitively-inherited system RESOURCE roles do NOT confer material_user_group group-mgmt ----
     - material_user_group:1#view@user:sys_admin_user
+    - material_user_group:1#group_view@user:sys_admin_user
+    - material_user_group:1#group_add_admin@user:sys_admin_user
 
-    # ---- sys_group_admin_user / sys_group_viewer_user — group-mgmt at system confers NO material resource access ----
+    # ---- sys_group_admin_user / sys_group_viewer_user — group-mgmt at system confers NO material resource access (decoupling) ----
     - material:1#view@user:sys_group_admin_user
     - material:1#view@user:sys_group_viewer_user
+
+    # ---- sys_group_viewer_user — only group_view; no mutations ----
+    - material_user_group:1#group_add_admin@user:sys_group_viewer_user
+    - material_user_group:1#group_remove_admin@user:sys_group_viewer_user

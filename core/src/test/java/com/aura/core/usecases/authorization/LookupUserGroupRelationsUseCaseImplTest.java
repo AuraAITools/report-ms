@@ -4,6 +4,7 @@ import com.aura.core.clients.RelationshipAuthorizationService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ class LookupUserGroupRelationsUseCaseImplTest {
 
         var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
         List<ResourceRelations> result = useCase.lookupUserGroupRelations(
-                "user-1", List.of("outlet_user_group"), null);
+                "user-1", Map.of("outlet_user_group", Set.of("outlet-1")));
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).resourceId()).isEqualTo("outlet-1");
@@ -40,7 +41,9 @@ class LookupUserGroupRelationsUseCaseImplTest {
 
         var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
         List<ResourceRelations> result = useCase.lookupUserGroupRelations(
-                "user-1", List.of("outlet_user_group", "course_user_group"), null);
+                "user-1", Map.of(
+                        "outlet_user_group", Set.of("outlet-1"),
+                        "course_user_group", Set.of("course-1")));
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(ResourceRelations::resourceType)
@@ -56,9 +59,41 @@ class LookupUserGroupRelationsUseCaseImplTest {
 
         var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
         List<ResourceRelations> result = useCase.lookupUserGroupRelations(
-                "user-1", List.of("topic_user_group"), null);
+                "user-1", Map.of("topic_user_group", Set.of("topic-1")));
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should skip types whose allowed-id set is empty")
+    void skipsEmptyAllowedIds() {
+        var stub = new StubRelationshipAuthorizationService();
+        stub.addRelationships("outlet_user_group",
+                new RelationshipAuthorizationService.RelationshipTuple("outlet-1", "admin", "user-1"));
+
+        var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
+        List<ResourceRelations> result = useCase.lookupUserGroupRelations(
+                "user-1", Map.of("outlet_user_group", Set.of()));
+
+        assertThat(result).isEmpty();
+        assertThat(stub.queriedTypes).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should filter returned tuples to only the allowed resource ids per type")
+    void filtersByAllowedIds() {
+        var stub = new StubRelationshipAuthorizationService();
+        stub.addRelationships("outlet_user_group",
+                new RelationshipAuthorizationService.RelationshipTuple("outlet-1", "admin", "user-1"),
+                new RelationshipAuthorizationService.RelationshipTuple("outlet-2", "viewer", "user-1"));
+
+        var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
+        List<ResourceRelations> result = useCase.lookupUserGroupRelations(
+                "user-1", Map.of("outlet_user_group", Set.of("outlet-1")));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).resourceId()).isEqualTo("outlet-1");
+        assertThat(result.get(0).relations()).containsExactly("admin");
     }
 
     @Test
@@ -68,32 +103,16 @@ class LookupUserGroupRelationsUseCaseImplTest {
 
         var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
         List<ResourceRelations> result = useCase.lookupUserGroupRelations(
-                "ghost-user", List.of("outlet_user_group", "lesson_user_group"), null);
+                "ghost-user", Map.of(
+                        "outlet_user_group", Set.of("outlet-1"),
+                        "lesson_user_group", Set.of("lesson-1")));
 
         assertThat(result).isEmpty();
     }
 
-    @Test
-    @DisplayName("Should narrow to a specific resource id when provided")
-    void narrowsByResourceId() {
-        var stub = new StubRelationshipAuthorizationService();
-        stub.addRelationships("outlet_user_group",
-                new RelationshipAuthorizationService.RelationshipTuple("outlet-1", "admin", "user-1"),
-                new RelationshipAuthorizationService.RelationshipTuple("outlet-2", "viewer", "user-1"));
-
-        var useCase = new LookupUserGroupRelationsUseCaseImpl(stub);
-        List<ResourceRelations> result = useCase.lookupUserGroupRelations(
-                "user-1", List.of("outlet_user_group"), "outlet-1");
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).resourceId()).isEqualTo("outlet-1");
-        assertThat(result.get(0).relations()).containsExactly("admin");
-        assertThat(stub.lastResourceIdFilter).isEqualTo("outlet-1");
-    }
-
     private static class StubRelationshipAuthorizationService implements RelationshipAuthorizationService {
         private final Map<String, List<RelationshipTuple>> tuples = new HashMap<>();
-        String lastResourceIdFilter;
+        final java.util.Set<String> queriedTypes = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
         void addRelationships(String resourceType, RelationshipTuple... ts) {
             tuples.put(resourceType, List.of(ts));
@@ -104,12 +123,8 @@ class LookupUserGroupRelationsUseCaseImplTest {
                                                          String resourceId,
                                                          String relation,
                                                          String subjectType, String subjectId) {
-            lastResourceIdFilter = resourceId;
-            List<RelationshipTuple> all = tuples.getOrDefault(resourceType, List.of());
-            if (resourceId == null) {
-                return all;
-            }
-            return all.stream().filter(t -> resourceId.equals(t.resourceId())).toList();
+            queriedTypes.add(resourceType);
+            return tuples.getOrDefault(resourceType, List.of());
         }
 
         @Override

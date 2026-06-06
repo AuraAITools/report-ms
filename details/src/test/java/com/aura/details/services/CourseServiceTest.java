@@ -75,7 +75,7 @@ class CourseServiceTest {
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-123", "user_group", "course_user_group", "course-123"),
                         new RelationshipAuthorizationService.Relationship(
-                                "course_user_group", "course-123", "parent", "system_user_group", "aura"),
+                                "course_user_group", "course-123", "parent", "outlet_user_group", "outlet-456"),
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-123", "parent", "outlet", "outlet-456")))
                         && list.size() == 3));
@@ -117,7 +117,7 @@ class CourseServiceTest {
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-1", "user_group", "course_user_group", "course-1"),
                         new RelationshipAuthorizationService.Relationship(
-                                "course_user_group", "course-1", "parent", "system_user_group", "aura"),
+                                "course_user_group", "course-1", "parent", "outlet_user_group", "outlet-1"),
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-1", "parent", "outlet", "outlet-1"),
                         new RelationshipAuthorizationService.Relationship(
@@ -153,7 +153,7 @@ class CourseServiceTest {
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-1", "user_group", "course_user_group", "course-1"),
                         new RelationshipAuthorizationService.Relationship(
-                                "course_user_group", "course-1", "parent", "system_user_group", "aura"),
+                                "course_user_group", "course-1", "parent", "outlet_user_group", "outlet-1"),
                         new RelationshipAuthorizationService.Relationship(
                                 "course", "course-1", "parent", "outlet", "outlet-1"),
                         new RelationshipAuthorizationService.Relationship(

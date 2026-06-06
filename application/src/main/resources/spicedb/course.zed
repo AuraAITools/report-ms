@@ -1,12 +1,12 @@
 use import
 use typechecking
 import 'user.zed'
-import 'system.zed'
 import 'outlet.zed'
 
 definition course_user_group {
-    // superadmin: system_user_group's group-management cascades into this group
-    relation parent: system_user_group
+    // outlet_user_group's group-management cascades into this group,
+    // which in turn cascades up the user_group chain to system_user_group
+    relation parent: outlet_user_group
 
     // roles for the user group itself
     relation group_admin: user

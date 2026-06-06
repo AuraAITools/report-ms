@@ -50,6 +50,13 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public List<Course> findAllByTenantId(String tenantId) {
+        return jpaCourseRepository.findByTenantId(tenantId).stream()
+                .map(CourseMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public List<Course> findAllByIds(List<String> courseIds) {
         if (courseIds.isEmpty()) return List.of();
         List<UUID> uuids = courseIds.stream().map(UUID::fromString).toList();

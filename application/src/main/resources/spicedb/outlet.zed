@@ -5,8 +5,9 @@ import 'system.zed'
 import 'institution.zed'
 
 definition outlet_user_group {
-    // superadmin: system_user_group's group-management cascades into this group
-    relation parent: system_user_group
+    // institution_user_group's group-management cascades into this group,
+    // which in turn cascades from system_user_group via institution_user_group.parent
+    relation parent: institution_user_group
 
     // roles for the user group itself
     relation group_admin: user

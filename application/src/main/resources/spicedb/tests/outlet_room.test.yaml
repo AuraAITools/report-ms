@@ -24,7 +24,7 @@ relationships: |-
   outlet:1#parent@institution:1
   institution:1#parent@system:aura
 
-  outlet_user_group:1#parent@system_user_group:aura
+  outlet_user_group:1#parent@institution_user_group:1
   institution_user_group:1#parent@system_user_group:aura
 
 assertions:

@@ -137,7 +137,7 @@ public class AccountService {
                         "group_admin", "user", createdAccount.getUserId()),
                 new RelationshipAuthorizationService.Relationship("account_user_group", createdAccount.getId(),
                         "admin", "user", createdAccount.getUserId()),
-                new RelationshipAuthorizationService.Relationship("account_user_group", createdAccount.getId(), "parent", "system_user_group", "aura")
+                new RelationshipAuthorizationService.Relationship("account_user_group", createdAccount.getId(), "parent", "institution_user_group", account.getTenantId())
         );
         relationshipService.writeRelationships(relationships);
         // TODO: stop sending email if repeated account is created for same email cos idp is already verified

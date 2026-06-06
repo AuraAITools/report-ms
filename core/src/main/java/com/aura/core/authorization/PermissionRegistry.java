@@ -34,7 +34,9 @@ public final class PermissionRegistry {
             Map.entry("institution_user_group", USER_GROUP_PERMISSION_SET),
             Map.entry("outlet_user_group", USER_GROUP_PERMISSION_SET),
             Map.entry("course_user_group", USER_GROUP_PERMISSION_SET),
-            Map.entry("lesson_user_group", USER_GROUP_PERMISSION_SET)
+            Map.entry("lesson_user_group", USER_GROUP_PERMISSION_SET),
+            Map.entry("material_user_group", USER_GROUP_PERMISSION_SET),
+            Map.entry("account_user_group", USER_GROUP_PERMISSION_SET)
     );
 
     public static final String SYSTEM_RESOURCE_TYPE = "system";

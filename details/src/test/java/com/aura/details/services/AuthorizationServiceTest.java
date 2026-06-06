@@ -1,9 +1,17 @@
 package com.aura.details.services;
 
 import com.aura.core.entities.accounts.Account;
+import com.aura.core.entities.courses.Course;
+import com.aura.core.entities.institutions.Institution;
+import com.aura.core.entities.lessons.Lesson;
+import com.aura.core.entities.materials.Material;
 import com.aura.core.entities.outlets.Outlet;
 import com.aura.core.events.OutletAdminAssignedEvent;
 import com.aura.core.repositories.AccountRepository;
+import com.aura.core.repositories.CourseRepository;
+import com.aura.core.repositories.InstitutionRepository;
+import com.aura.core.repositories.LessonRepository;
+import com.aura.core.repositories.MaterialRepository;
 import com.aura.core.repositories.OutletRepository;
 import com.aura.core.usecases.authorization.GrantUserGroupRoleUseCase;
 import com.aura.core.usecases.authorization.GroupResourcePermission;
@@ -17,6 +25,8 @@ import com.aura.core.usecases.authorization.RevokeUserGroupRoleUseCase;
 import com.aura.core.usecases.authorization.UserGroupMember;
 import com.aura.core.usecases.authorization.UserGroupRelation;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +69,19 @@ class AuthorizationServiceTest {
     UserGroupResourceResolver userGroupResourceResolver;
 
     @Mock
+    InstitutionRepository institutionRepository;
+
+    @Mock
     OutletRepository outletRepository;
+
+    @Mock
+    CourseRepository courseRepository;
+
+    @Mock
+    LessonRepository lessonRepository;
+
+    @Mock
+    MaterialRepository materialRepository;
 
     @Mock
     AccountRepository accountRepository;
@@ -101,37 +123,158 @@ class AuthorizationServiceTest {
     }
 
     @Test
-    @DisplayName("Should delegate user group relations lookup to use case + resolver")
-    void shouldDelegateUserGroupRelations() {
-        var types = List.of("outlet_user_group");
-        var raw = List.of(new ResourceRelations("outlet_user_group", "outlet-1", List.of("admin")));
-        var resolved = List.of(new UserGroupRelation(
-                "outlet_user_group", "outlet-1", "Main Outlet", List.of("admin")));
-        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations("user-1", types, null)).thenReturn(raw);
-        when(userGroupResourceResolver.resolveAndFilterRelations(raw, "inst-1")).thenReturn(resolved);
+    @DisplayName("Should return institution relation with display name when institution exists and user has relations")
+    void resolvesInstitutionRelation() {
+        Institution institution = Institution.builder().id("inst-1").name("Acme Institution").build();
+        when(institutionRepository.findById("inst-1")).thenReturn(institution);
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("institution_user_group", Set.of("inst-1")))))
+                .thenReturn(List.of(new ResourceRelations("institution_user_group", "inst-1", List.of("admin"))));
 
-        List<UserGroupRelation> result = authorizationService.lookupUserGroupRelations("user-1", types, null, "inst-1");
+        var result = authorizationService.lookupInstitutionGroupRelation("user-1", "inst-1");
 
-        assertThat(result).isEqualTo(resolved);
-        verify(lookupUserGroupRelationsUseCase).lookupUserGroupRelations("user-1", types, null);
-        verify(userGroupResourceResolver).resolveAndFilterRelations(raw, "inst-1");
+        assertThat(result).contains(
+                new UserGroupRelation("institution_user_group", "inst-1", "Acme Institution", List.of("admin")));
     }
 
     @Test
-    @DisplayName("Should pass user_group id filter through to use case")
-    void shouldPassResourceIdFilter() {
-        var types = List.of("outlet_user_group");
-        var raw = List.of(new ResourceRelations("outlet_user_group", "outlet-1", List.of("admin")));
-        var resolved = List.of(new UserGroupRelation(
-                "outlet_user_group", "outlet-1", "Main", List.of("admin")));
-        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations("user-1", types, "outlet-1")).thenReturn(raw);
-        when(userGroupResourceResolver.resolveAndFilterRelations(raw, "inst-1")).thenReturn(resolved);
+    @DisplayName("Should return empty institution relation when the institution does not exist")
+    void emptyInstitutionRelationWhenMissing() {
+        when(institutionRepository.findById("inst-1")).thenReturn(null);
 
-        List<UserGroupRelation> result = authorizationService.lookupUserGroupRelations(
-                "user-1", types, "outlet-1", "inst-1");
+        var result = authorizationService.lookupInstitutionGroupRelation("user-1", "inst-1");
 
-        assertThat(result).isEqualTo(resolved);
-        verify(lookupUserGroupRelationsUseCase).lookupUserGroupRelations("user-1", types, "outlet-1");
+        assertThat(result).isEmpty();
+        org.mockito.Mockito.verifyNoInteractions(lookupUserGroupRelationsUseCase);
+    }
+
+    @Test
+    @DisplayName("Should return empty institution relation when user has no SpiceDB relations on the institution")
+    void emptyInstitutionRelationWhenNoSpiceDbTuples() {
+        Institution institution = Institution.builder().id("inst-1").name("Acme").build();
+        when(institutionRepository.findById("inst-1")).thenReturn(institution);
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.<Map<String, Set<String>>>any()))
+                .thenReturn(List.of());
+
+        var result = authorizationService.lookupInstitutionGroupRelation("user-1", "inst-1");
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should resolve outlet relations across all institution outlets with display names")
+    void resolvesOutletRelations() {
+        Outlet outlet1 = Outlet.builder().id("outlet-1").name("Main").tenantId("inst-1").build();
+        Outlet outlet2 = Outlet.builder().id("outlet-2").name("North").tenantId("inst-1").build();
+        when(outletRepository.findAllByTenantId("inst-1")).thenReturn(List.of(outlet1, outlet2));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("outlet_user_group", Set.of("outlet-1", "outlet-2")))))
+                .thenReturn(List.of(
+                        new ResourceRelations("outlet_user_group", "outlet-1", List.of("admin")),
+                        new ResourceRelations("outlet_user_group", "outlet-2", List.of("viewer"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupOutletGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactlyInAnyOrder(
+                new UserGroupRelation("outlet_user_group", "outlet-1", "Main", List.of("admin")),
+                new UserGroupRelation("outlet_user_group", "outlet-2", "North", List.of("viewer")));
+    }
+
+    @Test
+    @DisplayName("Should return empty outlet relations when institution has no outlets")
+    void emptyOutletRelationsWhenNoOutlets() {
+        when(outletRepository.findAllByTenantId("inst-1")).thenReturn(List.of());
+
+        List<UserGroupRelation> result = authorizationService.lookupOutletGroupRelations("user-1", "inst-1");
+
+        assertThat(result).isEmpty();
+        org.mockito.Mockito.verifyNoInteractions(lookupUserGroupRelationsUseCase);
+    }
+
+    @Test
+    @DisplayName("Should resolve course relations across all institution courses")
+    void resolvesCourseRelations() {
+        Course course = Course.builder().id("course-1").name("Algebra 101").build();
+        when(courseRepository.findAllByTenantId("inst-1")).thenReturn(List.of(course));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("course_user_group", Set.of("course-1")))))
+                .thenReturn(List.of(new ResourceRelations("course_user_group", "course-1", List.of("modifier"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupCourseGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactly(
+                new UserGroupRelation("course_user_group", "course-1", "Algebra 101", List.of("modifier")));
+    }
+
+    @Test
+    @DisplayName("Should resolve lesson relations across all institution lessons")
+    void resolvesLessonRelations() {
+        Lesson lesson = Lesson.builder().id("lesson-1").name("Quadratics").build();
+        when(lessonRepository.findAllByTenantId("inst-1")).thenReturn(List.of(lesson));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("lesson_user_group", Set.of("lesson-1")))))
+                .thenReturn(List.of(new ResourceRelations("lesson_user_group", "lesson-1", List.of("viewer"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupLessonGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactly(
+                new UserGroupRelation("lesson_user_group", "lesson-1", "Quadratics", List.of("viewer")));
+    }
+
+    @Test
+    @DisplayName("Should resolve material relations across all institution materials")
+    void resolvesMaterialRelations() {
+        Material material = Material.builder().id("mat-1").name("Workbook").build();
+        when(materialRepository.findAllByTenantId("inst-1")).thenReturn(List.of(material));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("material_user_group", Set.of("mat-1")))))
+                .thenReturn(List.of(new ResourceRelations("material_user_group", "mat-1", List.of("admin"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupMaterialGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactly(
+                new UserGroupRelation("material_user_group", "mat-1", "Workbook", List.of("admin")));
+    }
+
+    @Test
+    @DisplayName("Should resolve account relations with composed display name")
+    void resolvesAccountRelations() {
+        Account account = Account.builder().id("acc-1").firstName("Alice").lastName("Doe").build();
+        when(accountRepository.findAllByTenantId("inst-1")).thenReturn(List.of(account));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.eq(Map.of("account_user_group", Set.of("acc-1")))))
+                .thenReturn(List.of(new ResourceRelations("account_user_group", "acc-1", List.of("admin"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupAccountGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactly(
+                new UserGroupRelation("account_user_group", "acc-1", "Alice Doe", List.of("admin")));
+    }
+
+    @Test
+    @DisplayName("Should drop relations whose resourceId is not in the institution's enumerated entities")
+    void dropsRelationsForUnknownResourceIds() {
+        Outlet outlet = Outlet.builder().id("outlet-1").name("Main").tenantId("inst-1").build();
+        when(outletRepository.findAllByTenantId("inst-1")).thenReturn(List.of(outlet));
+        when(lookupUserGroupRelationsUseCase.lookupUserGroupRelations(
+                org.mockito.ArgumentMatchers.eq("user-1"),
+                org.mockito.ArgumentMatchers.<Map<String, Set<String>>>any()))
+                .thenReturn(List.of(
+                        new ResourceRelations("outlet_user_group", "outlet-1", List.of("admin")),
+                        new ResourceRelations("outlet_user_group", "ghost-outlet", List.of("admin"))));
+
+        List<UserGroupRelation> result = authorizationService.lookupOutletGroupRelations("user-1", "inst-1");
+
+        assertThat(result).containsExactly(
+                new UserGroupRelation("outlet_user_group", "outlet-1", "Main", List.of("admin")));
     }
 
     @Test

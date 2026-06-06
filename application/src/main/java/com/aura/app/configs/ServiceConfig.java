@@ -389,13 +389,19 @@ public class ServiceConfig {
                                               GrantUserGroupRoleUseCase grantUserGroupRoleUseCase,
                                               RevokeUserGroupRoleUseCase revokeUserGroupRoleUseCase,
                                               com.aura.details.services.UserGroupResourceResolver userGroupResourceResolver,
+                                              com.aura.core.repositories.InstitutionRepository institutionRepository,
                                               OutletRepository outletRepository,
+                                              com.aura.core.repositories.CourseRepository courseRepository,
+                                              com.aura.core.repositories.LessonRepository lessonRepository,
+                                              com.aura.core.repositories.MaterialRepository materialRepository,
                                               AccountRepository accountRepository,
                                               org.springframework.context.ApplicationEventPublisher applicationEventPublisher) {
         return new AuthorizationService(lookupPermissionsUseCase, lookupGroupPermissionsUseCase,
                 lookupUserGroupRelationsUseCase, lookupUserGroupMembersUseCase,
                 grantUserGroupRoleUseCase, revokeUserGroupRoleUseCase,
-                userGroupResourceResolver, outletRepository, accountRepository, applicationEventPublisher);
+                userGroupResourceResolver, institutionRepository, outletRepository,
+                courseRepository, lessonRepository, materialRepository, accountRepository,
+                applicationEventPublisher);
     }
 
     @Bean

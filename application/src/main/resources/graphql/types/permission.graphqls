@@ -22,9 +22,25 @@ type UserGroupRelations {
     relations: [String!]!
 }
 
+"""
+Per-user_group-type buckets of the caller's relations within an institution.
+Each subfield is resolved by its own @BatchMapping so it is loaded only when the
+client selects it — useful when lessons/materials can be very large.
+"""
+type UserGroupRelationsInInstitution {
+    institutionId: ID!
+    institution: UserGroupRelations
+    outlets: [UserGroupRelations!]!
+    courses: [UserGroupRelations!]!
+    lessons: [UserGroupRelations!]!
+    materials: [UserGroupRelations!]!
+    accounts: [UserGroupRelations!]!
+}
+
 type UserGroupMember {
     userId: ID!
     relations: [String!]!
+    account: AccountResponse!
 }
 
 enum UserGroupType {

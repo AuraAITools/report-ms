@@ -55,8 +55,13 @@ public class MaterialService {
             }
         }
         Material created = createMaterialInInstitutionUseCase.create(material, topicIds);
-        relationshipService.writeRelationship(
-                "material", created.getId(), "parent", "institution", created.getTenantId());
+        relationshipService.writeRelationships(List.of(
+                new RelationshipAuthorizationService.Relationship(
+                        "material", created.getId(), "parent", "institution", created.getTenantId()),
+                new RelationshipAuthorizationService.Relationship(
+                        "material", created.getId(), "user_group", "material_user_group", created.getId()),
+                new RelationshipAuthorizationService.Relationship(
+                        "material_user_group", created.getId(), "parent", "institution_user_group", created.getTenantId())));
         return created;
     }
 

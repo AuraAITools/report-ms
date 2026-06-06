@@ -40,7 +40,7 @@ public class OutletService {
                 new RelationshipAuthorizationService.Relationship(
                         "outlet", outletId, "user_group", "outlet_user_group", outletId),
                 new RelationshipAuthorizationService.Relationship(
-                        "outlet_user_group", outletId, "parent", "system_user_group", "aura"),
+                        "outlet_user_group", outletId, "parent", "institution_user_group", institutionId),
                 new RelationshipAuthorizationService.Relationship(
                         "outlet", outletId, "parent", "institution", institutionId)));
         return created;
