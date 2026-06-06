@@ -79,15 +79,17 @@ class PreAuthorizeConventionTest {
     static final ArchRule query_mappings_must_have_preauthorize =
             methods().that().areAnnotatedWith(QueryMapping.class)
                     .and().areDeclaredInClassesThat().doNotHaveSimpleName("PermissionGqlController")
+                    .and().areDeclaredInClassesThat().doNotHaveSimpleName("InstitutionCreationRequestGqlController")
                     .should().beAnnotatedWith(PreAuthorize.class)
-                    .as("All @QueryMapping methods must have @PreAuthorize (except PermissionGqlController)");
+                    .as("All @QueryMapping methods must have @PreAuthorize (except PermissionGqlController, InstitutionCreationRequestGqlController)");
 
     @ArchTest
     static final ArchRule mutation_mappings_must_have_preauthorize =
             methods().that().areAnnotatedWith(MutationMapping.class)
                     .and().areDeclaredInClassesThat().doNotHaveSimpleName("PermissionGqlController")
+                    .and().areDeclaredInClassesThat().doNotHaveSimpleName("InstitutionCreationRequestGqlController")
                     .should().beAnnotatedWith(PreAuthorize.class)
-                    .as("All @MutationMapping methods must have @PreAuthorize (except PermissionGqlController)");
+                    .as("All @MutationMapping methods must have @PreAuthorize (except PermissionGqlController, InstitutionCreationRequestGqlController)");
 
     // ===================== Source-level convention tests =====================
 
@@ -234,6 +236,7 @@ class PreAuthorizeConventionTest {
         try (Stream<Path> files = Files.walk(CONTROLLERS_ROOT)) {
             files.filter(p -> p.toString().endsWith("GqlController.java"))
                     .filter(p -> !p.getFileName().toString().equals("PermissionGqlController.java"))
+                    .filter(p -> !p.getFileName().toString().equals("InstitutionCreationRequestGqlController.java"))
                     .forEach(path -> {
                         try {
                             List<String> lines = Files.readAllLines(path);

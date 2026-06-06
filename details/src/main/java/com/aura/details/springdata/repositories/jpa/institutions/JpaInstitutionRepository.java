@@ -16,5 +16,9 @@ public interface JpaInstitutionRepository extends JpaRepository<InstitutionModel
     @Modifying
     @Query("update InstitutionModel i set i.profileImageKey = :key where i.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
+
+    boolean existsByName(String name);
+
+    boolean existsByEmail(String email);
 }
 

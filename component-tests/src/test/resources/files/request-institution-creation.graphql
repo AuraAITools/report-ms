@@ -1,0 +1,17 @@
+mutation RequestInstitutionCreation($input: RequestInstitutionCreationInput!) {
+    requestInstitutionCreation(input: $input) {
+        id
+        institutionName
+        institutionEmail
+        institutionContactNumber
+        institutionAddress
+        institutionUen
+        requesterFirstName
+        requesterLastName
+        requesterEmail
+        requesterContactNumber
+        state
+        createdAt
+        updatedAt
+    }
+}

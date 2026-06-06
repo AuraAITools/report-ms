@@ -6,6 +6,7 @@ import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
+import com.aura.core.repositories.InstitutionCreationRequestRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
@@ -127,6 +128,8 @@ import com.aura.core.usecases.materials.DeleteMaterialUseCase;
 import com.aura.core.usecases.materials.DeleteMaterialUseCaseImpl;
 import com.aura.core.usecases.materials.MaterialQueryUseCase;
 import com.aura.core.usecases.materials.MaterialQueryUseCaseImpl;
+import com.aura.core.usecases.institutions.RequestInstitutionCreationUseCase;
+import com.aura.core.usecases.institutions.RequestInstitutionCreationUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
 import com.aura.core.usecases.onboarding.OnboardInstitutionUseCase;
 import com.aura.core.usecases.onboarding.TenantInitialDataLoader;
@@ -194,6 +197,13 @@ public class UseCaseConfig {
     OnboardInstitutionUseCase onboardInstitutionUseCase(InstitutionRepository institutionRepository,
                                                         TenantInitialDataLoader tenantInitialDataLoader) {
         return new DefaultOnboardInstitutionUseCaseImpl(institutionRepository, tenantInitialDataLoader);
+    }
+
+    @Bean
+    RequestInstitutionCreationUseCase requestInstitutionCreationUseCase(
+            InstitutionRepository institutionRepository,
+            InstitutionCreationRequestRepository institutionCreationRequestRepository) {
+        return new RequestInstitutionCreationUseCaseImpl(institutionRepository, institutionCreationRequestRepository);
     }
 
     @Bean

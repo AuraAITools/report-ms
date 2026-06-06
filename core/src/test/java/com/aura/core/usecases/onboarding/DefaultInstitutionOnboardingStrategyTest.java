@@ -35,6 +35,16 @@ class DefaultInstitutionOnboardingStrategyTest {
             }
 
             @Override
+            public boolean existsByName(String name) {
+                return false;
+            }
+
+            @Override
+            public boolean existsByEmail(String email) {
+                return false;
+            }
+
+            @Override
             public List<Institution> findAll() {
                 return List.of();
             }

@@ -51,6 +51,16 @@ public class InstitutionRepositoryImpl implements InstitutionRepository {
     }
 
     @Override
+    public boolean existsByName(String name) {
+        return jpaRepository.existsByName(name);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return jpaRepository.existsByEmail(email);
+    }
+
+    @Override
     public List<Institution> findAll() {
         List<InstitutionModel> institutionModels = jpaRepository.findAll();
         return institutionModels.stream().map(InstitutionMapper.INSTANCE::toDomainEntity).toList();

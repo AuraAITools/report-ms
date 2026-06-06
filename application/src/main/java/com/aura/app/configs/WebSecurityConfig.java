@@ -2,6 +2,7 @@ package com.aura.app.configs;
 
 import com.aura.app.security.GraphqlBodyCachingFilter;
 import com.aura.app.security.IntrospectionRequestMatcher;
+import com.aura.app.security.PublicGraphqlMutationRequestMatcher;
 import com.aura.app.security.SpiceDbPermissionEvaluator;
 import com.aura.core.clients.RelationshipAuthorizationService;
 import jakarta.annotation.PostConstruct;
@@ -58,6 +59,7 @@ public class WebSecurityConfig {
                             "/swagger-ui.html",
                             "/graphiql"
                     ).permitAll();
+                    auth.requestMatchers(new PublicGraphqlMutationRequestMatcher()).permitAll();
                     if (isLocal) {
                         auth.requestMatchers(new IntrospectionRequestMatcher()).permitAll();
                     }
@@ -69,8 +71,11 @@ public class WebSecurityConfig {
                                         .jwkSetUri(jwksUrl)
                         ));
 
+        // GraphqlBodyCachingFilter is required by PublicGraphqlMutationRequestMatcher
+        // (and IntrospectionRequestMatcher in local) so the matcher can read the
+        // POST body to decide whether the request hits a public mutation.
+        http.addFilterBefore(new GraphqlBodyCachingFilter(), BearerTokenAuthenticationFilter.class);
         if (isLocal) {
-            http.addFilterBefore(new GraphqlBodyCachingFilter(), BearerTokenAuthenticationFilter.class);
             log.info("local profile active: introspection queries on /graphql permitted without authentication");
         }
 

@@ -1,0 +1,29 @@
+type InstitutionCreationRequestResponse {
+    id: ID!
+    institutionName: String!
+    institutionEmail: String!
+    institutionContactNumber: String!
+    institutionAddress: String!
+    institutionUen: String!
+    requesterFirstName: String!
+    requesterLastName: String!
+    requesterEmail: String!
+    requesterContactNumber: String!
+    state: InstitutionCreationRequestState!
+    createdAt: Long!
+    updatedAt: Long
+}
+
+enum InstitutionCreationRequestState {
+    REQUESTED
+    FULFILLED
+    REJECTED
+}
+
+input RequestInstitutionCreationInput {
+    createInstitutionInput: CreateInstitutionInput!
+    requesterFirstName: String!
+    requesterLastName: String!
+    requesterEmail: String!
+    requesterContactNumber: String!
+}

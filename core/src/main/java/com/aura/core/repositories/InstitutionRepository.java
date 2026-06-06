@@ -14,6 +14,10 @@ public interface InstitutionRepository {
 
     @Nullable Institution findById(String id);
 
+    boolean existsByName(String name);
+
+    boolean existsByEmail(String email);
+
     /**
      * Targeted single-column update for the profile image S3 key. Avoids the
      * domain-mapper round-trip used by {@link #save(Institution)}, which would

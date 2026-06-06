@@ -4,6 +4,7 @@ import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.EducatorLessonLinkRepository;
 import com.aura.core.repositories.EducatorRepository;
+import com.aura.core.repositories.InstitutionCreationRequestRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
@@ -34,6 +35,7 @@ import com.aura.details.springdata.repositories.impl.CourseRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EducatorLessonLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EducatorRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.EmailLogRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.InstitutionCreationRequestRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.InstitutionRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonGroupPlanMaterialLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonGroupPlanRepositoryImpl;
@@ -63,6 +65,7 @@ import com.aura.details.springdata.repositories.jpa.accounts.JpaParentRepository
 import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.educators.JpaEducatorRepository;
 import com.aura.details.springdata.repositories.jpa.email.JpaEmailLogRepository;
+import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionCreationRequestRepository;
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupPlanRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupRepository;
@@ -108,6 +111,12 @@ public class RepositoryConfig {
     @Bean
     InstitutionRepository institutionRepository(JpaInstitutionRepository jpaRepository) {
         return new InstitutionRepositoryImpl(jpaRepository);
+    }
+
+    @Bean
+    InstitutionCreationRequestRepository institutionCreationRequestRepository(
+            JpaInstitutionCreationRequestRepository jpaRepository) {
+        return new InstitutionCreationRequestRepositoryImpl(jpaRepository);
     }
 
     @Bean
