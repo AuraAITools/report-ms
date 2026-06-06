@@ -8,6 +8,25 @@ type ResourcePermissions {
     permissions: [String!]!
 }
 
+type GroupResourcePermissions {
+    resourceType: String!
+    resourceId: String!
+    displayName: String!
+    permissions: [String!]!
+}
+
+type UserGroupRelations {
+    resourceType: String!
+    resourceId: String!
+    displayName: String!
+    relations: [String!]!
+}
+
+type UserGroupMember {
+    userId: ID!
+    relations: [String!]!
+}
+
 enum UserGroupType {
     SYSTEM_USER_GROUP
     INSTITUTION_USER_GROUP

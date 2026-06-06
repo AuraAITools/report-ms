@@ -10,8 +10,11 @@ import com.authzed.api.v1.LookupResourcesRequest;
 import com.authzed.api.v1.LookupResourcesResponse;
 import com.authzed.api.v1.ObjectReference;
 import com.authzed.api.v1.PermissionsServiceGrpc;
+import com.authzed.api.v1.ReadRelationshipsRequest;
+import com.authzed.api.v1.ReadRelationshipsResponse;
 import com.authzed.api.v1.RelationshipFilter;
 import com.authzed.api.v1.RelationshipUpdate;
+import com.authzed.api.v1.SubjectFilter;
 import com.authzed.api.v1.SubjectReference;
 import com.authzed.api.v1.WriteRelationshipsRequest;
 import java.util.ArrayList;
@@ -144,6 +147,47 @@ public class SpiceDbRelationshipService implements RelationshipAuthorizationServ
             }
         });
         return resourceIds;
+    }
+
+    @Override
+    public List<RelationshipTuple> readRelationships(String resourceType,
+                                                     String resourceId,
+                                                     String relation,
+                                                     String subjectType,
+                                                     String subjectId) {
+        log.debug("Reading relationships: type={}, resourceId={}, relation={}, subject={}:{}",
+                resourceType, resourceId, relation, subjectType, subjectId);
+
+        var subjectFilter = SubjectFilter.newBuilder().setSubjectType(subjectType);
+        if (subjectId != null) {
+            subjectFilter.setOptionalSubjectId(subjectId);
+        }
+
+        var filterBuilder = RelationshipFilter.newBuilder()
+                .setResourceType(resourceType)
+                .setOptionalSubjectFilter(subjectFilter.build());
+        if (resourceId != null) {
+            filterBuilder.setOptionalResourceId(resourceId);
+        }
+        if (relation != null) {
+            filterBuilder.setOptionalRelation(relation);
+        }
+
+        var request = ReadRelationshipsRequest.newBuilder()
+                .setConsistency(Consistency.newBuilder().setFullyConsistent(true).build())
+                .setRelationshipFilter(filterBuilder.build())
+                .build();
+
+        List<RelationshipTuple> tuples = new ArrayList<>();
+        Iterator<ReadRelationshipsResponse> responses = permissionsService.readRelationships(request);
+        responses.forEachRemaining(response -> {
+            var relationship = response.getRelationship();
+            tuples.add(new RelationshipTuple(
+                    relationship.getResource().getObjectId(),
+                    relationship.getRelation(),
+                    relationship.getSubject().getObject().getObjectId()));
+        });
+        return tuples;
     }
 
     private RelationshipUpdate buildRelationshipUpdate(RelationshipUpdate.Operation operation,

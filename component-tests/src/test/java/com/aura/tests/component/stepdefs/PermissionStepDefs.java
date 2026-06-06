@@ -19,6 +19,7 @@ public class PermissionStepDefs {
 
     private final TestContext testContext;
     private Map<String, Object> lastResponse;
+    private List<Map<String, Object>> lastGroupPermissionsResponse;
 
     @When("the aura admin looks up their permissions")
     public void theAuraAdminLooksUpTheirPermissions() {
@@ -56,5 +57,51 @@ public class PermissionStepDefs {
         assertThat(found)
                 .as("Expected permissions for resource type %s but got: %s", resourceType, permissions)
                 .isTrue();
+    }
+
+    @SuppressWarnings("unchecked")
+    @When("the user looks up their group permissions for the institution")
+    public void theUserLooksUpTheirGroupPermissions() {
+        String query = findGraphqlQueryFromFiles("lookup-group-permissions.graphql");
+
+        lastGroupPermissionsResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variable("institutionId", testContext.getInstitutionId())
+                .retrieveSync("lookupGroupPermissions")
+                .toEntityList(Map.class)
+                .stream()
+                .map(m -> (Map<String, Object>) m)
+                .toList();
+
+        log.info("Lookup group permissions response: {}", lastGroupPermissionsResponse);
+    }
+
+    @Then("the group permissions response should contain resource type {string}")
+    public void theGroupPermissionsResponseShouldContainResourceType(String resourceType) {
+        boolean found = lastGroupPermissionsResponse.stream()
+                .anyMatch(p -> resourceType.equals(p.get("resourceType")));
+        assertThat(found)
+                .as("Expected group permissions for resource type %s but got: %s",
+                        resourceType, lastGroupPermissionsResponse)
+                .isTrue();
+    }
+
+    @Then("the group permissions response should not contain resource type {string}")
+    public void theGroupPermissionsResponseShouldNotContainResourceType(String resourceType) {
+        boolean found = lastGroupPermissionsResponse.stream()
+                .anyMatch(p -> resourceType.equals(p.get("resourceType")));
+        assertThat(found)
+                .as("Did not expect group permissions for resource type %s but got: %s",
+                        resourceType, lastGroupPermissionsResponse)
+                .isFalse();
+    }
+
+    @And("every group permissions entry should have a non-empty displayName")
+    public void everyGroupPermissionsEntryShouldHaveDisplayName() {
+        assertThat(lastGroupPermissionsResponse)
+                .allSatisfy(entry -> assertThat((String) entry.get("displayName"))
+                        .as("displayName for %s should not be null/empty", entry)
+                        .isNotBlank());
     }
 }

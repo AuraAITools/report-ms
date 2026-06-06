@@ -134,5 +134,13 @@ class LookupPermissionsUseCaseImplTest {
         public void deleteAllRelationshipsForResource(String resourceType, String resourceId) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public List<RelationshipTuple> readRelationships(String resourceType,
+                                                         String resourceId,
+                                                         String relation,
+                                                         String subjectType, String subjectId) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

@@ -45,8 +45,14 @@ import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCase;
 import com.aura.core.usecases.accounts.CreateStudentsInParentAccountUseCaseImpl;
 import com.aura.core.usecases.authorization.GrantUserGroupRoleUseCase;
 import com.aura.core.usecases.authorization.GrantUserGroupRoleUseCaseImpl;
+import com.aura.core.usecases.authorization.LookupGroupPermissionsUseCase;
+import com.aura.core.usecases.authorization.LookupGroupPermissionsUseCaseImpl;
 import com.aura.core.usecases.authorization.LookupPermissionsUseCase;
 import com.aura.core.usecases.authorization.LookupPermissionsUseCaseImpl;
+import com.aura.core.usecases.authorization.LookupUserGroupMembersUseCase;
+import com.aura.core.usecases.authorization.LookupUserGroupMembersUseCaseImpl;
+import com.aura.core.usecases.authorization.LookupUserGroupRelationsUseCase;
+import com.aura.core.usecases.authorization.LookupUserGroupRelationsUseCaseImpl;
 import com.aura.core.usecases.authorization.RevokeUserGroupRoleUseCase;
 import com.aura.core.usecases.authorization.RevokeUserGroupRoleUseCaseImpl;
 import com.aura.core.usecases.courses.CourseQueryUseCase;
@@ -473,6 +479,21 @@ public class UseCaseConfig {
     @Bean
     LookupPermissionsUseCase lookupPermissionsUseCase(RelationshipAuthorizationService relationshipService) {
         return new LookupPermissionsUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    LookupGroupPermissionsUseCase lookupGroupPermissionsUseCase(RelationshipAuthorizationService relationshipService) {
+        return new LookupGroupPermissionsUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    LookupUserGroupRelationsUseCase lookupUserGroupRelationsUseCase(RelationshipAuthorizationService relationshipService) {
+        return new LookupUserGroupRelationsUseCaseImpl(relationshipService);
+    }
+
+    @Bean
+    LookupUserGroupMembersUseCase lookupUserGroupMembersUseCase(RelationshipAuthorizationService relationshipService) {
+        return new LookupUserGroupMembersUseCaseImpl(relationshipService);
     }
 
     @Bean

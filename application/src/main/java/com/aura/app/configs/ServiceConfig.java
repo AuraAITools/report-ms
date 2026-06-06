@@ -383,13 +383,35 @@ public class ServiceConfig {
 
     @Bean
     AuthorizationService authorizationService(LookupPermissionsUseCase lookupPermissionsUseCase,
+                                              com.aura.core.usecases.authorization.LookupGroupPermissionsUseCase lookupGroupPermissionsUseCase,
+                                              com.aura.core.usecases.authorization.LookupUserGroupRelationsUseCase lookupUserGroupRelationsUseCase,
+                                              com.aura.core.usecases.authorization.LookupUserGroupMembersUseCase lookupUserGroupMembersUseCase,
                                               GrantUserGroupRoleUseCase grantUserGroupRoleUseCase,
                                               RevokeUserGroupRoleUseCase revokeUserGroupRoleUseCase,
+                                              com.aura.details.services.UserGroupResourceResolver userGroupResourceResolver,
                                               OutletRepository outletRepository,
                                               AccountRepository accountRepository,
                                               org.springframework.context.ApplicationEventPublisher applicationEventPublisher) {
-        return new AuthorizationService(lookupPermissionsUseCase, grantUserGroupRoleUseCase, revokeUserGroupRoleUseCase,
-                outletRepository, accountRepository, applicationEventPublisher);
+        return new AuthorizationService(lookupPermissionsUseCase, lookupGroupPermissionsUseCase,
+                lookupUserGroupRelationsUseCase, lookupUserGroupMembersUseCase,
+                grantUserGroupRoleUseCase, revokeUserGroupRoleUseCase,
+                userGroupResourceResolver, outletRepository, accountRepository, applicationEventPublisher);
+    }
+
+    @Bean
+    com.aura.details.services.UserGroupResourceResolver userGroupResourceResolver(
+            com.aura.core.repositories.InstitutionRepository institutionRepository,
+            OutletRepository outletRepository,
+            com.aura.core.repositories.CourseRepository courseRepository,
+            com.aura.core.repositories.LessonRepository lessonRepository,
+            AccountRepository accountRepository,
+            com.aura.core.repositories.LevelRepository levelRepository,
+            com.aura.core.repositories.SubjectRepository subjectRepository,
+            com.aura.core.repositories.TopicRepository topicRepository,
+            com.aura.core.repositories.MaterialRepository materialRepository) {
+        return new com.aura.details.services.UserGroupResourceResolver(
+                institutionRepository, outletRepository, courseRepository, lessonRepository,
+                accountRepository, levelRepository, subjectRepository, topicRepository, materialRepository);
     }
 
     @Bean

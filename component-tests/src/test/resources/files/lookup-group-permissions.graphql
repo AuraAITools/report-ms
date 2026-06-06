@@ -1,0 +1,8 @@
+query LookupGroupPermissions($institutionId: ID!) {
+    lookupGroupPermissions(institutionId: $institutionId) {
+        resourceType
+        resourceId
+        displayName
+        permissions
+    }
+}

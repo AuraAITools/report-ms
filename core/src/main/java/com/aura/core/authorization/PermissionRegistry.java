@@ -21,6 +21,22 @@ public final class PermissionRegistry {
             Map.entry("material", List.of("view", "update", "delete"))
     );
 
+    private static final List<String> USER_GROUP_PERMISSION_SET = List.of(
+            "group_view",
+            "group_add_viewer", "group_add_admin", "group_add_modifier",
+            "group_remove_viewer", "group_remove_admin", "group_remove_modifier",
+            "group_add_group_admin", "group_remove_group_admin",
+            "group_add_group_viewer", "group_remove_group_viewer",
+            "view", "update", "delete", "is_admin_or_modifier"
+    );
+
+    public static final Map<String, List<String>> USER_GROUP_PERMISSIONS = Map.ofEntries(
+            Map.entry("institution_user_group", USER_GROUP_PERMISSION_SET),
+            Map.entry("outlet_user_group", USER_GROUP_PERMISSION_SET),
+            Map.entry("course_user_group", USER_GROUP_PERMISSION_SET),
+            Map.entry("lesson_user_group", USER_GROUP_PERMISSION_SET)
+    );
+
     public static final String SYSTEM_RESOURCE_TYPE = "system";
     public static final String SYSTEM_RESOURCE_ID = "aura";
 }

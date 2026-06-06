@@ -1,3 +1,6 @@
 extend type Query {
     lookupPermissions: UserPermissions!
+    lookupGroupPermissions(institutionId: ID!): [GroupResourcePermissions!]!
+    lookupUserGroupRelations(institutionId: ID!, userGroupTypes: [UserGroupType!]!, userGroupId: ID!): [UserGroupRelations!]!
+    lookupUserGroupMembers(institutionId: ID!, userGroupType: UserGroupType!, userGroupId: ID!, relation: String): [UserGroupMember!]!
 }

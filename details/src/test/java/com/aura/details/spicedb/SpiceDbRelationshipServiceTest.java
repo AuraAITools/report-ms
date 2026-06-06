@@ -9,6 +9,11 @@ import com.authzed.api.v1.LookupPermissionship;
 import com.authzed.api.v1.LookupResourcesRequest;
 import com.authzed.api.v1.LookupResourcesResponse;
 import com.authzed.api.v1.PermissionsServiceGrpc;
+import com.authzed.api.v1.ReadRelationshipsRequest;
+import com.authzed.api.v1.ReadRelationshipsResponse;
+import com.authzed.api.v1.Relationship;
+import com.authzed.api.v1.ObjectReference;
+import com.authzed.api.v1.SubjectReference;
 import com.authzed.api.v1.RelationshipUpdate;
 import com.authzed.api.v1.WriteRelationshipsRequest;
 import com.authzed.api.v1.WriteRelationshipsResponse;
@@ -221,5 +226,67 @@ class SpiceDbRelationshipServiceTest {
         List<String> result = service.lookupResources("course", "manage", "user", "user-99");
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return tuples from ReadRelationships streaming response")
+    void readRelationships() {
+        var response1 = ReadRelationshipsResponse.newBuilder()
+                .setRelationship(Relationship.newBuilder()
+                        .setResource(ObjectReference.newBuilder()
+                                .setObjectType("outlet_user_group").setObjectId("outlet-1").build())
+                        .setRelation("admin")
+                        .setSubject(SubjectReference.newBuilder()
+                                .setObject(ObjectReference.newBuilder()
+                                        .setObjectType("user").setObjectId("user-1").build())
+                                .build())
+                        .build())
+                .build();
+        var response2 = ReadRelationshipsResponse.newBuilder()
+                .setRelationship(Relationship.newBuilder()
+                        .setResource(ObjectReference.newBuilder()
+                                .setObjectType("outlet_user_group").setObjectId("outlet-1").build())
+                        .setRelation("group_admin")
+                        .setSubject(SubjectReference.newBuilder()
+                                .setObject(ObjectReference.newBuilder()
+                                        .setObjectType("user").setObjectId("user-1").build())
+                                .build())
+                        .build())
+                .build();
+
+        when(permissionsService.readRelationships(any(ReadRelationshipsRequest.class)))
+                .thenReturn(List.of(response1, response2).iterator());
+
+        List<RelationshipAuthorizationService.RelationshipTuple> result =
+                service.readRelationships("outlet_user_group", null, null, "user", "user-1");
+
+        assertThat(result)
+                .extracting(RelationshipAuthorizationService.RelationshipTuple::resourceId,
+                        RelationshipAuthorizationService.RelationshipTuple::relation,
+                        RelationshipAuthorizationService.RelationshipTuple::subjectId)
+                .containsExactly(
+                        org.assertj.core.groups.Tuple.tuple("outlet-1", "admin", "user-1"),
+                        org.assertj.core.groups.Tuple.tuple("outlet-1", "group_admin", "user-1"));
+
+        var captor = ArgumentCaptor.forClass(ReadRelationshipsRequest.class);
+        verify(permissionsService).readRelationships(captor.capture());
+        var filter = captor.getValue().getRelationshipFilter();
+        assertThat(filter.getResourceType()).isEqualTo("outlet_user_group");
+        assertThat(filter.getOptionalResourceId()).isEmpty();
+        assertThat(filter.getOptionalSubjectFilter().getSubjectType()).isEqualTo("user");
+        assertThat(filter.getOptionalSubjectFilter().getOptionalSubjectId()).isEqualTo("user-1");
+    }
+
+    @Test
+    @DisplayName("Should set optional resource id on ReadRelationships filter when provided")
+    void readRelationshipsWithResourceId() {
+        when(permissionsService.readRelationships(any(ReadRelationshipsRequest.class)))
+                .thenReturn(List.<ReadRelationshipsResponse>of().iterator());
+
+        service.readRelationships("outlet_user_group", "outlet-7", null, "user", "user-1");
+
+        var captor = ArgumentCaptor.forClass(ReadRelationshipsRequest.class);
+        verify(permissionsService).readRelationships(captor.capture());
+        assertThat(captor.getValue().getRelationshipFilter().getOptionalResourceId()).isEqualTo("outlet-7");
     }
 }
