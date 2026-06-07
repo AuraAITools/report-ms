@@ -74,11 +74,13 @@ public class InstitutionCreationRequestStepDefs {
         Map<String, String> row = dataTable.asMaps().get(0);
         Map<String, Object> input = buildInput(row);
         // Seed by hitting the same public mutation — no auth required.
-        unauthenticatedClient()
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = (Map<String, Object>) unauthenticatedClient()
                 .document(findGraphqlQueryFromFiles(GRAPHQL_FILE))
                 .variables(Map.of("input", input))
                 .retrieveSync("requestInstitutionCreation")
                 .toEntity(Map.class);
+        testContext.setInstitutionCreationRequestId((String) response.get("id"));
     }
 
     @Then("the institution creation request should be saved in state {string}")

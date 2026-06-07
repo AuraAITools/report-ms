@@ -44,6 +44,7 @@ import com.aura.core.usecases.educators.UpdateEducatorUseCase;
 import com.aura.core.usecases.email.SendEmailUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCase;
 import com.aura.core.usecases.institutions.InstitutionQueryUseCaseImpl;
+import com.aura.core.usecases.institutions.OnboardInstitutionFromRequestUseCase;
 import com.aura.core.usecases.institutions.RequestInstitutionCreationUseCase;
 import com.aura.core.usecases.lesson_objectives.AddTopicsToLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.CreateLessonObjectiveUseCase;
@@ -154,8 +155,17 @@ public class ServiceConfig {
 
     @Bean
     InstitutionCreationRequestService institutionCreationRequestService(
-            RequestInstitutionCreationUseCase requestInstitutionCreationUseCase) {
-        return new InstitutionCreationRequestService(requestInstitutionCreationUseCase);
+            RequestInstitutionCreationUseCase requestInstitutionCreationUseCase,
+            OnboardInstitutionFromRequestUseCase onboardInstitutionFromRequestUseCase,
+            OnboardingService onboardingService,
+            AccountService accountService,
+            RelationshipAuthorizationService relationshipService) {
+        return new InstitutionCreationRequestService(
+                requestInstitutionCreationUseCase,
+                onboardInstitutionFromRequestUseCase,
+                onboardingService,
+                accountService,
+                relationshipService);
     }
 
     @Bean

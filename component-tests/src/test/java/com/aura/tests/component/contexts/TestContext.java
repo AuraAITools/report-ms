@@ -30,6 +30,7 @@ public class TestContext {
     private String materialId;
     private String materialUploadUrl;
     private String materialFileKey;
+    private String institutionCreationRequestId;
 
     // Last responses for @Then assertion steps
     private SubjectResponse lastSubjectResponse;

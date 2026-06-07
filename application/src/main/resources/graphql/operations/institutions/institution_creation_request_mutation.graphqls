@@ -1,3 +1,4 @@
 extend type Mutation {
     requestInstitutionCreation(input: RequestInstitutionCreationInput!): InstitutionCreationRequestResponse!
+    onboardInstitutionFromRequest(institutionCreationRequestId: ID!): InstitutionResponse!
 }

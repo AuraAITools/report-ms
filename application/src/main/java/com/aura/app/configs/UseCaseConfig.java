@@ -128,6 +128,8 @@ import com.aura.core.usecases.materials.DeleteMaterialUseCase;
 import com.aura.core.usecases.materials.DeleteMaterialUseCaseImpl;
 import com.aura.core.usecases.materials.MaterialQueryUseCase;
 import com.aura.core.usecases.materials.MaterialQueryUseCaseImpl;
+import com.aura.core.usecases.institutions.OnboardInstitutionFromRequestUseCase;
+import com.aura.core.usecases.institutions.OnboardInstitutionFromRequestUseCaseImpl;
 import com.aura.core.usecases.institutions.RequestInstitutionCreationUseCase;
 import com.aura.core.usecases.institutions.RequestInstitutionCreationUseCaseImpl;
 import com.aura.core.usecases.onboarding.DefaultOnboardInstitutionUseCaseImpl;
@@ -204,6 +206,12 @@ public class UseCaseConfig {
             InstitutionRepository institutionRepository,
             InstitutionCreationRequestRepository institutionCreationRequestRepository) {
         return new RequestInstitutionCreationUseCaseImpl(institutionRepository, institutionCreationRequestRepository);
+    }
+
+    @Bean
+    OnboardInstitutionFromRequestUseCase onboardInstitutionFromRequestUseCase(
+            InstitutionCreationRequestRepository institutionCreationRequestRepository) {
+        return new OnboardInstitutionFromRequestUseCaseImpl(institutionCreationRequestRepository);
     }
 
     @Bean

@@ -1,6 +1,7 @@
 package com.aura.app.interceptors;
 
 import com.aura.app.exceptions.AccessDeniedBusinessException;
+import com.aura.app.security.PublicGraphqlMutations;
 import com.aura.app.utils.UserMapper;
 import com.aura.core.auth.User;
 import graphql.GraphQLContext;
@@ -18,7 +19,7 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
 
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
-        if (isIntrospectionQuery(request)) {
+        if (isIntrospectionQuery(request) || isPublicMutation(request)) {
             return chain.next(request);
         }
 
@@ -65,5 +66,10 @@ public class UserRequestContextInterceptor implements WebGraphQlInterceptor {
     private static boolean isIntrospectionQuery(WebGraphQlRequest request) {
         String document = request.getDocument();
         return document.contains("__schema") || document.contains("__type");
+    }
+
+    private static boolean isPublicMutation(WebGraphQlRequest request) {
+        String document = request.getDocument();
+        return PublicGraphqlMutations.NAMES.stream().anyMatch(document::contains);
     }
 }

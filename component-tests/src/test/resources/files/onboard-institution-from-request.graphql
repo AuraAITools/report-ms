@@ -1,0 +1,15 @@
+mutation OnboardInstitutionFromRequest($institutionCreationRequestId: ID!) {
+    onboardInstitutionFromRequest(institutionCreationRequestId: $institutionCreationRequestId) {
+        id
+        name
+        email
+        contactNumber
+        address
+        uen
+        state
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+        createdAt
+        updatedAt
+    }
+}
