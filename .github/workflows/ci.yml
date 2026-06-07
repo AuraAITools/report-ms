@@ -65,4 +65,4 @@ jobs:
           IMAGE_TAG: ${{vars.IMAGE_TAG}}
         run: |
           docker build --target database-runner -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:database-runner
