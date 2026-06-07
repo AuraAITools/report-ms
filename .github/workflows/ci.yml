@@ -61,8 +61,8 @@ jobs:
         id: build-database-runner-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{vars.ECR_REPOSITORY_DATABASE_RUNNER}}
-          IMAGE_TAG: ${{vars.IMAGE_TAG}}
+          ECR_REPOSITORY: ${{vars.ECR_REPOSITORY}}
+          IMAGE_TAG: database-runner
         run: |
           docker build --target database-runner -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:database-runner
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
