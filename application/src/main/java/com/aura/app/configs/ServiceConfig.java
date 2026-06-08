@@ -51,9 +51,16 @@ import com.aura.core.usecases.lesson_objectives.CreateLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.DeleteLessonObjectiveUseCase;
 import com.aura.core.usecases.lesson_objectives.LessonObjectiveQueryUseCase;
 import com.aura.core.usecases.lesson_objectives.UpdateLessonObjectiveUseCase;
+import com.aura.core.usecases.lesson_quizzes.CreateLessonQuizUseCase;
+import com.aura.core.usecases.lesson_quizzes.DeleteLessonQuizUseCase;
+import com.aura.core.usecases.lesson_quizzes.LessonQuizQueryUseCase;
+import com.aura.core.usecases.lesson_quizzes.UpdateLessonQuizUseCase;
 import com.aura.core.usecases.lesson_group_plans.AddMaterialsToLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveMaterialsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
@@ -308,17 +315,21 @@ public class ServiceConfig {
 
     @Bean
     LessonGroupPlanService lessonGroupPlanService(CreateLessonGroupPlanUseCase createLessonGroupPlanUseCase,
+                                                   UpdateLessonGroupPlanUseCase updateLessonGroupPlanUseCase,
                                                    AddTopicsToLessonGroupPlanUseCase addTopicsToLessonGroupPlanUseCase,
                                                    AddMaterialsToLessonGroupPlanUseCase addMaterialsToLessonGroupPlanUseCase,
+                                                   RemoveTopicsFromLessonGroupPlanUseCase removeTopicsFromLessonGroupPlanUseCase,
+                                                   RemoveMaterialsFromLessonGroupPlanUseCase removeMaterialsFromLessonGroupPlanUseCase,
                                                    LessonGroupPlanRepository lessonGroupPlanRepository,
                                                    LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository,
                                                    TopicLessonLinkRepository topicLessonLinkRepository,
                                                    LessonGroupRepository lessonGroupRepository,
                                                    LessonObjectiveService lessonObjectiveService) {
-        return new LessonGroupPlanService(createLessonGroupPlanUseCase, addTopicsToLessonGroupPlanUseCase,
-                addMaterialsToLessonGroupPlanUseCase, lessonGroupPlanRepository,
-                lessonGroupPlanTopicLinkRepository, topicLessonLinkRepository,
-                lessonGroupRepository, lessonObjectiveService);
+        return new LessonGroupPlanService(createLessonGroupPlanUseCase, updateLessonGroupPlanUseCase,
+                addTopicsToLessonGroupPlanUseCase, addMaterialsToLessonGroupPlanUseCase,
+                removeTopicsFromLessonGroupPlanUseCase, removeMaterialsFromLessonGroupPlanUseCase,
+                lessonGroupPlanRepository, lessonGroupPlanTopicLinkRepository,
+                topicLessonLinkRepository, lessonGroupRepository, lessonObjectiveService);
     }
 
     @Bean
@@ -467,5 +478,15 @@ public class ServiceConfig {
         return new LessonObjectiveService(createLessonObjectiveUseCase, updateLessonObjectiveUseCase,
                 deleteLessonObjectiveUseCase, lessonObjectiveQueryUseCase, addTopicsToLessonObjectiveUseCase,
                 lessonObjectiveRepository);
+    }
+
+    @Bean
+    com.aura.details.services.LessonQuizService lessonQuizService(
+            CreateLessonQuizUseCase createLessonQuizUseCase,
+            UpdateLessonQuizUseCase updateLessonQuizUseCase,
+            DeleteLessonQuizUseCase deleteLessonQuizUseCase,
+            LessonQuizQueryUseCase lessonQuizQueryUseCase) {
+        return new com.aura.details.services.LessonQuizService(createLessonQuizUseCase, updateLessonQuizUseCase,
+                deleteLessonQuizUseCase, lessonQuizQueryUseCase);
     }
 }

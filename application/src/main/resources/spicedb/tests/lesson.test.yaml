@@ -275,6 +275,21 @@ assertions:
     - lesson:1#create_lesson_objective@user:sys_admin_user
     - lesson:1#create_lesson_objective@user:sys_modifier_user
 
+    # ============================================================
+    # create_lesson_quiz — alias of is_admin_or_modifier; granted to
+    # admin/modifier directly and via inherited parent chain
+    # ============================================================
+    - lesson:1#create_lesson_quiz@user:les_admin_user
+    - lesson:1#create_lesson_quiz@user:les_modifier_user
+    - lesson:1#create_lesson_quiz@user:crs_admin_user
+    - lesson:1#create_lesson_quiz@user:crs_modifier_user
+    - lesson:1#create_lesson_quiz@user:out_admin_user
+    - lesson:1#create_lesson_quiz@user:out_modifier_user
+    - lesson:1#create_lesson_quiz@user:inst_admin_user
+    - lesson:1#create_lesson_quiz@user:inst_modifier_user
+    - lesson:1#create_lesson_quiz@user:sys_admin_user
+    - lesson:1#create_lesson_quiz@user:sys_modifier_user
+
   assertFalse:
     # ============================================================
     # non_member_user (no relationships anywhere)
@@ -494,3 +509,17 @@ assertions:
     - lesson:1#create_lesson_objective@user:sys_group_admin_user
     - lesson:1#create_lesson_objective@user:sys_group_viewer_user
     - lesson:1#create_lesson_objective@user:non_member_user
+
+    # ============================================================
+    # create_lesson_quiz — viewers, group-mgmt users, non-members denied
+    # ============================================================
+    - lesson:1#create_lesson_quiz@user:les_viewer_user
+    - lesson:1#create_lesson_quiz@user:crs_viewer_user
+    - lesson:1#create_lesson_quiz@user:out_viewer_user
+    - lesson:1#create_lesson_quiz@user:inst_viewer_user
+    - lesson:1#create_lesson_quiz@user:sys_viewer_user
+    - lesson:1#create_lesson_quiz@user:les_group_admin_user
+    - lesson:1#create_lesson_quiz@user:les_group_viewer_user
+    - lesson:1#create_lesson_quiz@user:sys_group_admin_user
+    - lesson:1#create_lesson_quiz@user:sys_group_viewer_user
+    - lesson:1#create_lesson_quiz@user:non_member_user

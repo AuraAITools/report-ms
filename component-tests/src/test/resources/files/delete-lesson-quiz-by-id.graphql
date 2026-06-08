@@ -1,0 +1,3 @@
+mutation DeleteLessonQuizById($input: DeleteLessonQuizByIdInput!) {
+    deleteLessonQuizById(input: $input)
+}

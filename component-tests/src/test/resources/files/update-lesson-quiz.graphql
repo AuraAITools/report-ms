@@ -1,0 +1,12 @@
+mutation UpdateLessonQuiz($input: UpdateLessonQuizInput!) {
+    updateLessonQuiz(input: $input) {
+        id
+        lessonGroupPlanId
+        score
+        maxScore
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

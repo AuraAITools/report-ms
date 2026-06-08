@@ -1,0 +1,8 @@
+extend type Query {
+    getLessonQuizById(institutionId: ID!, lessonId: ID!, id: ID!): LessonQuizResponse!
+    getAllLessonQuizzesByLessonGroupPlanId(
+        institutionId: ID!,
+        lessonId: ID!,
+        lessonGroupPlanId: ID!
+    ): [LessonQuizResponse!]!
+}

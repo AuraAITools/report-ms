@@ -52,4 +52,20 @@ public class LessonGroupPlanTopicLinkRepositoryImpl implements LessonGroupPlanTo
         }
         return result;
     }
+
+    @Override
+    public java.util.Set<String> findTopicIdsByLessonGroupPlanId(String lessonGroupPlanId) {
+        return jpaLessonGroupPlanTopicLinkRepository.findTopicIdsByLessonGroupPlanId(UUID.fromString(lessonGroupPlanId))
+                .stream()
+                .map(UUID::toString)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    @Override
+    public void deleteAllByLessonGroupPlanIdAndTopicIdIn(String lessonGroupPlanId, List<String> topicIds) {
+        if (topicIds.isEmpty()) return;
+        List<UUID> topicUuids = topicIds.stream().map(UUID::fromString).toList();
+        jpaLessonGroupPlanTopicLinkRepository.deleteAllByLessonGroupPlanIdAndTopicIdIn(
+                UUID.fromString(lessonGroupPlanId), topicUuids);
+    }
 }

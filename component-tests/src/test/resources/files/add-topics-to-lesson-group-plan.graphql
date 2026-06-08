@@ -1,0 +1,6 @@
+mutation AddTopicsToLessonGroupPlan($input: AddTopicsToLessonGroupPlanInput!) {
+    addTopicsToLessonGroupPlan(input: $input) {
+        id
+        name
+    }
+}

@@ -89,6 +89,16 @@ class AddMaterialsToLessonGroupPlanUseCaseImplTest {
             savedAll.add(links);
             return links;
         }
+
+        @Override
+        public List<LessonGroupPlanMaterialLink> findAllByLessonGroupPlanId(String lessonGroupPlanId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllByLessonGroupPlanIdAndMaterialIdIn(String lessonGroupPlanId, List<String> materialIds) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class StubLessonGroupPlanRepository implements LessonGroupPlanRepository {
@@ -139,6 +149,11 @@ class AddMaterialsToLessonGroupPlanUseCaseImplTest {
         @Override
         public @Nullable Material findById(String id) {
             return materialsToReturn.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null);
+        }
+
+        @Override
+        public List<Material> findAllByIds(List<String> ids) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

@@ -42,6 +42,8 @@ spring:
         - classpath:graphql/operations/parents/
         - classpath:graphql/operations/students/
         - classpath:graphql/operations/outlet_rooms/
+        - classpath:graphql/operations/lesson_objectives/
+        - classpath:graphql/operations/lesson_quizzes/
 # actuator
 management:
   endpoints:

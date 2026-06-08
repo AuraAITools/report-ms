@@ -1,11 +1,17 @@
 package com.aura.app.controllers.graphql.v1.lesson_group_plans;
 
+import com.aura.app.codegen.types.AddMaterialsToLessonGroupPlanInput;
+import com.aura.app.codegen.types.AddTopicsToLessonGroupPlanInput;
 import com.aura.app.codegen.types.CreateLessonGroupPlanInLessonGroupInput;
 import com.aura.app.codegen.types.LessonGroupPlanResponse;
 import com.aura.app.codegen.types.LessonGroupResponse;
 import com.aura.app.codegen.types.LessonObjectiveResponse;
 import com.aura.app.codegen.types.MaterialResponse;
+import com.aura.app.codegen.types.RemoveMaterialsFromLessonGroupPlanInput;
+import com.aura.app.codegen.types.RemoveTopicsFromLessonGroupPlanInput;
 import com.aura.app.codegen.types.TopicResponse;
+import com.aura.app.codegen.types.UpdateLessonGroupPlanInput;
+import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.LessonGroupMapper;
 import com.aura.app.mappers.LessonGroupPlanMapper;
 import com.aura.app.mappers.LessonObjectiveMapper;
@@ -21,9 +27,11 @@ import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.MaterialRepository;
+import com.aura.core.repositories.TopicRepository;
 import com.aura.details.services.LessonGroupPlanService;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,6 +52,7 @@ public class LessonGroupPlansGqlController {
     private final LessonGroupRepository lessonGroupRepository;
     private final LessonObjectiveRepository lessonObjectiveRepository;
     private final MaterialRepository materialRepository;
+    private final TopicRepository topicRepository;
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'create_lesson_plan')")
     @MutationMapping
@@ -59,6 +68,63 @@ public class LessonGroupPlansGqlController {
                 toCreate, input.getLessonGroupId(), input.getTopicIds(),
                 input.getMaterialIds(), newObjectives);
         return LessonGroupPlanMapper.INSTANCE.toDto(created);
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonGroupPlanResponse updateLessonGroupPlan(
+            @Argument("input") UpdateLessonGroupPlanInput input,
+            @ContextValue(name = "user") User user) {
+        LessonGroupPlan toUpdate = LessonGroupPlanMapper.INSTANCE.toDomainEntity(input);
+        toUpdate.setId(input.getId());
+        return Optional.ofNullable(lessonGroupPlanService.updateLessonGroupPlan(toUpdate))
+                .map(LessonGroupPlanMapper.INSTANCE::toDto)
+                .orElseThrow(() -> new ResourceNotFoundBusinessException("LessonGroupPlan"));
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public List<MaterialResponse> addMaterialsToLessonGroupPlan(
+            @Argument("input") AddMaterialsToLessonGroupPlanInput input,
+            @ContextValue(name = "user") User user) {
+        lessonGroupPlanService.addMaterialsToLessonGroupPlan(
+                input.getLessonGroupPlanId(), input.getMaterialIds());
+        return materialRepository.findAllByIds(input.getMaterialIds()).stream()
+                .map(MaterialMapper.INSTANCE::toDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public Boolean removeMaterialsFromLessonGroupPlan(
+            @Argument("input") RemoveMaterialsFromLessonGroupPlanInput input,
+            @ContextValue(name = "user") User user) {
+        lessonGroupPlanService.removeMaterialsFromLessonGroupPlan(
+                input.getLessonGroupPlanId(), input.getMaterialIds());
+        return true;
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public List<TopicResponse> addTopicsToLessonGroupPlan(
+            @Argument("input") AddTopicsToLessonGroupPlanInput input,
+            @ContextValue(name = "user") User user) {
+        lessonGroupPlanService.addTopicsToLessonGroupPlan(
+                input.getLessonGroupPlanId(), input.getTopicIds());
+        return topicRepository.findAllByIds(
+                        input.getTopicIds().stream().map(UUID::fromString).toList()).stream()
+                .map(TopicMapper.INSTANCE::toDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public Boolean removeTopicsFromLessonGroupPlan(
+            @Argument("input") RemoveTopicsFromLessonGroupPlanInput input,
+            @ContextValue(name = "user") User user) {
+        lessonGroupPlanService.removeTopicsFromLessonGroupPlan(
+                input.getLessonGroupPlanId(), input.getTopicIds());
+        return true;
     }
 
     @BatchMapping(typeName = "LessonGroupPlanResponse", field = "lessonGroup")

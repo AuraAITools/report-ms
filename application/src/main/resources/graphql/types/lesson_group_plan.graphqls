@@ -41,3 +41,40 @@ input CreateLessonObjectiveInLessonGroupPlanInput {
     objective: String!
     topicIds: [ID!]!
 }
+
+input UpdateLessonGroupPlanInput {
+    id: ID!
+    institutionId: ID!
+    lessonId: ID!
+    plan: String
+    recap: String
+    state: LessonGroupPlanState
+}
+
+input AddMaterialsToLessonGroupPlanInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupPlanId: ID!
+    materialIds: [ID!]!
+}
+
+input RemoveMaterialsFromLessonGroupPlanInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupPlanId: ID!
+    materialIds: [ID!]!
+}
+
+input AddTopicsToLessonGroupPlanInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupPlanId: ID!
+    topicIds: [ID!]!
+}
+
+input RemoveTopicsFromLessonGroupPlanInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupPlanId: ID!
+    topicIds: [ID!]!
+}

@@ -1,0 +1,32 @@
+type LessonQuizResponse implements Auditable {
+    id: ID!
+    lessonGroupPlanId: ID!
+    score: Int!
+    maxScore: Int!
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+input CreateLessonQuizInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupPlanId: ID!
+    score: Int!
+    maxScore: Int!
+}
+
+input UpdateLessonQuizInput {
+    id: ID!
+    institutionId: ID!
+    lessonId: ID!
+    score: Int!
+    maxScore: Int!
+}
+
+input DeleteLessonQuizByIdInput {
+    id: ID!
+    institutionId: ID!
+    lessonId: ID!
+}

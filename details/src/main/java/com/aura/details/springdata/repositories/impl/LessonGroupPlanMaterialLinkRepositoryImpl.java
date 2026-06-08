@@ -32,4 +32,19 @@ public class LessonGroupPlanMaterialLinkRepositoryImpl implements LessonGroupPla
                 .map(LessonGroupPlanMaterialLinkMapper.INSTANCE::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<LessonGroupPlanMaterialLink> findAllByLessonGroupPlanId(String lessonGroupPlanId) {
+        return jpaLessonGroupPlanMaterialsLinkRepository.findAllByLessonGroupPlanId(java.util.UUID.fromString(lessonGroupPlanId)).stream()
+                .map(LessonGroupPlanMaterialLinkMapper.INSTANCE::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteAllByLessonGroupPlanIdAndMaterialIdIn(String lessonGroupPlanId, List<String> materialIds) {
+        if (materialIds.isEmpty()) return;
+        List<java.util.UUID> materialUuids = materialIds.stream().map(java.util.UUID::fromString).toList();
+        jpaLessonGroupPlanMaterialsLinkRepository.deleteAllByLessonGroupPlanIdAndMaterialIdIn(
+                java.util.UUID.fromString(lessonGroupPlanId), materialUuids);
+    }
 }

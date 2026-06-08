@@ -1,0 +1,3 @@
+mutation RemoveTopicsFromLessonGroupPlan($input: RemoveTopicsFromLessonGroupPlanInput!) {
+    removeTopicsFromLessonGroupPlan(input: $input)
+}

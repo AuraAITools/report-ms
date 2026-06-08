@@ -1,3 +1,8 @@
 extend type Mutation {
     createLessonGroupPlanInLessonGroup(input: CreateLessonGroupPlanInLessonGroupInput!): LessonGroupPlanResponse!
+    updateLessonGroupPlan(input: UpdateLessonGroupPlanInput!): LessonGroupPlanResponse!
+    addMaterialsToLessonGroupPlan(input: AddMaterialsToLessonGroupPlanInput!): [MaterialResponse!]!
+    removeMaterialsFromLessonGroupPlan(input: RemoveMaterialsFromLessonGroupPlanInput!): Boolean!
+    addTopicsToLessonGroupPlan(input: AddTopicsToLessonGroupPlanInput!): [TopicResponse!]!
+    removeTopicsFromLessonGroupPlan(input: RemoveTopicsFromLessonGroupPlanInput!): Boolean!
 }

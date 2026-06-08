@@ -245,6 +245,14 @@ public class RepositoryConfig {
     }
 
     @Bean
+    com.aura.core.repositories.LessonQuizRepository lessonQuizRepository(
+            com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizRepository jpaLessonQuizRepository,
+            EntityManager entityManager) {
+        return new com.aura.details.springdata.repositories.impl.LessonQuizRepositoryImpl(
+                jpaLessonQuizRepository, entityManager);
+    }
+
+    @Bean
     LessonObjectiveTopicLinkRepository lessonObjectiveTopicLinkRepository(JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository,
                                                                           EntityManager entityManager) {
         return new LessonObjectiveTopicLinkRepositoryImpl(jpaLessonObjectiveTopicLinkRepository, entityManager);

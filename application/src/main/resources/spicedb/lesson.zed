@@ -47,4 +47,5 @@ definition lesson {
     permission is_admin_or_modifier: user = user_group->is_admin_or_modifier + parent->is_admin_or_modifier
     permission create_lesson_plan: user = is_admin_or_modifier
     permission create_lesson_objective: user = is_admin_or_modifier
+    permission create_lesson_quiz: user = is_admin_or_modifier
 }

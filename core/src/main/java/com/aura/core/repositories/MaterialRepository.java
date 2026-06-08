@@ -13,6 +13,8 @@ public interface MaterialRepository {
 
     @Nullable Material findById(String id);
 
+    List<Material> findAllByIds(List<String> ids);
+
     List<Material> findAllByTenantId(String tenantId);
 
     Map<String, List<Material>> findAllByLessonIds(List<String> lessonIds);

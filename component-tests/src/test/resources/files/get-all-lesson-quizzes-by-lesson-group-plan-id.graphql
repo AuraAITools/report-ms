@@ -1,0 +1,13 @@
+query GetAllLessonQuizzesByLessonGroupPlanId($institutionId: ID!, $lessonId: ID!, $lessonGroupPlanId: ID!) {
+    getAllLessonQuizzesByLessonGroupPlanId(
+        institutionId: $institutionId,
+        lessonId: $lessonId,
+        lessonGroupPlanId: $lessonGroupPlanId
+    ) {
+        id
+        lessonGroupPlanId
+        score
+        maxScore
+        createdBy { userId accountId name url }
+    }
+}

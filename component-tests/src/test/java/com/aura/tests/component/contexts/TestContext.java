@@ -31,6 +31,8 @@ public class TestContext {
     private String materialUploadUrl;
     private String materialFileKey;
     private String institutionCreationRequestId;
+    private String lessonQuizId;
+    private Map<String, Object> lastLessonQuizResponseMap;
 
     // Last responses for @Then assertion steps
     private SubjectResponse lastSubjectResponse;

@@ -4,6 +4,7 @@ import com.aura.app.codegen.types.CreateLessonGroupPlanForLessonGroupInput;
 import com.aura.app.codegen.types.CreateLessonGroupPlanInLessonGroupInput;
 import com.aura.app.codegen.types.CreateLessonObjectiveInLessonGroupPlanInput;
 import com.aura.app.codegen.types.LessonGroupPlanResponse;
+import com.aura.app.codegen.types.UpdateLessonGroupPlanInput;
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonObjective;
 import org.mapstruct.Mapper;
@@ -55,4 +56,13 @@ public interface LessonGroupPlanMapper {
     @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
     @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonGroupPlanResponse toDto(LessonGroupPlan plan);
+
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "lessonGroupId", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    LessonGroupPlan toDomainEntity(UpdateLessonGroupPlanInput input);
 }

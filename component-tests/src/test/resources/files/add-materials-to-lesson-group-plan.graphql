@@ -1,0 +1,6 @@
+mutation AddMaterialsToLessonGroupPlan($input: AddMaterialsToLessonGroupPlanInput!) {
+    addMaterialsToLessonGroupPlan(input: $input) {
+        id
+        name
+    }
+}

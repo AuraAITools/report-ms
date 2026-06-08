@@ -1,0 +1,5 @@
+extend type Mutation {
+    createLessonQuiz(input: CreateLessonQuizInput!): LessonQuizResponse!
+    updateLessonQuiz(input: UpdateLessonQuizInput!): LessonQuizResponse!
+    deleteLessonQuizById(input: DeleteLessonQuizByIdInput!): Boolean!
+}

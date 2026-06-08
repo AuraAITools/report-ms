@@ -11,6 +11,9 @@ import com.aura.core.repositories.TopicLessonLinkRepository;
 import com.aura.core.usecases.lesson_group_plans.AddMaterialsToLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveMaterialsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCase;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +28,11 @@ import static java.util.Optional.ofNullable;
 public class LessonGroupPlanService {
 
     private final CreateLessonGroupPlanUseCase createLessonGroupPlanUseCase;
+    private final UpdateLessonGroupPlanUseCase updateLessonGroupPlanUseCase;
     private final AddTopicsToLessonGroupPlanUseCase addTopicsToLessonGroupPlanUseCase;
     private final AddMaterialsToLessonGroupPlanUseCase addMaterialsToLessonGroupPlanUseCase;
+    private final RemoveTopicsFromLessonGroupPlanUseCase removeTopicsFromLessonGroupPlanUseCase;
+    private final RemoveMaterialsFromLessonGroupPlanUseCase removeMaterialsFromLessonGroupPlanUseCase;
     private final LessonGroupPlanRepository lessonGroupPlanRepository;
     private final LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository;
     private final TopicLessonLinkRepository topicLessonLinkRepository;
@@ -65,6 +71,48 @@ public class LessonGroupPlanService {
             lessonObjectiveService.createLessonObjective(objective, newObjective.topicIds());
         }
         return created;
+    }
+
+    @Transactional
+    public @Nullable LessonGroupPlan updateLessonGroupPlan(LessonGroupPlan plan) {
+        return updateLessonGroupPlanUseCase.updateLessonGroupPlan(plan);
+    }
+
+    @Transactional
+    public List<com.aura.core.entities.links.LessonGroupPlanMaterialLink> addMaterialsToLessonGroupPlan(
+            String lessonGroupPlanId, List<String> materialIds) {
+        LessonGroupPlan plan = ofNullable(lessonGroupPlanRepository.findById(UUID.fromString(lessonGroupPlanId)))
+                .orElseThrow(() -> new RuntimeException("lesson group plan not found"));
+        return addMaterialsToLessonGroupPlanUseCase.addMaterialsToLessonGroupPlan(
+                lessonGroupPlanId, materialIds, plan.getTenantId());
+    }
+
+    @Transactional
+    public void removeMaterialsFromLessonGroupPlan(String lessonGroupPlanId, List<String> materialIds) {
+        removeMaterialsFromLessonGroupPlanUseCase.removeMaterialsFromLessonGroupPlan(lessonGroupPlanId, materialIds);
+    }
+
+    @Transactional
+    public List<com.aura.core.entities.links.LessonGroupPlanTopicLink> addTopicsToLessonGroupPlan(
+            String lessonGroupPlanId, List<String> topicIds) {
+        LessonGroupPlan plan = ofNullable(lessonGroupPlanRepository.findById(UUID.fromString(lessonGroupPlanId)))
+                .orElseThrow(() -> new RuntimeException("lesson group plan not found"));
+        LessonGroup group = ofNullable(lessonGroupRepository.findById(UUID.fromString(plan.getLessonGroupId())))
+                .orElseThrow(() -> new RuntimeException("lesson group not found"));
+        Set<String> lessonTopicIds = topicLessonLinkRepository.findTopicIdsByLessonId(group.getLessonId());
+        List<String> missingTopics = topicIds.stream()
+                .filter(t -> !lessonTopicIds.contains(t))
+                .toList();
+        if (!missingTopics.isEmpty()) {
+            throw new RuntimeException("topics not in lesson: " + missingTopics);
+        }
+        return addTopicsToLessonGroupPlanUseCase.addTopicsToLessonGroupPlan(
+                lessonGroupPlanId, topicIds, plan.getTenantId());
+    }
+
+    @Transactional
+    public void removeTopicsFromLessonGroupPlan(String lessonGroupPlanId, List<String> topicIds) {
+        removeTopicsFromLessonGroupPlanUseCase.removeTopicsFromLessonGroupPlan(lessonGroupPlanId, topicIds);
     }
 
     public @Nullable LessonGroupPlan findById(UUID id) {

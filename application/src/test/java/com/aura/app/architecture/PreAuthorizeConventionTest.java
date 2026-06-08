@@ -56,6 +56,7 @@ class PreAuthorizeConventionTest {
             "create_institution", "create_outlet", "create_course",
             "create_lesson", "create_account", "create_subject",
             "create_lesson_plan", "create_outlet_room", "create_lesson_objective",
+            "create_lesson_quiz",
             "create_material", "create_level", "create_school", "delete_school"
     );
 

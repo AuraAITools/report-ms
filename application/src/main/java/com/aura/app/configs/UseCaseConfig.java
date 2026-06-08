@@ -14,6 +14,7 @@ import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
 import com.aura.core.repositories.LessonGroupRepository;
+import com.aura.core.repositories.LessonQuizRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.LevelLessonLinkRepository;
 import com.aura.core.repositories.LevelRepository;
@@ -96,10 +97,24 @@ import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCa
 import com.aura.core.usecases.lesson_group_plans.AddTopicsToLessonGroupPlanUseCaseImpl;
 import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_group_plans.CreateLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.RemoveMaterialsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveMaterialsFromLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlanUseCaseImpl;
+import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCase;
+import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCaseImpl;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCaseImpl;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCaseImpl;
+import com.aura.core.usecases.lesson_quizzes.CreateLessonQuizUseCase;
+import com.aura.core.usecases.lesson_quizzes.CreateLessonQuizUseCaseImpl;
+import com.aura.core.usecases.lesson_quizzes.DeleteLessonQuizUseCase;
+import com.aura.core.usecases.lesson_quizzes.DeleteLessonQuizUseCaseImpl;
+import com.aura.core.usecases.lesson_quizzes.LessonQuizQueryUseCase;
+import com.aura.core.usecases.lesson_quizzes.LessonQuizQueryUseCaseImpl;
+import com.aura.core.usecases.lesson_quizzes.UpdateLessonQuizUseCase;
+import com.aura.core.usecases.lesson_quizzes.UpdateLessonQuizUseCaseImpl;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
@@ -388,6 +403,23 @@ public class UseCaseConfig {
     }
 
     @Bean
+    UpdateLessonGroupPlanUseCase updateLessonGroupPlanUseCase(LessonGroupPlanRepository lessonGroupPlanRepository) {
+        return new UpdateLessonGroupPlanUseCaseImpl(lessonGroupPlanRepository);
+    }
+
+    @Bean
+    RemoveMaterialsFromLessonGroupPlanUseCase removeMaterialsFromLessonGroupPlanUseCase(
+            LessonGroupPlanMaterialLinkRepository lessonGroupPlanMaterialLinkRepository) {
+        return new RemoveMaterialsFromLessonGroupPlanUseCaseImpl(lessonGroupPlanMaterialLinkRepository);
+    }
+
+    @Bean
+    RemoveTopicsFromLessonGroupPlanUseCase removeTopicsFromLessonGroupPlanUseCase(
+            LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository) {
+        return new RemoveTopicsFromLessonGroupPlanUseCaseImpl(lessonGroupPlanTopicLinkRepository);
+    }
+
+    @Bean
     AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase(LessonGroupRepository lessonGroupRepository,
                                                                     StudentLessonLinkRepository studentLessonLinkRepository) {
         return new AddStudentsToLessonGroupUseCaseImpl(lessonGroupRepository, studentLessonLinkRepository);
@@ -611,5 +643,26 @@ public class UseCaseConfig {
             LessonObjectiveTopicLinkRepository lessonObjectiveTopicLinkRepository,
             TopicRepository topicRepository) {
         return new AddTopicsToLessonObjectiveUseCaseImpl(lessonObjectiveTopicLinkRepository, topicRepository);
+    }
+
+    @Bean
+    CreateLessonQuizUseCase createLessonQuizUseCase(LessonQuizRepository lessonQuizRepository,
+                                                     LessonGroupPlanRepository lessonGroupPlanRepository) {
+        return new CreateLessonQuizUseCaseImpl(lessonQuizRepository, lessonGroupPlanRepository);
+    }
+
+    @Bean
+    UpdateLessonQuizUseCase updateLessonQuizUseCase(LessonQuizRepository lessonQuizRepository) {
+        return new UpdateLessonQuizUseCaseImpl(lessonQuizRepository);
+    }
+
+    @Bean
+    DeleteLessonQuizUseCase deleteLessonQuizUseCase(LessonQuizRepository lessonQuizRepository) {
+        return new DeleteLessonQuizUseCaseImpl(lessonQuizRepository);
+    }
+
+    @Bean
+    LessonQuizQueryUseCase lessonQuizQueryUseCase(LessonQuizRepository lessonQuizRepository) {
+        return new LessonQuizQueryUseCaseImpl(lessonQuizRepository);
     }
 }

@@ -1,0 +1,12 @@
+mutation UpdateLessonGroupPlan($input: UpdateLessonGroupPlanInput!) {
+    updateLessonGroupPlan(input: $input) {
+        id
+        plan
+        recap
+        state
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

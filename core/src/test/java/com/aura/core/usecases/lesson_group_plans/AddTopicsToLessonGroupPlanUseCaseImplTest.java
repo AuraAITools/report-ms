@@ -78,6 +78,16 @@ class AddTopicsToLessonGroupPlanUseCaseImplTest {
         public Map<String, List<Topic>> findTopicsByLessonGroupPlanIds(List<String> lessonGroupPlanIds) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public java.util.Set<String> findTopicIdsByLessonGroupPlanId(String lessonGroupPlanId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllByLessonGroupPlanIdAndTopicIdIn(String lessonGroupPlanId, List<String> topicIds) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class StubLessonGroupPlanRepository implements LessonGroupPlanRepository {

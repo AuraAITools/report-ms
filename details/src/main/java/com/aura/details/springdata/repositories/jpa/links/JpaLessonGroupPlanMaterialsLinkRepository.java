@@ -14,6 +14,10 @@ public interface JpaLessonGroupPlanMaterialsLinkRepository extends JpaRepository
 
     void deleteAllByMaterialId(UUID materialId);
 
+    List<LessonGroupPlanMaterialsLinkModel> findAllByLessonGroupPlanId(UUID lessonGroupPlanId);
+
+    void deleteAllByLessonGroupPlanIdAndMaterialIdIn(UUID lessonGroupPlanId, List<UUID> materialIds);
+
     @Query("SELECT lgpm.lessonGroupPlan.lessonGroup.lesson.id, lgpm.material FROM LessonGroupPlanMaterialsLinkModel lgpm WHERE lgpm.lessonGroupPlan.lessonGroup.lesson.id IN :lessonIds")
     List<Object[]> findMaterialsByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
 

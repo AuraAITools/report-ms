@@ -46,6 +46,15 @@ public class MaterialRepositoryImpl implements MaterialRepository {
     }
 
     @Override
+    public List<Material> findAllByIds(List<String> ids) {
+        if (ids.isEmpty()) return Collections.emptyList();
+        List<UUID> uuids = ids.stream().map(UUID::fromString).toList();
+        return jpaMaterialRepository.findAllById(uuids).stream()
+                .map(MaterialMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public List<Material> findAllByTenantId(String tenantId) {
         return jpaMaterialRepository.findByTenantId(tenantId).stream()
                 .map(MaterialMapper.INSTANCE::toDomainEntity)

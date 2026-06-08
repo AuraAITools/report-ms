@@ -1,0 +1,10 @@
+query GetLessonQuizById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getLessonQuizById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        lessonGroupPlanId
+        score
+        maxScore
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}
