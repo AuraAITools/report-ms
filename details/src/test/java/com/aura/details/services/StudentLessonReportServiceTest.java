@@ -3,6 +3,9 @@ package com.aura.details.services;
 import com.aura.core.entities.links.StudentLessonLink;
 import com.aura.core.repositories.StudentLessonLinkRepository;
 import com.aura.core.usecases.student_lesson_reports.CreateStudentLessonReportUseCase;
+import com.aura.core.usecases.student_lesson_reports.DeleteStudentLessonReportUseCase;
+import com.aura.core.usecases.student_lesson_reports.StudentLessonReportQueryUseCase;
+import com.aura.core.usecases.student_lesson_reports.UpdateStudentLessonReportUseCase;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,12 @@ class StudentLessonReportServiceTest {
 
     @Mock
     private CreateStudentLessonReportUseCase createStudentLessonReportUseCase;
+    @Mock
+    private StudentLessonReportQueryUseCase studentLessonReportQueryUseCase;
+    @Mock
+    private UpdateStudentLessonReportUseCase updateStudentLessonReportUseCase;
+    @Mock
+    private DeleteStudentLessonReportUseCase deleteStudentLessonReportUseCase;
     @Mock
     private StudentLessonLinkRepository studentLessonLinkRepository;
 

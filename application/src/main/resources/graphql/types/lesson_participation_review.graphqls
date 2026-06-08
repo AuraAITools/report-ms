@@ -1,0 +1,29 @@
+type LessonParticipationReviewResponse implements Auditable {
+    id: ID!
+    studentLessonReportId: ID!
+    participationType: ParticipationType!
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+enum ParticipationType {
+    ATTENTIVE
+    QUIET
+    CURIOUS
+    UNFILLED
+}
+
+input UpdateLessonParticipationReviewInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+    participationType: ParticipationType!
+}
+
+input DeleteLessonParticipationReviewInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+}

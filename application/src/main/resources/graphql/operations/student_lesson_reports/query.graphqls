@@ -1,0 +1,4 @@
+extend type Query {
+    getStudentLessonReportById(institutionId: ID!, lessonId: ID!, id: ID!): StudentLessonReportResponse
+    getStudentLessonReportsByLessonGroup(institutionId: ID!, lessonId: ID!, lessonGroupId: ID!): [StudentLessonReportResponse!]!
+}

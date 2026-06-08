@@ -1,0 +1,3 @@
+extend type Query {
+    getLessonTopicProficiencyById(institutionId: ID!, lessonId: ID!, id: ID!): LessonTopicProficiencyResponse
+}

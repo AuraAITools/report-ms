@@ -30,6 +30,9 @@ import org.hibernate.envers.Audited;
 @Table(name = "LessonQuizzes")
 public class LessonQuizModel extends TenantBaseModel {
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = true)
     private int score;
 

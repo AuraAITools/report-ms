@@ -94,7 +94,22 @@ import com.aura.core.usecases.parents.UpdateParentUseCase;
 import com.aura.core.usecases.schools.CreateSchoolUseCase;
 import com.aura.core.usecases.schools.DeleteSchoolUseCase;
 import com.aura.core.usecases.schools.SchoolQueryUseCase;
+import com.aura.core.repositories.LessonHomeworkCompletionRepository;
+import com.aura.core.repositories.LessonParticipationReviewRepository;
+import com.aura.core.repositories.LessonTopicProficiencyRepository;
+import com.aura.core.usecases.lesson_homework_completions.DeleteLessonHomeworkCompletionUseCase;
+import com.aura.core.usecases.lesson_homework_completions.LessonHomeworkCompletionQueryUseCase;
+import com.aura.core.usecases.lesson_homework_completions.UpdateLessonHomeworkCompletionUseCase;
+import com.aura.core.usecases.lesson_participation_reviews.DeleteLessonParticipationReviewUseCase;
+import com.aura.core.usecases.lesson_participation_reviews.LessonParticipationReviewQueryUseCase;
+import com.aura.core.usecases.lesson_participation_reviews.UpdateLessonParticipationReviewUseCase;
+import com.aura.core.usecases.lesson_topic_proficiencies.DeleteLessonTopicProficiencyUseCase;
+import com.aura.core.usecases.lesson_topic_proficiencies.LessonTopicProficiencyQueryUseCase;
+import com.aura.core.usecases.lesson_topic_proficiencies.UpdateLessonTopicProficiencyUseCase;
 import com.aura.core.usecases.student_lesson_reports.CreateStudentLessonReportUseCase;
+import com.aura.core.usecases.student_lesson_reports.DeleteStudentLessonReportUseCase;
+import com.aura.core.usecases.student_lesson_reports.StudentLessonReportQueryUseCase;
+import com.aura.core.usecases.student_lesson_reports.UpdateStudentLessonReportUseCase;
 import com.aura.core.usecases.students.DeleteStudentUseCase;
 import com.aura.core.usecases.students.StudentQueryUseCase;
 import com.aura.core.usecases.students.TagStudentToLevelUseCase;
@@ -125,6 +140,9 @@ import com.aura.details.services.OutletRoomService;
 import com.aura.details.services.OutletService;
 import com.aura.details.services.ParentService;
 import com.aura.details.services.SchoolService;
+import com.aura.details.services.LessonHomeworkCompletionService;
+import com.aura.details.services.LessonParticipationReviewService;
+import com.aura.details.services.LessonTopicProficiencyService;
 import com.aura.details.services.StudentLessonReportService;
 import com.aura.details.services.StudentService;
 import com.aura.details.services.SubjectService;
@@ -334,8 +352,37 @@ public class ServiceConfig {
 
     @Bean
     StudentLessonReportService studentLessonReportService(CreateStudentLessonReportUseCase createStudentLessonReportUseCase,
+                                                          StudentLessonReportQueryUseCase studentLessonReportQueryUseCase,
+                                                          UpdateStudentLessonReportUseCase updateStudentLessonReportUseCase,
+                                                          DeleteStudentLessonReportUseCase deleteStudentLessonReportUseCase,
                                                           StudentLessonLinkRepository studentLessonLinkRepository) {
-        return new StudentLessonReportService(createStudentLessonReportUseCase, studentLessonLinkRepository);
+        return new StudentLessonReportService(createStudentLessonReportUseCase,
+                studentLessonReportQueryUseCase, updateStudentLessonReportUseCase,
+                deleteStudentLessonReportUseCase, studentLessonLinkRepository);
+    }
+
+    @Bean
+    LessonHomeworkCompletionService lessonHomeworkCompletionService(
+            LessonHomeworkCompletionQueryUseCase queryUseCase,
+            UpdateLessonHomeworkCompletionUseCase updateUseCase,
+            DeleteLessonHomeworkCompletionUseCase deleteUseCase) {
+        return new LessonHomeworkCompletionService(queryUseCase, updateUseCase, deleteUseCase);
+    }
+
+    @Bean
+    LessonParticipationReviewService lessonParticipationReviewService(
+            LessonParticipationReviewQueryUseCase queryUseCase,
+            UpdateLessonParticipationReviewUseCase updateUseCase,
+            DeleteLessonParticipationReviewUseCase deleteUseCase) {
+        return new LessonParticipationReviewService(queryUseCase, updateUseCase, deleteUseCase);
+    }
+
+    @Bean
+    LessonTopicProficiencyService lessonTopicProficiencyService(
+            LessonTopicProficiencyQueryUseCase queryUseCase,
+            UpdateLessonTopicProficiencyUseCase updateUseCase,
+            DeleteLessonTopicProficiencyUseCase deleteUseCase) {
+        return new LessonTopicProficiencyService(queryUseCase, updateUseCase, deleteUseCase);
     }
 
     @Bean

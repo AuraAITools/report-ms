@@ -10,7 +10,10 @@ import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
 import com.aura.core.repositories.LessonGroupRepository;
+import com.aura.core.repositories.LessonHomeworkCompletionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
+import com.aura.core.repositories.LessonParticipationReviewRepository;
+import com.aura.core.repositories.LessonTopicProficiencyRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -41,7 +44,10 @@ import com.aura.details.springdata.repositories.impl.LessonGroupPlanMaterialLink
 import com.aura.details.springdata.repositories.impl.LessonGroupPlanRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonGroupPlanTopicLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonGroupRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonHomeworkCompletionRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonParticipationReviewRepositoryImpl;
+import com.aura.details.springdata.repositories.impl.LessonTopicProficiencyRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonObjectiveTopicLinkRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonOutletRoomBookingRepositoryImpl;
 import com.aura.details.springdata.repositories.impl.LessonRepositoryImpl;
@@ -69,7 +75,10 @@ import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionC
 import com.aura.details.springdata.repositories.jpa.institutions.JpaInstitutionRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupPlanRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonHomeworkCompletionRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonParticipationReviewRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonTopicProficiencyRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonOutletRoomBookingRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaPriceRecordRepository;
@@ -295,6 +304,27 @@ public class RepositoryConfig {
     @Bean
     StudentLessonReportRepository studentLessonReportRepository(JpaStudentLessonReportRepository jpaStudentLessonReportRepository, EntityManager entityManager) {
         return new StudentLessonReportRepositoryImpl(jpaStudentLessonReportRepository, entityManager);
+    }
+
+    @Bean
+    LessonHomeworkCompletionRepository lessonHomeworkCompletionRepository(
+            JpaLessonHomeworkCompletionRepository jpaLessonHomeworkCompletionRepository,
+            EntityManager entityManager) {
+        return new LessonHomeworkCompletionRepositoryImpl(jpaLessonHomeworkCompletionRepository, entityManager);
+    }
+
+    @Bean
+    LessonParticipationReviewRepository lessonParticipationReviewRepository(
+            JpaLessonParticipationReviewRepository jpaLessonParticipationReviewRepository,
+            EntityManager entityManager) {
+        return new LessonParticipationReviewRepositoryImpl(jpaLessonParticipationReviewRepository, entityManager);
+    }
+
+    @Bean
+    LessonTopicProficiencyRepository lessonTopicProficiencyRepository(
+            JpaLessonTopicProficiencyRepository jpaLessonTopicProficiencyRepository,
+            EntityManager entityManager) {
+        return new LessonTopicProficiencyRepositoryImpl(jpaLessonTopicProficiencyRepository, entityManager);
     }
 
     @Bean

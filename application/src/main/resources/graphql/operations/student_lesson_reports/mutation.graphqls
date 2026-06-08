@@ -1,0 +1,4 @@
+extend type Mutation {
+    updateStudentLessonReport(input: UpdateStudentLessonReportInput!): StudentLessonReportResponse!
+    deleteStudentLessonReport(input: DeleteStudentLessonReportInput!): Boolean!
+}

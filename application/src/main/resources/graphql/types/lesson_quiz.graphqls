@@ -1,6 +1,7 @@
 type LessonQuizResponse implements Auditable {
     id: ID!
     lessonGroupPlanId: ID!
+    name: String!
     score: Int!
     maxScore: Int!
     createdAt: Long!
@@ -13,6 +14,7 @@ input CreateLessonQuizInput {
     institutionId: ID!
     lessonId: ID!
     lessonGroupPlanId: ID!
+    name: String!
     score: Int!
     maxScore: Int!
 }
@@ -21,6 +23,7 @@ input UpdateLessonQuizInput {
     id: ID!
     institutionId: ID!
     lessonId: ID!
+    name: String
     score: Int!
     maxScore: Int!
 }

@@ -1,0 +1,4 @@
+extend type Mutation {
+    updateLessonTopicProficiency(input: UpdateLessonTopicProficiencyInput!): LessonTopicProficiencyResponse!
+    deleteLessonTopicProficiency(input: DeleteLessonTopicProficiencyInput!): Boolean!
+}

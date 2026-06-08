@@ -21,6 +21,7 @@ public class LessonQuiz {
     private Instant updatedAt;
     private String updatedBy;
     private String tenantId;
+    private String name;
     private int score;
 
     private int maxScore = 100;

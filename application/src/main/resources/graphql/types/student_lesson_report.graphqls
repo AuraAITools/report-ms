@@ -1,0 +1,31 @@
+type StudentLessonReportResponse implements Auditable {
+    id: ID!
+    studentLessonLinkId: ID!
+    lessonHomeworkCompletion: LessonHomeworkCompletionResponse
+    lessonParticipationReview: LessonParticipationReviewResponse
+    lessonTopicProficiencies: [LessonTopicProficiencyResponse!]!
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+input UpdateStudentLessonReportInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+    homeworkCompletion: Int
+    participationType: ParticipationType
+    topicProficiencies: [UpdateTopicProficiencyForReportInput!]
+}
+
+input UpdateTopicProficiencyForReportInput {
+    id: ID!
+    rating: Int!
+}
+
+input DeleteStudentLessonReportInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+}

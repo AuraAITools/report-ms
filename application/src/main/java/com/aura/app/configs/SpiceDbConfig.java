@@ -3,6 +3,7 @@ package com.aura.app.configs;
 import com.authzed.api.v1.PermissionsServiceGrpc;
 import com.authzed.api.v1.SchemaServiceGrpc;
 import com.authzed.grpcutil.BearerToken;
+import com.aura.app.bootstrap.SpiceDbSchemaBootstrap;
 import com.aura.app.bootstrap.SystemRootRelationshipBootstrap;
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.details.spicedb.SpiceDbCredentials;
@@ -57,5 +58,11 @@ public class SpiceDbConfig {
     SystemRootRelationshipBootstrap systemRootRelationshipBootstrap(
             RelationshipAuthorizationService relationshipService) {
         return new SystemRootRelationshipBootstrap(relationshipService);
+    }
+
+    @Bean
+    SpiceDbSchemaBootstrap spiceDbSchemaBootstrap(
+            SchemaServiceGrpc.SchemaServiceBlockingStub schemaServiceStub) {
+        return new SpiceDbSchemaBootstrap(schemaServiceStub);
     }
 }

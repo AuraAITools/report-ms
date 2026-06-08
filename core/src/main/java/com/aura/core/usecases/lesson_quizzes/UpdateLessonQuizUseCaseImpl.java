@@ -16,6 +16,9 @@ public class UpdateLessonQuizUseCaseImpl implements UpdateLessonQuizUseCase {
         if (existing == null) {
             return null;
         }
+        if (lessonQuiz.getName() != null) {
+            existing.setName(lessonQuiz.getName());
+        }
         existing.setScore(lessonQuiz.getScore());
         existing.setMaxScore(lessonQuiz.getMaxScore());
         return lessonQuizRepository.save(existing);

@@ -1,0 +1,3 @@
+extend type Query {
+    getLessonHomeworkCompletionById(institutionId: ID!, lessonId: ID!, id: ID!): LessonHomeworkCompletionResponse
+}

@@ -9,7 +9,10 @@ import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import com.aura.details.springdata.models.topics.TopicModel;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonReportRepository;
 import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class StudentLessonReportRepositoryImpl implements StudentLessonReportRepository {
@@ -38,5 +41,25 @@ public class StudentLessonReportRepositoryImpl implements StudentLessonReportRep
 
         StudentLessonReportModel saved = jpaStudentLessonReportRepository.save(model);
         return StudentLessonReportMapper.INSTANCE.toDomainEntity(saved);
+    }
+
+    @Override
+    public @Nullable StudentLessonReport findById(UUID id) {
+        return jpaStudentLessonReportRepository.findById(id)
+                .map(StudentLessonReportMapper.INSTANCE::toDomainEntity)
+                .orElse(null);
+    }
+
+    @Override
+    public List<StudentLessonReport> findAllByLessonGroupId(String lessonGroupId) {
+        return jpaStudentLessonReportRepository
+                .findAllByStudentLessonLink_LessonGroup_Id(UUID.fromString(lessonGroupId)).stream()
+                .map(StudentLessonReportMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaStudentLessonReportRepository.deleteById(id);
     }
 }

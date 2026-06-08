@@ -1,0 +1,23 @@
+type LessonTopicProficiencyResponse implements Auditable {
+    id: ID!
+    studentLessonReportId: ID!
+    topicId: ID!
+    rating: Int
+    createdAt: Long!
+    createdBy: AccountMinimalDetail!
+    updatedAt: Long
+    updatedBy: AccountMinimalDetail
+}
+
+input UpdateLessonTopicProficiencyInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+    rating: Int!
+}
+
+input DeleteLessonTopicProficiencyInput {
+    institutionId: ID!
+    lessonId: ID!
+    id: ID!
+}
