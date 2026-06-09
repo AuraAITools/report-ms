@@ -10,6 +10,7 @@ import com.aura.core.repositories.InstitutionCreationRequestRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonObjectiveRepository;
 import com.aura.core.repositories.LessonObjectiveTopicLinkRepository;
+import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
@@ -132,6 +133,8 @@ import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
+import com.aura.core.usecases.lessons.DetectLessonConflictsUseCaseImpl;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCaseImpl;
 import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
@@ -345,6 +348,13 @@ public class UseCaseConfig {
     @Bean
     LessonQueryUseCase lessonQueryUseCase(LessonRepository lessonRepository) {
         return new LessonQueryUseCaseImpl(lessonRepository);
+    }
+
+    @Bean
+    DetectLessonConflictsUseCase detectLessonConflictsUseCase(
+            LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository,
+            LessonRepository lessonRepository) {
+        return new DetectLessonConflictsUseCaseImpl(lessonOutletRoomBookingRepository, lessonRepository);
     }
 
     @Bean

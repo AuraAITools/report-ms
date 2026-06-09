@@ -154,6 +154,20 @@ class AddTopicsToLessonUseCaseImplTest {
         public void deleteAllLessonLinksByLessonId(String lessonId) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public List<Lesson> findActiveOverlappingForStudent(String tenantId, String studentId,
+                java.time.Instant start, java.time.Instant end,
+                @org.jspecify.annotations.Nullable String excludeLessonId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Lesson> findActiveOverlappingForEducator(String tenantId, String educatorId,
+                java.time.Instant start, java.time.Instant end,
+                @org.jspecify.annotations.Nullable String excludeLessonId) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static class StubTopicRepository implements TopicRepository {
