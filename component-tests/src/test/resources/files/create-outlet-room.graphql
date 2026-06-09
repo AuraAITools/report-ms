@@ -1,0 +1,10 @@
+mutation CreateOutletRoom($input: CreateOutletRoomInput!) {
+    createOutletRoom(createOutletRoomInput: $input) {
+        id
+        name
+        outletId
+        size
+        type
+        createdBy { userId accountId name url }
+    }
+}

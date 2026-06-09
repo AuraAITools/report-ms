@@ -4,6 +4,7 @@ import com.aura.app.codegen.types.LessonResponse;
 import com.aura.app.codegen.types.SubjectResponse;
 import com.aura.app.codegen.types.SubjectResponseWithTopics;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -46,8 +47,38 @@ public class TestContext {
     private boolean requestFailed;
     private String lastErrorMessage;
     private int lastHttpStatus;
+    private Throwable lastException;
+
+    // Name-keyed lookup maps for conflict test scenarios
+    private final Map<String, String> lessonIdsByName = new HashMap<>();
+    private final Map<String, String> outletRoomIdsByName = new HashMap<>();
+    private final Map<String, String> courseIdsByName = new HashMap<>();
 
     public TestContext(HttpSyncGraphQlClient graphQLClient) {
         this.graphQLClient = graphQLClient;
+    }
+
+    public void recordLesson(String name, String id) {
+        lessonIdsByName.put(name, id);
+    }
+
+    public String getLessonIdByName(String name) {
+        return lessonIdsByName.get(name);
+    }
+
+    public void recordOutletRoom(String name, String id) {
+        outletRoomIdsByName.put(name, id);
+    }
+
+    public String getOutletRoomIdByName(String name) {
+        return outletRoomIdsByName.get(name);
+    }
+
+    public void recordCourse(String name, String id) {
+        courseIdsByName.put(name, id);
+    }
+
+    public String getCourseIdByName(String name) {
+        return courseIdsByName.get(name);
     }
 }
