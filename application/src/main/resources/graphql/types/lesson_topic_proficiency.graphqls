@@ -9,6 +9,14 @@ type LessonTopicProficiencyResponse implements Auditable {
     updatedBy: AccountMinimalDetail
 }
 
+input CreateLessonTopicProficiencyInput {
+    institutionId: ID!
+    lessonId: ID!
+    studentLessonReportId: ID!
+    topicId: ID!
+    rating: Int
+}
+
 input UpdateLessonTopicProficiencyInput {
     institutionId: ID!
     lessonId: ID!

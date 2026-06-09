@@ -15,6 +15,13 @@ enum ParticipationType {
     UNFILLED
 }
 
+input CreateLessonParticipationReviewInput {
+    institutionId: ID!
+    lessonId: ID!
+    studentLessonReportId: ID!
+    participationType: ParticipationType!
+}
+
 input UpdateLessonParticipationReviewInput {
     institutionId: ID!
     lessonId: ID!

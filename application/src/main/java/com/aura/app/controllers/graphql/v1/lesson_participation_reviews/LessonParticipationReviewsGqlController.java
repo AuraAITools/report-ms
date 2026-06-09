@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lesson_participation_reviews;
 
+import com.aura.app.codegen.types.CreateLessonParticipationReviewInput;
 import com.aura.app.codegen.types.DeleteLessonParticipationReviewInput;
 import com.aura.app.codegen.types.LessonParticipationReviewResponse;
 import com.aura.app.codegen.types.UpdateLessonParticipationReviewInput;
@@ -33,6 +34,17 @@ public class LessonParticipationReviewsGqlController {
         return Optional.ofNullable(lessonParticipationReviewService.findById(UUID.fromString(id)))
                 .map(LessonParticipationReviewMapper.INSTANCE::toDto)
                 .orElse(null);
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonParticipationReviewResponse createLessonParticipationReview(
+            @Argument("input") CreateLessonParticipationReviewInput input,
+            @ContextValue(name = "user") User user) {
+        return LessonParticipationReviewMapper.INSTANCE.toDto(
+                lessonParticipationReviewService.create(input.getStudentLessonReportId(),
+                        LessonParticipationReviewMapper.INSTANCE.toDomainEnum(input.getParticipationType()),
+                        user.getCurrentTenantAccessed()));
     }
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")

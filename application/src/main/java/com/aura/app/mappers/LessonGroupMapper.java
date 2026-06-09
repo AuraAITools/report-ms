@@ -35,7 +35,7 @@ public interface LessonGroupMapper {
 
     @Mapping(target = "lesson", ignore = true)
     @Mapping(target = "lessonGroupPlan", ignore = true)
-    @Mapping(target = "students", ignore = true)
+    @Mapping(target = "lessonStudents", ignore = true)
     @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "toMinimal")
     @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonGroupResponse toDto(LessonGroup group);

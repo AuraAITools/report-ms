@@ -10,6 +10,12 @@ type StudentLessonReportResponse implements Auditable {
     updatedBy: AccountMinimalDetail
 }
 
+input CreateStudentLessonReportInput {
+    institutionId: ID!
+    lessonId: ID!
+    studentLessonLinkId: ID!
+}
+
 input UpdateStudentLessonReportInput {
     institutionId: ID!
     lessonId: ID!

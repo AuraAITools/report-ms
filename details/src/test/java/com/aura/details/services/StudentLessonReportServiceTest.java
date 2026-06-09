@@ -1,12 +1,19 @@
 package com.aura.details.services;
 
+import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.links.StudentLessonLink;
+import com.aura.core.entities.links.StudentLessonReport;
+import com.aura.core.repositories.LessonGroupPlanRepository;
+import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
 import com.aura.core.repositories.StudentLessonLinkRepository;
 import com.aura.core.usecases.student_lesson_reports.CreateStudentLessonReportUseCase;
 import com.aura.core.usecases.student_lesson_reports.DeleteStudentLessonReportUseCase;
 import com.aura.core.usecases.student_lesson_reports.StudentLessonReportQueryUseCase;
 import com.aura.core.usecases.student_lesson_reports.UpdateStudentLessonReportUseCase;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -33,6 +41,10 @@ class StudentLessonReportServiceTest {
     private DeleteStudentLessonReportUseCase deleteStudentLessonReportUseCase;
     @Mock
     private StudentLessonLinkRepository studentLessonLinkRepository;
+    @Mock
+    private LessonGroupPlanRepository lessonGroupPlanRepository;
+    @Mock
+    private LessonGroupPlanTopicLinkRepository lessonGroupPlanTopicLinkRepository;
 
     @InjectMocks
     private StudentLessonReportService service;
@@ -62,5 +74,35 @@ class StudentLessonReportServiceTest {
         service.createReportsForStudentsInGroup("lesson-1", List.of(), List.of("topic-a"), "tenant-A");
 
         verifyNoInteractions(studentLessonLinkRepository, createStudentLessonReportUseCase);
+    }
+
+    @DisplayName("Should resolve the link's group plan topics and delegate to createEmptyReport")
+    @Test
+    void createForStudentLessonLink_resolvesPlanTopicsAndDelegates() {
+        String linkId = UUID.randomUUID().toString();
+        String groupId = "group-1";
+        String planId = "plan-1";
+        StudentLessonLink link = StudentLessonLink.builder()
+                .id(linkId)
+                .lessonGroup(LessonGroup.builder().id(groupId).build())
+                .build();
+        LessonGroupPlan plan = LessonGroupPlan.builder().id(planId).build();
+        StudentLessonReport created = StudentLessonReport.builder().id("rep-1").build();
+
+        when(studentLessonLinkRepository.findById(UUID.fromString(linkId))).thenReturn(link);
+        when(lessonGroupPlanRepository.findByLessonGroupId(groupId)).thenReturn(plan);
+        when(lessonGroupPlanTopicLinkRepository.findTopicIdsByLessonGroupPlanId(planId))
+                .thenReturn(Set.of("topic-a", "topic-b"));
+        org.mockito.ArgumentCaptor<List<String>> topicsCaptor = org.mockito.ArgumentCaptor.forClass(List.class);
+        when(createStudentLessonReportUseCase.createEmptyReport(
+                org.mockito.ArgumentMatchers.eq(linkId),
+                topicsCaptor.capture(),
+                org.mockito.ArgumentMatchers.eq("tenant-A")))
+                .thenReturn(created);
+
+        StudentLessonReport result = service.createForStudentLessonLink(linkId, "tenant-A");
+
+        assertThat(result).isSameAs(created);
+        assertThat(topicsCaptor.getValue()).containsExactlyInAnyOrder("topic-a", "topic-b");
     }
 }

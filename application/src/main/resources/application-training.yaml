@@ -1,0 +1,50 @@
+spring:
+  config:
+    activate:
+      on-profile: training
+  liquibase:
+    enabled: false
+  datasource:
+    url: jdbc:postgresql://stub-host:5432/training
+    username: training
+    password: training
+    driverClassName: org.postgresql.Driver
+    hikari:
+      initialization-fail-timeout: -1
+      maximum-pool-size: 1
+      minimum-idle: 0
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        boot:
+          allow_jdbc_metadata_access: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+          use_jdbc_metadata_defaults: false
+  mail:
+    host: stub-host
+    port: 25
+  task:
+    scheduling:
+      pool:
+        size: 0
+oauth2:
+  security:
+    enabled: false
+    resource-server:
+      jwk-set-uri: http://stub-host:9999/jwks
+spicedb:
+  target: stub-host:50051
+  preshared-key: training
+  plaintext: true
+aws:
+  region: ap-southeast-1
+  s3:
+    bucket-name: training
+aura:
+  email:
+    enabled: false
+    weekly-digest:
+      enabled: false

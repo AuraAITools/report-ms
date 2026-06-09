@@ -1,6 +1,7 @@
 package com.aura.details.services;
 
 import com.aura.core.entities.lessons.LessonHomeworkCompletion;
+import com.aura.core.usecases.lesson_homework_completions.CreateLessonHomeworkCompletionUseCase;
 import com.aura.core.usecases.lesson_homework_completions.DeleteLessonHomeworkCompletionUseCase;
 import com.aura.core.usecases.lesson_homework_completions.LessonHomeworkCompletionQueryUseCase;
 import com.aura.core.usecases.lesson_homework_completions.UpdateLessonHomeworkCompletionUseCase;
@@ -12,12 +13,18 @@ import org.jspecify.annotations.Nullable;
 @RequiredArgsConstructor
 public class LessonHomeworkCompletionService {
 
+    private final CreateLessonHomeworkCompletionUseCase createUseCase;
     private final LessonHomeworkCompletionQueryUseCase queryUseCase;
     private final UpdateLessonHomeworkCompletionUseCase updateUseCase;
     private final DeleteLessonHomeworkCompletionUseCase deleteUseCase;
 
     public @Nullable LessonHomeworkCompletion findById(UUID id) {
         return queryUseCase.findById(id);
+    }
+
+    @Transactional
+    public LessonHomeworkCompletion create(String studentLessonReportId, @Nullable Integer completion, String tenantId) {
+        return createUseCase.create(studentLessonReportId, completion, tenantId);
     }
 
     @Transactional

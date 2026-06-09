@@ -1,4 +1,5 @@
 extend type Mutation {
+    createLessonParticipationReview(input: CreateLessonParticipationReviewInput!): LessonParticipationReviewResponse!
     updateLessonParticipationReview(input: UpdateLessonParticipationReviewInput!): LessonParticipationReviewResponse!
     deleteLessonParticipationReview(input: DeleteLessonParticipationReviewInput!): Boolean!
 }

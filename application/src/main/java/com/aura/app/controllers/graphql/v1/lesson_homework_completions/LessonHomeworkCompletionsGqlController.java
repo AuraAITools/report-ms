@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lesson_homework_completions;
 
+import com.aura.app.codegen.types.CreateLessonHomeworkCompletionInput;
 import com.aura.app.codegen.types.DeleteLessonHomeworkCompletionInput;
 import com.aura.app.codegen.types.LessonHomeworkCompletionResponse;
 import com.aura.app.codegen.types.UpdateLessonHomeworkCompletionInput;
@@ -33,6 +34,16 @@ public class LessonHomeworkCompletionsGqlController {
         return Optional.ofNullable(lessonHomeworkCompletionService.findById(UUID.fromString(id)))
                 .map(LessonHomeworkCompletionMapper.INSTANCE::toDto)
                 .orElse(null);
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonHomeworkCompletionResponse createLessonHomeworkCompletion(
+            @Argument("input") CreateLessonHomeworkCompletionInput input,
+            @ContextValue(name = "user") User user) {
+        return LessonHomeworkCompletionMapper.INSTANCE.toDto(
+                lessonHomeworkCompletionService.create(input.getStudentLessonReportId(),
+                        input.getCompletion(), user.getCurrentTenantAccessed()));
     }
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")

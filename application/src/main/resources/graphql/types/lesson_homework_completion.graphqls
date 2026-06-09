@@ -8,6 +8,13 @@ type LessonHomeworkCompletionResponse implements Auditable {
     updatedBy: AccountMinimalDetail
 }
 
+input CreateLessonHomeworkCompletionInput {
+    institutionId: ID!
+    lessonId: ID!
+    studentLessonReportId: ID!
+    completion: Int
+}
+
 input UpdateLessonHomeworkCompletionInput {
     institutionId: ID!
     lessonId: ID!

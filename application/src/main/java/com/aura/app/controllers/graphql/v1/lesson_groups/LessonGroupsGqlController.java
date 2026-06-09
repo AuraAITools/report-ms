@@ -4,22 +4,27 @@ import com.aura.app.codegen.types.CreateLessonGroupInLessonInput;
 import com.aura.app.codegen.types.LessonGroupPlanResponse;
 import com.aura.app.codegen.types.LessonGroupResponse;
 import com.aura.app.codegen.types.LessonResponse;
+import com.aura.app.codegen.types.LessonStudentResponse;
 import com.aura.app.codegen.types.StudentResponse;
 import com.aura.app.mappers.LessonGroupMapper;
 import com.aura.app.mappers.LessonGroupPlanMapper;
 import com.aura.app.mappers.LessonMapper;
+import com.aura.app.mappers.StudentLessonReportMapper;
 import com.aura.app.mappers.StudentMapper;
 import com.aura.core.auth.User;
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.entities.links.StudentLessonReport;
 import com.aura.core.entities.students.Student;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonRepository;
+import com.aura.core.repositories.StudentLessonReportRepository;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.details.services.LessonGroupPlanService;
 import com.aura.details.services.LessonGroupService;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +48,7 @@ public class LessonGroupsGqlController {
     private final LessonGroupPlanRepository lessonGroupPlanRepository;
     private final LessonRepository lessonRepository;
     private final StudentRepository studentRepository;
+    private final StudentLessonReportRepository studentLessonReportRepository;
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'create_lesson_plan')")
     @MutationMapping
@@ -94,13 +100,28 @@ public class LessonGroupsGqlController {
                         r -> LessonGroupPlanMapper.INSTANCE.toDto(byGroup.get(r.getId()))));
     }
 
-    @BatchMapping(typeName = "LessonGroupResponse", field = "students")
-    public Map<LessonGroupResponse, List<StudentResponse>> students(List<LessonGroupResponse> responses) {
+    @BatchMapping(typeName = "LessonGroupResponse", field = "lessonStudents")
+    public Map<LessonGroupResponse, List<LessonStudentResponse>> lessonStudents(List<LessonGroupResponse> responses) {
         List<String> groupIds = responses.stream().map(LessonGroupResponse::getId).toList();
-        Map<String, List<Student>> byGroup = studentRepository.findAllByLessonGroupIds(groupIds);
-        return responses.stream().collect(Collectors.toMap(
-                Function.identity(),
-                r -> byGroup.getOrDefault(r.getId(), List.of()).stream()
-                        .map(StudentMapper.INSTANCE::toDto).toList()));
+        Map<String, List<Student>> studentsByGroup = studentRepository.findAllByLessonGroupIds(groupIds);
+        Map<String, Map<String, StudentLessonReport>> reportsByGroup =
+                studentLessonReportRepository.findReportsByLessonGroupIds(groupIds);
+        Map<LessonGroupResponse, List<LessonStudentResponse>> result = new HashMap<>();
+        for (LessonGroupResponse r : responses) {
+            Map<String, StudentLessonReport> reportsByStudent = reportsByGroup.getOrDefault(r.getId(), Map.of());
+            List<LessonStudentResponse> entries = studentsByGroup.getOrDefault(r.getId(), List.of()).stream()
+                    .map(s -> {
+                        StudentLessonReport report = reportsByStudent.get(s.getId());
+                        StudentResponse studentDto = StudentMapper.INSTANCE.toDto(s);
+                        LessonStudentResponse entry = new LessonStudentResponse();
+                        entry.setStudent(studentDto);
+                        entry.setStudentLessonReport(
+                                report == null ? null : StudentLessonReportMapper.INSTANCE.toDto(report));
+                        return entry;
+                    })
+                    .toList();
+            result.put(r, entries);
+        }
+        return result;
     }
 }

@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.student_lesson_reports;
 
+import com.aura.app.codegen.types.CreateStudentLessonReportInput;
 import com.aura.app.codegen.types.DeleteStudentLessonReportInput;
 import com.aura.app.codegen.types.StudentLessonReportResponse;
 import com.aura.app.codegen.types.UpdateStudentLessonReportInput;
@@ -49,6 +50,16 @@ public class StudentLessonReportsGqlController {
         return studentLessonReportService.findAllByLessonGroupId(lessonGroupId).stream()
                 .map(StudentLessonReportMapper.INSTANCE::toDto)
                 .toList();
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public StudentLessonReportResponse createStudentLessonReport(
+            @Argument("input") CreateStudentLessonReportInput input,
+            @ContextValue(name = "user") User user) {
+        StudentLessonReport created = studentLessonReportService.createForStudentLessonLink(
+                input.getStudentLessonLinkId(), user.getCurrentTenantAccessed());
+        return StudentLessonReportMapper.INSTANCE.toDto(created);
     }
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")

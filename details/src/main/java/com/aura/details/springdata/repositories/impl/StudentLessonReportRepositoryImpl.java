@@ -9,7 +9,9 @@ import com.aura.details.springdata.models.links.StudentLessonReportModel;
 import com.aura.details.springdata.models.topics.TopicModel;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonReportRepository;
 import jakarta.persistence.EntityManager;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -51,11 +53,35 @@ public class StudentLessonReportRepositoryImpl implements StudentLessonReportRep
     }
 
     @Override
+    public @Nullable StudentLessonReport findByStudentLessonLinkId(String studentLessonLinkId) {
+        return jpaStudentLessonReportRepository.findByStudentLessonLink_Id(UUID.fromString(studentLessonLinkId))
+                .map(StudentLessonReportMapper.INSTANCE::toDomainEntity)
+                .orElse(null);
+    }
+
+    @Override
     public List<StudentLessonReport> findAllByLessonGroupId(String lessonGroupId) {
         return jpaStudentLessonReportRepository
                 .findAllByStudentLessonLink_LessonGroup_Id(UUID.fromString(lessonGroupId)).stream()
                 .map(StudentLessonReportMapper.INSTANCE::toDomainEntity)
                 .toList();
+    }
+
+    @Override
+    public Map<String, Map<String, StudentLessonReport>> findReportsByLessonGroupIds(List<String> lessonGroupIds) {
+        if (lessonGroupIds.isEmpty()) return Map.of();
+        List<StudentLessonReportModel> models = jpaStudentLessonReportRepository.findAllByLessonGroupIds(
+                lessonGroupIds.stream().map(UUID::fromString).toList());
+        Map<String, Map<String, StudentLessonReport>> byGroup = new HashMap<>();
+        for (StudentLessonReportModel model : models) {
+            StudentLessonLinkModel link = model.getStudentLessonLink();
+            if (link == null || link.getLessonGroup() == null || link.getStudent() == null) continue;
+            String groupId = link.getLessonGroup().getId().toString();
+            String studentId = link.getStudent().getId().toString();
+            byGroup.computeIfAbsent(groupId, k -> new HashMap<>())
+                    .put(studentId, StudentLessonReportMapper.INSTANCE.toDomainEntity(model));
+        }
+        return byGroup;
     }
 
     @Override

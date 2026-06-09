@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lesson_topic_proficiencies;
 
+import com.aura.app.codegen.types.CreateLessonTopicProficiencyInput;
 import com.aura.app.codegen.types.DeleteLessonTopicProficiencyInput;
 import com.aura.app.codegen.types.LessonTopicProficiencyResponse;
 import com.aura.app.codegen.types.UpdateLessonTopicProficiencyInput;
@@ -33,6 +34,16 @@ public class LessonTopicProficienciesGqlController {
         return Optional.ofNullable(lessonTopicProficiencyService.findById(UUID.fromString(id)))
                 .map(LessonTopicProficiencyMapper.INSTANCE::toDto)
                 .orElse(null);
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonTopicProficiencyResponse createLessonTopicProficiency(
+            @Argument("input") CreateLessonTopicProficiencyInput input,
+            @ContextValue(name = "user") User user) {
+        return LessonTopicProficiencyMapper.INSTANCE.toDto(
+                lessonTopicProficiencyService.create(input.getStudentLessonReportId(),
+                        input.getTopicId(), input.getRating(), user.getCurrentTenantAccessed()));
     }
 
     @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")

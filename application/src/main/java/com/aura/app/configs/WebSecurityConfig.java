@@ -11,6 +11,9 @@ import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.info.InfoEndpoint;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,6 +62,7 @@ public class WebSecurityConfig {
                             "/swagger-ui.html",
                             "/graphiql"
                     ).permitAll();
+                    auth.requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll();
                     auth.requestMatchers(new PublicGraphqlMutationRequestMatcher()).permitAll();
                     if (isLocal) {
                         auth.requestMatchers(new IntrospectionRequestMatcher()).permitAll();

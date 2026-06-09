@@ -1,4 +1,5 @@
 extend type Mutation {
+    createLessonHomeworkCompletion(input: CreateLessonHomeworkCompletionInput!): LessonHomeworkCompletionResponse!
     updateLessonHomeworkCompletion(input: UpdateLessonHomeworkCompletionInput!): LessonHomeworkCompletionResponse!
     deleteLessonHomeworkCompletion(input: DeleteLessonHomeworkCompletionInput!): Boolean!
 }

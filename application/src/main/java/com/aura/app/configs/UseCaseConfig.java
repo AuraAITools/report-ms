@@ -181,18 +181,24 @@ import com.aura.core.usecases.schools.DeleteSchoolUseCase;
 import com.aura.core.usecases.schools.DeleteSchoolUseCaseImpl;
 import com.aura.core.usecases.schools.SchoolQueryUseCase;
 import com.aura.core.usecases.schools.SchoolQueryUseCaseImpl;
+import com.aura.core.usecases.lesson_homework_completions.CreateLessonHomeworkCompletionUseCase;
+import com.aura.core.usecases.lesson_homework_completions.CreateLessonHomeworkCompletionUseCaseImpl;
 import com.aura.core.usecases.lesson_homework_completions.DeleteLessonHomeworkCompletionUseCase;
 import com.aura.core.usecases.lesson_homework_completions.DeleteLessonHomeworkCompletionUseCaseImpl;
 import com.aura.core.usecases.lesson_homework_completions.LessonHomeworkCompletionQueryUseCase;
 import com.aura.core.usecases.lesson_homework_completions.LessonHomeworkCompletionQueryUseCaseImpl;
 import com.aura.core.usecases.lesson_homework_completions.UpdateLessonHomeworkCompletionUseCase;
 import com.aura.core.usecases.lesson_homework_completions.UpdateLessonHomeworkCompletionUseCaseImpl;
+import com.aura.core.usecases.lesson_participation_reviews.CreateLessonParticipationReviewUseCase;
+import com.aura.core.usecases.lesson_participation_reviews.CreateLessonParticipationReviewUseCaseImpl;
 import com.aura.core.usecases.lesson_participation_reviews.DeleteLessonParticipationReviewUseCase;
 import com.aura.core.usecases.lesson_participation_reviews.DeleteLessonParticipationReviewUseCaseImpl;
 import com.aura.core.usecases.lesson_participation_reviews.LessonParticipationReviewQueryUseCase;
 import com.aura.core.usecases.lesson_participation_reviews.LessonParticipationReviewQueryUseCaseImpl;
 import com.aura.core.usecases.lesson_participation_reviews.UpdateLessonParticipationReviewUseCase;
 import com.aura.core.usecases.lesson_participation_reviews.UpdateLessonParticipationReviewUseCaseImpl;
+import com.aura.core.usecases.lesson_topic_proficiencies.CreateLessonTopicProficiencyUseCase;
+import com.aura.core.usecases.lesson_topic_proficiencies.CreateLessonTopicProficiencyUseCaseImpl;
 import com.aura.core.usecases.lesson_topic_proficiencies.DeleteLessonTopicProficiencyUseCase;
 import com.aura.core.usecases.lesson_topic_proficiencies.DeleteLessonTopicProficiencyUseCaseImpl;
 import com.aura.core.usecases.lesson_topic_proficiencies.LessonTopicProficiencyQueryUseCase;
@@ -442,6 +448,11 @@ public class UseCaseConfig {
     }
 
     @Bean
+    CreateLessonHomeworkCompletionUseCase createLessonHomeworkCompletionUseCase(LessonHomeworkCompletionRepository repository) {
+        return new CreateLessonHomeworkCompletionUseCaseImpl(repository);
+    }
+
+    @Bean
     UpdateLessonHomeworkCompletionUseCase updateLessonHomeworkCompletionUseCase(LessonHomeworkCompletionRepository repository) {
         return new UpdateLessonHomeworkCompletionUseCaseImpl(repository);
     }
@@ -457,6 +468,11 @@ public class UseCaseConfig {
     }
 
     @Bean
+    CreateLessonParticipationReviewUseCase createLessonParticipationReviewUseCase(LessonParticipationReviewRepository repository) {
+        return new CreateLessonParticipationReviewUseCaseImpl(repository);
+    }
+
+    @Bean
     UpdateLessonParticipationReviewUseCase updateLessonParticipationReviewUseCase(LessonParticipationReviewRepository repository) {
         return new UpdateLessonParticipationReviewUseCaseImpl(repository);
     }
@@ -469,6 +485,11 @@ public class UseCaseConfig {
     @Bean
     LessonTopicProficiencyQueryUseCase lessonTopicProficiencyQueryUseCase(LessonTopicProficiencyRepository repository) {
         return new LessonTopicProficiencyQueryUseCaseImpl(repository);
+    }
+
+    @Bean
+    CreateLessonTopicProficiencyUseCase createLessonTopicProficiencyUseCase(LessonTopicProficiencyRepository repository) {
+        return new CreateLessonTopicProficiencyUseCaseImpl(repository);
     }
 
     @Bean

@@ -3,11 +3,21 @@ type LessonGroupResponse implements Auditable {
     name: String!
     lesson: LessonResponse!
     lessonGroupPlan: LessonGroupPlanResponse!
-    students: [StudentResponse!]!
+    lessonStudents: [LessonStudentResponse!]!
     createdAt: Long!
     createdBy: AccountMinimalDetail!
     updatedAt: Long
     updatedBy: AccountMinimalDetail
+}
+
+"""
+A student in a lesson group, paired with the student's lesson report for the
+parent lesson. studentLessonReport is null until a report is created for the
+student's StudentLessonLink.
+"""
+type LessonStudentResponse {
+    student: StudentResponse!
+    studentLessonReport: StudentLessonReportResponse
 }
 
 input CreateLessonGroupInLessonInput {

@@ -82,6 +82,11 @@ class AddStudentsToLessonUseCaseImplTest {
         }
 
         @Override
+        public StudentLessonLink findById(java.util.UUID id) {
+            return null;
+        }
+
+        @Override
         public List<StudentLessonLink> findAllByLessonIdAndStudentIds(String lessonId, List<String> studentIds) {
             throw new UnsupportedOperationException();
         }

@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class StudentLessonLinkRepositoryImpl implements StudentLessonLinkRepository {
@@ -30,6 +31,13 @@ public class StudentLessonLinkRepositoryImpl implements StudentLessonLinkReposit
         var modelEntities = studentLessonLinks.stream().map(this::toAttachedModel).toList();
         var createdModelEntities = jpaStudentLessonLinkRepository.saveAll(modelEntities);
         return createdModelEntities.stream().map(StudentLessonLinkMapper.INSTANCE::toDomainEntity).toList();
+    }
+
+    @Override
+    public @Nullable StudentLessonLink findById(UUID id) {
+        return jpaStudentLessonLinkRepository.findById(id)
+                .map(StudentLessonLinkMapper.INSTANCE::toDomainEntity)
+                .orElse(null);
     }
 
     @Override

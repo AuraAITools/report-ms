@@ -15,3 +15,4 @@ public interface LessonHomeworkCompletionMapper {
     @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "toMinimal")
     LessonHomeworkCompletionResponse toDto(LessonHomeworkCompletion completion);
 }
+

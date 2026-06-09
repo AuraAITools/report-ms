@@ -1,6 +1,7 @@
 package com.aura.details.services;
 
 import com.aura.core.entities.lessons.LessonTopicProficiency;
+import com.aura.core.usecases.lesson_topic_proficiencies.CreateLessonTopicProficiencyUseCase;
 import com.aura.core.usecases.lesson_topic_proficiencies.DeleteLessonTopicProficiencyUseCase;
 import com.aura.core.usecases.lesson_topic_proficiencies.LessonTopicProficiencyQueryUseCase;
 import com.aura.core.usecases.lesson_topic_proficiencies.UpdateLessonTopicProficiencyUseCase;
@@ -12,12 +13,19 @@ import org.jspecify.annotations.Nullable;
 @RequiredArgsConstructor
 public class LessonTopicProficiencyService {
 
+    private final CreateLessonTopicProficiencyUseCase createUseCase;
     private final LessonTopicProficiencyQueryUseCase queryUseCase;
     private final UpdateLessonTopicProficiencyUseCase updateUseCase;
     private final DeleteLessonTopicProficiencyUseCase deleteUseCase;
 
     public @Nullable LessonTopicProficiency findById(UUID id) {
         return queryUseCase.findById(id);
+    }
+
+    @Transactional
+    public LessonTopicProficiency create(String studentLessonReportId, String topicId,
+                                         @Nullable Integer rating, String tenantId) {
+        return createUseCase.create(studentLessonReportId, topicId, rating, tenantId);
     }
 
     @Transactional
