@@ -165,6 +165,38 @@ class LessonRepositoryImplTest {
     }
 
     @Nested
+    @DisplayName("findActiveOverlappingForEducator")
+    class FindActiveOverlappingForEducator {
+
+        @Test
+        @DisplayName("Should return non-cancelled overlapping lessons for the educator, excluding the excluded lesson")
+        void returnsOverlappingActive() {
+            UUID educatorId = UUID.randomUUID();
+            UUID excludeLessonId = UUID.randomUUID();
+            Instant start = Instant.parse("2026-06-10T09:00:00Z");
+            Instant end = Instant.parse("2026-06-10T10:00:00Z");
+
+            LessonModel overlapping = LessonModel.builder()
+                    .id(UUID.randomUUID())
+                    .tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T08:30:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T09:30:00Z"))
+                    .state(LessonModel.LESSON_STATE.CREATED)
+                    .build();
+
+            when(jpaEducatorLessonLinkRepository.findActiveOverlappingLessonsByEducator(
+                    "tenant-1", educatorId, start, end, excludeLessonId))
+                    .thenReturn(List.of(overlapping));
+
+            List<Lesson> result = repository.findActiveOverlappingForEducator(
+                    "tenant-1", educatorId.toString(), start, end, excludeLessonId.toString());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
+        }
+    }
+
+    @Nested
     @DisplayName("findActiveOverlappingForStudent")
     class FindActiveOverlappingForStudent {
 

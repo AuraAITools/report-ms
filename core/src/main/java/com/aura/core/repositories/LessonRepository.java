@@ -40,4 +40,11 @@ public interface LessonRepository {
             Instant start,
             Instant end,
             @Nullable String excludeLessonId);
+
+    List<Lesson> findActiveOverlappingForEducator(
+            String tenantId,
+            String educatorId,
+            Instant start,
+            Instant end,
+            @Nullable String excludeLessonId);
 }

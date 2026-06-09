@@ -139,6 +139,22 @@ public class LessonRepositoryImpl implements LessonRepository {
                 .toList();
     }
 
+    @Override
+    public List<Lesson> findActiveOverlappingForEducator(
+            String tenantId,
+            String educatorId,
+            Instant start,
+            Instant end,
+            @Nullable String excludeLessonId) {
+        UUID educatorUuid = UUID.fromString(educatorId);
+        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
+        return jpaEducatorLessonLinkRepository
+                .findActiveOverlappingLessonsByEducator(tenantId, educatorUuid, start, end, excludeUuid)
+                .stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
     private LessonModel toAttachedModel(Lesson lesson) {
         LessonModel model = LessonMapper.INSTANCE.toModelEntity(lesson);
         model.setCourse(Refs.ref(entityManager, CourseModel.class, lesson.getCourseId()));
