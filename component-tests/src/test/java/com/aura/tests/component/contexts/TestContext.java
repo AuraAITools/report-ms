@@ -50,6 +50,12 @@ public class TestContext {
     private int lastHttpStatus;
     private Throwable lastException;
 
+    // Structured conflict error extensions (populated from FieldAccessException)
+    private String lastErrorCode;
+    private String lastConflictType;
+    private List<String> lastConflictingLessonIds;
+    private String lastSubjectId;
+
     // Name-keyed lookup maps for conflict test scenarios
     private final Map<String, String> lessonIdsByName = new HashMap<>();
     private final Map<String, String> outletRoomIdsByName = new HashMap<>();

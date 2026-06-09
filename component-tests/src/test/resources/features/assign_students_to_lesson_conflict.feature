@@ -15,7 +15,8 @@ Feature: Lesson assign-students conflict detection
   @ComponentTest
   Scenario: Assigning Alice to Lesson 2 conflicts with Lesson 1
     When the user tries to assign student "Alice" to lesson "Lesson 2"
-    Then the request should fail with a room conflict error
+    Then the request should fail with a lesson conflict of type "STUDENT"
+    And the conflict response should reference lesson "Lesson 1"
 
   @ComponentTest
   Scenario: Assigning Alice to a non-overlapping lesson succeeds

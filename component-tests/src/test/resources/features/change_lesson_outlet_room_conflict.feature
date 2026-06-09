@@ -15,7 +15,8 @@ Feature: Lesson change-outlet-room conflict detection
   @ComponentTest
   Scenario: Moving Lesson B into Room A conflicts with Lesson A
     When the user tries to change the outlet room of lesson "Lesson B" to "Room A"
-    Then the request should fail with a room conflict error
+    Then the request should fail with a lesson conflict of type "ROOM"
+    And the conflict response should reference lesson "Lesson A"
 
   @ComponentTest
   Scenario: Clearing the outlet room of a lesson always succeeds

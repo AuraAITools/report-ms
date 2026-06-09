@@ -13,7 +13,8 @@ Feature: Lesson room conflict detection on create
   @ComponentTest
   Scenario: A second lesson in the same room overlapping in time is rejected
     When the user tries to create lesson "Conflicting" in course "Math 101" in room "Room A" from "2026-06-10T09:30:00Z" to "2026-06-10T10:30:00Z"
-    Then the request should fail with a room conflict error
+    Then the request should fail with a lesson conflict of type "ROOM"
+    And the conflict response should reference lesson "Existing Lesson"
 
   @ComponentTest
   Scenario: A non-overlapping lesson in the same room succeeds

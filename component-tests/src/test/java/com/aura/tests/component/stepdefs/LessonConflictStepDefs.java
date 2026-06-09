@@ -84,13 +84,7 @@ public class LessonConflictStepDefs {
         } catch (FieldAccessException e) {
             testContext.setRequestFailed(true);
             testContext.setLastException(e);
-            var errors = e.getResponse().getErrors();
-            if (!errors.isEmpty()) {
-                var ext = errors.getFirst().getExtensions();
-                if (ext != null && ext.containsKey("error_code")) {
-                    testContext.setLastErrorMessage(ext.get("error_code").toString());
-                }
-            }
+            extractConflictExtensions(e);
             log.info("Lesson creation failed as expected: {}", e.getMessage());
         } catch (HttpServerErrorException e) {
             testContext.setRequestFailed(true);
@@ -111,14 +105,25 @@ public class LessonConflictStepDefs {
         log.info("Created lesson '{}' with id={}", lessonName, response.getId());
     }
 
-    @Then("the request should fail with a room conflict error")
-    public void theRequestShouldFailWithARoomConflictError() {
+    @Then("the request should fail with a lesson conflict of type {string}")
+    public void requestShouldFailWithLessonConflictOfType(String expectedType) {
         assertThat(testContext.isRequestFailed())
-                .as("Expected the request to fail with a room conflict but it succeeded")
+                .as("Expected the request to fail with a lesson conflict but it succeeded")
                 .isTrue();
-        assertThat(testContext.getLastErrorMessage())
-                .as("Expected INTERNAL_ERROR error code for room conflict")
-                .isEqualTo("INTERNAL_ERROR");
+        assertThat(testContext.getLastErrorCode())
+                .as("Expected error_code to be LESSON_CONFLICT")
+                .isEqualTo("LESSON_CONFLICT");
+        assertThat(testContext.getLastConflictType())
+                .as("Expected conflict_type to be %s", expectedType)
+                .isEqualTo(expectedType);
+    }
+
+    @Then("the conflict response should reference lesson {string}")
+    public void conflictResponseShouldReferenceLesson(String lessonName) {
+        String expectedId = testContext.getLessonIdByName(lessonName);
+        assertThat(testContext.getLastConflictingLessonIds())
+                .as("conflicting_lesson_ids should include lesson '%s' with id %s", lessonName, expectedId)
+                .contains(expectedId);
     }
 
     @Then("the lesson {string} should be created successfully")
@@ -265,13 +270,7 @@ public class LessonConflictStepDefs {
             }
             testContext.setRequestFailed(true);
             testContext.setLastException(e);
-            var errors = e.getResponse().getErrors();
-            if (!errors.isEmpty()) {
-                var ext = errors.getFirst().getExtensions();
-                if (ext != null && ext.containsKey("error_code")) {
-                    testContext.setLastErrorMessage(ext.get("error_code").toString());
-                }
-            }
+            extractConflictExtensions(e);
             log.info("assignEducatorsToLesson failed as expected for lesson '{}': {}", lessonName, e.getMessage());
         } catch (HttpServerErrorException e) {
             if (!expectFailure) {
@@ -416,13 +415,7 @@ public class LessonConflictStepDefs {
             }
             testContext.setRequestFailed(true);
             testContext.setLastException(e);
-            var errors = e.getResponse().getErrors();
-            if (!errors.isEmpty()) {
-                var ext = errors.getFirst().getExtensions();
-                if (ext != null && ext.containsKey("error_code")) {
-                    testContext.setLastErrorMessage(ext.get("error_code").toString());
-                }
-            }
+            extractConflictExtensions(e);
             log.info("assignStudentsToLesson failed as expected for lesson '{}': {}", lessonName, e.getMessage());
         } catch (HttpServerErrorException e) {
             if (!expectFailure) {
@@ -556,13 +549,7 @@ public class LessonConflictStepDefs {
             }
             testContext.setRequestFailed(true);
             testContext.setLastException(e);
-            var errors = e.getResponse().getErrors();
-            if (!errors.isEmpty()) {
-                var ext = errors.getFirst().getExtensions();
-                if (ext != null && ext.containsKey("error_code")) {
-                    testContext.setLastErrorMessage(ext.get("error_code").toString());
-                }
-            }
+            extractConflictExtensions(e);
             log.info("changeLessonOutletRoom failed as expected for lesson '{}': {}", lessonName, e.getMessage());
         } catch (HttpServerErrorException e) {
             if (!expectFailure) {
@@ -615,6 +602,33 @@ public class LessonConflictStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo(lessonName);
         return response;
+    }
+
+    private void extractConflictExtensions(FieldAccessException ex) {
+        var errors = ex.getResponse().getErrors();
+        if (errors.isEmpty()) {
+            return;
+        }
+        var ext = errors.getFirst().getExtensions();
+        if (ext == null) {
+            return;
+        }
+        if (ext.containsKey("error_code")) {
+            testContext.setLastErrorCode(ext.get("error_code").toString());
+            testContext.setLastErrorMessage(ext.get("error_code").toString());
+        }
+        if (ext.containsKey("conflict_type")) {
+            testContext.setLastConflictType(ext.get("conflict_type").toString());
+        }
+        Object idsObj = ext.get("conflicting_lesson_ids");
+        if (idsObj instanceof List<?> rawList) {
+            @SuppressWarnings("unchecked")
+            List<String> ids = (List<String>) rawList;
+            testContext.setLastConflictingLessonIds(ids);
+        }
+        if (ext.containsKey("subject_id") && ext.get("subject_id") != null) {
+            testContext.setLastSubjectId(ext.get("subject_id").toString());
+        }
     }
 
     private String ensureLevelExists() {
