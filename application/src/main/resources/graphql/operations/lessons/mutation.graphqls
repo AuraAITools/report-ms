@@ -1,4 +1,7 @@
 extend type Mutation {
     createLessonInCourse(createLessonInCourse:CreateLessonInCourseInput!): LessonResponse!
     deleteLessonById(institutionId: ID!, id: ID!): Boolean!
+    changeLessonOutletRoom(input: ChangeLessonOutletRoomInput!): LessonResponse!
+    assignStudentsToLesson(input: AssignStudentsToLessonInput!): LessonResponse!
+    assignEducatorsToLesson(input: AssignEducatorsToLessonInput!): LessonResponse!
 }

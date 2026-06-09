@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lessons;
 
+import com.aura.app.codegen.types.ChangeLessonOutletRoomInput;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.CreateLessonInCourseInput;
 import com.aura.app.codegen.types.EducatorResponse;
@@ -173,6 +174,14 @@ public class LessonsGqlController {
         }
         lessonService.deleteById(id);
         return true;
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonResponse changeLessonOutletRoom(@Argument("input") ChangeLessonOutletRoomInput input,
+                                                 @ContextValue(name = "user") User user) {
+        Lesson lesson = lessonService.changeLessonOutletRoom(input.getLessonId(), input.getOutletRoomId());
+        return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
     @BatchMapping(typeName = "LessonResponse", field = "course")

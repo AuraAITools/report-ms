@@ -42,3 +42,21 @@ input CreateLessonInCourseInput {
     topicIds: [ID!]!
     lessonGroups: [CreateLessonGroupForLessonInput!]! @Size(min: 1, message: "lesson must have at least 1 lesson group")
 }
+
+input ChangeLessonOutletRoomInput {
+    institutionId: ID!
+    lessonId: ID!
+    outletRoomId: ID
+}
+
+input AssignStudentsToLessonInput {
+    institutionId: ID!
+    lessonId: ID!
+    studentIds: [ID!]!
+}
+
+input AssignEducatorsToLessonInput {
+    institutionId: ID!
+    lessonId: ID!
+    educatorIds: [ID!]!
+}
