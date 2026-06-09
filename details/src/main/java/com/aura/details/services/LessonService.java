@@ -2,6 +2,7 @@ package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.lessons.Lesson;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonOutletRoomBooking;
@@ -187,6 +188,38 @@ public class LessonService {
                                  List<String> studentIds,
                                  List<String> materialIds,
                                  List<LessonGroupPlanService.NewLessonObjective> lessonObjectives) {
+    }
+
+    @Transactional
+    public Lesson assignStudentsToLesson(String lessonId, List<String> studentIds) {
+        Lesson lesson = lessonRepository.findById(UUID.fromString(lessonId));
+        if (lesson == null) {
+            throw new ResourceNotFoundException("Lesson", lessonId);
+        }
+        Instant start = lesson.getLessonStartTimestamptz();
+        Instant end = lesson.getLessonEndTimestamptz();
+        String tenantId = lesson.getTenantId();
+
+        for (String studentId : studentIds) {
+            List<String> conflicts = detectLessonConflictsUseCase.detectStudentConflicts(
+                    tenantId, studentId, start, end, lessonId);
+            if (!conflicts.isEmpty()) {
+                throw new LessonConflictException(
+                        LessonConflictException.ConflictType.STUDENT, conflicts, studentId);
+            }
+        }
+
+        addStudentsToLessonUseCase.addStudentsToLesson(lessonId, studentIds, tenantId);
+
+        var userIds = studentRepository.findUserIdsByStudentIds(studentIds).values().stream().toList();
+        List<RelationshipAuthorizationService.Relationship> relationships = new ArrayList<>();
+        userIds.forEach(userId -> relationships.add(
+                new RelationshipAuthorizationService.Relationship(
+                        "lesson_user_group", lessonId, "viewer", "user", userId)));
+        if (!relationships.isEmpty()) {
+            relationshipService.writeRelationships(relationships);
+        }
+        return lesson;
     }
 
     @Transactional

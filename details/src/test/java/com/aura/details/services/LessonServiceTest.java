@@ -22,6 +22,7 @@ import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -324,6 +325,54 @@ class LessonServiceTest {
 
             assertThat(result).isSameAs(lesson);
             verify(changeLessonOutletRoomUseCase).changeLessonOutletRoom("lesson-1", "room-1");
+        }
+    }
+
+    @Nested
+    @DisplayName("assignStudentsToLesson")
+    class AssignStudents {
+
+        private static final String LESSON_ID = "11111111-1111-1111-1111-111111111111";
+
+        @Test
+        @DisplayName("Should throw LessonConflictException(STUDENT) and not save links when a student has a conflict")
+        void rejectsOnConflict() {
+            Lesson lesson = Lesson.builder()
+                    .id(LESSON_ID).tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:00:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:00:00Z"))
+                    .build();
+            when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
+            when(detectLessonConflictsUseCase.detectStudentConflicts(
+                    "tenant-1", "student-1",
+                    lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz(),
+                    LESSON_ID))
+                    .thenReturn(List.of("conflict-lesson"));
+
+            assertThatThrownBy(() -> lessonService.assignStudentsToLesson(
+                    LESSON_ID, List.of("student-1")))
+                    .isInstanceOf(LessonConflictException.class);
+
+            verify(addStudentsToLessonUseCase, never()).addStudentsToLesson(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should delegate to use case when no conflicts")
+        void happyPath() {
+            Lesson lesson = Lesson.builder()
+                    .id(LESSON_ID).tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:00:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:00:00Z"))
+                    .build();
+            when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
+            when(studentRepository.findUserIdsByStudentIds(List.of("student-1")))
+                    .thenReturn(java.util.Map.of("student-1", "user-1"));
+
+            lessonService.assignStudentsToLesson(LESSON_ID, List.of("student-1"));
+
+            verify(addStudentsToLessonUseCase).addStudentsToLesson(
+                    LESSON_ID, List.of("student-1"), "tenant-1");
+            verify(relationshipService).writeRelationships(any());
         }
     }
 }
