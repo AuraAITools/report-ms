@@ -7,11 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface JpaLessonOutletRoomBookingRepository extends JpaRepository<LessonOutletRoomBookingModel, UUID>, JpaSpecificationExecutor<LessonOutletRoomBookingModel> {
@@ -20,8 +18,6 @@ public interface JpaLessonOutletRoomBookingRepository extends JpaRepository<Less
 
     Optional<LessonOutletRoomBookingModel> findByLesson_Id(UUID lessonId);
 
-    @Modifying
-    @Transactional
     void deleteByLesson_Id(UUID lessonId);
 
     @Query("""
