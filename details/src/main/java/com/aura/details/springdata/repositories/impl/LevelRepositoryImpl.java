@@ -1,5 +1,8 @@
 package com.aura.details.springdata.repositories.impl;
 
+import com.aura.core.entities.delete_impact.AffectedResourceGroup;
+import com.aura.core.entities.delete_impact.CleanupAction;
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.levels.Level;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.utils.KeysetPaginationCriteria;
@@ -14,6 +17,8 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLevelLinkRepository;
+import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
 import com.aura.details.springdata.specifications.LevelSpecification;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,15 +40,21 @@ public class LevelRepositoryImpl implements LevelRepository {
     JpaLevelLessonLinkRepository jpaLevelLessonLinkRepository;
     JpaCourseRepository jpaCourseRepository;
     JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository;
+    JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository;
+    JpaStudentRepository jpaStudentRepository;
 
     public LevelRepositoryImpl(JpaLevelRepository jpaLevelRepository,
                                JpaLevelLessonLinkRepository jpaLevelLessonLinkRepository,
                                JpaCourseRepository jpaCourseRepository,
-                               JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository) {
+                               JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository,
+                               JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository,
+                               JpaStudentRepository jpaStudentRepository) {
         this.jpaLevelRepository = jpaLevelRepository;
         this.jpaLevelLessonLinkRepository = jpaLevelLessonLinkRepository;
         this.jpaCourseRepository = jpaCourseRepository;
         this.jpaLevelEducatorLinkRepository = jpaLevelEducatorLinkRepository;
+        this.jpaSubjectLevelLinkRepository = jpaSubjectLevelLinkRepository;
+        this.jpaStudentRepository = jpaStudentRepository;
     }
 
     @Override
@@ -176,8 +187,39 @@ public class LevelRepositoryImpl implements LevelRepository {
     }
 
     @Override
+    public DeleteImpact findDeleteImpact(String levelId) {
+        UUID id = UUID.fromString(levelId);
+        List<AffectedResourceGroup> groups = new ArrayList<>();
+        groups.add(deleteGroup("Subject", jpaSubjectLevelLinkRepository.findSubjectIdsByLevelId(id)));
+        groups.add(deleteGroup("Educator", jpaLevelEducatorLinkRepository.findEducatorIdsByLevelId(id)));
+        groups.add(deleteGroup("Lesson", jpaLevelLessonLinkRepository.findLessonIdsByLevelId(id)));
+        groups.add(nullOutGroup("Student", jpaStudentRepository.findIdsByLevelId(id)));
+        groups.add(nullOutGroup("Course", jpaCourseRepository.findIdsByLevelId(id)));
+        return DeleteImpact.builder()
+                .resourceType("Level")
+                .resourceId(levelId)
+                .affectedGroups(groups)
+                .build();
+    }
+
+    @Override
     public void deleteAllLevelLessonLinksByLevelId(String levelId) {
         jpaLevelLessonLinkRepository.deleteAllByLevelId(UUID.fromString(levelId));
+    }
+
+    @Override
+    public void deleteAllSubjectLevelLinksByLevelId(String levelId) {
+        jpaSubjectLevelLinkRepository.deleteAllByLevelId(UUID.fromString(levelId));
+    }
+
+    @Override
+    public void deleteAllLevelEducatorLinksByLevelId(String levelId) {
+        jpaLevelEducatorLinkRepository.deleteAllByLevelId(UUID.fromString(levelId));
+    }
+
+    @Override
+    public void nullOutLevelOnStudentsByLevelId(String levelId) {
+        jpaStudentRepository.nullOutLevelByLevelId(UUID.fromString(levelId));
     }
 
     @Override
@@ -185,5 +227,21 @@ public class LevelRepositoryImpl implements LevelRepository {
         LevelModel model = LevelMapper.INSTANCE.toModelEntity(level);
         LevelModel saved = jpaLevelRepository.save(model);
         return LevelMapper.INSTANCE.toDomainEntity(saved);
+    }
+
+    private AffectedResourceGroup deleteGroup(String resourceType, List<UUID> ids) {
+        return AffectedResourceGroup.builder()
+                .resourceType(resourceType)
+                .cleanupAction(CleanupAction.DELETE)
+                .affectedIds(ids.stream().map(UUID::toString).toList())
+                .build();
+    }
+
+    private AffectedResourceGroup nullOutGroup(String resourceType, List<UUID> ids) {
+        return AffectedResourceGroup.builder()
+                .resourceType(resourceType)
+                .cleanupAction(CleanupAction.NULL_OUT)
+                .affectedIds(ids.stream().map(UUID::toString).toList())
+                .build();
     }
 }

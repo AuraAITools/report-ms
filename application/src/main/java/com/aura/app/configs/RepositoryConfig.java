@@ -101,7 +101,9 @@ import com.aura.details.springdata.repositories.jpa.links.JpaStudentOutletLinkRe
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLevelLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectStudentLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectTestGroupLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaTopicLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaTopicSubjectLinkRepository;
 import com.aura.details.springdata.repositories.jpa.materials.JpaMaterialRepository;
@@ -110,6 +112,7 @@ import com.aura.details.springdata.repositories.jpa.outlets.JpaOutletRoomReposit
 import com.aura.details.springdata.repositories.jpa.schools.JpaSchoolRepository;
 import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
+import com.aura.details.springdata.repositories.jpa.tests.JpaTestResultRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.context.annotation.Bean;
@@ -132,8 +135,11 @@ public class RepositoryConfig {
     LevelRepository levelRepository(JpaLevelRepository jpaRepository,
                                     JpaLevelLessonLinkRepository jpaLevelLessonLinkRepository,
                                     JpaCourseRepository jpaCourseRepository,
-                                    JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository) {
-        return new LevelRepositoryImpl(jpaRepository, jpaLevelLessonLinkRepository, jpaCourseRepository, jpaLevelEducatorLinkRepository);
+                                    JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository,
+                                    JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository,
+                                    JpaStudentRepository jpaStudentRepository) {
+        return new LevelRepositoryImpl(jpaRepository, jpaLevelLessonLinkRepository, jpaCourseRepository,
+                jpaLevelEducatorLinkRepository, jpaSubjectLevelLinkRepository, jpaStudentRepository);
     }
 
     @Bean
@@ -268,15 +274,24 @@ public class RepositoryConfig {
     }
 
     @Bean
-    SchoolRepository schoolRepository(JpaSchoolRepository jpaSchoolRepository) {
-        return new SchoolRepositoryImpl(jpaSchoolRepository);
+    SchoolRepository schoolRepository(JpaSchoolRepository jpaSchoolRepository,
+                                      JpaStudentRepository jpaStudentRepository) {
+        return new SchoolRepositoryImpl(jpaSchoolRepository, jpaStudentRepository);
     }
 
     @Bean
     TopicRepository topicRepository(JpaTopicRepository jpaRepository,
                                     JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository,
-                                    JpaTopicLessonLinkRepository jpaTopicLessonLinkRepository) {
-        return new TopicRepositoryImpl(jpaRepository, jpaTopicSubjectLinkRepository, jpaTopicLessonLinkRepository);
+                                    JpaTopicLessonLinkRepository jpaTopicLessonLinkRepository,
+                                    JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository,
+                                    JpaMaterialTopicLinkRepository jpaMaterialTopicLinkRepository,
+                                    JpaLessonGroupPlanTopicLinkRepository jpaLessonGroupPlanTopicLinkRepository) {
+        return new TopicRepositoryImpl(jpaRepository,
+                jpaTopicSubjectLinkRepository,
+                jpaTopicLessonLinkRepository,
+                jpaLessonObjectiveTopicLinkRepository,
+                jpaMaterialTopicLinkRepository,
+                jpaLessonGroupPlanTopicLinkRepository);
     }
 
     @Bean
@@ -286,9 +301,15 @@ public class RepositoryConfig {
                                         JpaCourseRepository jpaCourseRepository,
                                         JpaSubjectCourseLinkRepository jpaSubjectCourseLinkRepository,
                                         JpaSubjectLessonLinkRepository jpaSubjectLessonLinkRepository,
-                                        JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository) {
+                                        JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository,
+                                        JpaSubjectStudentLinkRepository jpaSubjectStudentLinkRepository,
+                                        JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository,
+                                        JpaSubjectTestGroupLinkRepository jpaSubjectTestGroupLinkRepository,
+                                        JpaTestResultRepository jpaTestResultRepository) {
         return new SubjectRepositoryImpl(jpaSubjectRepository, jpaTopicRepository, jpaTopicSubjectLinkRepository,
-                jpaCourseRepository, jpaSubjectCourseLinkRepository, jpaSubjectLessonLinkRepository, jpaSubjectEducatorLinkRepository);
+                jpaCourseRepository, jpaSubjectCourseLinkRepository, jpaSubjectLessonLinkRepository,
+                jpaSubjectEducatorLinkRepository, jpaSubjectStudentLinkRepository, jpaSubjectLevelLinkRepository,
+                jpaSubjectTestGroupLinkRepository, jpaTestResultRepository);
     }
 
     @Bean

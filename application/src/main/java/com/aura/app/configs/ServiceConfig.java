@@ -73,6 +73,7 @@ import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import com.aura.core.usecases.levels.CreateLevelUseCase;
 import com.aura.core.usecases.levels.DeleteLevelUseCase;
+import com.aura.core.usecases.levels.GetLevelDeleteImpactUseCase;
 import com.aura.core.usecases.levels.LevelQueryUseCase;
 import com.aura.core.usecases.levels.LevelQueryUseCaseImpl;
 import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCase;
@@ -93,6 +94,7 @@ import com.aura.core.usecases.parents.ParentQueryUseCase;
 import com.aura.core.usecases.parents.UpdateParentUseCase;
 import com.aura.core.usecases.schools.CreateSchoolUseCase;
 import com.aura.core.usecases.schools.DeleteSchoolUseCase;
+import com.aura.core.usecases.schools.GetSchoolDeleteImpactUseCase;
 import com.aura.core.usecases.schools.SchoolQueryUseCase;
 import com.aura.core.repositories.LessonHomeworkCompletionRepository;
 import com.aura.core.repositories.LessonParticipationReviewRepository;
@@ -121,9 +123,11 @@ import com.aura.core.usecases.students.UpdateStudentUseCase;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
 import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
 import com.aura.core.usecases.subjects.DeleteSubjectUseCase;
+import com.aura.core.usecases.subjects.GetSubjectDeleteImpactUseCase;
 import com.aura.core.usecases.subjects.SubjectQueryUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.core.usecases.topics.DeleteTopicUseCase;
+import com.aura.core.usecases.topics.GetTopicDeleteImpactUseCase;
 import com.aura.core.usecases.topics.TopicQueryUseCase;
 import com.aura.details.institutions.onboarding.TenantInitialDataLoaderImpl;
 import com.aura.details.services.AccountService;
@@ -397,10 +401,12 @@ public class ServiceConfig {
     @Bean
     LevelService levelService(CreateLevelUseCase createLevelUseCase,
                               DeleteLevelUseCase deleteLevelUseCase,
+                              GetLevelDeleteImpactUseCase getLevelDeleteImpactUseCase,
                               LevelRepository levelRepository,
                               CourseRepository courseRepository,
                               RelationshipAuthorizationService relationshipService) {
-        return new LevelService(createLevelUseCase, deleteLevelUseCase, levelRepository, courseRepository, relationshipService);
+        return new LevelService(createLevelUseCase, deleteLevelUseCase, getLevelDeleteImpactUseCase,
+                levelRepository, courseRepository, relationshipService);
     }
 
     @Bean
@@ -408,9 +414,11 @@ public class ServiceConfig {
             CreateTopicUseCase createTopicUseCase,
             TopicQueryUseCase topicQueryUseCase,
             DeleteTopicUseCase deleteTopicUseCase,
+            GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase,
             TopicRepository topicRepository,
             RelationshipAuthorizationService relationshipService) {
-        return new TopicService(createTopicUseCase, topicQueryUseCase, deleteTopicUseCase, topicRepository, relationshipService);
+        return new TopicService(createTopicUseCase, topicQueryUseCase, deleteTopicUseCase,
+                getTopicDeleteImpactUseCase, topicRepository, relationshipService);
     }
 
     @Bean
@@ -419,18 +427,21 @@ public class ServiceConfig {
             CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase,
             SubjectQueryUseCase subjectQueryUseCase,
             DeleteSubjectUseCase deleteSubjectUseCase,
+            GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase,
             SubjectRepository subjectRepository,
             RelationshipAuthorizationService relationshipService) {
         return new SubjectService(createSubjectUseCase, createTopicSubjectLinksUseCase, subjectQueryUseCase,
-                deleteSubjectUseCase, subjectRepository, relationshipService);
+                deleteSubjectUseCase, getSubjectDeleteImpactUseCase, subjectRepository, relationshipService);
     }
 
     @Bean
     SchoolService schoolService(SchoolQueryUseCase schoolQueryUseCase,
                                 CreateSchoolUseCase createSchoolUseCase,
                                 DeleteSchoolUseCase deleteSchoolUseCase,
+                                GetSchoolDeleteImpactUseCase getSchoolDeleteImpactUseCase,
                                 SchoolRepository schoolRepository) {
-        return new SchoolService(schoolQueryUseCase, createSchoolUseCase, deleteSchoolUseCase, schoolRepository);
+        return new SchoolService(schoolQueryUseCase, createSchoolUseCase, deleteSchoolUseCase,
+                getSchoolDeleteImpactUseCase, schoolRepository);
     }
 
     @Bean

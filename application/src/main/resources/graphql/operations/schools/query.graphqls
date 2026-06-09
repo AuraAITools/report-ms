@@ -1,3 +1,4 @@
 extend type Query {
     getSchoolsInInstitution(institutionId: ID!): [SchoolResponse!]!
+    getAllAffectedResourcesIfSchoolDeleted(institutionId: ID!, id: ID!): DeleteImpactPreview!
 }

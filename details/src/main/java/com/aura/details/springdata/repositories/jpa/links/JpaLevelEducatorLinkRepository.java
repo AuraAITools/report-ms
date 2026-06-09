@@ -15,5 +15,10 @@ public interface JpaLevelEducatorLinkRepository extends JpaRepository<LevelEduca
     @Query("SELECT l.educator.id, l.level FROM LevelEducatorLinkModel l WHERE l.educator.id IN :educatorIds")
     List<Object[]> findLevelsByEducatorIds(@Param("educatorIds") List<UUID> educatorIds);
 
+    @Query("SELECT l.educator.id FROM LevelEducatorLinkModel l WHERE l.level.id = :levelId")
+    List<UUID> findEducatorIdsByLevelId(@Param("levelId") UUID levelId);
+
     void deleteAllByEducatorId(UUID educatorId);
+
+    void deleteAllByLevelId(UUID levelId);
 }

@@ -15,5 +15,10 @@ public interface JpaSubjectEducatorLinkRepository extends JpaRepository<SubjectE
     @Query("SELECT l.educator.id, l.subject FROM SubjectEducatorLinkModel l WHERE l.educator.id IN :educatorIds")
     List<Object[]> findSubjectsByEducatorIds(@Param("educatorIds") List<UUID> educatorIds);
 
+    @Query("SELECT l.educator.id FROM SubjectEducatorLinkModel l WHERE l.subject.id = :subjectId")
+    List<UUID> findEducatorIdsBySubjectId(@Param("subjectId") UUID subjectId);
+
     void deleteAllByEducatorId(UUID educatorId);
+
+    void deleteAllBySubjectId(UUID subjectId);
 }

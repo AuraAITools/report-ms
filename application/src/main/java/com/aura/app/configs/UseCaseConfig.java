@@ -140,6 +140,8 @@ import com.aura.core.usecases.levels.CreateLevelUseCase;
 import com.aura.core.usecases.levels.CreateLevelUseCaseImpl;
 import com.aura.core.usecases.levels.DeleteLevelUseCase;
 import com.aura.core.usecases.levels.DeleteLevelUseCaseImpl;
+import com.aura.core.usecases.levels.GetLevelDeleteImpactUseCase;
+import com.aura.core.usecases.levels.GetLevelDeleteImpactUseCaseImpl;
 import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCase;
 import com.aura.core.usecases.materials.CreateMaterialInInstitutionUseCaseImpl;
 import com.aura.core.usecases.materials.DeleteMaterialUseCase;
@@ -179,6 +181,8 @@ import com.aura.core.usecases.schools.CreateSchoolUseCase;
 import com.aura.core.usecases.schools.CreateSchoolUseCaseImpl;
 import com.aura.core.usecases.schools.DeleteSchoolUseCase;
 import com.aura.core.usecases.schools.DeleteSchoolUseCaseImpl;
+import com.aura.core.usecases.schools.GetSchoolDeleteImpactUseCase;
+import com.aura.core.usecases.schools.GetSchoolDeleteImpactUseCaseImpl;
 import com.aura.core.usecases.schools.SchoolQueryUseCase;
 import com.aura.core.usecases.schools.SchoolQueryUseCaseImpl;
 import com.aura.core.usecases.lesson_homework_completions.CreateLessonHomeworkCompletionUseCase;
@@ -229,12 +233,16 @@ import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
 import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCaseImpl;
 import com.aura.core.usecases.subjects.DeleteSubjectUseCase;
 import com.aura.core.usecases.subjects.DeleteSubjectUseCaseImpl;
+import com.aura.core.usecases.subjects.GetSubjectDeleteImpactUseCase;
+import com.aura.core.usecases.subjects.GetSubjectDeleteImpactUseCaseImpl;
 import com.aura.core.usecases.subjects.SubjectQueryUseCase;
 import com.aura.core.usecases.subjects.SubjectQueryUseCaseImpl;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.core.usecases.topics.CreateTopicUseCaseImpl;
 import com.aura.core.usecases.topics.DeleteTopicUseCase;
 import com.aura.core.usecases.topics.DeleteTopicUseCaseImpl;
+import com.aura.core.usecases.topics.GetTopicDeleteImpactUseCase;
+import com.aura.core.usecases.topics.GetTopicDeleteImpactUseCaseImpl;
 import com.aura.core.usecases.topics.TopicQueryUseCase;
 import com.aura.core.usecases.topics.TopicQueryUseCaseImpl;
 import org.springframework.context.annotation.Bean;
@@ -357,6 +365,11 @@ public class UseCaseConfig {
     @Bean
     DeleteSchoolUseCase deleteSchoolUseCase(SchoolRepository schoolRepository) {
         return new DeleteSchoolUseCaseImpl(schoolRepository);
+    }
+
+    @Bean
+    GetSchoolDeleteImpactUseCase getSchoolDeleteImpactUseCase(SchoolRepository schoolRepository) {
+        return new GetSchoolDeleteImpactUseCaseImpl(schoolRepository);
     }
 
     @Bean
@@ -693,6 +706,11 @@ public class UseCaseConfig {
     }
 
     @Bean
+    GetLevelDeleteImpactUseCase getLevelDeleteImpactUseCase(LevelRepository levelRepository) {
+        return new GetLevelDeleteImpactUseCaseImpl(levelRepository);
+    }
+
+    @Bean
     DeleteOutletUseCase deleteOutletUseCase(OutletRepository outletRepository) {
         return new DeleteOutletUseCaseImpl(outletRepository);
     }
@@ -703,8 +721,18 @@ public class UseCaseConfig {
     }
 
     @Bean
+    GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase(SubjectRepository subjectRepository) {
+        return new GetSubjectDeleteImpactUseCaseImpl(subjectRepository);
+    }
+
+    @Bean
     DeleteTopicUseCase deleteTopicUseCase(TopicRepository topicRepository) {
         return new DeleteTopicUseCaseImpl(topicRepository);
+    }
+
+    @Bean
+    GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase(TopicRepository topicRepository) {
+        return new GetTopicDeleteImpactUseCaseImpl(topicRepository);
     }
 
     @Bean

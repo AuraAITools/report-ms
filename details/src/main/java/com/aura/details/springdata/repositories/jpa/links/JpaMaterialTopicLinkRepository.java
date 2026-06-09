@@ -14,6 +14,11 @@ public interface JpaMaterialTopicLinkRepository extends JpaRepository<MaterialTo
 
     void deleteAllByMaterialId(UUID materialId);
 
+    void deleteAllByTopicId(UUID topicId);
+
     @Query("SELECT l.material.id, l.topic FROM MaterialTopicLinkModel l WHERE l.material.id IN :materialIds")
     List<Object[]> findTopicsByMaterialIds(@Param("materialIds") List<UUID> materialIds);
+
+    @Query("SELECT l.material.id FROM MaterialTopicLinkModel l WHERE l.topic.id = :topicId")
+    List<UUID> findMaterialIdsByTopicId(@Param("topicId") UUID topicId);
 }

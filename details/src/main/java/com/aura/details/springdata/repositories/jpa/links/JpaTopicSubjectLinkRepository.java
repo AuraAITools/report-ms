@@ -15,6 +15,12 @@ public interface JpaTopicSubjectLinkRepository extends JpaRepository<TopicSubjec
     @Query("SELECT l.subject.id, l.topic FROM TopicSubjectLinkModel l WHERE l.subject.id IN :subjectIds")
     List<Object[]> findTopicsBySubjectIds(@Param("subjectIds") List<UUID> subjectIds);
 
+    @Query("SELECT l.subject.id FROM TopicSubjectLinkModel l WHERE l.topic.id = :topicId")
+    List<UUID> findSubjectIdsByTopicId(@Param("topicId") UUID topicId);
+
+    @Query("SELECT l.topic.id FROM TopicSubjectLinkModel l WHERE l.subject.id = :subjectId")
+    List<UUID> findTopicIdsBySubjectId(@Param("subjectId") UUID subjectId);
+
     void deleteAllBySubjectId(UUID subjectId);
 
     void deleteAllByTopicId(UUID topicId);

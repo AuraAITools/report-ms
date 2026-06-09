@@ -1,5 +1,8 @@
 package com.aura.details.springdata.repositories.impl;
 
+import com.aura.core.entities.delete_impact.AffectedResourceGroup;
+import com.aura.core.entities.delete_impact.CleanupAction;
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.links.SubjectCourseLink;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.subjects.SubjectWithTopics;
@@ -17,8 +20,12 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectCourseLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLevelLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectStudentLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectTestGroupLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaTopicSubjectLinkRepository;
 import com.aura.details.springdata.repositories.jpa.subjects.JpaSubjectRepository;
+import com.aura.details.springdata.repositories.jpa.tests.JpaTestResultRepository;
 import com.aura.details.springdata.repositories.jpa.topics.JpaTopicRepository;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +45,10 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     private final JpaSubjectCourseLinkRepository jpaSubjectCourseLinkRepository;
     private final JpaSubjectLessonLinkRepository jpaSubjectLessonLinkRepository;
     private final JpaSubjectEducatorLinkRepository jpaSubjectEducatorLinkRepository;
+    private final JpaSubjectStudentLinkRepository jpaSubjectStudentLinkRepository;
+    private final JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository;
+    private final JpaSubjectTestGroupLinkRepository jpaSubjectTestGroupLinkRepository;
+    private final JpaTestResultRepository jpaTestResultRepository;
 
 
     @Override
@@ -164,6 +175,25 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     }
 
     @Override
+    public DeleteImpact findDeleteImpact(String subjectId) {
+        UUID id = UUID.fromString(subjectId);
+        List<AffectedResourceGroup> groups = new ArrayList<>();
+        groups.add(deleteGroup("Topic", jpaTopicSubjectLinkRepository.findTopicIdsBySubjectId(id)));
+        groups.add(deleteGroup("Course", jpaSubjectCourseLinkRepository.findCourseIdsBySubjectId(id)));
+        groups.add(deleteGroup("Student", jpaSubjectStudentLinkRepository.findStudentIdsBySubjectId(id)));
+        groups.add(deleteGroup("Educator", jpaSubjectEducatorLinkRepository.findEducatorIdsBySubjectId(id)));
+        groups.add(deleteGroup("Level", jpaSubjectLevelLinkRepository.findLevelIdsBySubjectId(id)));
+        groups.add(deleteGroup("TestGroup", jpaSubjectTestGroupLinkRepository.findTestGroupIdsBySubjectId(id)));
+        groups.add(deleteGroup("Lesson", jpaSubjectLessonLinkRepository.findLessonIdsBySubjectId(id)));
+        groups.add(nullOutGroup("TestResult", jpaTestResultRepository.findIdsBySubjectId(id)));
+        return DeleteImpact.builder()
+                .resourceType("Subject")
+                .resourceId(subjectId)
+                .affectedGroups(groups)
+                .build();
+    }
+
+    @Override
     public void deleteAllTopicSubjectLinksBySubjectId(String subjectId) {
         jpaTopicSubjectLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
     }
@@ -176,5 +206,51 @@ public class SubjectRepositoryImpl implements SubjectRepository {
     @Override
     public void deleteAllSubjectCourseLinksByCourseId(String courseId) {
         jpaSubjectCourseLinkRepository.deleteAllByCourseId(UUID.fromString(courseId));
+    }
+
+    @Override
+    public void deleteAllSubjectStudentLinksBySubjectId(String subjectId) {
+        jpaSubjectStudentLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
+    }
+
+    @Override
+    public void deleteAllSubjectEducatorLinksBySubjectId(String subjectId) {
+        jpaSubjectEducatorLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
+    }
+
+    @Override
+    public void deleteAllSubjectLevelLinksBySubjectId(String subjectId) {
+        jpaSubjectLevelLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
+    }
+
+    @Override
+    public void deleteAllSubjectTestGroupLinksBySubjectId(String subjectId) {
+        jpaSubjectTestGroupLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
+    }
+
+    @Override
+    public void deleteAllSubjectLessonLinksBySubjectId(String subjectId) {
+        jpaSubjectLessonLinkRepository.deleteAllBySubjectId(UUID.fromString(subjectId));
+    }
+
+    @Override
+    public void nullOutSubjectOnTestResultsBySubjectId(String subjectId) {
+        jpaTestResultRepository.nullOutSubjectBySubjectId(UUID.fromString(subjectId));
+    }
+
+    private AffectedResourceGroup deleteGroup(String resourceType, List<UUID> ids) {
+        return AffectedResourceGroup.builder()
+                .resourceType(resourceType)
+                .cleanupAction(CleanupAction.DELETE)
+                .affectedIds(ids.stream().map(UUID::toString).toList())
+                .build();
+    }
+
+    private AffectedResourceGroup nullOutGroup(String resourceType, List<UUID> ids) {
+        return AffectedResourceGroup.builder()
+                .resourceType(resourceType)
+                .cleanupAction(CleanupAction.NULL_OUT)
+                .affectedIds(ids.stream().map(UUID::toString).toList())
+                .build();
     }
 }

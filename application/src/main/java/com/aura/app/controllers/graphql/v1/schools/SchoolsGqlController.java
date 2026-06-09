@@ -1,9 +1,11 @@
 package com.aura.app.controllers.graphql.v1.schools;
 
 import com.aura.app.codegen.types.CreateSchoolInput;
+import com.aura.app.codegen.types.DeleteImpactPreview;
 import com.aura.app.codegen.types.DeleteSchoolInInstitutionInput;
 import com.aura.app.codegen.types.SchoolResponse;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
+import com.aura.app.mappers.DeleteImpactMapper;
 import com.aura.app.mappers.SchoolMapper;
 import com.aura.core.auth.User;
 import com.aura.core.entities.schools.School;
@@ -55,5 +57,16 @@ public class SchoolsGqlController {
         }
         schoolService.deleteById(deleteSchoolInInstitutionInput.getSchoolId());
         return true;
+    }
+
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view')")
+    @QueryMapping
+    public DeleteImpactPreview getAllAffectedResourcesIfSchoolDeleted(@Argument("institutionId") String institutionId,
+                                                                      @Argument("id") String id,
+                                                                      @ContextValue(name = "user") User user) {
+        if (schoolService.findById(id) == null) {
+            throw new ResourceNotFoundBusinessException("School");
+        }
+        return DeleteImpactMapper.INSTANCE.toDto(schoolService.getDeleteImpact(id));
     }
 }

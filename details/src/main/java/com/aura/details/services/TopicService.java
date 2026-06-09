@@ -1,10 +1,12 @@
 package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.TopicRepository;
 import com.aura.core.usecases.topics.CreateTopicUseCase;
 import com.aura.core.usecases.topics.DeleteTopicUseCase;
+import com.aura.core.usecases.topics.GetTopicDeleteImpactUseCase;
 import com.aura.core.usecases.topics.TopicQueryUseCase;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -17,6 +19,7 @@ public class TopicService {
     private final CreateTopicUseCase createTopicUseCase;
     private final TopicQueryUseCase topicQueryUseCase;
     private final DeleteTopicUseCase deleteTopicUseCase;
+    private final GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase;
     private final TopicRepository topicRepository;
     private final RelationshipAuthorizationService relationshipService;
 
@@ -36,9 +39,17 @@ public class TopicService {
         return topicQueryUseCase.findAllByTenantId(tenantId);
     }
 
+    public DeleteImpact getDeleteImpact(String id) {
+        return getTopicDeleteImpactUseCase.getDeleteImpact(id);
+    }
+
     @Transactional
     public void deleteById(String id) {
         topicRepository.deleteAllTopicSubjectLinksByTopicId(id);
+        topicRepository.deleteAllLessonObjectiveTopicLinksByTopicId(id);
+        topicRepository.deleteAllMaterialTopicLinksByTopicId(id);
+        topicRepository.deleteAllTopicLessonLinksByTopicId(id);
+        topicRepository.deleteAllLessonGroupPlanTopicLinksByTopicId(id);
         deleteTopicUseCase.deleteById(id);
         relationshipService.deleteAllRelationshipsForResource("topic", id);
         relationshipService.deleteAllRelationshipsForResource("topic_user_group", id);

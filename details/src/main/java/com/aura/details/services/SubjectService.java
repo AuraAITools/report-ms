@@ -1,6 +1,7 @@
 package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.subjects.SubjectWithTopics;
 import com.aura.core.entities.topics.Topic;
@@ -8,6 +9,7 @@ import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.usecases.subjects.CreateSubjectUseCase;
 import com.aura.core.usecases.subjects.CreateTopicSubjectLinksUseCase;
 import com.aura.core.usecases.subjects.DeleteSubjectUseCase;
+import com.aura.core.usecases.subjects.GetSubjectDeleteImpactUseCase;
 import com.aura.core.usecases.subjects.SubjectQueryUseCase;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -23,6 +25,7 @@ public class SubjectService {
     private final CreateTopicSubjectLinksUseCase createTopicSubjectLinksUseCase;
     private final SubjectQueryUseCase subjectQueryUseCase;
     private final DeleteSubjectUseCase deleteSubjectUseCase;
+    private final GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase;
     private final SubjectRepository subjectRepository;
     private final RelationshipAuthorizationService relationshipService;
 
@@ -51,10 +54,20 @@ public class SubjectService {
         return subjectQueryUseCase.findTopicsBySubjectIds(subjectIds);
     }
 
+    public DeleteImpact getDeleteImpact(String id) {
+        return getSubjectDeleteImpactUseCase.getDeleteImpact(id);
+    }
+
     @Transactional
     public void deleteById(String id) {
         subjectRepository.deleteAllTopicSubjectLinksBySubjectId(id);
         subjectRepository.deleteAllSubjectCourseLinksBySubjectId(id);
+        subjectRepository.deleteAllSubjectStudentLinksBySubjectId(id);
+        subjectRepository.deleteAllSubjectEducatorLinksBySubjectId(id);
+        subjectRepository.deleteAllSubjectLevelLinksBySubjectId(id);
+        subjectRepository.deleteAllSubjectTestGroupLinksBySubjectId(id);
+        subjectRepository.deleteAllSubjectLessonLinksBySubjectId(id);
+        subjectRepository.nullOutSubjectOnTestResultsBySubjectId(id);
         deleteSubjectUseCase.deleteById(id);
         relationshipService.deleteAllRelationshipsForResource("subject", id);
         relationshipService.deleteAllRelationshipsForResource("subject_user_group", id);

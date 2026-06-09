@@ -2,10 +2,12 @@ package com.aura.app.controllers.graphql.v1.subjects;
 
 import com.aura.app.codegen.types.CreateSubjectInput;
 import com.aura.app.codegen.types.CreateSubjectTopicLinksInput;
+import com.aura.app.codegen.types.DeleteImpactPreview;
 import com.aura.app.codegen.types.SubjectResponse;
 import com.aura.app.codegen.types.SubjectResponseWithTopics;
 import com.aura.app.codegen.types.TopicResponse;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
+import com.aura.app.mappers.DeleteImpactMapper;
 import com.aura.app.mappers.SubjectMapper;
 import com.aura.app.mappers.TopicMapper;
 import com.aura.core.auth.User;
@@ -70,6 +72,17 @@ public class SubjectsGqlController {
         return subjectService.findAllByTenantId(institutionId).stream()
                 .map(SubjectMapper.INSTANCE::toDto)
                 .toList();
+    }
+
+    @PreAuthorize("hasPermission(#id, 'subject', 'view')")
+    @QueryMapping
+    public DeleteImpactPreview getAllAffectedResourcesIfSubjectDeleted(@Argument("institutionId") String institutionId,
+                                                                       @Argument("id") String id,
+                                                                       @ContextValue(name = "user") User user) {
+        if (subjectService.findById(id) == null) {
+            throw new ResourceNotFoundBusinessException("Subject");
+        }
+        return DeleteImpactMapper.INSTANCE.toDto(subjectService.getDeleteImpact(id));
     }
 
     @PreAuthorize("hasPermission(#id, 'subject', 'delete')")

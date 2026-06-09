@@ -23,5 +23,8 @@ public interface JpaCourseRepository extends JpaRepository<CourseModel, UUID>, J
     @Modifying
     @Query("UPDATE CourseModel c SET c.level = null WHERE c.level.id = :levelId")
     void nullOutLevelForCourses(@Param("levelId") UUID levelId);
+
+    @Query("SELECT c.id FROM CourseModel c WHERE c.level.id = :levelId")
+    List<UUID> findIdsByLevelId(@Param("levelId") UUID levelId);
 }
 

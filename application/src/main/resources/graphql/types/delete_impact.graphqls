@@ -1,0 +1,18 @@
+enum CleanupAction {
+    DELETE
+    NULL_OUT
+}
+
+type AffectedResourceGroup {
+    resourceType: String!
+    cleanupAction: CleanupAction!
+    count: Int!
+    affectedIds: [ID!]!
+}
+
+type DeleteImpactPreview {
+    resourceType: String!
+    resourceId: ID!
+    affectedGroups: [AffectedResourceGroup!]!
+    totalAffectedCount: Int!
+}

@@ -15,6 +15,9 @@ public interface JpaLevelLessonLinkRepository extends JpaRepository<LevelLessonL
     @Query("SELECT l.lesson.id, l.level FROM LevelLessonLinkModel l WHERE l.lesson.id IN :lessonIds")
     List<Object[]> findLevelsByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
 
+    @Query("SELECT l.lesson.id FROM LevelLessonLinkModel l WHERE l.level.id = :levelId")
+    List<UUID> findLessonIdsByLevelId(@Param("levelId") UUID levelId);
+
     void deleteAllByLessonId(UUID lessonId);
 
     void deleteAllByLevelId(UUID levelId);

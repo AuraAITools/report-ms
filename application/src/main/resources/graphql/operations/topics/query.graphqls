@@ -1,4 +1,5 @@
 extend type Query {
     getTopicById(institutionId: ID!, topicId: ID!): TopicResponse!
     getAllTopicsInInstitution(institutionId: ID!): [TopicResponse!]!
+    getAllAffectedResourcesIfTopicDeleted(institutionId: ID!, id: ID!): DeleteImpactPreview!
 }

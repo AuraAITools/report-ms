@@ -218,6 +218,26 @@ class AddLevelsToLessonUseCaseImplTest {
         }
 
         @Override
+        public void deleteAllSubjectLevelLinksByLevelId(String levelId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllLevelEducatorLinksByLevelId(String levelId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void nullOutLevelOnStudentsByLevelId(String levelId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public com.aura.core.entities.delete_impact.DeleteImpact findDeleteImpact(String levelId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public Level save(Level level) {
             throw new UnsupportedOperationException();
         }

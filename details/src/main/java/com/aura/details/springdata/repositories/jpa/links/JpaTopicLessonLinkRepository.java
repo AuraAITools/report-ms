@@ -14,8 +14,13 @@ public interface JpaTopicLessonLinkRepository extends JpaRepository<TopicLessonL
 
     void deleteAllByLessonId(UUID lessonId);
 
+    void deleteAllByTopicId(UUID topicId);
+
     @Query("SELECT l.topic.id FROM TopicLessonLinkModel l WHERE l.lesson.id = :lessonId")
     List<UUID> findTopicIdsByLessonId(@Param("lessonId") UUID lessonId);
+
+    @Query("SELECT l.lesson.id FROM TopicLessonLinkModel l WHERE l.topic.id = :topicId")
+    List<UUID> findLessonIdsByTopicId(@Param("topicId") UUID topicId);
 
     @Query("SELECT l.lesson.id, l.topic FROM TopicLessonLinkModel l WHERE l.lesson.id IN :lessonIds")
     List<Object[]> findTopicsByLessonIds(@Param("lessonIds") List<UUID> lessonIds);

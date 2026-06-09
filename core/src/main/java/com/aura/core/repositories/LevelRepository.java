@@ -1,5 +1,6 @@
 package com.aura.core.repositories;
 
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.levels.Level;
 import com.aura.core.utils.KeysetPaginationCriteria;
 import com.aura.core.utils.PagedResult;
@@ -31,7 +32,15 @@ public interface LevelRepository {
 
     void deleteById(String id);
 
+    DeleteImpact findDeleteImpact(String levelId);
+
     void deleteAllLevelLessonLinksByLevelId(String levelId);
+
+    void deleteAllSubjectLevelLinksByLevelId(String levelId);
+
+    void deleteAllLevelEducatorLinksByLevelId(String levelId);
+
+    void nullOutLevelOnStudentsByLevelId(String levelId);
 
     Level save(Level level);
 }

@@ -1,5 +1,6 @@
 package com.aura.core.repositories;
 
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.links.SubjectCourseLink;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.subjects.SubjectWithTopics;
@@ -32,9 +33,23 @@ public interface SubjectRepository {
 
     void deleteById(String id);
 
+    DeleteImpact findDeleteImpact(String subjectId);
+
     void deleteAllTopicSubjectLinksBySubjectId(String subjectId);
 
     void deleteAllSubjectCourseLinksBySubjectId(String subjectId);
 
     void deleteAllSubjectCourseLinksByCourseId(String courseId);
+
+    void deleteAllSubjectStudentLinksBySubjectId(String subjectId);
+
+    void deleteAllSubjectEducatorLinksBySubjectId(String subjectId);
+
+    void deleteAllSubjectLevelLinksBySubjectId(String subjectId);
+
+    void deleteAllSubjectTestGroupLinksBySubjectId(String subjectId);
+
+    void deleteAllSubjectLessonLinksBySubjectId(String subjectId);
+
+    void nullOutSubjectOnTestResultsBySubjectId(String subjectId);
 }

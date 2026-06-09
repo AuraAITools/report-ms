@@ -197,5 +197,30 @@ class AddTopicsToLessonUseCaseImplTest {
         public void deleteAllTopicSubjectLinksByTopicId(String topicId) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void deleteAllLessonObjectiveTopicLinksByTopicId(String topicId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllMaterialTopicLinksByTopicId(String topicId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllTopicLessonLinksByTopicId(String topicId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllLessonGroupPlanTopicLinksByTopicId(String topicId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public com.aura.core.entities.delete_impact.DeleteImpact findDeleteImpact(String topicId) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

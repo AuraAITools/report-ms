@@ -143,5 +143,40 @@ class SubjectQueryUseCaseImplTest {
         public void deleteAllSubjectCourseLinksByCourseId(String courseId) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void deleteAllSubjectStudentLinksBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllSubjectEducatorLinksBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllSubjectLevelLinksBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllSubjectTestGroupLinksBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllSubjectLessonLinksBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void nullOutSubjectOnTestResultsBySubjectId(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public com.aura.core.entities.delete_impact.DeleteImpact findDeleteImpact(String subjectId) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

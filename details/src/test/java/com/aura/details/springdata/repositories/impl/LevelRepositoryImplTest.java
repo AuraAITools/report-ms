@@ -6,6 +6,8 @@ import com.aura.details.springdata.repositories.jpa.courses.JpaCourseRepository;
 import com.aura.details.springdata.repositories.jpa.levels.JpaLevelRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelEducatorLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaLevelLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLevelLinkRepository;
+import com.aura.details.springdata.repositories.jpa.students.JpaStudentRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +33,10 @@ class LevelRepositoryImplTest {
     private JpaCourseRepository jpaCourseRepository;
     @Mock
     private JpaLevelEducatorLinkRepository jpaLevelEducatorLinkRepository;
+    @Mock
+    private JpaSubjectLevelLinkRepository jpaSubjectLevelLinkRepository;
+    @Mock
+    private JpaStudentRepository jpaStudentRepository;
 
     @DisplayName("Should map each course id to its single level when fetching by course ids")
     @Test
@@ -136,6 +142,7 @@ class LevelRepositoryImplTest {
     }
 
     private LevelRepositoryImpl repository() {
-        return new LevelRepositoryImpl(jpaLevelRepository, jpaLevelLessonLinkRepository, jpaCourseRepository, jpaLevelEducatorLinkRepository);
+        return new LevelRepositoryImpl(jpaLevelRepository, jpaLevelLessonLinkRepository, jpaCourseRepository,
+                jpaLevelEducatorLinkRepository, jpaSubjectLevelLinkRepository, jpaStudentRepository);
     }
 }

@@ -1,11 +1,13 @@
 package com.aura.app.controllers.graphql.v1.levels;
 
 import com.aura.app.codegen.types.CreateLevelInInstitutionInput;
+import com.aura.app.codegen.types.DeleteImpactPreview;
 import com.aura.app.codegen.types.InstitutionSearchInput;
 import com.aura.app.codegen.types.LevelResponse;
 import com.aura.app.codegen.types.SortInput;
 import com.aura.app.dto.PageParametersDto;
 import com.aura.app.exceptions.ResourceNotFoundBusinessException;
+import com.aura.app.mappers.DeleteImpactMapper;
 import com.aura.app.mappers.LevelMapper;
 import com.aura.app.utils.PaginationUtils;
 import com.aura.core.auth.User;
@@ -59,6 +61,17 @@ public class LevelsGqlController {
         PagedResult<Level> pagedResult = levelQueryUseCase.queryPageBy(institutionId, pageParametersDto.keysetPaginationCriteria(), pageParametersDto.sortCriteriasList(), pageParametersDto.searchCriteria());
 
         return buildConnection(pagedResult, pageParametersDto.sortCriteriasList(), LevelMapper.INSTANCE::mapToDto, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
+    }
+
+    @PreAuthorize("hasPermission(#id, 'level', 'view')")
+    @QueryMapping
+    public DeleteImpactPreview getAllAffectedResourcesIfLevelDeleted(@Argument("institutionId") String institutionId,
+                                                                     @Argument("id") String id,
+                                                                     @ContextValue(name = "user") User user) {
+        if (levelRepository.findById(id) == null) {
+            throw new ResourceNotFoundBusinessException("Level");
+        }
+        return DeleteImpactMapper.INSTANCE.toDto(levelService.getDeleteImpact(id));
     }
 
     @PreAuthorize("hasPermission(#id, 'level', 'delete')")

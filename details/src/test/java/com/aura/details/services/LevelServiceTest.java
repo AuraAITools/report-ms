@@ -1,12 +1,16 @@
 package com.aura.details.services;
 
 import com.aura.core.clients.RelationshipAuthorizationService;
+import com.aura.core.entities.delete_impact.AffectedResourceGroup;
+import com.aura.core.entities.delete_impact.CleanupAction;
+import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.schools.SchoolCategory;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.LevelRepository;
 import com.aura.core.usecases.levels.CreateLevelUseCase;
 import com.aura.core.usecases.levels.DeleteLevelUseCase;
+import com.aura.core.usecases.levels.GetLevelDeleteImpactUseCase;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,8 @@ class LevelServiceTest {
     @Mock
     private DeleteLevelUseCase deleteLevelUseCase;
     @Mock
+    private GetLevelDeleteImpactUseCase getLevelDeleteImpactUseCase;
+    @Mock
     private LevelRepository levelRepository;
     @Mock
     private CourseRepository courseRepository;
@@ -43,14 +49,17 @@ class LevelServiceTest {
     @InjectMocks
     private LevelService levelService;
 
-    @DisplayName("Should null out course levels, clear lesson-level links, delete level, and wipe spicedb")
+    @DisplayName("Should null out course/student levels, clear all link tables, delete level, and wipe spicedb")
     @Test
     void deleteById_cascadeAndCleanup() {
         levelService.deleteById("level-1");
 
         InOrder ordered = inOrder(courseRepository, levelRepository, deleteLevelUseCase, relationshipService);
         ordered.verify(courseRepository).nullOutLevelForCourses("level-1");
+        ordered.verify(levelRepository).nullOutLevelOnStudentsByLevelId("level-1");
         ordered.verify(levelRepository).deleteAllLevelLessonLinksByLevelId("level-1");
+        ordered.verify(levelRepository).deleteAllSubjectLevelLinksByLevelId("level-1");
+        ordered.verify(levelRepository).deleteAllLevelEducatorLinksByLevelId("level-1");
         ordered.verify(deleteLevelUseCase).deleteById("level-1");
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("level", "level-1");
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("level_user_group", "level-1");
@@ -76,5 +85,25 @@ class LevelServiceTest {
                                 "level", "level-1", "parent", "institution", "tenant-1")))
                         && list.size() == 3));
         verifyNoMoreInteractions(relationshipService);
+    }
+
+    @DisplayName("Should return delete-impact preview by delegating to the use case")
+    @Test
+    void getDeleteImpact_delegatesToUseCase() {
+        DeleteImpact impact = DeleteImpact.builder()
+                .resourceType("Level")
+                .resourceId("level-1")
+                .affectedGroups(List.of(
+                        AffectedResourceGroup.builder()
+                                .resourceType("Student")
+                                .cleanupAction(CleanupAction.NULL_OUT)
+                                .affectedIds(List.of("student-1"))
+                                .build()))
+                .build();
+        when(getLevelDeleteImpactUseCase.getDeleteImpact("level-1")).thenReturn(impact);
+
+        DeleteImpact result = levelService.getDeleteImpact("level-1");
+
+        assertThat(result).isSameAs(impact);
     }
 }
