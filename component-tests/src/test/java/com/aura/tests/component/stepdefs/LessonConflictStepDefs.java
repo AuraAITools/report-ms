@@ -132,6 +132,159 @@ public class LessonConflictStepDefs {
                 .isFalse();
     }
 
+    // ── educator existence step ───────────────────────────────────────────────
+
+    @Given("the educator {string} exists")
+    @SuppressWarnings("unchecked")
+    public void theEducatorExists(String educatorName) {
+        String institutionId = testContext.getInstitutionId();
+
+        // 1. Create an account for the educator
+        String accountEmail = educatorName.toLowerCase().replace(" ", ".") + ".account@conflict-test.com";
+        String createAccountQuery = findGraphqlQueryFromFiles("create-account.graphql");
+        Map<String, Object> accountInput = Map.of(
+                "institutionId", institutionId,
+                "email", accountEmail,
+                "firstName", educatorName.contains(" ") ? educatorName.split(" ")[0] : educatorName,
+                "lastName", educatorName.contains(" ") ? educatorName.split(" ")[1] : "Educator",
+                "contact", 90000001
+        );
+        Map<String, Object> accountResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(createAccountQuery)
+                .variables(Map.of("input", accountInput))
+                .retrieveSync("createAccount")
+                .toEntity(Map.class);
+        String accountId = (String) accountResponse.get("id");
+        assertThat(accountId).isNotNull();
+
+        // 2. Ensure a level exists
+        String levelId = ensureLevelExists();
+
+        // 3. Create the educator
+        String educatorEmail = educatorName.toLowerCase().replace(" ", ".") + "@conflict-test.com";
+        Map<String, Object> educatorDetails = new HashMap<>();
+        educatorDetails.put("name", educatorName);
+        educatorDetails.put("email", educatorEmail);
+        educatorDetails.put("startDate", "2026-01-01");
+        educatorDetails.put("dateOfBirth", "1985-01-01");
+        educatorDetails.put("employmentType", "FULL_TIME");
+        educatorDetails.put("courseIds", List.of());
+        educatorDetails.put("subjectIds", List.of());
+        educatorDetails.put("outletIds", List.of(testContext.getOutletId()));
+        educatorDetails.put("levelIds", List.of(levelId));
+        educatorDetails.put("accountId", accountId);
+        educatorDetails.put("institutionId", institutionId);
+
+        Map<String, Object> educatorsInput = Map.of(
+                "institutionId", institutionId,
+                "educators", List.of(educatorDetails)
+        );
+
+        String educatorQuery = findGraphqlQueryFromFiles("create-educator-for-profile-image.graphql");
+        List<?> educatorResponses = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(educatorQuery)
+                .variables(Map.of("input", educatorsInput))
+                .retrieveSync("createEducatorsInAccount")
+                .toEntityList(Map.class);
+
+        assertThat(educatorResponses).isNotEmpty();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> firstEducator = (Map<String, Object>) educatorResponses.getFirst();
+        String educatorId = (String) firstEducator.get("id");
+        assertThat(educatorId).isNotNull();
+
+        testContext.recordEducator(educatorName, educatorId);
+        testContext.setEducatorId(educatorId);
+        log.info("Created educator '{}' with id={}", educatorName, educatorId);
+    }
+
+    // ── assign-educators steps ────────────────────────────────────────────────
+
+    @Given("the educator {string} is assigned to lesson {string}")
+    public void educatorIsAssignedToLesson(String educatorName, String lessonName) {
+        invokeAssignEducators(lessonName, List.of(educatorName), false);
+    }
+
+    @When("the user tries to assign educator {string} to lesson {string}")
+    public void userTriesToAssignEducator(String educatorName, String lessonName) {
+        invokeAssignEducators(lessonName, List.of(educatorName), true);
+    }
+
+    @When("the user assigns educator {string} to lesson {string}")
+    public void userAssignsEducator(String educatorName, String lessonName) {
+        invokeAssignEducators(lessonName, List.of(educatorName), false);
+    }
+
+    @Then("the lesson {string} should have educator {string} assigned")
+    @SuppressWarnings("unchecked")
+    public void lessonShouldHaveEducator(String lessonName, String educatorName) {
+        Map<String, Object> data = testContext.getLastResponseData();
+        assertThat(data).as("Expected a response for lesson '%s'", lessonName).isNotNull();
+        List<Map<String, Object>> educators = (List<Map<String, Object>>) data.get("educators");
+        String expectedId = testContext.getEducatorIdByName(educatorName);
+        assertThat(educators)
+                .as("Expected lesson '%s' to have educator '%s' (id=%s)", lessonName, educatorName, expectedId)
+                .extracting(e -> e.get("id"))
+                .contains(expectedId);
+    }
+
+    private void invokeAssignEducators(String lessonName, List<String> educatorNames, boolean expectFailure) {
+        String lessonId = testContext.getLessonIdByName(lessonName);
+        assertThat(lessonId)
+                .as("Lesson '%s' not found in TestContext — was it created in the Background?", lessonName)
+                .isNotNull();
+
+        List<String> educatorIds = educatorNames.stream()
+                .map(testContext::getEducatorIdByName)
+                .toList();
+
+        Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("lessonId", lessonId);
+        input.put("educatorIds", educatorIds);
+
+        String mutation = findGraphqlQueryFromFiles("assign-educators-to-lesson.graphql");
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(mutation)
+                    .variables(Map.of("input", input))
+                    .retrieveSync("assignEducatorsToLesson")
+                    .toEntity(Map.class);
+            testContext.setLastResponseData(data);
+            testContext.setRequestFailed(false);
+            testContext.setLastException(null);
+            log.info("assignEducatorsToLesson succeeded for lesson '{}'", lessonName);
+        } catch (FieldAccessException e) {
+            if (!expectFailure) {
+                throw new AssertionError(
+                        "Unexpected GraphQL error assigning educators to lesson '" + lessonName + "': " + e.getMessage(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var ext = errors.getFirst().getExtensions();
+                if (ext != null && ext.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(ext.get("error_code").toString());
+                }
+            }
+            log.info("assignEducatorsToLesson failed as expected for lesson '{}': {}", lessonName, e.getMessage());
+        } catch (HttpServerErrorException e) {
+            if (!expectFailure) {
+                throw new AssertionError(
+                        "Unexpected HTTP error assigning educators to lesson '" + lessonName + "': " + e.getStatusCode(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
+            log.info("assignEducatorsToLesson failed with HTTP error for lesson '{}': {}", lessonName, e.getStatusCode());
+        }
+    }
+
     // ── student existence step ────────────────────────────────────────────────
 
     @Given("the student {string} exists")

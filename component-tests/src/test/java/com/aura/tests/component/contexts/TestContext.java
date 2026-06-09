@@ -55,6 +55,7 @@ public class TestContext {
     private final Map<String, String> outletRoomIdsByName = new HashMap<>();
     private final Map<String, String> courseIdsByName = new HashMap<>();
     private final Map<String, String> studentIdsByName = new HashMap<>();
+    private final Map<String, String> educatorIdsByName = new HashMap<>();
 
     public TestContext(HttpSyncGraphQlClient graphQLClient) {
         this.graphQLClient = graphQLClient;
@@ -90,5 +91,13 @@ public class TestContext {
 
     public String getStudentIdByName(String name) {
         return studentIdsByName.get(name);
+    }
+
+    public void recordEducator(String name, String id) {
+        educatorIdsByName.put(name, id);
+    }
+
+    public String getEducatorIdByName(String name) {
+        return educatorIdsByName.get(name);
     }
 }
