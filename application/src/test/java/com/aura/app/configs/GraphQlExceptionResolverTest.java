@@ -4,6 +4,8 @@ import com.aura.app.exceptions.AccessDeniedBusinessException;
 import com.aura.app.exceptions.BusinessException;
 import com.aura.app.exceptions.NotFoundException;
 import com.aura.app.exceptions.TechnicalException;
+import com.aura.core.exceptions.LessonConflictException;
+import java.util.List;
 import graphql.GraphQLError;
 import graphql.execution.ExecutionStepInfo;
 import graphql.execution.ResultPath;
@@ -127,5 +129,70 @@ class GraphQlExceptionResolverTest {
 
         assertThat(error).isNotNull();
         assertThat(error.getExtensions()).containsEntry("correlation_id", "unknown");
+    }
+
+    @Test
+    @DisplayName("Should resolve room conflict with conflict_type ROOM and no subject_id")
+    void shouldResolveRoomConflict() {
+        LessonConflictException ex = new LessonConflictException(
+                LessonConflictException.ConflictType.ROOM,
+                List.of("lesson-a", "lesson-b"),
+                null);
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error).isNotNull();
+        assertThat(error.getMessage()).contains("Room conflict");
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 409)
+                .containsEntry("error_code", "LESSON_CONFLICT")
+                .containsEntry("conflict_type", "ROOM")
+                .containsEntry("conflicting_lesson_ids", List.of("lesson-a", "lesson-b"))
+                .containsEntry("correlation_id", CORRELATION_ID)
+                .doesNotContainKey("subject_id");
+    }
+
+    @Test
+    @DisplayName("Should resolve student conflict with subject_id present")
+    void shouldResolveStudentConflict() {
+        LessonConflictException ex = new LessonConflictException(
+                LessonConflictException.ConflictType.STUDENT,
+                List.of("lesson-x"),
+                "student-1");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getExtensions())
+                .containsEntry("conflict_type", "STUDENT")
+                .containsEntry("conflicting_lesson_ids", List.of("lesson-x"))
+                .containsEntry("subject_id", "student-1");
+    }
+
+    @Test
+    @DisplayName("Should resolve educator conflict with subject_id present")
+    void shouldResolveEducatorConflict() {
+        LessonConflictException ex = new LessonConflictException(
+                LessonConflictException.ConflictType.EDUCATOR,
+                List.of("lesson-y", "lesson-z"),
+                "educator-1");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getExtensions())
+                .containsEntry("conflict_type", "EDUCATOR")
+                .containsEntry("conflicting_lesson_ids", List.of("lesson-y", "lesson-z"))
+                .containsEntry("subject_id", "educator-1");
+    }
+
+    @Test
+    @DisplayName("Should map http status 409 to BAD_REQUEST via mapHttpStatusToErrorType")
+    void shouldMap409ToBadRequest() {
+        BusinessException ex = new BusinessException("conflict", 409, "SOME_CONFLICT");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions()).containsEntry("http_status", 409);
     }
 }
