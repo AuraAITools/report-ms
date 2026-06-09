@@ -5,6 +5,7 @@ import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonOutletRoomBooking;
+import com.aura.core.exceptions.LessonConflictException;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -16,8 +17,10 @@ import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
+import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 public class LessonService {
 
     private final CreateLessonUseCase createLessonUseCase;
+    private final DetectLessonConflictsUseCase detectLessonConflictsUseCase;
     private final AddEducatorsToLessonUseCase addEducatorsToLessonUseCase;
     private final AddStudentsToLessonUseCase addStudentsToLessonUseCase;
     private final AddSubjectsToLessonUseCase addSubjectsToLessonUseCase;
@@ -75,6 +79,37 @@ public class LessonService {
         Lesson created = createLessonUseCase.createLessonInCourse(lesson, courseId);
 
         String lessonId = created.getId();
+
+        String tenantId = created.getTenantId();
+        Instant lessonStart = created.getLessonStartTimestamptz();
+        Instant lessonEnd = created.getLessonEndTimestamptz();
+
+        if (outletRoomId != null) {
+            List<String> roomConflicts = detectLessonConflictsUseCase.detectRoomConflicts(
+                    tenantId, outletRoomId, lessonStart, lessonEnd, null);
+            if (!roomConflicts.isEmpty()) {
+                throw new LessonConflictException(
+                        LessonConflictException.ConflictType.ROOM, roomConflicts, null);
+            }
+        }
+
+        for (String studentId : studentIds) {
+            List<String> studentConflicts = detectLessonConflictsUseCase.detectStudentConflicts(
+                    tenantId, studentId, lessonStart, lessonEnd, null);
+            if (!studentConflicts.isEmpty()) {
+                throw new LessonConflictException(
+                        LessonConflictException.ConflictType.STUDENT, studentConflicts, studentId);
+            }
+        }
+
+        for (String educatorId : educatorIds) {
+            List<String> educatorConflicts = detectLessonConflictsUseCase.detectEducatorConflicts(
+                    tenantId, educatorId, lessonStart, lessonEnd, null);
+            if (!educatorConflicts.isEmpty()) {
+                throw new LessonConflictException(
+                        LessonConflictException.ConflictType.EDUCATOR, educatorConflicts, educatorId);
+            }
+        }
 
         if (outletRoomId != null) {
             LessonOutletRoomBooking booking = LessonOutletRoomBooking.builder()

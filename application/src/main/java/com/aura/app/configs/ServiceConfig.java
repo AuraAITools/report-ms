@@ -70,6 +70,7 @@ import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
+import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import com.aura.core.usecases.levels.CreateLevelUseCase;
 import com.aura.core.usecases.levels.DeleteLevelUseCase;
@@ -308,6 +309,7 @@ public class ServiceConfig {
 
     @Bean
     LessonService lessonService(CreateLessonUseCase createLessonUseCase,
+                                DetectLessonConflictsUseCase detectLessonConflictsUseCase,
                                 AddEducatorsToLessonUseCase addEducatorsToLessonUseCase,
                                 AddStudentsToLessonUseCase addStudentsToLessonUseCase,
                                 AddSubjectsToLessonUseCase addSubjectsToLessonUseCase,
@@ -323,8 +325,8 @@ public class ServiceConfig {
                                 LessonGroupService lessonGroupService,
                                 LessonGroupPlanService lessonGroupPlanService,
                                 StudentLessonReportService studentLessonReportService) {
-        return new LessonService(createLessonUseCase, addEducatorsToLessonUseCase,
-                addStudentsToLessonUseCase, addSubjectsToLessonUseCase,
+        return new LessonService(createLessonUseCase, detectLessonConflictsUseCase,
+                addEducatorsToLessonUseCase, addStudentsToLessonUseCase, addSubjectsToLessonUseCase,
                 addLevelsToLessonUseCase, addTopicsToLessonUseCase, lessonQueryUseCase,
                 deleteLessonUseCase, lessonRepository, lessonOutletRoomBookingRepository,
                 relationshipService, educatorRepository, studentRepository,

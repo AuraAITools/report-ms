@@ -4,6 +4,7 @@ import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.exceptions.LessonConflictException;
 import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
@@ -15,10 +16,14 @@ import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
+import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -27,10 +32,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -42,6 +50,8 @@ class LessonServiceTest {
 
     @Mock
     private CreateLessonUseCase createLessonUseCase;
+    @Mock
+    private DetectLessonConflictsUseCase detectLessonConflictsUseCase;
     @Mock
     private AddEducatorsToLessonUseCase addEducatorsToLessonUseCase;
     @Mock
@@ -75,6 +85,16 @@ class LessonServiceTest {
 
     @InjectMocks
     private LessonService lessonService;
+
+    @BeforeEach
+    void stubNoConflictsByDefault() {
+        lenient().when(detectLessonConflictsUseCase.detectRoomConflicts(any(), any(), any(), any(), any()))
+                .thenReturn(List.of());
+        lenient().when(detectLessonConflictsUseCase.detectStudentConflicts(any(), any(), any(), any(), any()))
+                .thenReturn(List.of());
+        lenient().when(detectLessonConflictsUseCase.detectEducatorConflicts(any(), any(), any(), any(), any()))
+                .thenReturn(List.of());
+    }
 
     @DisplayName("Should write all three structural relationships in a single batch")
     @Test
@@ -203,5 +223,85 @@ class LessonServiceTest {
         when(lessonQueryUseCase.findAllByStudentId("s-1")).thenReturn(List.of(l1));
 
         org.assertj.core.api.Assertions.assertThat(lessonService.findAllByStudentId("s-1")).containsExactly(l1);
+    }
+
+    @Nested
+    @DisplayName("createLesson conflict checks")
+    class CreateLessonConflicts {
+
+        @Test
+        @DisplayName("Should throw LessonConflictException(ROOM) and not persist when room is double-booked")
+        void rejectsRoomConflict() {
+            Lesson lesson = lessonStub("lesson-123", "tenant-1",
+                    Instant.parse("2026-06-10T09:00:00Z"),
+                    Instant.parse("2026-06-10T10:00:00Z"));
+            when(createLessonUseCase.createLessonInCourse(any(), eq("course-1")))
+                    .thenReturn(lesson);
+            when(detectLessonConflictsUseCase.detectRoomConflicts(
+                    "tenant-1", "room-1",
+                    lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz(), null))
+                    .thenReturn(List.of("conflict-lesson"));
+
+            assertThatThrownBy(() -> lessonService.createLesson(
+                    lesson, "course-1", "room-1",
+                    List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
+                    .isInstanceOf(LessonConflictException.class)
+                    .extracting("type").isEqualTo(LessonConflictException.ConflictType.ROOM);
+
+            verify(lessonOutletRoomBookingRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Should throw LessonConflictException(STUDENT) when an added student has a conflict")
+        void rejectsStudentConflict() {
+            Lesson lesson = lessonStub("lesson-123", "tenant-1",
+                    Instant.parse("2026-06-10T09:00:00Z"),
+                    Instant.parse("2026-06-10T10:00:00Z"));
+            when(createLessonUseCase.createLessonInCourse(any(), eq("course-1")))
+                    .thenReturn(lesson);
+            when(detectLessonConflictsUseCase.detectStudentConflicts(
+                    "tenant-1", "student-1",
+                    lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz(), null))
+                    .thenReturn(List.of("conflict-lesson"));
+
+            assertThatThrownBy(() -> lessonService.createLesson(
+                    lesson, "course-1", null,
+                    List.of(), List.of("student-1"), List.of(), List.of(), List.of(), List.of()))
+                    .isInstanceOf(LessonConflictException.class)
+                    .extracting("type").isEqualTo(LessonConflictException.ConflictType.STUDENT);
+
+            verify(addStudentsToLessonUseCase, never()).addStudentsToLesson(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should throw LessonConflictException(EDUCATOR) when an added educator has a conflict")
+        void rejectsEducatorConflict() {
+            Lesson lesson = lessonStub("lesson-123", "tenant-1",
+                    Instant.parse("2026-06-10T09:00:00Z"),
+                    Instant.parse("2026-06-10T10:00:00Z"));
+            when(createLessonUseCase.createLessonInCourse(any(), eq("course-1")))
+                    .thenReturn(lesson);
+            when(detectLessonConflictsUseCase.detectEducatorConflicts(
+                    "tenant-1", "educator-1",
+                    lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz(), null))
+                    .thenReturn(List.of("conflict-lesson"));
+
+            assertThatThrownBy(() -> lessonService.createLesson(
+                    lesson, "course-1", null,
+                    List.of("educator-1"), List.of(), List.of(), List.of(), List.of(), List.of()))
+                    .isInstanceOf(LessonConflictException.class)
+                    .extracting("type").isEqualTo(LessonConflictException.ConflictType.EDUCATOR);
+
+            verify(addEducatorsToLessonUseCase, never()).addEducatorsToLessonUseCase(any(), any(), any());
+        }
+
+        private Lesson lessonStub(String id, String tenantId, Instant start, Instant end) {
+            return Lesson.builder()
+                    .id(id)
+                    .tenantId(tenantId)
+                    .lessonStartTimestamptz(start)
+                    .lessonEndTimestamptz(end)
+                    .build();
+        }
     }
 }
