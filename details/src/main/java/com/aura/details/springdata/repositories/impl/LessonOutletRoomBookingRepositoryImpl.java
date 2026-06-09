@@ -8,12 +8,14 @@ import com.aura.details.springdata.models.lessons.LessonOutletRoomBookingModel;
 import com.aura.details.springdata.models.outlets.OutletRoomModel;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonOutletRoomBookingRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class LessonOutletRoomBookingRepositoryImpl implements LessonOutletRoomBookingRepository {
@@ -35,5 +37,32 @@ public class LessonOutletRoomBookingRepositoryImpl implements LessonOutletRoomBo
         return jpaRepository.findAllByLesson_IdIn(uuids).stream()
                 .map(LessonOutletRoomBookingMapper.INSTANCE::toDomainEntity)
                 .collect(Collectors.toMap(LessonOutletRoomBooking::getLessonId, b -> b));
+    }
+
+    @Override
+    public @Nullable LessonOutletRoomBooking findByLessonId(String lessonId) {
+        return jpaRepository.findByLesson_Id(UUID.fromString(lessonId))
+                .map(LessonOutletRoomBookingMapper.INSTANCE::toDomainEntity)
+                .orElse(null);
+    }
+
+    @Override
+    public void deleteByLessonId(String lessonId) {
+        jpaRepository.deleteByLesson_Id(UUID.fromString(lessonId));
+    }
+
+    @Override
+    public List<LessonOutletRoomBooking> findOverlappingByRoomAndTenant(
+            String tenantId,
+            String outletRoomId,
+            Instant start,
+            Instant end,
+            @Nullable String excludeLessonId) {
+        UUID roomUuid = UUID.fromString(outletRoomId);
+        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
+        return jpaRepository.findOverlappingByRoomAndTenant(tenantId, roomUuid, start, end, excludeUuid)
+                .stream()
+                .map(LessonOutletRoomBookingMapper.INSTANCE::toDomainEntity)
+                .toList();
     }
 }
