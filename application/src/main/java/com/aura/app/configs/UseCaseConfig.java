@@ -133,6 +133,8 @@ import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCaseImpl;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCaseImpl;
+import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
+import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCaseImpl;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCaseImpl;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
@@ -355,6 +357,15 @@ public class UseCaseConfig {
             LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository,
             LessonRepository lessonRepository) {
         return new DetectLessonConflictsUseCaseImpl(lessonOutletRoomBookingRepository, lessonRepository);
+    }
+
+    @Bean
+    ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase(
+            DetectLessonConflictsUseCase detectLessonConflictsUseCase,
+            LessonRepository lessonRepository,
+            LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository) {
+        return new ChangeLessonOutletRoomUseCaseImpl(
+                detectLessonConflictsUseCase, lessonRepository, lessonOutletRoomBookingRepository);
     }
 
     @Bean
