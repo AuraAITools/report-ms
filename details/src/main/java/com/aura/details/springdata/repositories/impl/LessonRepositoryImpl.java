@@ -13,6 +13,7 @@ import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRe
 import com.aura.details.springdata.repositories.jpa.links.JpaSubjectLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaTopicLessonLinkRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -126,9 +127,9 @@ public class LessonRepositoryImpl implements LessonRepository {
     public List<Lesson> findActiveOverlappingForStudent(
             String tenantId,
             String studentId,
-            java.time.Instant start,
-            java.time.Instant end,
-            @org.jspecify.annotations.Nullable String excludeLessonId) {
+            Instant start,
+            Instant end,
+            @Nullable String excludeLessonId) {
         UUID studentUuid = UUID.fromString(studentId);
         UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
         return jpaStudentLessonLinkRepository
