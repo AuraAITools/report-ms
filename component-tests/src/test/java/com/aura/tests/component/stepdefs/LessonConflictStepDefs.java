@@ -12,6 +12,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.client.FieldAccessException;
+import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpServerErrorException;
 
 import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles;
@@ -164,5 +165,97 @@ public class LessonConflictStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo(lessonName);
         return response;
+    }
+
+    // ── change-outlet-room steps ──────────────────────────────────────────────
+
+    @When("the user tries to change the outlet room of lesson {string} to {string}")
+    public void userTriesToChangeRoom(String lessonName, String roomName) {
+        invokeChangeRoom(lessonName, roomName, true);
+    }
+
+    @When("the user changes the outlet room of lesson {string} to {string}")
+    public void userChangesRoom(String lessonName, String roomName) {
+        invokeChangeRoom(lessonName, roomName, false);
+    }
+
+    @When("the user clears the outlet room of lesson {string}")
+    public void userClearsRoom(String lessonName) {
+        invokeChangeRoom(lessonName, null, false);
+    }
+
+    @Then("the lesson {string} should be in room {string}")
+    public void lessonShouldBeInRoom(String lessonName, String roomName) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> outletRoom = (Map<String, Object>) testContext.getLastResponseData().get("outletRoom");
+        assertThat(outletRoom)
+                .as("Expected outletRoom to be non-null for lesson '%s'", lessonName)
+                .isNotNull();
+        assertThat(outletRoom.get("name"))
+                .as("Expected room name to be '%s'", roomName)
+                .isEqualTo(roomName);
+    }
+
+    @Then("the lesson {string} should have no outlet room")
+    public void lessonShouldHaveNoRoom(String lessonName) {
+        assertThat(testContext.getLastResponseData().get("outletRoom"))
+                .as("Expected outletRoom to be null for lesson '%s'", lessonName)
+                .isNull();
+    }
+
+    private void invokeChangeRoom(String lessonName, @Nullable String roomName, boolean expectFailure) {
+        String lessonId = testContext.getLessonIdByName(lessonName);
+        assertThat(lessonId)
+                .as("Lesson '%s' not found in TestContext — was it created in the Background?", lessonName)
+                .isNotNull();
+
+        String roomId = roomName == null ? null : testContext.getOutletRoomIdByName(roomName);
+        if (roomName != null) {
+            assertThat(roomId)
+                    .as("Outlet room '%s' not found in TestContext — was it created in the Background?", roomName)
+                    .isNotNull();
+        }
+
+        Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("lessonId", lessonId);
+        input.put("outletRoomId", roomId);
+
+        String mutation = findGraphqlQueryFromFiles("change-lesson-outlet-room.graphql");
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(mutation)
+                    .variables(Map.of("input", input))
+                    .retrieveSync("changeLessonOutletRoom")
+                    .toEntity(Map.class);
+            testContext.setLastResponseData(data);
+            testContext.setRequestFailed(false);
+            testContext.setLastException(null);
+            log.info("changeLessonOutletRoom succeeded for lesson '{}'", lessonName);
+        } catch (FieldAccessException e) {
+            if (!expectFailure) {
+                throw new AssertionError("Unexpected GraphQL error changing room for lesson '" + lessonName + "': " + e.getMessage(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var ext = errors.getFirst().getExtensions();
+                if (ext != null && ext.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(ext.get("error_code").toString());
+                }
+            }
+            log.info("changeLessonOutletRoom failed as expected for lesson '{}': {}", lessonName, e.getMessage());
+        } catch (HttpServerErrorException e) {
+            if (!expectFailure) {
+                throw new AssertionError("Unexpected HTTP error changing room for lesson '" + lessonName + "': " + e.getStatusCode(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
+            log.info("changeLessonOutletRoom failed with HTTP error for lesson '{}': {}", lessonName, e.getStatusCode());
+        }
     }
 }

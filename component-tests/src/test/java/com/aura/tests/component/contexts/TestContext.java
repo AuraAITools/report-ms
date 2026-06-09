@@ -41,6 +41,7 @@ public class TestContext {
     private LessonResponse lastLessonResponse;
     private Map<String, Object> lastLessonGroupPlanResponseMap;
     private Map<String, Object> lastLessonGroupResponseMap;
+    private Map<String, Object> lastResponseData;
     private boolean lastQuerySucceeded;
 
     // Error tracking for unhappy path @Then steps

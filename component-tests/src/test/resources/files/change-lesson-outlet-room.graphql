@@ -1,0 +1,9 @@
+mutation ChangeLessonOutletRoom($input: ChangeLessonOutletRoomInput!) {
+    changeLessonOutletRoom(input: $input) {
+        id
+        name
+        outletRoom { id name }
+        createdBy
+        updatedBy
+    }
+}
