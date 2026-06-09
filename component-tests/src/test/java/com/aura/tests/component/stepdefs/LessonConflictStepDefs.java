@@ -9,9 +9,11 @@ import io.cucumber.java.en.When;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.client.FieldAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LessonConflictStepDefs {
 
     private final TestContext testContext;
+    private final JdbcTemplate jdbcTemplate;
 
     @Given("the outlet room {string} exists in outlet {string}")
     public void theOutletRoomExistsInOutlet(String roomName, String outletName) {
@@ -59,6 +62,15 @@ public class LessonConflictStepDefs {
         testContext.recordLesson(lessonName, response.getId());
         testContext.setLessonId(response.getId());
         log.info("Created lesson '{}' with id={}", lessonName, response.getId());
+    }
+
+    @Given("the lesson {string} is created in course {string} with no room from {string} to {string}")
+    public void theLessonIsCreatedInCourseWithNoRoomFromTo(
+            String lessonName, String courseName, String startIso, String endIso) {
+        LessonResponse response = invokeCreateLessonNoRoom(lessonName, startIso, endIso);
+        testContext.recordLesson(lessonName, response.getId());
+        testContext.setLessonId(response.getId());
+        log.info("Created lesson '{}' (no room) with id={}", lessonName, response.getId());
     }
 
     @When("the user tries to create lesson {string} in course {string} in room {string} from {string} to {string}")
@@ -118,6 +130,157 @@ public class LessonConflictStepDefs {
         assertThat(testContext.isRequestFailed())
                 .as("Expected the request to succeed but it failed: %s", testContext.getLastErrorMessage())
                 .isFalse();
+    }
+
+    // ── student existence step ────────────────────────────────────────────────
+
+    @Given("the student {string} exists")
+    @SuppressWarnings("unchecked")
+    public void theStudentExists(String studentName) {
+        String institutionId = testContext.getInstitutionId();
+
+        // 1. Create a parent account
+        String parentEmail = studentName.toLowerCase().replace(" ", ".") + ".parent@conflict-test.com";
+        String createAccountQuery = findGraphqlQueryFromFiles("create-account.graphql");
+        Map<String, Object> accountInput = Map.of(
+                "institutionId", institutionId,
+                "email", parentEmail,
+                "firstName", "Parent",
+                "lastName", "Of" + studentName.replace(" ", ""),
+                "contact", 90000000
+        );
+        Map<String, Object> accountResponse = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(createAccountQuery)
+                .variables(Map.of("input", accountInput))
+                .retrieveSync("createAccount")
+                .toEntity(Map.class);
+        String accountId = (String) accountResponse.get("id");
+        assertThat(accountId).isNotNull();
+
+        // 2. Ensure level + school exist
+        String levelId = ensureLevelExists();
+        String schoolId = ensureSchoolExists();
+
+        // 3. Create parent + student
+        String studentEmail = studentName.toLowerCase().replace(" ", ".") + "@conflict-test.com";
+        Map<String, Object> studentDetails = new HashMap<>();
+        studentDetails.put("name", studentName);
+        studentDetails.put("email", studentEmail);
+        studentDetails.put("dateOfBirth", "2010-01-01");
+        studentDetails.put("levelId", levelId);
+        studentDetails.put("schoolId", schoolId);
+        studentDetails.put("courseEnrollments", List.of());
+
+        Map<String, Object> parentInput = Map.of(
+                "institutionId", institutionId,
+                "accountId", accountId,
+                "relationship", "PARENT",
+                "students", List.of(studentDetails)
+        );
+
+        String parentQuery = findGraphqlQueryFromFiles("create-parent-and-students-in-account.graphql");
+        Map<String, Object> response = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(parentQuery)
+                .variables(Map.of("input", parentInput))
+                .retrieveSync("createParentAndStudentsInAccount")
+                .toEntity(Map.class);
+
+        assertThat(response).isNotNull();
+        List<Map<String, Object>> students = (List<Map<String, Object>>) response.get("students");
+        assertThat(students).isNotEmpty();
+        String studentId = (String) students.getFirst().get("id");
+        assertThat(studentId).isNotNull();
+
+        testContext.recordStudent(studentName, studentId);
+        testContext.setStudentId(studentId);
+        log.info("Created student '{}' with id={}", studentName, studentId);
+    }
+
+    // ── assign-students steps ─────────────────────────────────────────────────
+
+    @Given("the student {string} is assigned to lesson {string}")
+    public void studentIsAssignedToLesson(String studentName, String lessonName) {
+        invokeAssignStudents(lessonName, List.of(studentName), false);
+    }
+
+    @When("the user tries to assign student {string} to lesson {string}")
+    public void userTriesToAssignStudent(String studentName, String lessonName) {
+        invokeAssignStudents(lessonName, List.of(studentName), true);
+    }
+
+    @When("the user assigns student {string} to lesson {string}")
+    public void userAssignsStudent(String studentName, String lessonName) {
+        invokeAssignStudents(lessonName, List.of(studentName), false);
+    }
+
+    @Then("the lesson {string} should have student {string} assigned")
+    @SuppressWarnings("unchecked")
+    public void lessonShouldHaveStudent(String lessonName, String studentName) {
+        Map<String, Object> data = testContext.getLastResponseData();
+        assertThat(data).as("Expected a response for lesson '%s'", lessonName).isNotNull();
+        List<Map<String, Object>> students = (List<Map<String, Object>>) data.get("students");
+        String expectedId = testContext.getStudentIdByName(studentName);
+        assertThat(students)
+                .as("Expected lesson '%s' to have student '%s' (id=%s)", lessonName, studentName, expectedId)
+                .extracting(s -> s.get("id"))
+                .contains(expectedId);
+    }
+
+    private void invokeAssignStudents(String lessonName, List<String> studentNames, boolean expectFailure) {
+        String lessonId = testContext.getLessonIdByName(lessonName);
+        assertThat(lessonId)
+                .as("Lesson '%s' not found in TestContext — was it created in the Background?", lessonName)
+                .isNotNull();
+
+        List<String> studentIds = studentNames.stream()
+                .map(testContext::getStudentIdByName)
+                .toList();
+
+        Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("lessonId", lessonId);
+        input.put("studentIds", studentIds);
+
+        String mutation = findGraphqlQueryFromFiles("assign-students-to-lesson.graphql");
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(mutation)
+                    .variables(Map.of("input", input))
+                    .retrieveSync("assignStudentsToLesson")
+                    .toEntity(Map.class);
+            testContext.setLastResponseData(data);
+            testContext.setRequestFailed(false);
+            testContext.setLastException(null);
+            log.info("assignStudentsToLesson succeeded for lesson '{}'", lessonName);
+        } catch (FieldAccessException e) {
+            if (!expectFailure) {
+                throw new AssertionError(
+                        "Unexpected GraphQL error assigning students to lesson '" + lessonName + "': " + e.getMessage(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var ext = errors.getFirst().getExtensions();
+                if (ext != null && ext.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(ext.get("error_code").toString());
+                }
+            }
+            log.info("assignStudentsToLesson failed as expected for lesson '{}': {}", lessonName, e.getMessage());
+        } catch (HttpServerErrorException e) {
+            if (!expectFailure) {
+                throw new AssertionError(
+                        "Unexpected HTTP error assigning students to lesson '" + lessonName + "': " + e.getStatusCode(), e);
+            }
+            testContext.setRequestFailed(true);
+            testContext.setLastException(e);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
+            log.info("assignStudentsToLesson failed with HTTP error for lesson '{}': {}", lessonName, e.getStatusCode());
+        }
     }
 
     private LessonResponse invokeCreateLesson(String lessonName, String roomName,
@@ -257,5 +420,79 @@ public class LessonConflictStepDefs {
             testContext.setLastHttpStatus(e.getStatusCode().value());
             log.info("changeLessonOutletRoom failed with HTTP error for lesson '{}': {}", lessonName, e.getStatusCode());
         }
+    }
+
+    // ── helpers ───────────────────────────────────────────────────────────────
+
+    private LessonResponse invokeCreateLessonNoRoom(String lessonName, String startIso, String endIso) {
+        String query = findGraphqlQueryFromFiles("create-lesson.graphql");
+
+        Map<String, Object> input = new HashMap<>();
+        input.put("institutionId", testContext.getInstitutionId());
+        input.put("name", lessonName);
+        input.put("description", lessonName + " description");
+        input.put("lessonStartTimestamptz", startIso);
+        input.put("lessonEndTimestamptz", endIso);
+        input.put("courseId", testContext.getCourseId());
+        input.put("educatorIds", List.of());
+        input.put("studentIds", List.of());
+        input.put("levelIds", List.of("00000000-0000-0000-0000-000000000001"));
+        input.put("subjectIds", List.of("00000000-0000-0000-0000-000000000001"));
+        input.put("topicIds", List.of());
+
+        Map<String, Object> defaultGroupPlan = new HashMap<>();
+        defaultGroupPlan.put("plan", lessonName + " plan");
+        defaultGroupPlan.put("topicIds", List.of());
+        defaultGroupPlan.put("materialIds", List.of());
+        defaultGroupPlan.put("lessonObjectives", List.of());
+
+        Map<String, Object> defaultGroup = new HashMap<>();
+        defaultGroup.put("name", lessonName + " group");
+        defaultGroup.put("studentIds", List.of());
+        defaultGroup.put("plan", defaultGroupPlan);
+        input.put("lessonGroups", List.of(defaultGroup));
+
+        LessonResponse response = testContext.getGraphQLClient()
+                .mutate().build()
+                .document(query)
+                .variables(Map.of("input", input))
+                .retrieveSync("createLessonInCourse")
+                .toEntity(LessonResponse.class);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getName()).isEqualTo(lessonName);
+        return response;
+    }
+
+    private String ensureLevelExists() {
+        String tenantId = testContext.getInstitutionId();
+        List<String> existing = jdbcTemplate.queryForList(
+                "SELECT id::text FROM levels WHERE tenant_id = ? LIMIT 1",
+                String.class, tenantId);
+        if (!existing.isEmpty()) {
+            return existing.getFirst();
+        }
+        String id = UUID.randomUUID().toString();
+        jdbcTemplate.update(
+                "INSERT INTO levels (id, version, tenant_id, name, category, created_at, created_by, updated_by) "
+                        + "VALUES (?::uuid, 0, ?, 'Test Level', 'PRIMARY', now(), 'SYSTEM', 'SYSTEM')",
+                id, tenantId);
+        return id;
+    }
+
+    private String ensureSchoolExists() {
+        String tenantId = testContext.getInstitutionId();
+        List<String> existing = jdbcTemplate.queryForList(
+                "SELECT id::text FROM schools WHERE tenant_id = ? LIMIT 1",
+                String.class, tenantId);
+        if (!existing.isEmpty()) {
+            return existing.getFirst();
+        }
+        String id = UUID.randomUUID().toString();
+        jdbcTemplate.update(
+                "INSERT INTO schools (id, version, tenant_id, name, school_category, created_at, created_by, updated_by) "
+                        + "VALUES (?::uuid, 0, ?, 'Test School', 'PRIMARY', now(), 'SYSTEM', 'SYSTEM')",
+                id, tenantId);
+        return id;
     }
 }

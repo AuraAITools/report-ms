@@ -1,0 +1,9 @@
+mutation AssignStudentsToLesson($input: AssignStudentsToLessonInput!) {
+    assignStudentsToLesson(input: $input) {
+        id
+        name
+        students { id }
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}
