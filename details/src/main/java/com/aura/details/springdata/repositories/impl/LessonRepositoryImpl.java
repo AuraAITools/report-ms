@@ -122,6 +122,22 @@ public class LessonRepositoryImpl implements LessonRepository {
         jpaEducatorLessonLinkRepository.deleteAllByLessonId(uuid);
     }
 
+    @Override
+    public List<Lesson> findActiveOverlappingForStudent(
+            String tenantId,
+            String studentId,
+            java.time.Instant start,
+            java.time.Instant end,
+            @org.jspecify.annotations.Nullable String excludeLessonId) {
+        UUID studentUuid = UUID.fromString(studentId);
+        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
+        return jpaStudentLessonLinkRepository
+                .findActiveOverlappingLessonsByStudent(tenantId, studentUuid, start, end, excludeUuid)
+                .stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
     private LessonModel toAttachedModel(Lesson lesson) {
         LessonModel model = LessonMapper.INSTANCE.toModelEntity(lesson);
         model.setCourse(Refs.ref(entityManager, CourseModel.class, lesson.getCourseId()));

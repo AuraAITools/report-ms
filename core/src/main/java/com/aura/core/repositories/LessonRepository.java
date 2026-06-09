@@ -1,6 +1,7 @@
 package com.aura.core.repositories;
 
 import com.aura.core.entities.lessons.Lesson;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,4 +33,11 @@ public interface LessonRepository {
     void deleteById(String id);
 
     void deleteAllLessonLinksByLessonId(String lessonId);
+
+    List<Lesson> findActiveOverlappingForStudent(
+            String tenantId,
+            String studentId,
+            Instant start,
+            Instant end,
+            @Nullable String excludeLessonId);
 }

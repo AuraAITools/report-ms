@@ -2,6 +2,7 @@ package com.aura.details.springdata.repositories.jpa.links;
 
 import com.aura.details.springdata.models.lessons.LessonModel;
 import com.aura.details.springdata.models.links.StudentLessonLinkModel;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,21 @@ public interface JpaStudentLessonLinkRepository extends JpaRepository<StudentLes
     void deleteAllByLessonId(UUID lessonId);
 
     void deleteAllByStudentId(UUID studentId);
+
+    @Query("""
+            SELECT l.lesson FROM StudentLessonLinkModel l
+            WHERE l.tenantId = :tenantId
+              AND l.student.id = :studentId
+              AND l.state = com.aura.details.springdata.models.links.StudentLessonLinkModel.STATE.REGISTERED
+              AND l.lesson.state <> com.aura.details.springdata.models.lessons.LessonModel.LESSON_STATE.CANCELLED
+              AND l.lesson.lessonStartTimestamptz < :end
+              AND l.lesson.lessonEndTimestamptz > :start
+              AND (:excludeLessonId IS NULL OR l.lesson.id <> :excludeLessonId)
+            """)
+    List<LessonModel> findActiveOverlappingLessonsByStudent(
+            @Param("tenantId") String tenantId,
+            @Param("studentId") UUID studentId,
+            @Param("start") Instant start,
+            @Param("end") Instant end,
+            @Param("excludeLessonId") UUID excludeLessonId);
 }

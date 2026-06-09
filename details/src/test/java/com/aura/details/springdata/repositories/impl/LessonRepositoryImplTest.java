@@ -8,10 +8,12 @@ import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaEducatorLessonLinkRepository;
 import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRepository;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -160,5 +162,37 @@ class LessonRepositoryImplTest {
         UUID studentId = UUID.randomUUID();
         when(jpaStudentLessonLinkRepository.findLessonsByStudentId(studentId)).thenReturn(List.of());
         assertThat(repository.findAllByStudentId(studentId.toString())).isEmpty();
+    }
+
+    @Nested
+    @DisplayName("findActiveOverlappingForStudent")
+    class FindActiveOverlappingForStudent {
+
+        @Test
+        @DisplayName("Should return non-cancelled overlapping lessons for the student, excluding the excluded lesson")
+        void returnsOverlappingActive() {
+            UUID studentId = UUID.randomUUID();
+            UUID excludeLessonId = UUID.randomUUID();
+            Instant start = Instant.parse("2026-06-10T09:00:00Z");
+            Instant end = Instant.parse("2026-06-10T10:00:00Z");
+
+            LessonModel overlapping = LessonModel.builder()
+                    .id(UUID.randomUUID())
+                    .tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:30:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:30:00Z"))
+                    .state(LessonModel.LESSON_STATE.CREATED)
+                    .build();
+
+            when(jpaStudentLessonLinkRepository.findActiveOverlappingLessonsByStudent(
+                    "tenant-1", studentId, start, end, excludeLessonId))
+                    .thenReturn(List.of(overlapping));
+
+            List<Lesson> result = repository.findActiveOverlappingForStudent(
+                    "tenant-1", studentId.toString(), start, end, excludeLessonId.toString());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
+        }
     }
 }
