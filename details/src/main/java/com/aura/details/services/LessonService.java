@@ -223,6 +223,41 @@ public class LessonService {
     }
 
     @Transactional
+    public Lesson assignEducatorsToLesson(String lessonId, List<String> educatorIds) {
+        Lesson lesson = lessonRepository.findById(UUID.fromString(lessonId));
+        if (lesson == null) {
+            throw new ResourceNotFoundException("Lesson", lessonId);
+        }
+        Instant start = lesson.getLessonStartTimestamptz();
+        Instant end = lesson.getLessonEndTimestamptz();
+        String tenantId = lesson.getTenantId();
+
+        for (String educatorId : educatorIds) {
+            List<String> conflicts = detectLessonConflictsUseCase.detectEducatorConflicts(
+                    tenantId, educatorId, start, end, lessonId);
+            if (!conflicts.isEmpty()) {
+                throw new LessonConflictException(
+                        LessonConflictException.ConflictType.EDUCATOR, conflicts, educatorId);
+            }
+        }
+
+        addEducatorsToLessonUseCase.addEducatorsToLessonUseCase(lessonId, educatorIds, tenantId);
+
+        var userIds = educatorRepository.findUserIdsByEducatorIds(educatorIds).values().stream().toList();
+        List<RelationshipAuthorizationService.Relationship> relationships = new ArrayList<>();
+        userIds.forEach(userId -> {
+            relationships.add(new RelationshipAuthorizationService.Relationship(
+                    "lesson_user_group", lessonId, "admin", "user", userId));
+            relationships.add(new RelationshipAuthorizationService.Relationship(
+                    "lesson_user_group", lessonId, "group_admin", "user", userId));
+        });
+        if (!relationships.isEmpty()) {
+            relationshipService.writeRelationships(relationships);
+        }
+        return lesson;
+    }
+
+    @Transactional
     public Lesson changeLessonOutletRoom(String lessonId, @Nullable String outletRoomId) {
         return changeLessonOutletRoomUseCase.changeLessonOutletRoom(lessonId, outletRoomId);
     }

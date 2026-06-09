@@ -329,6 +329,54 @@ class LessonServiceTest {
     }
 
     @Nested
+    @DisplayName("assignEducatorsToLesson")
+    class AssignEducators {
+
+        private static final String LESSON_ID = "22222222-2222-2222-2222-222222222222";
+
+        @Test
+        @DisplayName("Should throw LessonConflictException(EDUCATOR) and not save links when an educator has a conflict")
+        void rejectsOnConflict() {
+            Lesson lesson = Lesson.builder()
+                    .id(LESSON_ID).tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:00:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:00:00Z"))
+                    .build();
+            when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
+            when(detectLessonConflictsUseCase.detectEducatorConflicts(
+                    "tenant-1", "educator-1",
+                    lesson.getLessonStartTimestamptz(), lesson.getLessonEndTimestamptz(),
+                    LESSON_ID))
+                    .thenReturn(List.of("conflict-lesson"));
+
+            assertThatThrownBy(() -> lessonService.assignEducatorsToLesson(
+                    LESSON_ID, List.of("educator-1")))
+                    .isInstanceOf(LessonConflictException.class);
+
+            verify(addEducatorsToLessonUseCase, never()).addEducatorsToLessonUseCase(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("Should delegate to use case when no conflicts")
+        void happyPath() {
+            Lesson lesson = Lesson.builder()
+                    .id(LESSON_ID).tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:00:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:00:00Z"))
+                    .build();
+            when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
+            when(educatorRepository.findUserIdsByEducatorIds(List.of("educator-1")))
+                    .thenReturn(java.util.Map.of("educator-1", "user-1"));
+
+            lessonService.assignEducatorsToLesson(LESSON_ID, List.of("educator-1"));
+
+            verify(addEducatorsToLessonUseCase).addEducatorsToLessonUseCase(
+                    LESSON_ID, List.of("educator-1"), "tenant-1");
+            verify(relationshipService).writeRelationships(any());
+        }
+    }
+
+    @Nested
     @DisplayName("assignStudentsToLesson")
     class AssignStudents {
 
