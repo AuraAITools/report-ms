@@ -1,5 +1,6 @@
 package com.aura.app.controllers.graphql.v1.lessons;
 
+import com.aura.app.codegen.types.AssignEducatorsToLessonInput;
 import com.aura.app.codegen.types.AssignStudentsToLessonInput;
 import com.aura.app.codegen.types.ChangeLessonOutletRoomInput;
 import com.aura.app.codegen.types.CourseResponse;
@@ -190,6 +191,14 @@ public class LessonsGqlController {
     public LessonResponse assignStudentsToLesson(@Argument("input") AssignStudentsToLessonInput input,
                                                  @ContextValue(name = "user") User user) {
         Lesson lesson = lessonService.assignStudentsToLesson(input.getLessonId(), input.getStudentIds());
+        return LessonMapper.INSTANCE.toResponseDto(lesson);
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update')")
+    @MutationMapping
+    public LessonResponse assignEducatorsToLesson(@Argument("input") AssignEducatorsToLessonInput input,
+                                                  @ContextValue(name = "user") User user) {
+        Lesson lesson = lessonService.assignEducatorsToLesson(input.getLessonId(), input.getEducatorIds());
         return LessonMapper.INSTANCE.toResponseDto(lesson);
     }
 
