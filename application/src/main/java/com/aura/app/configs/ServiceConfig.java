@@ -63,6 +63,7 @@ import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlan
 import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
+import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddStudentsToLessonUseCase;
@@ -317,6 +318,7 @@ public class ServiceConfig {
                                 AddTopicsToLessonUseCase addTopicsToLessonUseCase,
                                 LessonQueryUseCase lessonQueryUseCase,
                                 DeleteLessonUseCase deleteLessonUseCase,
+                                ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase,
                                 LessonRepository lessonRepository,
                                 LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository,
                                 RelationshipAuthorizationService relationshipService,
@@ -328,9 +330,10 @@ public class ServiceConfig {
         return new LessonService(createLessonUseCase, detectLessonConflictsUseCase,
                 addEducatorsToLessonUseCase, addStudentsToLessonUseCase, addSubjectsToLessonUseCase,
                 addLevelsToLessonUseCase, addTopicsToLessonUseCase, lessonQueryUseCase,
-                deleteLessonUseCase, lessonRepository, lessonOutletRoomBookingRepository,
-                relationshipService, educatorRepository, studentRepository,
-                lessonGroupService, lessonGroupPlanService, studentLessonReportService);
+                deleteLessonUseCase, changeLessonOutletRoomUseCase, lessonRepository,
+                lessonOutletRoomBookingRepository, relationshipService, educatorRepository,
+                studentRepository, lessonGroupService, lessonGroupPlanService,
+                studentLessonReportService);
     }
 
     @Bean

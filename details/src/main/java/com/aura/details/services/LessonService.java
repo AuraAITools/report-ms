@@ -15,6 +15,7 @@ import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddStudentsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddSubjectsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
+import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
@@ -39,6 +40,7 @@ public class LessonService {
     private final AddTopicsToLessonUseCase addTopicsToLessonUseCase;
     private final LessonQueryUseCase lessonQueryUseCase;
     private final DeleteLessonUseCase deleteLessonUseCase;
+    private final ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase;
     private final LessonRepository lessonRepository;
     private final LessonOutletRoomBookingRepository lessonOutletRoomBookingRepository;
     private final RelationshipAuthorizationService relationshipService;
@@ -185,6 +187,11 @@ public class LessonService {
                                  List<String> studentIds,
                                  List<String> materialIds,
                                  List<LessonGroupPlanService.NewLessonObjective> lessonObjectives) {
+    }
+
+    @Transactional
+    public Lesson changeLessonOutletRoom(String lessonId, @Nullable String outletRoomId) {
+        return changeLessonOutletRoomUseCase.changeLessonOutletRoom(lessonId, outletRoomId);
     }
 
     @Transactional

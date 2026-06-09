@@ -9,6 +9,7 @@ import com.aura.core.repositories.EducatorRepository;
 import com.aura.core.repositories.LessonOutletRoomBookingRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.StudentRepository;
+import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddStudentsToLessonUseCase;
@@ -32,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -82,6 +84,8 @@ class LessonServiceTest {
     private LessonGroupPlanService lessonGroupPlanService;
     @Mock
     private StudentLessonReportService studentLessonReportService;
+    @Mock
+    private ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase;
 
     @InjectMocks
     private LessonService lessonService;
@@ -302,6 +306,24 @@ class LessonServiceTest {
                     .lessonStartTimestamptz(start)
                     .lessonEndTimestamptz(end)
                     .build();
+        }
+    }
+
+    @Nested
+    @DisplayName("changeLessonOutletRoom")
+    class ChangeLessonOutletRoom {
+
+        @Test
+        @DisplayName("Should delegate to use case and return result")
+        void delegates() {
+            Lesson lesson = Lesson.builder().id("lesson-1").build();
+            when(changeLessonOutletRoomUseCase.changeLessonOutletRoom("lesson-1", "room-1"))
+                    .thenReturn(lesson);
+
+            Lesson result = lessonService.changeLessonOutletRoom("lesson-1", "room-1");
+
+            assertThat(result).isSameAs(lesson);
+            verify(changeLessonOutletRoomUseCase).changeLessonOutletRoom("lesson-1", "room-1");
         }
     }
 }
