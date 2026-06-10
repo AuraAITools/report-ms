@@ -84,8 +84,10 @@ jobs:
       - name: Export digests
         run: |
           mkdir -p /tmp/digests/application /tmp/digests/database-runner
-          touch "/tmp/digests/application/${{ steps.build-application.outputs.digest }}"
-          touch "/tmp/digests/database-runner/${{ steps.build-database-runner.outputs.digest }}"
+          app_digest="${{ steps.build-application.outputs.digest }}"
+          db_digest="${{ steps.build-database-runner.outputs.digest }}"
+          touch "/tmp/digests/application/${app_digest#sha256:}"
+          touch "/tmp/digests/database-runner/${db_digest#sha256:}"
 
       - name: Upload digests
         uses: actions/upload-artifact@v4
@@ -125,8 +127,8 @@ jobs:
         run: |
           REGISTRY="${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}"
           REFS=""
-          for f in $(find /tmp/digests -path '*/application/sha256:*'); do
-            REFS="$REFS ${REGISTRY}@$(basename "$f")"
+          for f in $(find /tmp/digests -path '*/application/*' -type f); do
+            REFS="$REFS ${REGISTRY}@sha256:$(basename "$f")"
           done
           if [ -z "$REFS" ]; then
             echo "No application digests found" >&2
@@ -140,8 +142,8 @@ jobs:
         run: |
           REGISTRY="${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}"
           REFS=""
-          for f in $(find /tmp/digests -path '*/database-runner/sha256:*'); do
-            REFS="$REFS ${REGISTRY}@$(basename "$f")"
+          for f in $(find /tmp/digests -path '*/database-runner/*' -type f); do
+            REFS="$REFS ${REGISTRY}@sha256:$(basename "$f")"
           done
           if [ -z "$REFS" ]; then
             echo "No database-runner digests found" >&2
