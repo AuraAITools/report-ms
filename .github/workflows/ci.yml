@@ -7,10 +7,11 @@ on:
   push:
     branches:
       - "main"
+
 jobs:
   # FIX: temporarily commented until tests are more stable
   # test:
-  #   runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-24.04
   #   steps:
   #     - uses: actions/checkout@v4
   #     - name: Set up JDK 25
@@ -21,52 +22,141 @@ jobs:
   #         cache: maven
   #     - name: Run Tests
   #       run: mvn test
-  build-and-push-to-registry:
-    # needs: test
-    defaults:
-      run:
-        working-directory: .
-    runs-on: ubuntu-22.04
+
+  # Build each target once per architecture on a native runner — no QEMU.
+  # Each per-arch build pushes by digest (no tag), then `merge` stitches the
+  # digests into a multi-arch manifest list under the user-facing tag. This
+  # avoids the JEP 514 AOT-cache-under-emulation SIGILL we hit on the Mac mini
+  # cluster, where an arm64 AOT cache trained under QEMU is not safe to load
+  # on real Apple Silicon at runtime.
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      # - name: Set up JDK 21
-      #   uses: actions/setup-java@v3
-      #   with:
-      #     java-version: "21"
-      #     distribution: "temurin"
-      #     cache: maven
-      # - name: Build with Maven
-      #   run: mvn -B package
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          aws-region: ${{vars.AWS_REGION}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: 'false'
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build, tag, and push application image to Amazon ECR
-        id: build-application-image
+
+      - name: Compute platform pair
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+
+      - name: Build and push application image by digest
+        id: build-application
         uses: docker/build-push-action@v5
         with:
           context: .
           target: production
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
-      - name: Build, tag, and push database-runner image to Amazon ECR
-        id: build-database-runner-image
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Build and push database-runner image by digest
+        id: build-database-runner
         uses: docker/build-push-action@v5
         with:
           context: .
           target: database-runner
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:database-runner
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digests
+        run: |
+          mkdir -p /tmp/digests/application /tmp/digests/database-runner
+          touch "/tmp/digests/application/${{ steps.build-application.outputs.digest }}"
+          touch "/tmp/digests/database-runner/${{ steps.build-database-runner.outputs.digest }}"
+
+      - name: Upload digests
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'false'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+
+      - name: Create application manifest list
+        run: |
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}"
+          REFS=""
+          for f in $(find /tmp/digests -path '*/application/sha256:*'); do
+            REFS="$REFS ${REGISTRY}@$(basename "$f")"
+          done
+          if [ -z "$REFS" ]; then
+            echo "No application digests found" >&2
+            exit 1
+          fi
+          docker buildx imagetools create \
+            -t "${REGISTRY}:${{ vars.IMAGE_TAG }}" \
+            $REFS
+
+      - name: Create database-runner manifest list
+        run: |
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}"
+          REFS=""
+          for f in $(find /tmp/digests -path '*/database-runner/sha256:*'); do
+            REFS="$REFS ${REGISTRY}@$(basename "$f")"
+          done
+          if [ -z "$REFS" ]; then
+            echo "No database-runner digests found" >&2
+            exit 1
+          fi
+          docker buildx imagetools create \
+            -t "${REGISTRY}:database-runner" \
+            $REFS
+
+      - name: Inspect application manifest
+        run: |
+          docker buildx imagetools inspect \
+            "${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}"
+
+      - name: Inspect database-runner manifest
+        run: |
+          docker buildx imagetools inspect \
+            "${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:database-runner"
