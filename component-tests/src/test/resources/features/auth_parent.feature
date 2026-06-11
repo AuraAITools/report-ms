@@ -47,13 +47,13 @@ Feature: Parent authorization
     Then the request should fail with an error
 
   @ComponentTest @AuthParent
-  Scenario: Parent cannot create institution admin account
+  Scenario: Parent cannot create accounts in the institution
     Given user has "aura-admin" role
     And an institution is onboarded
     And the user switches to the institution tenant
     And user "parent@test.com" has "parent_user" role on "institution" "{institution_id}"
     And user switches to "parent@test.com" identity
-    When user tries to create an institution admin account with details:
+    When user tries to create an account with details:
       | email             | firstName | lastName | contact  |
       | newadmin@test.com | New       | Admin    | 91234567 |
-    Then the request should fail with an error
+    Then the request should fail with error code "FORBIDDEN"

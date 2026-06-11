@@ -1,5 +1,5 @@
-query GetAccountById($accountId: ID!) {
-    getAccountById(accountId: $accountId) {
+query GetAccountById($institutionId: ID!, $accountId: ID!) {
+    getAccountById(institutionId: $institutionId, accountId: $accountId) {
         id
         firstName
         lastName

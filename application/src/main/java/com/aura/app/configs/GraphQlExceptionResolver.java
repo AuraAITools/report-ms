@@ -2,7 +2,10 @@ package com.aura.app.configs;
 
 import com.aura.app.exceptions.BusinessException;
 import com.aura.app.exceptions.TechnicalException;
+import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.InvalidInstitutionCreationRequestStateException;
 import com.aura.core.exceptions.LessonConflictException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
@@ -32,6 +35,33 @@ public class GraphQlExceptionResolver extends DataFetcherExceptionResolverAdapte
 
         if (ex instanceof LessonConflictException conflictEx) {
             return buildLessonConflictError(conflictEx, correlationId, env);
+        }
+
+        if (ex instanceof ResourceNotFoundException) {
+            return buildError(ex.getMessage(),
+                    ErrorType.NOT_FOUND,
+                    404,
+                    "RESOURCE_NOT_FOUND",
+                    correlationId,
+                    env);
+        }
+
+        if (ex instanceof InvalidInstitutionCreationRequestStateException) {
+            return buildError(ex.getMessage(),
+                    ErrorType.BAD_REQUEST,
+                    409,
+                    "INVALID_REQUEST_STATE",
+                    correlationId,
+                    env);
+        }
+
+        if (ex instanceof DuplicateResourceException) {
+            return buildError(ex.getMessage(),
+                    ErrorType.BAD_REQUEST,
+                    409,
+                    "DUPLICATE_RESOURCE",
+                    correlationId,
+                    env);
         }
 
         if (ex instanceof BusinessException businessException) {

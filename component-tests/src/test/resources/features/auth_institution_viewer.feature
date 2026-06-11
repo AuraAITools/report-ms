@@ -54,13 +54,13 @@ Feature: Institution viewer authorization
     Then the request should fail with an error
 
   @ComponentTest @AuthInstitutionViewer
-  Scenario: Institution viewer cannot create institution admin account
+  Scenario: Institution viewer cannot create accounts in the institution
     Given user has "aura-admin" role
     And an institution is onboarded
     And the user switches to the institution tenant
     And user "viewer@test.com" has "viewer" role on "institution" "{institution_id}"
     And user switches to "viewer@test.com" identity
-    When user tries to create an institution admin account with details:
+    When user tries to create an account with details:
       | email             | firstName | lastName | contact  |
       | newadmin@test.com | New       | Admin    | 91234567 |
-    Then the request should fail with an error
+    Then the request should fail with error code "FORBIDDEN"

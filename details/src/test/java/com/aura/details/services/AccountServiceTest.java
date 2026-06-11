@@ -6,6 +6,8 @@ import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.accounts.Parent;
 import com.aura.core.entities.educators.Educator;
 import com.aura.core.events.EducatorAccountCreatedEvent;
+import com.aura.core.events.ParentAccountCreatedEvent;
+import com.aura.core.exceptions.DuplicateResourceException;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.ParentRepository;
 import com.aura.core.usecases.accounts.AccountQueryUseCase;
@@ -213,6 +215,21 @@ class AccountServiceTest {
         verify(parentRepository).save(parent);
     }
 
+    @DisplayName("Should publish ParentAccountCreatedEvent when a parent is attached to an account")
+    @Test
+    void createParentInAccount_publishesEvent() {
+        Account account = Account.builder().id("acc-123").tenantId("tenant-1").build();
+        Parent parent = Parent.builder().relationship(Parent.RELATIONSHIP.PARENT).build();
+        when(accountRepository.findById("acc-123")).thenReturn(account);
+        when(parentRepository.save(parent)).thenReturn(parent);
+
+        accountService.createParentInAccount("acc-123", parent);
+
+        ArgumentCaptor<ParentAccountCreatedEvent> captor = ArgumentCaptor.forClass(ParentAccountCreatedEvent.class);
+        verify(applicationEventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().account()).isEqualTo(account);
+    }
+
     @DisplayName("Should throw when the target account already has a parent attached")
     @Test
     void createParentInAccount_throwsWhenParentExists() {
@@ -222,7 +239,7 @@ class AccountServiceTest {
         when(accountRepository.findById("acc-123")).thenReturn(account);
 
         assertThatThrownBy(() -> accountService.createParentInAccount("acc-123", parent))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(DuplicateResourceException.class)
                 .hasMessageContaining("parent already exists");
     }
 

@@ -16,7 +16,7 @@ Feature: Onboard Institution From Request
   Scenario: Cannot onboard an institution from a non-existent creation request
     Given user has "aura-admin" role
     When user tries to onboard the institution from creation request id "00000000-0000-0000-0000-000000000000"
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Cannot onboard an institution twice from the same creation request
@@ -26,4 +26,4 @@ Feature: Onboard Institution From Request
     And user has "aura-admin" role
     And user onboards the institution from the pending request
     When user tries to onboard the institution from the pending request again
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "INVALID_REQUEST_STATE"

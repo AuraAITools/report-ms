@@ -1,0 +1,7 @@
+mutation CreateParentInAccount($input: CreateParentInAccountInput!) {
+    createParentInAccount(createParentInAccountInput: $input) {
+        id
+        relationship
+        createdBy { userId accountId name url }
+    }
+}

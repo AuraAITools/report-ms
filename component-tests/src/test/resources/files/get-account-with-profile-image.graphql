@@ -1,6 +1,0 @@
-query GetAccountById($accountId: ID!) {
-    getAccountById(accountId: $accountId) {
-        id
-        profileImageUrl
-    }
-}

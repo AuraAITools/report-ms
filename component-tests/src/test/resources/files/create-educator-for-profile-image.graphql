@@ -1,7 +1,0 @@
-mutation CreateEducatorsInAccount($input: CreateEducatorsInput!) {
-    createEducatorsInAccount(createEducatorsInput: $input) {
-        id
-        name
-        email
-    }
-}

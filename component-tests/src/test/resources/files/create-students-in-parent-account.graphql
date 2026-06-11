@@ -1,8 +1,0 @@
-mutation CreateStudentsInParentAccount($input: [CreateStudentInput]) {
-    createStudentsInParentAccount(createStudentInputs: $input) {
-        id
-        name
-        email
-        createdBy { userId accountId name url }
-    }
-}

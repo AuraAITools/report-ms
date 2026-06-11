@@ -1,9 +1,0 @@
-mutation CreateParentAccount($input: CreateParentAccountInput!) {
-    createParentAccount(createParentAccountInput: $input) {
-        id
-        firstName
-        lastName
-        createdBy { userId accountId name url }
-        updatedBy { userId accountId name url }
-    }
-}

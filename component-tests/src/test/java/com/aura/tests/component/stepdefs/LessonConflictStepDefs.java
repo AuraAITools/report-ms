@@ -186,7 +186,7 @@ public class LessonConflictStepDefs {
                 "educators", List.of(educatorDetails)
         );
 
-        String educatorQuery = findGraphqlQueryFromFiles("create-educator-for-profile-image.graphql");
+        String educatorQuery = findGraphqlQueryFromFiles("create-educators-in-account.graphql");
         List<?> educatorResponses = testContext.getGraphQLClient()
                 .mutate().build()
                 .document(educatorQuery)

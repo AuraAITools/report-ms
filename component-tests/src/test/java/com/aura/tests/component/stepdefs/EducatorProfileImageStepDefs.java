@@ -42,7 +42,7 @@ public class EducatorProfileImageStepDefs {
     @SuppressWarnings("unchecked")
     @And("an educator exists in the institution")
     public void anEducatorExistsInTheInstitution() {
-        String query = findGraphqlQueryFromFiles("create-educator-for-profile-image.graphql");
+        String query = findGraphqlQueryFromFiles("create-educators-in-account.graphql");
         String levelId = ensureLevelExists();
         Map<String, Object> educator = new HashMap<>();
         educator.put("name", "Profile Educator");

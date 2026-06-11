@@ -4,7 +4,11 @@ import com.aura.app.exceptions.AccessDeniedBusinessException;
 import com.aura.app.exceptions.BusinessException;
 import com.aura.app.exceptions.NotFoundException;
 import com.aura.app.exceptions.TechnicalException;
+import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.InstitutionCreationRequestConflictException;
+import com.aura.core.exceptions.InvalidInstitutionCreationRequestStateException;
 import com.aura.core.exceptions.LessonConflictException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import java.util.List;
 import graphql.GraphQLError;
 import graphql.execution.ExecutionStepInfo;
@@ -183,6 +187,62 @@ class GraphQlExceptionResolverTest {
                 .containsEntry("conflict_type", "EDUCATOR")
                 .containsEntry("conflicting_lesson_ids", List.of("lesson-y", "lesson-z"))
                 .containsEntry("subject_id", "educator-1");
+    }
+
+    @Test
+    @DisplayName("Should resolve core ResourceNotFoundException as RESOURCE_NOT_FOUND with 404")
+    void shouldResolveCoreResourceNotFound() {
+        ResourceNotFoundException ex = new ResourceNotFoundException("Account", "acc-1");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getMessage()).isEqualTo("Account not found: acc-1");
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 404)
+                .containsEntry("error_code", "RESOURCE_NOT_FOUND");
+    }
+
+    @Test
+    @DisplayName("Should resolve DuplicateResourceException as DUPLICATE_RESOURCE with 409")
+    void shouldResolveDuplicateResource() {
+        DuplicateResourceException ex = new DuplicateResourceException("Institution with name 'Acme' already exists");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getMessage()).isEqualTo("Institution with name 'Acme' already exists");
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 409)
+                .containsEntry("error_code", "DUPLICATE_RESOURCE");
+    }
+
+    @Test
+    @DisplayName("Should resolve InstitutionCreationRequestConflictException as DUPLICATE_RESOURCE with 409")
+    void shouldResolveInstitutionCreationRequestConflictAsDuplicate() {
+        InstitutionCreationRequestConflictException ex =
+                new InstitutionCreationRequestConflictException("pending request with same name exists");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 409)
+                .containsEntry("error_code", "DUPLICATE_RESOURCE");
+    }
+
+    @Test
+    @DisplayName("Should resolve InvalidInstitutionCreationRequestStateException as INVALID_REQUEST_STATE with 409")
+    void shouldResolveInvalidRequestState() {
+        InvalidInstitutionCreationRequestStateException ex =
+                new InvalidInstitutionCreationRequestStateException("request is in state FULFILLED");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 409)
+                .containsEntry("error_code", "INVALID_REQUEST_STATE");
     }
 
     @Test

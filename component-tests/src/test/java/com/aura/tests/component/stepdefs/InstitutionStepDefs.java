@@ -3,6 +3,7 @@ package com.aura.tests.component.stepdefs;
 import com.aura.app.codegen.types.AccountMinimalDetail;
 import com.aura.app.codegen.types.CreateInstitutionInput;
 import com.aura.app.codegen.types.InstitutionResponse;
+import com.aura.tests.component.TestConstants;
 import com.aura.tests.component.contexts.TestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -25,37 +26,6 @@ public class InstitutionStepDefs {
     private final TestContext testContext;
     private final JdbcTemplate jdbcTemplate;
     private final Keycloak keycloak;
-
-    @When("user onboards an institution with details:")
-    public void onboardToInstitution(CreateInstitutionInput createInstitutionInput) {
-        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
-
-        Map<String, Object> variables = Map.of("input", createInstitutionInput);
-        var institutionResponse = testContext
-                .getGraphQLClient()
-                .mutate()
-                .build()
-                .document(graphqlQuery)
-                .variables(variables)
-                .retrieveSync("createInstitution")
-                .toEntity(InstitutionResponse.class);
-        var expectedResponse = InstitutionResponse
-                .newBuilder()
-                .name("testing123")
-                .email("testgg@gmail.com")
-                .contactNumber("96228693")
-                .address("address")
-                .uen("test")
-                .createdBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
-                .updatedBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
-                .build();
-
-        assertThat(institutionResponse)
-                .usingRecursiveComparison()
-                .ignoringFields("id", "createdAt", "updatedAt")
-                .isEqualTo(expectedResponse);
-        testContext.setInstitutionId(institutionResponse.getId());
-    }
 
     @And("an institution is onboarded")
     public void anInstitutionIsOnboarded() {
@@ -95,38 +65,6 @@ public class InstitutionStepDefs {
         testContext.setGraphQLClient(client);
     }
 
-    @When("user tries to onboard an institution with details:")
-    public void userTriesToOnboardAnInstitutionWithDetails(CreateInstitutionInput input) {
-        String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
-        try {
-            testContext.getGraphQLClient()
-                    .mutate().build()
-                    .document(graphqlQuery)
-                    .variables(Map.of("input", input))
-                    .retrieveSync("createInstitution")
-                    .toEntity(InstitutionResponse.class);
-            testContext.setRequestFailed(false);
-        } catch (FieldAccessException e) {
-            testContext.setRequestFailed(true);
-            var errors = e.getResponse().getErrors();
-            if (!errors.isEmpty()) {
-                var extensions = errors.getFirst().getExtensions();
-                if (extensions != null && extensions.containsKey("error_code")) {
-                    testContext.setLastErrorMessage(extensions.get("error_code").toString());
-                }
-            }
-        } catch (org.springframework.web.client.HttpServerErrorException e) {
-            testContext.setRequestFailed(true);
-            testContext.setLastErrorMessage(e.getMessage());
-        }
-    }
-
-    @Then("institution should be created")
-    public void institutionIsCreated() {
-        List<Map<String, Object>> results = jdbcTemplate.queryForList("SELECT * FROM institutions");
-        assertThat(results).isNotNull().hasSize(1);
-    }
-
     @When("user creates an institution with details:")
     public void userCreatesAnInstitutionWithDetails(CreateInstitutionInput input) {
         String graphqlQuery = findGraphqlQueryFromFiles("create-institution.graphql");
@@ -145,8 +83,8 @@ public class InstitutionStepDefs {
                 .contactNumber(input.getContactNumber())
                 .address(input.getAddress())
                 .uen(input.getUen())
-                .createdBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
-                .updatedBy(AccountMinimalDetail.newBuilder().userId("2c43b314-3e3c-4897-a3d3-02a8cab3e5e7").build())
+                .createdBy(AccountMinimalDetail.newBuilder().userId(TestConstants.AURA_ADMIN_USER_ID).build())
+                .updatedBy(AccountMinimalDetail.newBuilder().userId(TestConstants.AURA_ADMIN_USER_ID).build())
                 .build();
 
         assertThat(response)

@@ -3,5 +3,7 @@ query GetInstitution($institutionId: ID!) {
         id
         name
         email
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
     }
 }

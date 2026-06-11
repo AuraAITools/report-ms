@@ -12,20 +12,20 @@ Feature: Create Course
     Then the course should be created successfully
 
   @ComponentTest
-  @PreExistingFailure
   Scenario: Aura admin creates a course with subjects, educators, and students
     Given user has "aura-admin" role
     And an institution is onboarded
     And an outlet exists with name "Main Outlet"
     And a subject exists with name "Mathematics"
     And the user switches to the institution tenant
-    And user creates an institution admin account with details:
+    And user creates an account with details:
       | email                | firstName | lastName | contact  |
       | educator@example.com | Educator  | Admin    | 12345678 |
     And an educator exists with name "John Teacher" and email "john.teacher@example.com"
-    And user creates a parent account with details:
-      | email              | firstName | lastName | contact  | relationship |
-      | parent@example.com | Parent    | User     | 87654321 | PARENT       |
+    And user creates an account with details:
+      | email              | firstName | lastName | contact  |
+      | parent@example.com | Parent    | User     | 87654321 |
+    And user creates a parent in the account with relationship "PARENT"
     And a student exists with name "Jane Student" and email "jane.student@example.com"
     When user creates a course with associations and details:
       | name     | maxSize | lessonFrequency | price | priceFrequency | startDate            | endDate              |

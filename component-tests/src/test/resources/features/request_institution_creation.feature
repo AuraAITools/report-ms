@@ -17,7 +17,7 @@ Feature: Request Institution Creation
     When prospect tries to request an institution to be created with details:
       | institutionName | institutionEmail  | institutionContactNumber | institutionAddress | institutionUen | requesterFirstName | requesterLastName | requesterEmail | requesterContactNumber |
       | Acme Edu        | other@example.com | 91234567                 | 2 Other Lane       | 200067890B     | Bob                | Tan               | bob@acme.edu   | 98765432               |
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "DUPLICATE_RESOURCE"
 
   @ComponentTest
   Scenario: Cannot request an institution creation when an institution with the same email already exists
@@ -28,7 +28,7 @@ Feature: Request Institution Creation
     When prospect tries to request an institution to be created with details:
       | institutionName | institutionEmail | institutionContactNumber | institutionAddress | institutionUen | requesterFirstName | requesterLastName | requesterEmail | requesterContactNumber |
       | Beta Edu        | acme@example.com | 91234567                 | 2 Other Lane       | 200067890B     | Bob                | Tan               | bob@acme.edu   | 98765432               |
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "DUPLICATE_RESOURCE"
 
   @ComponentTest
   Scenario: Cannot request an institution creation when a pending request with the same name already exists
@@ -38,7 +38,7 @@ Feature: Request Institution Creation
     When prospect tries to request an institution to be created with details:
       | institutionName | institutionEmail  | institutionContactNumber | institutionAddress | institutionUen | requesterFirstName | requesterLastName | requesterEmail | requesterContactNumber |
       | Acme Edu        | other@example.com | 91234567                 | 2 Other Lane       | 200067890B     | Bob                | Tan               | bob@acme.edu   | 98765432               |
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "DUPLICATE_RESOURCE"
 
   @ComponentTest
   Scenario: Cannot request an institution creation when a pending request with the same email already exists
@@ -48,4 +48,4 @@ Feature: Request Institution Creation
     When prospect tries to request an institution to be created with details:
       | institutionName | institutionEmail | institutionContactNumber | institutionAddress | institutionUen | requesterFirstName | requesterLastName | requesterEmail | requesterContactNumber |
       | Beta Edu        | acme@example.com | 91234567                 | 2 Other Lane       | 200067890B     | Bob                | Tan               | bob@acme.edu   | 98765432               |
-    Then the request should fail with error code "INTERNAL_ERROR"
+    Then the request should fail with error code "DUPLICATE_RESOURCE"

@@ -14,6 +14,8 @@ import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.events.EducatorAccountCreatedEvent;
+import com.aura.core.events.ParentAccountCreatedEvent;
+import com.aura.core.exceptions.DuplicateResourceException;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.ParentRepository;
 import com.aura.core.usecases.accounts.AccountQueryUseCase;
@@ -219,10 +221,12 @@ public class AccountService {
         return Optional.ofNullable(accountRepository.findById(accountId))
                 .map(acc -> {
                     if (acc.getParent() != null) {
-                        throw new RuntimeException("parent already exists");
+                        throw new DuplicateResourceException("parent already exists for account " + accountId);
                     } // TODO: should make this a unique constraint to prevent race conditions
                     parent.setAccountId(acc.getId());
-                    return parentRepository.save(parent);
+                    Parent createdParent = parentRepository.save(parent);
+                    applicationEventPublisher.publishEvent(new ParentAccountCreatedEvent(acc));
+                    return createdParent;
                 })
                 .orElseThrow(() -> new RuntimeException("account does not exist"));
     }

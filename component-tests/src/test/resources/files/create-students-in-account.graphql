@@ -1,0 +1,8 @@
+mutation CreateStudentsInAccount($input: CreateStudentsInput!) {
+    createStudentsInAccount(createStudentsInput: $input) {
+        id
+        name
+        email
+        createdBy { userId accountId name url }
+    }
+}

@@ -61,26 +61,6 @@ public class QueryStepDefs {
         assertThat(testContext.getLastErrorMessage()).isEqualTo(errorCode);
     }
 
-    @When("user queries their institutions")
-    public void userQueriesTheirInstitutions() {
-        String query = findGraphqlQueryFromFiles("get-user-institutions.graphql");
-
-        lastUserInstitutionsResponse = testContext.getGraphQLClient()
-                .mutate().build()
-                .document(query)
-                .variables(Map.of("institutionId", testContext.getInstitutionId()))
-                .retrieveSync("getUserInstitutions")
-                .toEntityList(InstitutionResponse.class);
-    }
-
-    @Then("the user's institutions should contain the onboarded institution")
-    public void theUsersInstitutionsShouldContainTheOnboardedInstitution() {
-        assertThat(lastUserInstitutionsResponse).isNotNull().isNotEmpty();
-        assertThat(lastUserInstitutionsResponse)
-                .extracting(InstitutionResponse::getId)
-                .contains(testContext.getInstitutionId());
-    }
-
     @When("user queries institutions by ids using their onboarded institution id")
     public void userQueriesInstitutionsByIdsUsingOnboardedId() {
         queryInstitutionsByIds(List.of(testContext.getInstitutionId()));
