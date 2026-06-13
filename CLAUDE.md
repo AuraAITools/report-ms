@@ -218,6 +218,7 @@ Reference: `CreateCourseUseCase` → `CourseService` → `CourseGqlController`.
       runs
       in CI and blocks the PR on regressions. Fixtures are minimal: one user per role plus one non-member for negative
       assertions (see `system.test.yaml` as the reference pattern).
+- **Flattened-leaf resources.** Some entities (`level`, `subject`, `topic`, `outlet_room`) live only in the database — they have no per-instance SpiceDB resource definition. Their controllers check named aliases on the natural parent instead: `@PreAuthorize("hasPermission(#institutionId, 'institution', 'view_level')")` for level/subject/topic (parent is `institution`), and `@PreAuthorize("hasPermission(#updateOutletRoomInput.outletId, 'outlet', 'update_outlet_room')")` for outlet rooms (parent is `outlet`). The alias permissions are defined on the parent definition as `permission view_<x>: user = view`, `permission update_<x>: user = update`, `permission delete_<x>: user = delete`. Services for these entities therefore write no SpiceDB relationships on create and call no `deleteAllRelationshipsForResource` on delete. The corresponding `_user_group` definitions do not exist. Adopt this pattern for any future leaf resource that does not need per-instance role grants — the savings are one schema file, one paired user_group definition, one test-yaml file, two relationship writes per create, two per delete, and a slot in `PermissionRegistry.RESOURCE_PERMISSIONS`.
 
 **Testing requirements:**
 
