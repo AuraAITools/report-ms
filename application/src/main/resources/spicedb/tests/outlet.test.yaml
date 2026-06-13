@@ -92,6 +92,9 @@ assertions:
     - outlet:1#is_admin_or_modifier@user:out_admin_user
     - outlet:1#create_course@user:out_admin_user
     - outlet:1#create_outlet_room@user:out_admin_user
+    - outlet:1#view_outlet_room@user:out_admin_user
+    - outlet:1#update_outlet_room@user:out_admin_user
+    - outlet:1#delete_outlet_room@user:out_admin_user
 
     # ---- out_modifier_user — view + update + create_course + create_outlet_room; NOT delete ----
     - outlet_user_group:1#view@user:out_modifier_user
@@ -102,10 +105,13 @@ assertions:
     - outlet:1#is_admin_or_modifier@user:out_modifier_user
     - outlet:1#create_course@user:out_modifier_user
     - outlet:1#create_outlet_room@user:out_modifier_user
+    - outlet:1#view_outlet_room@user:out_modifier_user
+    - outlet:1#update_outlet_room@user:out_modifier_user
 
     # ---- out_viewer_user — view only ----
     - outlet_user_group:1#view@user:out_viewer_user
     - outlet:1#view@user:out_viewer_user
+    - outlet:1#view_outlet_room@user:out_viewer_user
 
     # ============================================================
     # INHERITED roles via outlet#parent -> institution
@@ -117,15 +123,21 @@ assertions:
     - outlet:1#delete@user:inst_admin_user
     - outlet:1#create_course@user:inst_admin_user
     - outlet:1#create_outlet_room@user:inst_admin_user
+    - outlet:1#view_outlet_room@user:inst_admin_user
+    - outlet:1#update_outlet_room@user:inst_admin_user
+    - outlet:1#delete_outlet_room@user:inst_admin_user
 
     # ---- inst_modifier_user — inherits view + update + create_course + create_outlet_room; NOT delete ----
     - outlet:1#view@user:inst_modifier_user
     - outlet:1#update@user:inst_modifier_user
     - outlet:1#create_course@user:inst_modifier_user
     - outlet:1#create_outlet_room@user:inst_modifier_user
+    - outlet:1#view_outlet_room@user:inst_modifier_user
+    - outlet:1#update_outlet_room@user:inst_modifier_user
 
     # ---- inst_viewer_user — inherits view only ----
     - outlet:1#view@user:inst_viewer_user
+    - outlet:1#view_outlet_room@user:inst_viewer_user
 
     # ============================================================
     # INHERITED group-mgmt via outlet_user_group#parent -> institution_user_group
@@ -157,15 +169,21 @@ assertions:
     - outlet:1#delete@user:sys_admin_user
     - outlet:1#create_course@user:sys_admin_user
     - outlet:1#create_outlet_room@user:sys_admin_user
+    - outlet:1#view_outlet_room@user:sys_admin_user
+    - outlet:1#update_outlet_room@user:sys_admin_user
+    - outlet:1#delete_outlet_room@user:sys_admin_user
 
     # ---- sys_modifier_user — transitively inherits view + update + create_course + create_outlet_room; NOT delete ----
     - outlet:1#view@user:sys_modifier_user
     - outlet:1#update@user:sys_modifier_user
     - outlet:1#create_course@user:sys_modifier_user
     - outlet:1#create_outlet_room@user:sys_modifier_user
+    - outlet:1#view_outlet_room@user:sys_modifier_user
+    - outlet:1#update_outlet_room@user:sys_modifier_user
 
     # ---- sys_viewer_user — transitively inherits view only ----
     - outlet:1#view@user:sys_viewer_user
+    - outlet:1#view_outlet_room@user:sys_viewer_user
 
     # ============================================================
     # TRANSITIVE SUPERADMIN cascade via outlet_user_group -> institution_user_group -> system_user_group
@@ -206,6 +224,9 @@ assertions:
     - outlet:1#delete@user:non_member_user
     - outlet:1#create_course@user:non_member_user
     - outlet:1#create_outlet_room@user:non_member_user
+    - outlet:1#view_outlet_room@user:non_member_user
+    - outlet:1#update_outlet_room@user:non_member_user
+    - outlet:1#delete_outlet_room@user:non_member_user
 
     # ============================================================
     # DIRECT outlet role exclusions
@@ -220,6 +241,9 @@ assertions:
     - outlet:1#delete@user:out_group_admin_user
     - outlet:1#create_course@user:out_group_admin_user
     - outlet:1#create_outlet_room@user:out_group_admin_user
+    - outlet:1#view_outlet_room@user:out_group_admin_user
+    - outlet:1#update_outlet_room@user:out_group_admin_user
+    - outlet:1#delete_outlet_room@user:out_group_admin_user
 
     # ---- out_group_viewer_user — only group_view, no resource access ----
     - outlet_user_group:1#group_add_admin@user:out_group_viewer_user
@@ -238,6 +262,9 @@ assertions:
     - outlet:1#view@user:out_group_viewer_user
     - outlet:1#update@user:out_group_viewer_user
     - outlet:1#delete@user:out_group_viewer_user
+    - outlet:1#view_outlet_room@user:out_group_viewer_user
+    - outlet:1#update_outlet_room@user:out_group_viewer_user
+    - outlet:1#delete_outlet_room@user:out_group_viewer_user
 
     # ---- out_admin_user — NO group-management (decoupling) ----
     - outlet_user_group:1#group_view@user:out_admin_user
@@ -255,6 +282,7 @@ assertions:
     # ---- out_modifier_user — no delete, no group-mgmt ----
     - outlet_user_group:1#delete@user:out_modifier_user
     - outlet:1#delete@user:out_modifier_user
+    - outlet:1#delete_outlet_room@user:out_modifier_user
     - outlet_user_group:1#group_view@user:out_modifier_user
     - outlet_user_group:1#group_add_admin@user:out_modifier_user
     - outlet_user_group:1#group_add_modifier@user:out_modifier_user
@@ -271,6 +299,8 @@ assertions:
     - outlet:1#delete@user:out_viewer_user
     - outlet:1#create_course@user:out_viewer_user
     - outlet:1#create_outlet_room@user:out_viewer_user
+    - outlet:1#update_outlet_room@user:out_viewer_user
+    - outlet:1#delete_outlet_room@user:out_viewer_user
     - outlet_user_group:1#group_view@user:out_viewer_user
     - outlet_user_group:1#group_add_admin@user:out_viewer_user
     - outlet_user_group:1#group_add_modifier@user:out_viewer_user
@@ -288,11 +318,17 @@ assertions:
     - outlet:1#view@user:inst_group_admin_user
     - outlet:1#update@user:inst_group_admin_user
     - outlet:1#delete@user:inst_group_admin_user
+    - outlet:1#view_outlet_room@user:inst_group_admin_user
+    - outlet:1#update_outlet_room@user:inst_group_admin_user
+    - outlet:1#delete_outlet_room@user:inst_group_admin_user
 
     # ---- inst_group_viewer_user — group_view only; NO inherited outlet resource access ----
     - outlet:1#view@user:inst_group_viewer_user
     - outlet:1#update@user:inst_group_viewer_user
     - outlet:1#delete@user:inst_group_viewer_user
+    - outlet:1#view_outlet_room@user:inst_group_viewer_user
+    - outlet:1#update_outlet_room@user:inst_group_viewer_user
+    - outlet:1#delete_outlet_room@user:inst_group_viewer_user
     - outlet_user_group:1#group_add_admin@user:inst_group_viewer_user
     - outlet_user_group:1#group_add_modifier@user:inst_group_viewer_user
     - outlet_user_group:1#group_remove_modifier@user:inst_group_viewer_user
@@ -303,10 +339,13 @@ assertions:
 
     # ---- inst_modifier_user — cannot delete outlet (institution modifier lacks delete) ----
     - outlet:1#delete@user:inst_modifier_user
+    - outlet:1#delete_outlet_room@user:inst_modifier_user
 
     # ---- inst_viewer_user — cannot update or delete outlet ----
     - outlet:1#update@user:inst_viewer_user
     - outlet:1#delete@user:inst_viewer_user
+    - outlet:1#update_outlet_room@user:inst_viewer_user
+    - outlet:1#delete_outlet_room@user:inst_viewer_user
 
     # ---- Inherited institution RESOURCE roles do NOT confer outlet_user_group group-mgmt (decoupling) ----
     - outlet_user_group:1#view@user:inst_admin_user
@@ -324,11 +363,17 @@ assertions:
     - outlet:1#view@user:sys_group_admin_user
     - outlet:1#update@user:sys_group_admin_user
     - outlet:1#delete@user:sys_group_admin_user
+    - outlet:1#view_outlet_room@user:sys_group_admin_user
+    - outlet:1#update_outlet_room@user:sys_group_admin_user
+    - outlet:1#delete_outlet_room@user:sys_group_admin_user
 
     # ---- sys_group_viewer_user — same: no transitive outlet resource access; only group_view on outlet_user_group ----
     - outlet:1#view@user:sys_group_viewer_user
     - outlet:1#update@user:sys_group_viewer_user
     - outlet:1#delete@user:sys_group_viewer_user
+    - outlet:1#view_outlet_room@user:sys_group_viewer_user
+    - outlet:1#update_outlet_room@user:sys_group_viewer_user
+    - outlet:1#delete_outlet_room@user:sys_group_viewer_user
     - outlet_user_group:1#group_add_admin@user:sys_group_viewer_user
     - outlet_user_group:1#group_add_viewer@user:sys_group_viewer_user
     - outlet_user_group:1#group_remove_admin@user:sys_group_viewer_user
@@ -366,10 +411,13 @@ assertions:
 
     # ---- sys_modifier_user — cannot delete outlet (system modifier lacks delete) ----
     - outlet:1#delete@user:sys_modifier_user
+    - outlet:1#delete_outlet_room@user:sys_modifier_user
 
     # ---- sys_viewer_user — cannot update or delete outlet ----
     - outlet:1#update@user:sys_viewer_user
     - outlet:1#delete@user:sys_viewer_user
+    - outlet:1#update_outlet_room@user:sys_viewer_user
+    - outlet:1#delete_outlet_room@user:sys_viewer_user
 
     # ---- Transitively-inherited system RESOURCE roles do NOT gain perms on outlet_user_group ----
     - outlet_user_group:1#view@user:sys_admin_user

@@ -76,6 +76,15 @@ assertions:
     - institution:1#create_school@user:inst_admin_user
     - institution:1#delete_school@user:inst_admin_user
     - institution:1#create_account@user:inst_admin_user
+    - institution:1#view_level@user:inst_admin_user
+    - institution:1#update_level@user:inst_admin_user
+    - institution:1#delete_level@user:inst_admin_user
+    - institution:1#view_subject@user:inst_admin_user
+    - institution:1#update_subject@user:inst_admin_user
+    - institution:1#delete_subject@user:inst_admin_user
+    - institution:1#view_topic@user:inst_admin_user
+    - institution:1#update_topic@user:inst_admin_user
+    - institution:1#delete_topic@user:inst_admin_user
 
     # ---- inst_modifier_user — view/update/is_admin_or_modifier on user_group; view/update/is_admin_or_modifier/create_* on institution ----
     - institution_user_group:1#view@user:inst_modifier_user
@@ -91,10 +100,19 @@ assertions:
     - institution:1#create_material@user:inst_modifier_user
     - institution:1#create_school@user:inst_modifier_user
     - institution:1#create_account@user:inst_modifier_user
+    - institution:1#view_level@user:inst_modifier_user
+    - institution:1#update_level@user:inst_modifier_user
+    - institution:1#view_subject@user:inst_modifier_user
+    - institution:1#update_subject@user:inst_modifier_user
+    - institution:1#view_topic@user:inst_modifier_user
+    - institution:1#update_topic@user:inst_modifier_user
 
     # ---- inst_viewer_user — view only ----
     - institution_user_group:1#view@user:inst_viewer_user
     - institution:1#view@user:inst_viewer_user
+    - institution:1#view_level@user:inst_viewer_user
+    - institution:1#view_subject@user:inst_viewer_user
+    - institution:1#view_topic@user:inst_viewer_user
 
     # ============================================================
     # INHERITED roles via institution#parent -> system
@@ -113,6 +131,15 @@ assertions:
     - institution:1#create_school@user:sys_admin_user
     - institution:1#delete_school@user:sys_admin_user
     - institution:1#create_account@user:sys_admin_user
+    - institution:1#view_level@user:sys_admin_user
+    - institution:1#update_level@user:sys_admin_user
+    - institution:1#delete_level@user:sys_admin_user
+    - institution:1#view_subject@user:sys_admin_user
+    - institution:1#update_subject@user:sys_admin_user
+    - institution:1#delete_subject@user:sys_admin_user
+    - institution:1#view_topic@user:sys_admin_user
+    - institution:1#update_topic@user:sys_admin_user
+    - institution:1#delete_topic@user:sys_admin_user
 
     # ---- sys_modifier_user — inherits view + update + is_admin_or_modifier + all create_*; NOT delete ----
     - institution:1#view@user:sys_modifier_user
@@ -125,9 +152,18 @@ assertions:
     - institution:1#create_material@user:sys_modifier_user
     - institution:1#create_school@user:sys_modifier_user
     - institution:1#create_account@user:sys_modifier_user
+    - institution:1#view_level@user:sys_modifier_user
+    - institution:1#update_level@user:sys_modifier_user
+    - institution:1#view_subject@user:sys_modifier_user
+    - institution:1#update_subject@user:sys_modifier_user
+    - institution:1#view_topic@user:sys_modifier_user
+    - institution:1#update_topic@user:sys_modifier_user
 
     # ---- sys_viewer_user — inherits view only ----
     - institution:1#view@user:sys_viewer_user
+    - institution:1#view_level@user:sys_viewer_user
+    - institution:1#view_subject@user:sys_viewer_user
+    - institution:1#view_topic@user:sys_viewer_user
 
     # ============================================================
     # SUPERADMIN cascade via institution_user_group#parent -> system_user_group
@@ -176,6 +212,15 @@ assertions:
     - institution:1#create_school@user:non_member_user
     - institution:1#delete_school@user:non_member_user
     - institution:1#create_account@user:non_member_user
+    - institution:1#view_level@user:non_member_user
+    - institution:1#update_level@user:non_member_user
+    - institution:1#delete_level@user:non_member_user
+    - institution:1#view_subject@user:non_member_user
+    - institution:1#update_subject@user:non_member_user
+    - institution:1#delete_subject@user:non_member_user
+    - institution:1#view_topic@user:non_member_user
+    - institution:1#update_topic@user:non_member_user
+    - institution:1#delete_topic@user:non_member_user
 
     # ============================================================
     # DIRECT institution role exclusions
@@ -244,6 +289,9 @@ assertions:
     - institution_user_group:1#delete@user:inst_modifier_user
     - institution:1#delete@user:inst_modifier_user
     - institution:1#delete_school@user:inst_modifier_user
+    - institution:1#delete_level@user:inst_modifier_user
+    - institution:1#delete_subject@user:inst_modifier_user
+    - institution:1#delete_topic@user:inst_modifier_user
     - institution_user_group:1#group_view@user:inst_modifier_user
     - institution_user_group:1#group_add_admin@user:inst_modifier_user
     - institution_user_group:1#group_add_modifier@user:inst_modifier_user
@@ -268,6 +316,12 @@ assertions:
     - institution:1#create_school@user:inst_viewer_user
     - institution:1#delete_school@user:inst_viewer_user
     - institution:1#create_account@user:inst_viewer_user
+    - institution:1#update_level@user:inst_viewer_user
+    - institution:1#delete_level@user:inst_viewer_user
+    - institution:1#update_subject@user:inst_viewer_user
+    - institution:1#delete_subject@user:inst_viewer_user
+    - institution:1#update_topic@user:inst_viewer_user
+    - institution:1#delete_topic@user:inst_viewer_user
     - institution_user_group:1#group_view@user:inst_viewer_user
     - institution_user_group:1#group_add_admin@user:inst_viewer_user
     - institution_user_group:1#group_add_modifier@user:inst_viewer_user
@@ -351,6 +405,9 @@ assertions:
     # ---- sys_modifier_user — cannot delete (system modifier lacks delete; delete_school aliases delete) ----
     - institution:1#delete@user:sys_modifier_user
     - institution:1#delete_school@user:sys_modifier_user
+    - institution:1#delete_level@user:sys_modifier_user
+    - institution:1#delete_subject@user:sys_modifier_user
+    - institution:1#delete_topic@user:sys_modifier_user
 
     # ---- sys_viewer_user — cannot update/delete/is_admin_or_modifier/create_* (read-only) ----
     - institution:1#update@user:sys_viewer_user
@@ -364,3 +421,9 @@ assertions:
     - institution:1#create_school@user:sys_viewer_user
     - institution:1#delete_school@user:sys_viewer_user
     - institution:1#create_account@user:sys_viewer_user
+    - institution:1#update_level@user:sys_viewer_user
+    - institution:1#delete_level@user:sys_viewer_user
+    - institution:1#update_subject@user:sys_viewer_user
+    - institution:1#delete_subject@user:sys_viewer_user
+    - institution:1#update_topic@user:sys_viewer_user
+    - institution:1#delete_topic@user:sys_viewer_user
