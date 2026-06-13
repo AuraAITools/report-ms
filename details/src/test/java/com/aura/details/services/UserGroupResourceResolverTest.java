@@ -4,20 +4,14 @@ import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.materials.Material;
 import com.aura.core.entities.outlets.Outlet;
-import com.aura.core.entities.subjects.Subject;
-import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
-import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.MaterialRepository;
 import com.aura.core.repositories.OutletRepository;
-import com.aura.core.repositories.SubjectRepository;
-import com.aura.core.repositories.TopicRepository;
 import com.aura.core.usecases.authorization.GroupResourcePermission;
 import com.aura.core.usecases.authorization.ResourcePermission;
 import com.aura.core.usecases.authorization.ResourceRelations;
@@ -43,9 +37,6 @@ class UserGroupResourceResolverTest {
     @Mock CourseRepository courseRepository;
     @Mock LessonRepository lessonRepository;
     @Mock AccountRepository accountRepository;
-    @Mock LevelRepository levelRepository;
-    @Mock SubjectRepository subjectRepository;
-    @Mock TopicRepository topicRepository;
     @Mock MaterialRepository materialRepository;
 
     @InjectMocks
@@ -183,24 +174,27 @@ class UserGroupResourceResolverTest {
     void resolvesAllSupportedTypes() {
         when(courseRepository.findById("c-1")).thenReturn(
                 Course.builder().id("c-1").name("Course").tenantId("inst-1").build());
-        when(levelRepository.findById("lv-1")).thenReturn(
-                Level.builder().id("lv-1").name("Level").tenantId("inst-1").build());
-        when(subjectRepository.findById("s-1")).thenReturn(
-                Subject.builder().id("s-1").name("Subject").tenantId("inst-1").build());
-        when(topicRepository.findById("t-1")).thenReturn(
-                Topic.builder().id("t-1").name("Topic").tenantId("inst-1").build());
         when(materialRepository.findById("m-1")).thenReturn(
                 Material.builder().id("m-1").name("Material").tenantId("inst-1").build());
 
         List<GroupResourcePermission> result = resolver.resolveAndFilter(List.of(
                 new ResourcePermission("course_user_group", "c-1", List.of("view")),
-                new ResourcePermission("level_user_group", "lv-1", List.of("view")),
-                new ResourcePermission("subject_user_group", "s-1", List.of("view")),
-                new ResourcePermission("topic_user_group", "t-1", List.of("view")),
                 new ResourcePermission("material_user_group", "m-1", List.of("view"))
         ), "inst-1");
 
         assertThat(result).extracting(GroupResourcePermission::displayName)
-                .containsExactlyInAnyOrder("Course", "Level", "Subject", "Topic", "Material");
+                .containsExactlyInAnyOrder("Course", "Material");
+    }
+
+    @Test
+    @DisplayName("Should return empty for unknown resource types (level/subject/topic dropped from resolver)")
+    void returnsEmptyForDroppedResourceTypes() {
+        List<GroupResourcePermission> result = resolver.resolveAndFilter(List.of(
+                new ResourcePermission("level_user_group", "lv-1", List.of("view")),
+                new ResourcePermission("subject_user_group", "s-1", List.of("view")),
+                new ResourcePermission("topic_user_group", "t-1", List.of("view"))
+        ), "inst-1");
+
+        assertThat(result).isEmpty();
     }
 }
