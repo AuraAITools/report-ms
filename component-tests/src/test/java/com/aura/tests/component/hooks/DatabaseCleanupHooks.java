@@ -27,9 +27,9 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 public class DatabaseCleanupHooks {
 
     private static final List<String> SPICEDB_RESOURCE_TYPES = List.of(
-            "institution", "outlet", "course", "lesson", "level", "subject", "topic", "material", "system",
-            "institution_user_group", "outlet_user_group", "course_user_group", "lesson_user_group",
-            "level_user_group", "subject_user_group", "topic_user_group", "material_user_group", "system_user_group"
+            "institution", "outlet", "course", "lesson", "material", "system",
+            "institution_user_group", "outlet_user_group", "course_user_group",
+            "lesson_user_group", "material_user_group", "system_user_group"
     );
 
     private final JdbcTemplate jdbcTemplate;
