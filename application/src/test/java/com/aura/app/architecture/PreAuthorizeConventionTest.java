@@ -47,8 +47,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PreAuthorizeConventionTest {
 
     private static final Set<String> VALID_RESOURCES = Set.of(
-            "institution", "outlet", "outlet_room", "course", "lesson",
-            "level", "subject", "topic", "account", "material", "system"
+            "institution", "outlet", "course", "lesson",
+            "account", "material", "system"
     );
 
     // Must stay in sync with the permissions actually defined in src/main/resources/spicedb/*.zed —
@@ -59,7 +59,11 @@ class PreAuthorizeConventionTest {
             "create_lesson", "create_account", "create_subject", "create_topic",
             "create_lesson_plan", "create_outlet_room", "create_lesson_objective",
             "create_lesson_quiz",
-            "create_material", "create_level", "create_school", "delete_school"
+            "create_material", "create_level", "create_school", "delete_school",
+            "view_level", "update_level", "delete_level",
+            "view_subject", "update_subject", "delete_subject",
+            "view_topic", "update_topic", "delete_topic",
+            "view_outlet_room", "update_outlet_room", "delete_outlet_room"
     );
 
     private static final Path CONTROLLERS_ROOT = findControllersRoot();
