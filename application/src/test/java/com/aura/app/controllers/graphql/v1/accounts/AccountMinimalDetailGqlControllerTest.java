@@ -65,8 +65,8 @@ class AccountMinimalDetailGqlControllerTest {
     }
 
     @Test
-    @DisplayName("Should omit accountId for stubs whose userId has no matching account in the tenant")
-    void accountId_omitsUnmatchedUsers() {
+    @DisplayName("Should fall back to the system placeholder accountId for stubs whose userId has no matching account in the tenant")
+    void accountId_fallsBackToPlaceholderForUnmatchedUsers() {
         AccountMinimalDetail s1 = stub("user-a");
         AccountMinimalDetail s2 = stub("user-missing");
         Account a1 = acc("acc-1", "user-a", "Alice", "Anderson", null);
@@ -75,7 +75,37 @@ class AccountMinimalDetailGqlControllerTest {
 
         Map<AccountMinimalDetail, String> result = controller.accountId(List.of(s1, s2), user());
 
-        assertThat(result).containsOnlyKeys(s1);
+        assertThat(result)
+                .containsEntry(s1, "acc-1")
+                .containsEntry(s2, "00000000-0000-0000-0000-000000000000");
+    }
+
+    @Test
+    @DisplayName("Should fall back to the system placeholder name for stubs whose userId has no matching account in the tenant")
+    void name_fallsBackToPlaceholderForUnmatchedUsers() {
+        AccountMinimalDetail s1 = stub("user-a");
+        AccountMinimalDetail s2 = stub("user-missing");
+        Account a1 = acc("acc-1", "user-a", "Alice", "Anderson", null);
+        when(accountService.findAllByUserIdsAndTenantId(List.of("user-a", "user-missing"), TENANT))
+                .thenReturn(Map.of("user-a", a1));
+
+        Map<AccountMinimalDetail, String> result = controller.name(List.of(s1, s2), user());
+
+        assertThat(result)
+                .containsEntry(s1, "Alice Anderson")
+                .containsEntry(s2, "system");
+    }
+
+    @Test
+    @DisplayName("Should fall back to the empty placeholder url for stubs whose userId has no matching account in the tenant")
+    void url_fallsBackToPlaceholderForUnmatchedUsers() {
+        AccountMinimalDetail s1 = stub("user-missing");
+        when(accountService.findAllByUserIdsAndTenantId(List.of("user-missing"), TENANT))
+                .thenReturn(Map.of());
+
+        Map<AccountMinimalDetail, String> result = controller.url(List.of(s1), user());
+
+        assertThat(result).containsEntry(s1, "");
     }
 
     @Test

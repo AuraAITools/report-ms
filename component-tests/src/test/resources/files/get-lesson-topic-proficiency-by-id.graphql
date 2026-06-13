@@ -1,0 +1,10 @@
+query GetLessonTopicProficiencyById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getLessonTopicProficiencyById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        studentLessonReportId
+        topicId
+        rating
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

@@ -18,7 +18,19 @@ public interface JpaLessonOutletRoomBookingRepository extends JpaRepository<Less
 
     Optional<LessonOutletRoomBookingModel> findByLesson_Id(UUID lessonId);
 
-    void deleteByLesson_Id(UUID lessonId);
+    @Query("""
+            SELECT b FROM LessonOutletRoomBookingModel b
+            WHERE b.tenantId = :tenantId
+              AND b.outletRoom.id = :outletRoomId
+              AND b.startTimestampz < :end
+              AND b.endTimestampz > :start
+              AND b.lesson.state <> com.aura.details.springdata.models.lessons.LessonModel.LESSON_STATE.CANCELLED
+            """)
+    List<LessonOutletRoomBookingModel> findOverlappingByRoomAndTenant(
+            @Param("tenantId") String tenantId,
+            @Param("outletRoomId") UUID outletRoomId,
+            @Param("start") Instant start,
+            @Param("end") Instant end);
 
     @Query("""
             SELECT b FROM LessonOutletRoomBookingModel b
@@ -27,7 +39,7 @@ public interface JpaLessonOutletRoomBookingRepository extends JpaRepository<Less
               AND b.startTimestampz < :end
               AND b.endTimestampz > :start
               AND b.lesson.state <> com.aura.details.springdata.models.lessons.LessonModel.LESSON_STATE.CANCELLED
-              AND (:excludeLessonId IS NULL OR b.lesson.id <> :excludeLessonId)
+              AND b.lesson.id <> :excludeLessonId
             """)
     List<LessonOutletRoomBookingModel> findOverlappingByRoomAndTenant(
             @Param("tenantId") String tenantId,

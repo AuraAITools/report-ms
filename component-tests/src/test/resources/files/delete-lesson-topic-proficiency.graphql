@@ -1,0 +1,3 @@
+mutation DeleteLessonTopicProficiency($input: DeleteLessonTopicProficiencyInput!) {
+    deleteLessonTopicProficiency(input: $input)
+}

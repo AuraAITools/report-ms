@@ -1,7 +1,7 @@
 package com.aura.core.usecases.courses;
 
 import com.aura.core.entities.courses.Course;
-import com.aura.core.exceptions.TechnicalException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.OutletRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,6 @@ public class CreateCourseUseCaseImpl implements CreateCourseUseCase {
                     course.setOutletId(outlet.getId());
                     return courseRepository.save(course);
                 })
-                .orElseThrow(() -> new TechnicalException("Outlet not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Outlet", outletId));
     }
 }

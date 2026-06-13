@@ -1,0 +1,12 @@
+mutation UpdateLessonTopicProficiency($input: UpdateLessonTopicProficiencyInput!) {
+    updateLessonTopicProficiency(input: $input) {
+        id
+        studentLessonReportId
+        topicId
+        rating
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

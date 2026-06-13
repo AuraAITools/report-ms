@@ -55,6 +55,11 @@ class OutletQueryUseCaseImplTest {
         }
 
         @Override
+        public boolean existsByNameAndTenantId(String name, String tenantId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<Outlet> findAllByIds(List<String> ids) {
             throw new UnsupportedOperationException();
         }

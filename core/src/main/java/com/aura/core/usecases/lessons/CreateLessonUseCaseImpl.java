@@ -1,6 +1,7 @@
 package com.aura.core.usecases.lessons;
 
 import com.aura.core.entities.lessons.Lesson;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.LessonRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,6 @@ public class CreateLessonUseCaseImpl implements CreateLessonUseCase {
                     lesson.setState(Lesson.LESSON_STATE.CREATED);
                     return lessonRepository.save(lesson);
                 })
-                .orElseThrow(() -> new RuntimeException("course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course", courseId));
     }
 }

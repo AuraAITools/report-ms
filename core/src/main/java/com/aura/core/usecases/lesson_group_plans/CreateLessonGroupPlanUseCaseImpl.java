@@ -2,6 +2,8 @@ package com.aura.core.usecases.lesson_group_plans;
 
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupRepository;
 import java.util.UUID;
@@ -18,7 +20,12 @@ public class CreateLessonGroupPlanUseCaseImpl implements CreateLessonGroupPlanUs
     @Override
     public LessonGroupPlan createLessonGroupPlan(LessonGroupPlan plan, String lessonGroupId) {
         LessonGroup group = ofNullable(lessonGroupRepository.findById(UUID.fromString(lessonGroupId)))
-                .orElseThrow(() -> new RuntimeException("lesson group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group", lessonGroupId));
+
+        if (lessonGroupPlanRepository.existsByLessonGroupId(lessonGroupId)) {
+            throw new DuplicateResourceException(
+                    "Lesson group plan already exists for lesson group '%s'".formatted(lessonGroupId));
+        }
 
         plan.setLessonGroupId(lessonGroupId);
         plan.setTenantId(group.getTenantId());

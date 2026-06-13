@@ -1,0 +1,12 @@
+mutation UpdateEducatorById($input: UpdateEducatorByIdInput!) {
+    updateEducatorById(input: $input) {
+        id
+        name
+        email
+        startDate
+        dateOfBirth
+        employmentType
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

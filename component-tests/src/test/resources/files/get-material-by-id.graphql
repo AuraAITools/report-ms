@@ -1,0 +1,8 @@
+query GetMaterialById($institutionId: ID!, $materialId: ID!) {
+    getMaterialById(institutionId: $institutionId, materialId: $materialId) {
+        id
+        name
+        description
+        createdBy { userId accountId name url }
+    }
+}

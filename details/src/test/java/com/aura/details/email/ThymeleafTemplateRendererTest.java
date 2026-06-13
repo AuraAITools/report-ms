@@ -3,9 +3,13 @@ package com.aura.details.email;
 import com.aura.core.repositories.email.TemplateRenderer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.StaticApplicationContext;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -28,7 +32,7 @@ class ThymeleafTemplateRendererTest {
         resolver.setCacheable(false);
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
-        renderer = new ThymeleafTemplateRenderer(engine);
+        renderer = new ThymeleafTemplateRenderer(engine, new StaticApplicationContext());
     }
 
     @DisplayName("Should substitute variables in HTML")
@@ -54,5 +58,23 @@ class ThymeleafTemplateRendererTest {
                 .contains("Aura Academy")
                 .doesNotContain("<")
                 .doesNotContain(">");
+    }
+
+    @DisplayName("Should render templates on a non-web thread without a request context")
+    @Test
+    void rendersOffWebThread() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor(
+                Thread.ofVirtual().name("email-test-").factory());
+        try {
+            TemplateRenderer.RenderedEmail rendered = executor
+                    .submit(() -> renderer.render(
+                            "test-fixture",
+                            Map.of("name", "Alice", "institution", "Aura Academy")))
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(rendered.html()).isNotBlank().contains("Alice");
+        } finally {
+            executor.shutdownNow();
+        }
     }
 }

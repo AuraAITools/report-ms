@@ -2,6 +2,8 @@ package com.aura.core.usecases.lesson_group_plans;
 
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
+import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupRepository;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -46,7 +49,7 @@ class CreateLessonGroupPlanUseCaseImplTest {
         assertEquals("tenant-1", stubLessonGroupPlanRepo.capturedPlan.getTenantId());
     }
 
-    @DisplayName("Should throw RuntimeException when lesson group is not found")
+    @DisplayName("Should throw ResourceNotFoundException when lesson group is not found")
     @Test
     void throwsWhenLessonGroupNotFound() {
         UUID lessonGroupUuid = UUID.randomUUID();
@@ -56,9 +59,33 @@ class CreateLessonGroupPlanUseCaseImplTest {
         var stubLessonGroupPlanRepo = new StubLessonGroupPlanRepository(null);
         var useCase = new CreateLessonGroupPlanUseCaseImpl(stubLessonGroupPlanRepo, stubLessonGroupRepo);
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> useCase.createLessonGroupPlan(inputPlan, lessonGroupUuid.toString()));
-        assertEquals("lesson group not found", ex.getMessage());
+        assertEquals("Lesson group not found: " + lessonGroupUuid, ex.getMessage());
+    }
+
+    @DisplayName("Should throw DuplicateResourceException when a plan already exists for the lesson group")
+    @Test
+    void throwsWhenPlanAlreadyExistsForLessonGroup() {
+        UUID lessonGroupUuid = UUID.randomUUID();
+        LessonGroup lessonGroup = LessonGroup.builder()
+                .id(lessonGroupUuid.toString())
+                .tenantId("tenant-1")
+                .lessonId("lesson-uuid")
+                .build();
+        LessonGroupPlan inputPlan = LessonGroupPlan.builder().plan("My plan content").build();
+
+        var stubLessonGroupRepo = new StubLessonGroupRepository(lessonGroup);
+        var stubLessonGroupPlanRepo = new StubLessonGroupPlanRepository(null);
+        stubLessonGroupPlanRepo.planExists = true;
+        var useCase = new CreateLessonGroupPlanUseCaseImpl(stubLessonGroupPlanRepo, stubLessonGroupRepo);
+
+        DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                () -> useCase.createLessonGroupPlan(inputPlan, lessonGroupUuid.toString()));
+        assertEquals(
+                "Lesson group plan already exists for lesson group '" + lessonGroupUuid + "'",
+                ex.getMessage());
+        assertNull(stubLessonGroupPlanRepo.capturedPlan);
     }
 
     // --- Stubs ---
@@ -66,6 +93,7 @@ class CreateLessonGroupPlanUseCaseImplTest {
     private static class StubLessonGroupPlanRepository implements LessonGroupPlanRepository {
         private final LessonGroupPlan saveResult;
         LessonGroupPlan capturedPlan;
+        boolean planExists;
 
         StubLessonGroupPlanRepository(LessonGroupPlan saveResult) {
             this.saveResult = saveResult;
@@ -75,6 +103,11 @@ class CreateLessonGroupPlanUseCaseImplTest {
         public LessonGroupPlan save(LessonGroupPlan plan) {
             this.capturedPlan = plan;
             return saveResult;
+        }
+
+        @Override
+        public boolean existsByLessonGroupId(String lessonGroupId) {
+            return planExists;
         }
 
         @Override

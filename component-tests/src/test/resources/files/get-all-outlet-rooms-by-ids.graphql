@@ -1,0 +1,11 @@
+query GetAllOutletRoomsByIds($institutionId: ID!, $ids: [ID!]!) {
+    getAllOutletRoomsByIds(institutionId: $institutionId, ids: $ids) {
+        id
+        name
+        outletId
+        size
+        type
+        description
+        createdBy { userId accountId name url }
+    }
+}

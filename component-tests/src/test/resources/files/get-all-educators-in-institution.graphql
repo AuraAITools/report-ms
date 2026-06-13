@@ -1,0 +1,12 @@
+query GetAllEducatorsInInstitution($institutionId: ID!) {
+    getAllEducatorsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        email
+        startDate
+        dateOfBirth
+        employmentType
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

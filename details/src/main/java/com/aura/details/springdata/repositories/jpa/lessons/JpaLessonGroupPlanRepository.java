@@ -13,5 +13,7 @@ public interface JpaLessonGroupPlanRepository extends JpaRepository<LessonGroupP
 
     Optional<LessonGroupPlanModel> findByLessonGroupId(UUID lessonGroupId);
 
+    boolean existsByLessonGroupId(UUID lessonGroupId);
+
     List<LessonGroupPlanModel> findAllByLessonGroupIdIn(List<UUID> lessonGroupIds);
 }

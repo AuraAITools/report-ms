@@ -1,0 +1,8 @@
+query GetLevelsInInstitution($institutionId: ID!) {
+    getLevelsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        category
+        createdBy { userId accountId name url }
+    }
+}

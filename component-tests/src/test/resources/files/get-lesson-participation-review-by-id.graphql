@@ -1,0 +1,9 @@
+query GetLessonParticipationReviewById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getLessonParticipationReviewById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        studentLessonReportId
+        participationType
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

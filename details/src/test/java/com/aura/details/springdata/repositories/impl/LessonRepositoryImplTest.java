@@ -24,6 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -194,6 +196,34 @@ class LessonRepositoryImplTest {
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
         }
+
+        @Test
+        @DisplayName("Should dispatch to the no-exclusion query when excludeLessonId is null")
+        void dispatchesToNoExcludeQueryWhenExcludeIsNull() {
+            UUID educatorId = UUID.randomUUID();
+            Instant start = Instant.parse("2026-06-10T09:00:00Z");
+            Instant end = Instant.parse("2026-06-10T10:00:00Z");
+
+            LessonModel overlapping = LessonModel.builder()
+                    .id(UUID.randomUUID())
+                    .tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T08:30:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T09:30:00Z"))
+                    .state(LessonModel.LESSON_STATE.CREATED)
+                    .build();
+
+            when(jpaEducatorLessonLinkRepository.findActiveOverlappingLessonsByEducator(
+                    "tenant-1", educatorId, start, end))
+                    .thenReturn(List.of(overlapping));
+
+            List<Lesson> result = repository.findActiveOverlappingForEducator(
+                    "tenant-1", educatorId.toString(), start, end, null);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
+            verify(jpaEducatorLessonLinkRepository, never()).findActiveOverlappingLessonsByEducator(
+                    anyString(), any(UUID.class), any(Instant.class), any(Instant.class), any(UUID.class));
+        }
     }
 
     @Nested
@@ -225,6 +255,34 @@ class LessonRepositoryImplTest {
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
+        }
+
+        @Test
+        @DisplayName("Should dispatch to the no-exclusion query when excludeLessonId is null")
+        void dispatchesToNoExcludeQueryWhenExcludeIsNull() {
+            UUID studentId = UUID.randomUUID();
+            Instant start = Instant.parse("2026-06-10T09:00:00Z");
+            Instant end = Instant.parse("2026-06-10T10:00:00Z");
+
+            LessonModel overlapping = LessonModel.builder()
+                    .id(UUID.randomUUID())
+                    .tenantId("tenant-1")
+                    .lessonStartTimestamptz(Instant.parse("2026-06-10T09:30:00Z"))
+                    .lessonEndTimestamptz(Instant.parse("2026-06-10T10:30:00Z"))
+                    .state(LessonModel.LESSON_STATE.CREATED)
+                    .build();
+
+            when(jpaStudentLessonLinkRepository.findActiveOverlappingLessonsByStudent(
+                    "tenant-1", studentId, start, end))
+                    .thenReturn(List.of(overlapping));
+
+            List<Lesson> result = repository.findActiveOverlappingForStudent(
+                    "tenant-1", studentId.toString(), start, end, null);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(overlapping.getId().toString());
+            verify(jpaStudentLessonLinkRepository, never()).findActiveOverlappingLessonsByStudent(
+                    anyString(), any(UUID.class), any(Instant.class), any(Instant.class), any(UUID.class));
         }
     }
 }

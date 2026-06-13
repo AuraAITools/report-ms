@@ -50,6 +50,15 @@ class OutletRepositoryImplTest {
         assertThat(outletRepositoryImpl.findAllByTenantId("tenant-1")).isEmpty();
     }
 
+    @DisplayName("Should delegate existsByNameAndTenantId to the JPA repository")
+    @Test
+    void existsByNameAndTenantId_delegatesToJpaRepository() {
+        when(jpaOutletRepository.existsByNameAndTenantId("Bukit Timah", "tenant-1")).thenReturn(true);
+
+        assertThat(outletRepositoryImpl.existsByNameAndTenantId("Bukit Timah", "tenant-1")).isTrue();
+        assertThat(outletRepositoryImpl.existsByNameAndTenantId("Tampines", "tenant-1")).isFalse();
+    }
+
     @DisplayName("Should return empty map when no educator ids provided to findAllByEducatorIds")
     @Test
     void findAllByEducatorIds_emptyList_returnsEmptyMap() {

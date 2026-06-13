@@ -1,7 +1,7 @@
 package com.aura.core.usecases.educators;
 
 import com.aura.core.entities.subjects.Subject;
-import com.aura.core.exceptions.TechnicalException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.EducatorRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +16,6 @@ public class TagEducatorToSubjectUseCaseImpl implements TagEducatorToSubjectUseC
     public Subject tag(String educatorId, String subjectId) {
         return ofNullable(educatorRepository.findById(educatorId))
                 .map(edu -> educatorRepository.createSubjectEducatorLink(educatorId, subjectId, edu.getTenantId()))
-                .orElseThrow(() -> new TechnicalException("educator not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Educator", educatorId));
     }
 }

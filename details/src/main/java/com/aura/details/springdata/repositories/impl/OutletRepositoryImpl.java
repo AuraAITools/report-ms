@@ -50,6 +50,11 @@ public class OutletRepositoryImpl implements OutletRepository {
     }
 
     @Override
+    public boolean existsByNameAndTenantId(String name, String tenantId) {
+        return jpaOutletRepository.existsByNameAndTenantId(name, tenantId);
+    }
+
+    @Override
     public List<Outlet> findAllByIds(List<String> ids) {
         if (ids.isEmpty()) return List.of();
         List<UUID> uuids = ids.stream().map(UUID::fromString).toList();

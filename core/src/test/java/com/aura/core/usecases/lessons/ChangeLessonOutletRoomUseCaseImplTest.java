@@ -37,9 +37,13 @@ class ChangeLessonOutletRoomUseCaseImplTest {
     @InjectMocks private ChangeLessonOutletRoomUseCaseImpl useCase;
 
     @Test
-    @DisplayName("Should clear booking and return lesson when outletRoomId is null")
+    @DisplayName("Should clear booking and return lesson without booking when outletRoomId is null")
     void clearsBookingWhenRoomNull() {
         Lesson lesson = lesson();
+        lesson.setLessonOutletRoomBooking(LessonOutletRoomBooking.builder()
+                .lessonId(LESSON_ID)
+                .outletRoomId("room-old")
+                .build());
         when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
 
         Lesson result = useCase.changeLessonOutletRoom(LESSON_ID, null);
@@ -47,6 +51,7 @@ class ChangeLessonOutletRoomUseCaseImplTest {
         verify(bookingRepository).deleteByLessonId(LESSON_ID);
         verify(bookingRepository, never()).save(any());
         assertThat(result).isSameAs(lesson);
+        assertThat(result.getLessonOutletRoomBooking()).isNull();
     }
 
     @Test
@@ -87,6 +92,26 @@ class ChangeLessonOutletRoomUseCaseImplTest {
 
         verify(bookingRepository).deleteByLessonId(LESSON_ID);
         verify(bookingRepository).save(any(LessonOutletRoomBooking.class));
+    }
+
+    @Test
+    @DisplayName("Should return lesson carrying the newly saved booking when room changes")
+    void returnsLessonWithSavedBookingOnChange() {
+        Lesson lesson = lesson();
+        when(lessonRepository.findById(UUID.fromString(LESSON_ID))).thenReturn(lesson);
+        when(detectLessonConflictsUseCase.detectRoomConflicts(
+                any(), any(), any(), any(), any())).thenReturn(List.of());
+        LessonOutletRoomBooking savedBooking = LessonOutletRoomBooking.builder()
+                .id("22222222-2222-2222-2222-222222222222")
+                .lessonId(LESSON_ID)
+                .outletRoomId("room-1")
+                .build();
+        when(bookingRepository.save(any(LessonOutletRoomBooking.class))).thenReturn(savedBooking);
+
+        Lesson result = useCase.changeLessonOutletRoom(LESSON_ID, "room-1");
+
+        assertThat(result).isSameAs(lesson);
+        assertThat(result.getLessonOutletRoomBooking()).isSameAs(savedBooking);
     }
 
     private Lesson lesson() {

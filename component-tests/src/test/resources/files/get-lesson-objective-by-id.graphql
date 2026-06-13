@@ -1,0 +1,10 @@
+query GetLessonObjectiveById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getLessonObjectiveById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        lessonGroupPlanId
+        name
+        objective
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

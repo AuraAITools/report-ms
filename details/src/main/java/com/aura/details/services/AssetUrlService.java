@@ -3,6 +3,7 @@ package com.aura.details.services;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -21,7 +22,16 @@ public class AssetUrlService {
     private final S3Client s3Client;
     private final String bucketName;
 
-    public String presignGet(String objectKey, Duration ttl) {
+    /**
+     * Returns a presigned GET url for the given object key, or {@code null} when the key
+     * is {@code null} (e.g. an entity that has no profile image yet). Calling S3 with a
+     * null key would fail request marshalling, so the absence of a key short-circuits here.
+     */
+    public @Nullable String presignGet(@Nullable String objectKey, Duration ttl) {
+        if (objectKey == null) {
+            log.debug("Skipping presigned GET url generation — object key is null");
+            return null;
+        }
         GetObjectRequest getObject = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)

@@ -1,0 +1,14 @@
+mutation UpdateOutletRoom($input: UpdateOutletRoomInput!) {
+    updateOutletRoom(updateOutletRoomInput: $input) {
+        id
+        name
+        outletId
+        size
+        type
+        description
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

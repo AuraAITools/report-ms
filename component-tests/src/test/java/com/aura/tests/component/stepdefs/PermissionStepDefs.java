@@ -1,11 +1,13 @@
 package com.aura.tests.component.stepdefs;
 
 import com.aura.tests.component.contexts.TestContext;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,29 +36,30 @@ public class PermissionStepDefs {
         log.info("Lookup permissions response: {}", lastResponse);
     }
 
-    @SuppressWarnings("unchecked")
-    @Then("the response should contain permissions for resource type {string} with resource id {string}")
-    public void theResponseShouldContainPermissionsForResourceTypeWithId(String resourceType, String resourceId) {
-        List<Map<String, Object>> permissions = (List<Map<String, Object>>) lastResponse.get("permissions");
+    @Then("the response should contain permissions for resource type {string} with resource id {string} including:")
+    public void theResponseShouldContainPermissionsForResourceTypeWithIdIncluding(
+            String resourceType, String resourceId, DataTable expectedPermissions) {
+        assertThat(findPermissionsEntry(p -> resourceType.equals(p.get("resourceType"))
+                && resourceId.equals(p.get("resourceId")), resourceType + ":" + resourceId))
+                .containsAll(expectedPermissions.row(0));
+    }
 
-        boolean found = permissions.stream()
-                .anyMatch(p -> resourceType.equals(p.get("resourceType"))
-                        && resourceId.equals(p.get("resourceId")));
-        assertThat(found)
-                .as("Expected permissions for %s:%s but got: %s", resourceType, resourceId, permissions)
-                .isTrue();
+    @Then("the response should contain permissions for resource type {string} including:")
+    public void theResponseShouldContainPermissionsForResourceTypeIncluding(
+            String resourceType, DataTable expectedPermissions) {
+        assertThat(findPermissionsEntry(p -> resourceType.equals(p.get("resourceType")), resourceType))
+                .containsAll(expectedPermissions.row(0));
     }
 
     @SuppressWarnings("unchecked")
-    @Then("the response should contain permissions for resource type {string}")
-    public void theResponseShouldContainPermissionsForResourceType(String resourceType) {
+    private List<String> findPermissionsEntry(Predicate<Map<String, Object>> matcher, String description) {
         List<Map<String, Object>> permissions = (List<Map<String, Object>>) lastResponse.get("permissions");
-
-        boolean found = permissions.stream()
-                .anyMatch(p -> resourceType.equals(p.get("resourceType")));
-        assertThat(found)
-                .as("Expected permissions for resource type %s but got: %s", resourceType, permissions)
-                .isTrue();
+        return permissions.stream()
+                .filter(matcher)
+                .findFirst()
+                .map(p -> (List<String>) p.get("permissions"))
+                .orElseThrow(() -> new AssertionError(
+                        "Expected permissions entry for %s but got: %s".formatted(description, permissions)));
     }
 
     @SuppressWarnings("unchecked")

@@ -51,10 +51,12 @@ class PreAuthorizeConventionTest {
             "level", "subject", "topic", "account", "material", "system"
     );
 
+    // Must stay in sync with the permissions actually defined in src/main/resources/spicedb/*.zed —
+    // a scope listed here but absent from the schema fails at runtime with FAILED_PRECONDITION (500).
     private static final Set<String> VALID_SCOPES = Set.of(
-            "view", "create", "manage", "delegate", "update", "delete",
+            "view", "update", "delete",
             "create_institution", "create_outlet", "create_course",
-            "create_lesson", "create_account", "create_subject",
+            "create_lesson", "create_account", "create_subject", "create_topic",
             "create_lesson_plan", "create_outlet_room", "create_lesson_objective",
             "create_lesson_quiz",
             "create_material", "create_level", "create_school", "delete_school"

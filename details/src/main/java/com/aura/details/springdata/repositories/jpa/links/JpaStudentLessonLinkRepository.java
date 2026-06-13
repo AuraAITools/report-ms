@@ -39,7 +39,22 @@ public interface JpaStudentLessonLinkRepository extends JpaRepository<StudentLes
               AND l.lesson.state <> com.aura.details.springdata.models.lessons.LessonModel.LESSON_STATE.CANCELLED
               AND l.lesson.lessonStartTimestamptz < :end
               AND l.lesson.lessonEndTimestamptz > :start
-              AND (:excludeLessonId IS NULL OR l.lesson.id <> :excludeLessonId)
+            """)
+    List<LessonModel> findActiveOverlappingLessonsByStudent(
+            @Param("tenantId") String tenantId,
+            @Param("studentId") UUID studentId,
+            @Param("start") Instant start,
+            @Param("end") Instant end);
+
+    @Query("""
+            SELECT l.lesson FROM StudentLessonLinkModel l
+            WHERE l.tenantId = :tenantId
+              AND l.student.id = :studentId
+              AND l.state = com.aura.details.springdata.models.links.StudentLessonLinkModel.STATE.REGISTERED
+              AND l.lesson.state <> com.aura.details.springdata.models.lessons.LessonModel.LESSON_STATE.CANCELLED
+              AND l.lesson.lessonStartTimestamptz < :end
+              AND l.lesson.lessonEndTimestamptz > :start
+              AND l.lesson.id <> :excludeLessonId
             """)
     List<LessonModel> findActiveOverlappingLessonsByStudent(
             @Param("tenantId") String tenantId,

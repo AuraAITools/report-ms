@@ -1,0 +1,29 @@
+mutation CreateStudentLessonReport($input: CreateStudentLessonReportInput!) {
+    createStudentLessonReport(input: $input) {
+        id
+        studentLessonLinkId
+        lessonHomeworkCompletion {
+            id
+            studentLessonReportId
+            completion
+            createdBy { userId accountId name url }
+        }
+        lessonParticipationReview {
+            id
+            studentLessonReportId
+            participationType
+            createdBy { userId accountId name url }
+        }
+        lessonTopicProficiencies {
+            id
+            studentLessonReportId
+            topicId
+            rating
+            createdBy { userId accountId name url }
+        }
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

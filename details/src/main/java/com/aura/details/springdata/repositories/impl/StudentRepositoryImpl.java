@@ -5,6 +5,7 @@ import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.links.StudentCourseLink;
 import com.aura.core.entities.schools.School;
 import com.aura.core.entities.students.Student;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.exceptions.TechnicalException;
 import com.aura.core.repositories.StudentRepository;
 import com.aura.details.springdata.mappers.courses.CourseMapper;
@@ -59,7 +60,8 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public @Nullable Student findById(String id) {
-        StudentModel studentModel = jpaStudentRepository.findById(UUID.fromString(id)).orElseThrow(() -> new RuntimeException("not found"));
+        StudentModel studentModel = jpaStudentRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new ResourceNotFoundException("student", id));
         return StudentMapper.INSTANCE.toDomainEntity(studentModel);
     }
 

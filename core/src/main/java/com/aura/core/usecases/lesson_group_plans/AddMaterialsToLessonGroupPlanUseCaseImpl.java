@@ -3,6 +3,7 @@ package com.aura.core.usecases.lesson_group_plans;
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.links.LessonGroupPlanMaterialLink;
 import com.aura.core.entities.materials.Material;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.MaterialRepository;
@@ -24,10 +25,10 @@ public class AddMaterialsToLessonGroupPlanUseCaseImpl implements AddMaterialsToL
     public List<LessonGroupPlanMaterialLink> addMaterialsToLessonGroupPlan(String lessonGroupPlanId, List<String> materialIds, String tenantId) {
         if (materialIds.isEmpty()) return emptyList();
         LessonGroupPlan plan = ofNullable(lessonGroupPlanRepository.findById(UUID.fromString(lessonGroupPlanId)))
-                .orElseThrow(() -> new RuntimeException("no lesson group plan id found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group plan", lessonGroupPlanId));
         List<Material> materials = materialIds.stream()
                 .map(id -> ofNullable(materialRepository.findById(id))
-                        .orElseThrow(() -> new RuntimeException("material id not found: " + id)))
+                        .orElseThrow(() -> new ResourceNotFoundException("Material", id)))
                 .toList();
         List<LessonGroupPlanMaterialLink> links = materials.stream()
                 .map(material -> LessonGroupPlanMaterialLink.builder()

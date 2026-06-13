@@ -27,6 +27,7 @@ public class ChangeLessonOutletRoomUseCaseImpl implements ChangeLessonOutletRoom
 
         if (outletRoomId == null) {
             lessonOutletRoomBookingRepository.deleteByLessonId(lessonId);
+            lesson.setLessonOutletRoomBooking(null);
             return lesson;
         }
 
@@ -50,7 +51,8 @@ public class ChangeLessonOutletRoomUseCaseImpl implements ChangeLessonOutletRoom
                 .startTimestampz(lesson.getLessonStartTimestamptz())
                 .endTimestampz(lesson.getLessonEndTimestamptz())
                 .build();
-        lessonOutletRoomBookingRepository.save(newBooking);
+        LessonOutletRoomBooking savedBooking = lessonOutletRoomBookingRepository.save(newBooking);
+        lesson.setLessonOutletRoomBooking(savedBooking);
         return lesson;
     }
 }

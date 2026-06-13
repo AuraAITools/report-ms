@@ -8,6 +8,7 @@ import com.aura.core.entities.educators.Educator;
 import com.aura.core.events.EducatorAccountCreatedEvent;
 import com.aura.core.events.ParentAccountCreatedEvent;
 import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.ParentRepository;
 import com.aura.core.usecases.accounts.AccountQueryUseCase;
@@ -243,14 +244,14 @@ class AccountServiceTest {
                 .hasMessageContaining("parent already exists");
     }
 
-    @DisplayName("Should throw when the target account does not exist")
+    @DisplayName("Should throw ResourceNotFoundException when the target account does not exist")
     @Test
     void createParentInAccount_throwsWhenAccountMissing() {
         when(accountRepository.findById("missing")).thenReturn(null);
         Parent parent = Parent.builder().build();
 
         assertThatThrownBy(() -> accountService.createParentInAccount("missing", parent))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("account does not exist");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Account not found: missing");
     }
 }

@@ -1,0 +1,12 @@
+mutation UpdateLessonObjective($input: UpdateLessonObjectiveInput!) {
+    updateLessonObjective(input: $input) {
+        id
+        lessonGroupPlanId
+        name
+        objective
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

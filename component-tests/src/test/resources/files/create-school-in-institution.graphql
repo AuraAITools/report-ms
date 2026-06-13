@@ -1,0 +1,9 @@
+mutation CreateSchoolInInstitution($input: CreateSchoolInput!) {
+    createSchoolInInstitution(createSchoolInput: $input) {
+        id
+        name
+        schoolCategory
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

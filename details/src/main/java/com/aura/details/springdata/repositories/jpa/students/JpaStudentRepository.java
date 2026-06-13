@@ -25,7 +25,7 @@ public interface JpaStudentRepository extends JpaRepository<StudentModel, UUID>,
     @Query("SELECT s.id, s.school FROM StudentModel s WHERE s.id IN :studentIds AND s.school IS NOT NULL")
     List<Object[]> findSchoolsByStudentIds(@Param("studentIds") List<UUID> studentIds);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update StudentModel s set s.profileImageKey = :key where s.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 

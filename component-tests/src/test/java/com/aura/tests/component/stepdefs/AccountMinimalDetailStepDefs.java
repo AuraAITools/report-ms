@@ -82,4 +82,11 @@ public class AccountMinimalDetailStepDefs {
                 .as("createdBy.url should be null when the creating account has no profile image")
                 .isNull();
     }
+
+    @Then("the response createdBy.url should be empty")
+    public void responseCreatedByUrlShouldBeEmpty() {
+        Assertions.assertThat(lastCreatedBy.get("url"))
+                .as("createdBy.url is an empty string for the system placeholder")
+                .isEqualTo("");
+    }
 }

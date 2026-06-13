@@ -1,0 +1,9 @@
+query GetLessonHomeworkCompletionById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getLessonHomeworkCompletionById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        studentLessonReportId
+        completion
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

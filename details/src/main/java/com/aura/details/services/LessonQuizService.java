@@ -24,7 +24,7 @@ public class LessonQuizService {
     }
 
     @Transactional
-    public @Nullable LessonQuiz updateLessonQuiz(LessonQuiz lessonQuiz) {
+    public LessonQuiz updateLessonQuiz(LessonQuiz lessonQuiz) {
         return updateLessonQuizUseCase.updateLessonQuiz(lessonQuiz);
     }
 

@@ -18,7 +18,7 @@ public interface JpaParentRepository extends JpaRepository<ParentModel, UUID> {
 
     List<ParentModel> findByTenantId(String tenantId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update ParentModel p set p.profileImageKey = :key where p.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 }

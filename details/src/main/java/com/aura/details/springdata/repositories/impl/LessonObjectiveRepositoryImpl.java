@@ -89,5 +89,8 @@ public class LessonObjectiveRepositoryImpl implements LessonObjectiveRepository 
     @Override
     public void deleteAllLessonObjectiveTopicLinksByLessonObjectiveId(String lessonObjectiveId) {
         jpaLessonObjectiveTopicLinkRepository.deleteAllByLessonObjectiveId(UUID.fromString(lessonObjectiveId));
+        // Force flush so a same-transaction re-insert of any (lesson_objective_id, topic_id)
+        // pair doesn't collide with the queued delete against uk_lesson_objective_topic.
+        jpaLessonObjectiveTopicLinkRepository.flush();
     }
 }

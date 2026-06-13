@@ -113,6 +113,11 @@ class AddTopicsToLessonGroupPlanUseCaseImplTest {
         }
 
         @Override
+        public boolean existsByLessonGroupId(String lessonGroupId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<LessonGroupPlan> findAllByIds(List<UUID> ids) {
             throw new UnsupportedOperationException();
         }

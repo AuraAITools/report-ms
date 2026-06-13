@@ -6,6 +6,7 @@ import com.aura.core.exceptions.DuplicateResourceException;
 import com.aura.core.exceptions.InvalidInstitutionCreationRequestStateException;
 import com.aura.core.exceptions.LessonConflictException;
 import com.aura.core.exceptions.ResourceNotFoundException;
+import com.aura.details.services.ProfileImageValidator;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
@@ -51,6 +52,15 @@ public class GraphQlExceptionResolver extends DataFetcherExceptionResolverAdapte
                     ErrorType.BAD_REQUEST,
                     409,
                     "INVALID_REQUEST_STATE",
+                    correlationId,
+                    env);
+        }
+
+        if (ex instanceof ProfileImageValidator.ProfileImageRejectedException) {
+            return buildError(ex.getMessage(),
+                    ErrorType.BAD_REQUEST,
+                    400,
+                    "PROFILE_IMAGE_REJECTED",
                     correlationId,
                     env);
         }

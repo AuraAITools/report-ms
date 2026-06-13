@@ -132,8 +132,23 @@ public class CourseStepDefs {
                     .toEntity(CourseResponse.class);
             testContext.setRequestFailed(false);
         } catch (FieldAccessException e) {
+            handleErr(e);
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
             testContext.setRequestFailed(true);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
             testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
+
+    private void handleErr(FieldAccessException e) {
+        testContext.setRequestFailed(true);
+        testContext.setLastErrorMessage(e.getMessage());
+        var errors = e.getResponse().getErrors();
+        if (!errors.isEmpty()) {
+            var ext = errors.getFirst().getExtensions();
+            if (ext != null && ext.containsKey("error_code")) {
+                testContext.setLastErrorMessage(ext.get("error_code").toString());
+            }
         }
     }
 

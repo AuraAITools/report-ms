@@ -1,0 +1,3 @@
+mutation DeleteLessonObjectiveById($input: DeleteLessonObjectiveByIdInput!) {
+    deleteLessonObjectiveById(input: $input)
+}

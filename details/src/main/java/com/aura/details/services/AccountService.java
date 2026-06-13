@@ -16,6 +16,7 @@ import com.aura.core.entities.subjects.Subject;
 import com.aura.core.events.EducatorAccountCreatedEvent;
 import com.aura.core.events.ParentAccountCreatedEvent;
 import com.aura.core.exceptions.DuplicateResourceException;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.ParentRepository;
 import com.aura.core.usecases.accounts.AccountQueryUseCase;
@@ -180,7 +181,8 @@ public class AccountService {
     @Transactional
     public CreatedEducatorResult createEducatorInAccount(CreateEducatorAccountParams params) {
         Educator createdEducator = createEducatorInAccountUseCase.createEducator(params.accountId(), params.educator());
-        Account account = ofNullable(accountRepository.findById(params.accountId())).orElseThrow(() -> new RuntimeException("account not found"));
+        Account account = ofNullable(accountRepository.findById(params.accountId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Account", params.accountId()));
         List<Level> taggedLevels = params.levelIds().stream().map(levelId -> tagEducatorToLevelUseCase.tag(createdEducator.getId(), levelId)).toList();
         List<Course> taggedCourses = params.courseIds().stream().map(courseId -> tagEducatorToCourseUseCase.tag(createdEducator.getId(), courseId)).toList();
         List<Subject> taggedSubjects = params.subjectIds().stream().map(sid -> tagEducatorToSubjectUseCase.tag(createdEducator.getId(), sid)).toList();
@@ -206,7 +208,7 @@ public class AccountService {
     public Account updateAccountFeatureState(String accountId, AccountFeature feature, AccountFeatureState state) {
         accountRepository.updateFeatureState(accountId, feature, state);
         return ofNullable(accountRepository.findById(accountId))
-                .orElseThrow(() -> new RuntimeException("account does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
     }
 
     @Transactional
@@ -228,7 +230,7 @@ public class AccountService {
                     applicationEventPublisher.publishEvent(new ParentAccountCreatedEvent(acc));
                     return createdParent;
                 })
-                .orElseThrow(() -> new RuntimeException("account does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
     }
 
     @Builder
@@ -300,7 +302,11 @@ public class AccountService {
             assetUrlService.deleteObject(previousKey);
         }
         accountRepository.updateProfileImageKeyById(accountId, fileKey);
-        return accountQueryUseCase.findById(accountId);
+        // The bulk update bypasses the persistence context, so a re-fetch inside this transaction
+        // would return the stale first-level-cached model with the old key. Carry the new key on
+        // the already-loaded domain entity instead.
+        account.setProfileImageKey(fileKey);
+        return account;
     }
 
     public record PresignedProfileImageUpload(String uploadUrl, String fileKey) {

@@ -8,7 +8,7 @@ mutation CreateLessonGroupInLesson($input: CreateLessonGroupInLessonInput!) {
             plan
             state
         }
-        students { id }
+        lessonStudents { student { id } }
         createdAt
         createdBy { userId accountId name url }
     }

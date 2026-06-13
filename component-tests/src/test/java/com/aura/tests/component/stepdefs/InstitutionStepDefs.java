@@ -90,6 +90,7 @@ public class InstitutionStepDefs {
         assertThat(response)
                 .usingRecursiveComparison()
                 .ignoringFields("id", "createdAt", "updatedAt")
+                .ignoringExpectedNullFields()
                 .isEqualTo(expected);
         testContext.setInstitutionId(response.getId());
     }

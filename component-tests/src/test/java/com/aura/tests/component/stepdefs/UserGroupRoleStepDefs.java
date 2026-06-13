@@ -35,13 +35,16 @@ public class UserGroupRoleStepDefs {
 
     @Given("the aura admin has no group_admin role anywhere")
     public void auraAdminHasNoGroupAdminRole() {
-        // No-op: DatabaseCleanupHooks seeds only system_user_group:aura#admin@user:<service-account>,
-        // not group_admin. The aura-admin user (AURA_ADMIN_USER_ID) has no group_admin anywhere.
-        log.info("Aura admin has no group_admin role — relying on cleanup hook baseline");
+        // DatabaseCleanupHooks seeds the root operator as group_admin on system_user_group:aura;
+        // remove it so this scenario's actor genuinely holds no group-management rights.
+        relationshipService.deleteRelationship(
+                "system_user_group", "aura", "group_admin", "user", AURA_ADMIN_USER_ID);
+        log.info("Removed seeded system_user_group:aura#group_admin@user:{}", AURA_ADMIN_USER_ID);
     }
 
     @Given("the institution with id {string} exists in SpiceDB")
     public void institutionExistsInSpiceDb(String institutionId) {
+        testContext.setInstitutionId(institutionId);
         relationshipService.writeRelationship(
                 "institution", institutionId, "user_group", "institution_user_group", institutionId);
         relationshipService.writeRelationship(
@@ -57,7 +60,7 @@ public class UserGroupRoleStepDefs {
         relationshipService.writeRelationship(
                 "outlet", outletId, "user_group", "outlet_user_group", outletId);
         relationshipService.writeRelationship(
-                "outlet_user_group", outletId, "parent", "system_user_group", "aura");
+                "outlet_user_group", outletId, "parent", "institution_user_group", institutionId);
         relationshipService.writeRelationship(
                 "outlet", outletId, "parent", "institution", institutionId);
         log.info("Set up outlet:{} in SpiceDB under institution:{}", outletId, institutionId);
@@ -163,6 +166,11 @@ public class UserGroupRoleStepDefs {
 
     @Given("user {string} has role {string} on {string} {string}")
     public void userHasRoleOnUserGroup(String userId, String role, String resourceType, String resourceId) {
+        if (!resourceType.endsWith("_user_group")) {
+            throw new IllegalArgumentException(
+                    "Roles live on '<resource>_user_group' definitions in the current SpiceDB schema. "
+                            + "Use e.g. \"institution_user_group\" instead of \"" + resourceType + "\"");
+        }
         relationshipService.writeRelationship(resourceType, resourceId, role, "user", userId);
         log.info("Seeded {}:{}#{}@user:{}", resourceType, resourceId, role, userId);
     }

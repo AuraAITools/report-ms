@@ -18,6 +18,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -45,8 +46,11 @@ public class EmailConfig {
     }
 
     @Bean
-    TemplateEngine emailTemplateEngine() {
+    TemplateEngine emailTemplateEngine(ApplicationContext applicationContext) {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        // The resolver is created manually (not as a bean), so ApplicationContextAware
+        // injection never runs — set the context explicitly or template resolution fails.
+        resolver.setApplicationContext(applicationContext);
         resolver.setPrefix("classpath:templates/email/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode(TemplateMode.HTML);
@@ -58,8 +62,8 @@ public class EmailConfig {
     }
 
     @Bean
-    TemplateRenderer templateRenderer(TemplateEngine emailTemplateEngine) {
-        return new ThymeleafTemplateRenderer(emailTemplateEngine);
+    TemplateRenderer templateRenderer(TemplateEngine emailTemplateEngine, ApplicationContext applicationContext) {
+        return new ThymeleafTemplateRenderer(emailTemplateEngine, applicationContext);
     }
 
     @Bean(name = "emailExecutor")

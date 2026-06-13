@@ -137,6 +137,11 @@ public class LessonConflictStepDefs {
                 .isFalse();
     }
 
+    // Names like "Mr. Smith" must not produce invalid emails ("mr..smith@...") — Keycloak rejects them
+    private static String emailLocalPart(String name) {
+        return name.toLowerCase().replaceAll("[^a-z0-9]+", ".").replaceAll("^\\.|\\.$", "");
+    }
+
     // ── educator existence step ───────────────────────────────────────────────
 
     @Given("the educator {string} exists")
@@ -145,7 +150,7 @@ public class LessonConflictStepDefs {
         String institutionId = testContext.getInstitutionId();
 
         // 1. Create an account for the educator
-        String accountEmail = educatorName.toLowerCase().replace(" ", ".") + ".account@conflict-test.com";
+        String accountEmail = emailLocalPart(educatorName) + ".account@conflict-test.com";
         String createAccountQuery = findGraphqlQueryFromFiles("create-account.graphql");
         Map<String, Object> accountInput = Map.of(
                 "institutionId", institutionId,
@@ -167,7 +172,7 @@ public class LessonConflictStepDefs {
         String levelId = ensureLevelExists();
 
         // 3. Create the educator
-        String educatorEmail = educatorName.toLowerCase().replace(" ", ".") + "@conflict-test.com";
+        String educatorEmail = emailLocalPart(educatorName) + "@conflict-test.com";
         Map<String, Object> educatorDetails = new HashMap<>();
         educatorDetails.put("name", educatorName);
         educatorDetails.put("email", educatorEmail);
@@ -292,7 +297,7 @@ public class LessonConflictStepDefs {
         String institutionId = testContext.getInstitutionId();
 
         // 1. Create a parent account
-        String parentEmail = studentName.toLowerCase().replace(" ", ".") + ".parent@conflict-test.com";
+        String parentEmail = emailLocalPart(studentName) + ".parent@conflict-test.com";
         String createAccountQuery = findGraphqlQueryFromFiles("create-account.graphql");
         Map<String, Object> accountInput = Map.of(
                 "institutionId", institutionId,
@@ -315,7 +320,7 @@ public class LessonConflictStepDefs {
         String schoolId = ensureSchoolExists();
 
         // 3. Create parent + student
-        String studentEmail = studentName.toLowerCase().replace(" ", ".") + "@conflict-test.com";
+        String studentEmail = emailLocalPart(studentName) + "@conflict-test.com";
         Map<String, Object> studentDetails = new HashMap<>();
         studentDetails.put("name", studentName);
         studentDetails.put("email", studentEmail);

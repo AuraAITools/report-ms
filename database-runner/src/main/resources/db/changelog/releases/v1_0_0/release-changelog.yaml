@@ -101,3 +101,6 @@ databaseChangeLog:
   - include:
       file: public/changelog-2026-06-08-lesson-quiz-name.sql
       relativeToChangeLogFile: true
+  - include:
+      file: audit/changelog-2026-06-11-email-log-audit.sql
+      relativeToChangeLogFile: true

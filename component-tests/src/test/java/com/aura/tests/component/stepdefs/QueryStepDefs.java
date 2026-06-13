@@ -43,6 +43,10 @@ public class QueryStepDefs {
                     testContext.setLastErrorMessage(extensions.get("error_code").toString());
                 }
             }
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
+            testContext.setLastErrorMessage(e.getMessage());
         }
     }
 

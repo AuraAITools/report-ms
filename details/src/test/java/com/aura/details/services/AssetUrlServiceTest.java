@@ -28,6 +28,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Asset URL service")
@@ -65,6 +66,15 @@ class AssetUrlServiceTest {
         GetObjectRequest getRequest = captured.getObjectRequest();
         assertThat(getRequest.bucket()).isEqualTo(BUCKET);
         assertThat(getRequest.key()).isEqualTo(key);
+    }
+
+    @DisplayName("Should return null without calling S3 when the GET object key is null")
+    @Test
+    void presignGet_returnsNullWhenKeyIsNull() {
+        String url = assetUrlService.presignGet(null, Duration.ofMinutes(15));
+
+        assertThat(url).isNull();
+        verifyNoInteractions(s3Presigner);
     }
 
     @DisplayName("Should sign PUT URLs with the configured bucket, key, content-type, and TTL")

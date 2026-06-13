@@ -103,11 +103,13 @@ public class DatabaseCleanupHooks {
             relationshipService.deleteAllRelationships(resourceType);
         }
 
-        // Re-create the system bootstrap binding plus admin role for the service account.
-        // Mirrors SystemRootRelationshipBootstrap + the new system_user_group role layout.
+        // Re-create the system bootstrap binding plus the root operator's roles. `admin` grants
+        // resource permissions everywhere via parent inheritance; `group_admin` grants user-group
+        // management (the two role sets are deliberately decoupled in the schema).
         String serviceAccountUserId = getServiceAccountUserId();
         relationshipService.writeRelationship("system", "aura", "user_group", "system_user_group", "aura");
         relationshipService.writeRelationship("system_user_group", "aura", "admin", "user", serviceAccountUserId);
+        relationshipService.writeRelationship("system_user_group", "aura", "group_admin", "user", serviceAccountUserId);
 
         log.info("SpiceDB cleanup complete in {}ms", System.currentTimeMillis() - start);
     }

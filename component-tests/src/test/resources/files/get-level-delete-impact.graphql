@@ -1,0 +1,13 @@
+query GetAllAffectedResourcesIfLevelDeleted($institutionId: ID!, $id: ID!) {
+    getAllAffectedResourcesIfLevelDeleted(institutionId: $institutionId, id: $id) {
+        resourceType
+        resourceId
+        totalAffectedCount
+        affectedGroups {
+            resourceType
+            cleanupAction
+            count
+            affectedIds
+        }
+    }
+}

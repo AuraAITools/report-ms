@@ -19,7 +19,7 @@ public interface JpaEducatorRepository extends JpaRepository<EducatorModel, UUID
 
     List<EducatorModel> findByTenantId(String tenantId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update EducatorModel e set e.profileImageKey = :key where e.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 }

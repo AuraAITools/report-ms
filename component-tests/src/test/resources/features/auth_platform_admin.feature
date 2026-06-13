@@ -23,13 +23,13 @@ Feature: Platform admin authorization
     Then the course should be created successfully
 
   @ComponentTest @AuthPlatformAdmin
-  @PreExistingFailure
-  Scenario: Platform admin can create standalone lesson
+  Scenario: Platform admin can create lesson under a course
     Given user has "aura-admin" role
     And an institution is onboarded
     And the user switches to the institution tenant
     And an outlet exists with name "Test Outlet"
-    When user creates a standalone lesson with details:
+    And a course exists with name "Test Course"
+    When user creates a lesson with details:
       | name        | description   | startDate            | endDate              |
       | Test Lesson | A test lesson | 2026-03-01T09:00:00Z | 2026-03-01T11:00:00Z |
     Then the lesson should be created successfully

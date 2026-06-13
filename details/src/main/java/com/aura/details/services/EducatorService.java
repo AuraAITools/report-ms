@@ -100,7 +100,11 @@ public class EducatorService {
             assetUrlService.deleteObject(previousKey);
         }
         educatorRepository.updateProfileImageKeyById(educatorId, fileKey);
-        return educatorQueryUseCase.findById(educatorId);
+        // The bulk update bypasses the persistence context, so a re-fetch inside this transaction
+        // would return the stale first-level-cached model with the old key. Carry the new key on
+        // the already-loaded domain entity instead.
+        educator.setProfileImageKey(fileKey);
+        return educator;
     }
 
     public record PresignedProfileImageUpload(String uploadUrl, String fileKey) {

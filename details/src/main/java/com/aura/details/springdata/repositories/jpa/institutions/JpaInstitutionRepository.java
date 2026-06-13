@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JpaInstitutionRepository extends JpaRepository<InstitutionModel, UUID>, JpaSpecificationExecutor<InstitutionModel> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update InstitutionModel i set i.profileImageKey = :key where i.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 

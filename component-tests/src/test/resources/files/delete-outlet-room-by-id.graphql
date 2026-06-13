@@ -1,0 +1,3 @@
+mutation DeleteOutletRoomById($input: DeleteOutletRoomByIdInput!) {
+    deleteOutletRoomById(deleteOutletRoomByIdInput: $input)
+}

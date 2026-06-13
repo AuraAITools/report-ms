@@ -1,0 +1,8 @@
+query GetAllParentsInInstitution($institutionId: ID!) {
+    getAllParentsInInstitution(institutionId: $institutionId) {
+        id
+        relationship
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

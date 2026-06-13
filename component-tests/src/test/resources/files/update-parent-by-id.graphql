@@ -1,0 +1,8 @@
+mutation UpdateParentById($input: UpdateParentByIdInput!) {
+    updateParentById(input: $input) {
+        id
+        relationship
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

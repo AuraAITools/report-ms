@@ -24,138 +24,46 @@ public class LessonGroupPlanStepDefs {
     private final TestContext testContext;
     private final JdbcTemplate jdbcTemplate;
 
-    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics")
-    @SuppressWarnings("unchecked")
-    public void userCreatesLessonGroupPlanInLessonGroupWithPlanAndTopics(String plan, int topicCount) {
-        List<String> topicIds = testContext.getTopicIds();
-        assertThat(topicIds)
-                .as("Expected at least %d topic(s) in TestContext.topicIds; create them via 'a topic exists with name' steps first",
-                        topicCount)
-                .hasSizeGreaterThanOrEqualTo(topicCount);
-        List<String> selectedTopicIds = topicIds.subList(0, topicCount);
+    @Then("the lesson group plan should exist in the database with plan {string}")
+    public void theLessonGroupPlanShouldExistInTheDatabaseWithPlan(String expectedPlan) {
+        List<String> plans = jdbcTemplate.queryForList(
+                "SELECT plan FROM public.lesson_group_plans WHERE lesson_group_id = ?::uuid",
+                String.class, testContext.getLessonGroupId());
+        assertThat(plans).containsExactly(expectedPlan);
+    }
 
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
-
+    @When("the user tries to create a second lesson group plan in the lesson group with plan {string}")
+    public void userTriesToCreateASecondLessonGroupPlan(String plan) {
         Map<String, Object> input = new HashMap<>();
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
-        input.put("topicIds", selectedTopicIds);
-        input.put("studentIds", List.of());
+        input.put("topicIds", List.of());
         input.put("materialIds", List.of());
         input.put("lessonObjectives", List.of());
 
-        Map<String, Object> response = testContext.getGraphQLClient()
-                .mutate().build()
-                .document(graphqlQuery)
-                .variables(Map.of("input", input))
-                .retrieveSync("createLessonGroupPlanInLessonGroup")
-                .toEntity(Map.class);
-
-        assertThat(response).isNotNull();
-        assertThat(response.get("id")).isNotNull();
-
-        testContext.setLessonGroupPlanId((String) response.get("id"));
-        testContext.setLastLessonGroupPlanResponseMap(response);
-    }
-
-    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics and {int} lesson objectives")
-    @SuppressWarnings("unchecked")
-    public void userCreatesLessonGroupPlanInLessonGroupWithPlanTopicsAndObjectives(
-            String plan, int topicCount, int objectiveCount) {
-        List<String> topicIds = testContext.getTopicIds();
-        assertThat(topicIds)
-                .as("Expected at least %d topic(s) in TestContext.topicIds; create them via 'a topic exists with name' steps first",
-                        topicCount)
-                .hasSizeGreaterThanOrEqualTo(topicCount);
-        List<String> selectedTopicIds = topicIds.subList(0, topicCount);
-
-        List<Map<String, Object>> lessonObjectives = new ArrayList<>();
-        for (int i = 1; i <= objectiveCount; i++) {
-            Map<String, Object> objective = new HashMap<>();
-            objective.put("name", "Objective " + i);
-            objective.put("objective", "Goal " + i);
-            objective.put("topicIds", selectedTopicIds);
-            lessonObjectives.add(objective);
+        try {
+            testContext.getGraphQLClient()
+                    .mutate().build()
+                    .document(findGraphqlQueryFromFiles("create-lesson-group-plan.graphql"))
+                    .variables(Map.of("input", input))
+                    .retrieveSync("createLessonGroupPlanInLessonGroup")
+                    .toEntity(Map.class);
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var extensions = errors.getFirst().getExtensions();
+                if (extensions != null && extensions.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(extensions.get("error_code").toString());
+                }
+            }
+        } catch (HttpServerErrorException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
         }
-
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
-
-        Map<String, Object> input = new HashMap<>();
-        input.put("institutionId", testContext.getInstitutionId());
-        input.put("lessonId", testContext.getLessonId());
-        input.put("lessonGroupId", testContext.getLessonGroupId());
-        input.put("plan", plan);
-        input.put("topicIds", selectedTopicIds);
-        input.put("studentIds", List.of());
-        input.put("materialIds", List.of());
-        input.put("lessonObjectives", lessonObjectives);
-
-        Map<String, Object> response = testContext.getGraphQLClient()
-                .mutate().build()
-                .document(graphqlQuery)
-                .variables(Map.of("input", input))
-                .retrieveSync("createLessonGroupPlanInLessonGroup")
-                .toEntity(Map.class);
-
-        assertThat(response).isNotNull();
-        assertThat(response.get("id")).isNotNull();
-
-        testContext.setLessonGroupPlanId((String) response.get("id"));
-        testContext.setLastLessonGroupPlanResponseMap(response);
-    }
-
-    @When("the user creates a lesson group plan in the lesson group with plan {string} and {int} topics and {int} students and {int} materials")
-    @SuppressWarnings("unchecked")
-    public void userCreatesLessonGroupPlanInLessonGroupWithPlanTopicsStudentsMaterials(
-            String plan, int topicCount, int studentCount, int materialCount) {
-        List<String> topicIds = testContext.getTopicIds();
-        if (topicCount > 0) {
-            assertThat(topicIds).hasSizeGreaterThanOrEqualTo(topicCount);
-        }
-        List<String> selectedTopicIds = topicIds == null
-                ? List.of()
-                : topicIds.subList(0, Math.min(topicCount, topicIds.size()));
-
-        List<String> selectedStudentIds = new ArrayList<>();
-        if (studentCount > 0) {
-            String studentId = testContext.getStudentId();
-            assertThat(studentId).as("a student must exist before this step").isNotNull();
-            for (int i = 0; i < studentCount; i++) selectedStudentIds.add(studentId);
-        }
-
-        List<String> selectedMaterialIds = new ArrayList<>();
-        if (materialCount > 0) {
-            String materialId = testContext.getMaterialId();
-            assertThat(materialId).as("a material must exist before this step").isNotNull();
-            for (int i = 0; i < materialCount; i++) selectedMaterialIds.add(materialId);
-        }
-
-        String graphqlQuery = findGraphqlQueryFromFiles("create-lesson-group-plan.graphql");
-
-        Map<String, Object> input = new HashMap<>();
-        input.put("institutionId", testContext.getInstitutionId());
-        input.put("lessonId", testContext.getLessonId());
-        input.put("lessonGroupId", testContext.getLessonGroupId());
-        input.put("plan", plan);
-        input.put("topicIds", selectedTopicIds);
-        input.put("studentIds", selectedStudentIds);
-        input.put("materialIds", selectedMaterialIds);
-        input.put("lessonObjectives", List.of());
-
-        Map<String, Object> response = testContext.getGraphQLClient()
-                .mutate().build()
-                .document(graphqlQuery)
-                .variables(Map.of("input", input))
-                .retrieveSync("createLessonGroupPlanInLessonGroup")
-                .toEntity(Map.class);
-
-        assertThat(response).isNotNull();
-        assertThat(response.get("id")).isNotNull();
-
-        testContext.setLessonGroupPlanId((String) response.get("id"));
-        testContext.setLastLessonGroupPlanResponseMap(response);
     }
 
     @Then("the lesson group plan should have {int} linked materials in the database")
@@ -211,7 +119,6 @@ public class LessonGroupPlanStepDefs {
         input.put("lessonGroupId", testContext.getLessonGroupId());
         input.put("plan", plan);
         input.put("topicIds", selectedTopicIds);
-        input.put("studentIds", List.of());
         input.put("materialIds", List.of());
         input.put("lessonObjectives", List.of());
 

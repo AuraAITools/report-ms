@@ -30,16 +30,53 @@ public class LessonStepDefs {
         Map<String, String> data = dataTable.asMaps().get(0);
         LessonResponse response = executeCreateLesson(
                 data.get("name"), data.get("description"),
-                data.get("startDate"), data.get("endDate"));
+                data.get("startDate"), data.get("endDate"), List.of());
         assertThat(response.getCreatedBy()).isNotNull();
         testContext.setLastLessonResponse(response);
         testContext.setLessonId(response.getId());
     }
 
+    @When("user tries to create a lesson with details:")
+    public void userTriesToCreateALesson(io.cucumber.datatable.DataTable dataTable) {
+        Map<String, String> data = dataTable.asMaps().get(0);
+        try {
+            executeCreateLesson(
+                    data.get("name"), data.get("description"),
+                    data.get("startDate"), data.get("endDate"), List.of());
+            testContext.setRequestFailed(false);
+        } catch (FieldAccessException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastErrorMessage(e.getMessage());
+            var errors = e.getResponse().getErrors();
+            if (!errors.isEmpty()) {
+                var ext = errors.getFirst().getExtensions();
+                if (ext != null && ext.containsKey("error_code")) {
+                    testContext.setLastErrorMessage(ext.get("error_code").toString());
+                }
+            }
+        } catch (org.springframework.web.client.HttpServerErrorException e) {
+            testContext.setRequestFailed(true);
+            testContext.setLastHttpStatus(e.getStatusCode().value());
+            testContext.setLastErrorMessage(e.getMessage());
+        }
+    }
+
     @And("a lesson exists with name {string}")
     public void aLessonExistsWithName(String name) {
         LessonResponse response = executeCreateLesson(name, "A test lesson",
-                "2026-03-01T09:00:00Z", "2026-03-01T11:00:00Z");
+                "2026-03-01T09:00:00Z", "2026-03-01T11:00:00Z", List.of());
+        testContext.setLastLessonResponse(response);
+        testContext.setLessonId(response.getId());
+    }
+
+    @And("a lesson exists with name {string} linked to the existing topics")
+    public void aLessonExistsWithNameLinkedToTopics(String name) {
+        List<String> topicIds = testContext.getTopicIds();
+        assertThat(topicIds)
+                .as("Create topics via 'a topic exists with name' steps before this step")
+                .isNotEmpty();
+        LessonResponse response = executeCreateLesson(name, "A test lesson",
+                "2026-03-01T09:00:00Z", "2026-03-01T11:00:00Z", topicIds);
         testContext.setLastLessonResponse(response);
         testContext.setLessonId(response.getId());
     }
@@ -197,7 +234,7 @@ public class LessonStepDefs {
     }
 
     private LessonResponse executeCreateLesson(String name, String description,
-                                               String startDate, String endDate) {
+                                               String startDate, String endDate, List<String> topicIds) {
         String query = findGraphqlQueryFromFiles("create-lesson.graphql");
 
         Map<String, Object> input = new HashMap<>();
@@ -211,7 +248,7 @@ public class LessonStepDefs {
         input.put("studentIds", List.of());
         input.put("levelIds", List.of("00000000-0000-0000-0000-000000000001"));
         input.put("subjectIds", List.of("00000000-0000-0000-0000-000000000001"));
-        input.put("topicIds", List.of());
+        input.put("topicIds", topicIds);
         Map<String, Object> defaultGroupPlan = new HashMap<>();
         defaultGroupPlan.put("plan", name + " plan");
         defaultGroupPlan.put("topicIds", List.of());
@@ -233,7 +270,13 @@ public class LessonStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getName()).isEqualTo(name);
         if (response.getLessonGroups() != null && !response.getLessonGroups().isEmpty()) {
-            testContext.setLessonGroupId(response.getLessonGroups().getFirst().getId());
+            var firstGroup = response.getLessonGroups().getFirst();
+            testContext.setLessonGroupId(firstGroup.getId());
+            // Lesson groups are always born with their plan (1:1) — capture it so
+            // plan-lifecycle steps operate on the auto-created plan
+            if (firstGroup.getLessonGroupPlan() != null) {
+                testContext.setLessonGroupPlanId(firstGroup.getLessonGroupPlan().getId());
+            }
         }
         return response;
     }

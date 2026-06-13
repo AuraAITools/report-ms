@@ -1,0 +1,14 @@
+query GetEducatorById($input: GetEducatorByIdInput!) {
+    getEducatorById(input: $input) {
+        id
+        name
+        email
+        startDate
+        dateOfBirth
+        employmentType
+        createdAt
+        updatedAt
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

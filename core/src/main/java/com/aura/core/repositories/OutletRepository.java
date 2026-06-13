@@ -15,6 +15,8 @@ public interface OutletRepository {
 
     Outlet save(Outlet outlet);
 
+    boolean existsByNameAndTenantId(String name, String tenantId);
+
     List<Outlet> findAllByIds(List<String> ids);
 
     List<Outlet> findAllByTenantId(String tenantId);

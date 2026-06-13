@@ -50,7 +50,9 @@ public interface JpaAccountRepository extends JpaRepository<AccountModel, UUID>,
     @Query("update AccountModel a set a.staffFeatureState = :state where a.id = :id")
     int updateStaffFeatureStateById(@Param("id") UUID id, @Param("state") AccountFeatureState state);
 
-    @Modifying
+    // clearAutomatically: open-in-view shares one persistence context across the whole
+    // GraphQL request, so without it field resolvers re-reading the entity get the stale key
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update AccountModel a set a.profileImageKey = :key where a.id = :id")
     int updateProfileImageKeyById(@Param("id") UUID id, @Param("key") @Nullable String key);
 }

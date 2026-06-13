@@ -44,6 +44,11 @@ public class LessonGroupPlanRepositoryImpl implements LessonGroupPlanRepository 
     }
 
     @Override
+    public boolean existsByLessonGroupId(String lessonGroupId) {
+        return jpaLessonGroupPlanRepository.existsByLessonGroupId(UUID.fromString(lessonGroupId));
+    }
+
+    @Override
     public List<LessonGroupPlan> findAllByIds(List<UUID> ids) {
         return jpaLessonGroupPlanRepository.findAllById(ids).stream()
                 .map(LessonGroupPlanMapper.INSTANCE::toDomainEntity)

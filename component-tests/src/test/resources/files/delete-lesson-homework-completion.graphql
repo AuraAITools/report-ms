@@ -1,0 +1,3 @@
+mutation DeleteLessonHomeworkCompletion($input: DeleteLessonHomeworkCompletionInput!) {
+    deleteLessonHomeworkCompletion(input: $input)
+}

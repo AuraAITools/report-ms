@@ -1,6 +1,7 @@
 package com.aura.core.usecases.lesson_quizzes;
 
 import com.aura.core.entities.lessons.LessonQuiz;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonQuizRepository;
 import java.util.List;
 import java.util.Map;
@@ -8,19 +9,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("UpdateLessonQuizUseCaseImpl")
 class UpdateLessonQuizUseCaseImplTest {
 
-    @DisplayName("Should return null when lesson quiz does not exist")
+    @DisplayName("Should throw ResourceNotFoundException when lesson quiz does not exist")
     @Test
-    void returnsNullWhenNotFound() {
+    void throwsWhenNotFound() {
         StubRepo repo = new StubRepo(null, null);
         var useCase = new UpdateLessonQuizUseCaseImpl(repo);
 
         LessonQuiz input = LessonQuiz.builder().id("quiz-1").score(70).maxScore(100).build();
-        assertNull(useCase.updateLessonQuiz(input));
+        assertThrows(ResourceNotFoundException.class, () -> useCase.updateLessonQuiz(input));
     }
 
     @DisplayName("Should overwrite score and maxScore on the existing quiz and save it")

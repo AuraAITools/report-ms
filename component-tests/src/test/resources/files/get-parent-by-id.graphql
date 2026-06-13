@@ -1,0 +1,10 @@
+query GetParentById($input: GetParentByIdInput!) {
+    getParentById(input: $input) {
+        id
+        relationship
+        createdAt
+        updatedAt
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

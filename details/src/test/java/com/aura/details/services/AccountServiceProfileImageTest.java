@@ -217,6 +217,27 @@ class AccountServiceProfileImageTest {
         assertThat(result.getProfileImageKey()).isEqualTo(newKey);
     }
 
+    @DisplayName("Should return account carrying the new profile image key even though the bulk update bypasses the persistence context")
+    @Test
+    void confirm_returnsEntityWithNewKeyWithoutStaleReFetch() {
+        String newKey = "institutions/inst-1/accounts/acc-1/profile.png";
+        // The account loaded at the start of confirm still has a null key; a re-fetch in the same
+        // transaction would return this same stale instance from the first-level cache.
+        Account stored = Account.builder().id("acc-1").tenantId("inst-1").profileImageKey(null).build();
+        when(accountQueryUseCase.findById("acc-1")).thenReturn(stored);
+        when(assetUrlService.objectExists(newKey)).thenReturn(true);
+        when(assetUrlService.getObjectContentType(newKey)).thenReturn("image/png");
+        when(assetUrlService.getObjectSizeBytes(newKey)).thenReturn(2000L);
+        when(assetUrlService.getObjectBytes(newKey)).thenReturn(new byte[]{1, 2, 3});
+        when(profileImageValidator.validate(any(), anyString(), anyLong()))
+                .thenReturn(new ValidationResult(400, 400));
+
+        Account result = accountService.confirmProfileImageUpload("inst-1", "acc-1", newKey);
+
+        assertThat(result.getProfileImageKey()).isEqualTo(newKey);
+        verify(accountRepository).updateProfileImageKeyById("acc-1", newKey);
+    }
+
     @DisplayName("Should not attempt to delete previous key when same key is re-confirmed")
     @Test
     void confirm_doesNotDeletePreviousWhenSameKey() {

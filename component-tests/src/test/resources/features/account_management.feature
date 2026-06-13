@@ -37,8 +37,10 @@ Feature: Account management in an institution
 
   @ComponentTest
   Scenario: Aura admin fails to retrieve a non-existent account
+    # Authorization is evaluated against the resource id before any lookup, so a
+    # non-existent account is indistinguishable from a forbidden one (no id enumeration)
     When user queries account with non-existent id
-    Then the request should fail with error code "RESOURCE_NOT_FOUND"
+    Then the request should fail with error code "FORBIDDEN"
 
   @ComponentTest
   Scenario: Aura admin fails to retrieve an account for an unknown user

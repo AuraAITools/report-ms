@@ -1,0 +1,3 @@
+mutation DeleteParentById($input: DeleteParentByIdInput!) {
+    deleteParentById(input: $input)
+}

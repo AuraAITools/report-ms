@@ -27,7 +27,15 @@ public class LessonOutletRoomBookingRepositoryImpl implements LessonOutletRoomBo
         LessonOutletRoomBookingModel model = LessonOutletRoomBookingMapper.INSTANCE.toModelEntity(booking);
         model.setLesson(Refs.ref(entityManager, LessonModel.class, booking.getLessonId()));
         model.setOutletRoom(Refs.ref(entityManager, OutletRoomModel.class, booking.getOutletRoomId()));
-        return LessonOutletRoomBookingMapper.INSTANCE.toDomainEntity(jpaRepository.save(model));
+        LessonOutletRoomBookingModel saved = jpaRepository.save(model);
+        // Keep the inverse side of the bidirectional one-to-one in sync. If the lesson is already
+        // managed in this persistence context (e.g. loaded earlier in the transaction), leaving it
+        // pointing at a stale/removed booking trips Hibernate's transient-reference check on flush.
+        LessonModel lessonModel = saved.getLesson();
+        if (lessonModel != null) {
+            lessonModel.setLessonOutletRoomBooking(saved);
+        }
+        return LessonOutletRoomBookingMapper.INSTANCE.toDomainEntity(saved);
     }
 
     @Override
@@ -48,7 +56,20 @@ public class LessonOutletRoomBookingRepositoryImpl implements LessonOutletRoomBo
 
     @Override
     public void deleteByLessonId(String lessonId) {
-        jpaRepository.deleteByLesson_Id(UUID.fromString(lessonId));
+        jpaRepository.findByLesson_Id(UUID.fromString(lessonId)).ifPresent(booking -> {
+            // Detach the inverse side first: the managed LessonModel may still reference this
+            // booking (eager one-to-one), and a managed entity referencing a removed instance
+            // fails Hibernate's transient-reference check on flush.
+            LessonModel lessonModel = booking.getLesson();
+            if (lessonModel != null) {
+                lessonModel.setLessonOutletRoomBooking(null);
+            }
+            jpaRepository.delete(booking);
+            // Flush so the DELETE hits the database before any subsequent booking INSERT in the
+            // same transaction — Hibernate orders inserts before deletes, which would otherwise
+            // violate the (lesson_id, outlet_room_id) unique constraint on re-booking.
+            jpaRepository.flush();
+        });
     }
 
     @Override
@@ -59,9 +80,11 @@ public class LessonOutletRoomBookingRepositoryImpl implements LessonOutletRoomBo
             Instant end,
             @Nullable String excludeLessonId) {
         UUID roomUuid = UUID.fromString(outletRoomId);
-        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
-        return jpaRepository.findOverlappingByRoomAndTenant(tenantId, roomUuid, start, end, excludeUuid)
-                .stream()
+        List<LessonOutletRoomBookingModel> overlapping = excludeLessonId == null
+                ? jpaRepository.findOverlappingByRoomAndTenant(tenantId, roomUuid, start, end)
+                : jpaRepository.findOverlappingByRoomAndTenant(
+                        tenantId, roomUuid, start, end, UUID.fromString(excludeLessonId));
+        return overlapping.stream()
                 .map(LessonOutletRoomBookingMapper.INSTANCE::toDomainEntity)
                 .toList();
     }

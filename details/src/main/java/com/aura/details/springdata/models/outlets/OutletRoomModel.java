@@ -65,7 +65,7 @@ public class OutletRoomModel extends TenantBaseModel {
     @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String description;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "outletRoom", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @Builder.Default
     private Set<LessonOutletRoomBookingModel> lessonOutletRoomBookings = new HashSet<>();

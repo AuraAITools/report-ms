@@ -13,6 +13,8 @@ public interface LessonGroupPlanRepository {
 
     @Nullable LessonGroupPlan findByLessonGroupId(String lessonGroupId);
 
+    boolean existsByLessonGroupId(String lessonGroupId);
+
     List<LessonGroupPlan> findAllByIds(List<UUID> ids);
 
     Map<String, LessonGroupPlan> findAllByLessonGroupIds(List<String> lessonGroupIds);

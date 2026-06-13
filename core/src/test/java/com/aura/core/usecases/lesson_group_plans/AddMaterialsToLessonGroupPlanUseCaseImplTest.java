@@ -4,6 +4,7 @@ import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.links.LessonGroupPlanMaterialLink;
 import com.aura.core.entities.links.MaterialTopicLink;
 import com.aura.core.entities.materials.Material;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanMaterialLinkRepository;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.MaterialRepository;
@@ -75,8 +76,8 @@ class AddMaterialsToLessonGroupPlanUseCaseImplTest {
 
         assertThatThrownBy(() -> useCase.addMaterialsToLessonGroupPlan(
                 planUuid.toString(), List.of("mat-1", "mat-missing"), "tenant-1"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("mat-missing");
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Material not found: mat-missing");
     }
 
     // --- Stubs ---
@@ -120,6 +121,11 @@ class AddMaterialsToLessonGroupPlanUseCaseImplTest {
 
         @Override
         public LessonGroupPlan findByLessonGroupId(String lessonGroupId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean existsByLessonGroupId(String lessonGroupId) {
             throw new UnsupportedOperationException();
         }
 

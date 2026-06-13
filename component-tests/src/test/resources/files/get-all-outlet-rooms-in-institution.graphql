@@ -1,0 +1,11 @@
+query GetAllOutletRoomsInInstitution($institutionId: ID!) {
+    getAllOutletRoomsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        outletId
+        size
+        type
+        description
+        createdBy { userId accountId name url }
+    }
+}

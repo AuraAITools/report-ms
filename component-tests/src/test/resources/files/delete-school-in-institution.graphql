@@ -1,0 +1,3 @@
+mutation DeleteSchoolInInstitution($input: DeleteSchoolInInstitutionInput!) {
+    deleteSchoolInInstitution(deleteSchoolInInstitutionInput: $input)
+}

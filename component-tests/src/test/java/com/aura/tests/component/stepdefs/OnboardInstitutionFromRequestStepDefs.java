@@ -4,7 +4,6 @@ import static com.aura.tests.component.utils.FileUtils.findGraphqlQueryFromFiles
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.aura.tests.component.contexts.TestContext;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.util.List;
@@ -24,7 +23,6 @@ public class OnboardInstitutionFromRequestStepDefs {
     private final JdbcTemplate jdbcTemplate;
 
     @When("user onboards the institution from the pending request")
-    @Given("user onboards the institution from the pending request")
     public void userOnboardsFromPendingRequest() {
         invokeOnboard(testContext.getInstitutionCreationRequestId());
     }

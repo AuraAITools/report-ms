@@ -1,0 +1,8 @@
+query GetMaterialsInInstitution($institutionId: ID!) {
+    getMaterialsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        description
+        createdBy { userId accountId name url }
+    }
+}

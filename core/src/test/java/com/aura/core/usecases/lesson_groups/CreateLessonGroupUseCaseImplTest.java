@@ -2,6 +2,7 @@ package com.aura.core.usecases.lesson_groups;
 
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.lessons.LessonGroup;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.repositories.LessonRepository;
 import java.util.List;
@@ -41,16 +42,17 @@ class CreateLessonGroupUseCaseImplTest {
         assertEquals("tenant-1", result.getTenantId());
     }
 
-    @DisplayName("Should throw when lesson not found")
+    @DisplayName("Should throw ResourceNotFoundException when lesson not found")
     @Test
     void throwsWhenLessonNotFound() {
         var stubLessonRepo = new StubLessonRepository(null);
         var stubLessonGroupRepo = new StubLessonGroupRepository(null);
         var useCase = new CreateLessonGroupUseCaseImpl(stubLessonGroupRepo, stubLessonRepo);
+        String lessonId = UUID.randomUUID().toString();
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> useCase.createLessonGroup(LessonGroup.builder().name("Group A").build(), UUID.randomUUID().toString()));
-        assertEquals("lesson not found", ex.getMessage());
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> useCase.createLessonGroup(LessonGroup.builder().name("Group A").build(), lessonId));
+        assertEquals("Lesson not found: " + lessonId, ex.getMessage());
     }
 
     // --- Stubs ---

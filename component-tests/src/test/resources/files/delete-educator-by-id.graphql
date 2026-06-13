@@ -1,0 +1,3 @@
+mutation DeleteEducatorById($input: DeleteEducatorByIdInput!) {
+    deleteEducatorById(input: $input)
+}

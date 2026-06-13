@@ -1,0 +1,3 @@
+mutation DeleteLessonParticipationReview($input: DeleteLessonParticipationReviewInput!) {
+    deleteLessonParticipationReview(input: $input)
+}

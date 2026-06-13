@@ -23,6 +23,12 @@ definition material_user_group {
     permission group_add_admin: user = group_admin + parent->group_add_admin
     permission group_remove_viewer: user = group_admin + parent->group_remove_viewer
     permission group_remove_admin: user = group_admin + parent->group_remove_admin
+    permission group_add_modifier: user = group_admin + parent->group_add_modifier
+    permission group_remove_modifier: user = group_admin + parent->group_remove_modifier
+    permission group_add_group_admin: user = group_admin + parent->group_add_group_admin
+    permission group_remove_group_admin: user = group_admin + parent->group_remove_group_admin
+    permission group_add_group_viewer: user = group_admin + parent->group_add_group_viewer
+    permission group_remove_group_viewer: user = group_admin + parent->group_remove_group_viewer
 
     // Resource-management permissions
     permission view: user = viewer + modifier + admin

@@ -13,5 +13,7 @@ public interface JpaOutletRepository extends JpaRepository<OutletModel, UUID>, J
     List<OutletModel> findByTenantIdIn(Collection<String> tenantIds);
 
     List<OutletModel> findByTenantId(String tenantId);
+
+    boolean existsByNameAndTenantId(String name, String tenantId);
 }
 

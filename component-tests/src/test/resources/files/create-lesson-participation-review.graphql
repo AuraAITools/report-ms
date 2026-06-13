@@ -1,0 +1,11 @@
+mutation CreateLessonParticipationReview($input: CreateLessonParticipationReviewInput!) {
+    createLessonParticipationReview(input: $input) {
+        id
+        studentLessonReportId
+        participationType
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

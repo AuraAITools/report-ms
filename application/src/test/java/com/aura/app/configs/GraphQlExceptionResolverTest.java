@@ -9,6 +9,7 @@ import com.aura.core.exceptions.InstitutionCreationRequestConflictException;
 import com.aura.core.exceptions.InvalidInstitutionCreationRequestStateException;
 import com.aura.core.exceptions.LessonConflictException;
 import com.aura.core.exceptions.ResourceNotFoundException;
+import com.aura.details.services.ProfileImageValidator;
 import java.util.List;
 import graphql.GraphQLError;
 import graphql.execution.ExecutionStepInfo;
@@ -215,6 +216,40 @@ class GraphQlExceptionResolverTest {
         assertThat(error.getExtensions())
                 .containsEntry("http_status", 409)
                 .containsEntry("error_code", "DUPLICATE_RESOURCE");
+    }
+
+    @Test
+    @DisplayName("Should resolve ProfileImageRejectedException as PROFILE_IMAGE_REJECTED with 400 preserving the message")
+    void shouldResolveProfileImageRejectedContentType() {
+        ProfileImageValidator.ProfileImageRejectedException ex =
+                new ProfileImageValidator.ProfileImageRejectedException(
+                        "content type 'application/pdf' is not allowed; must be one of [image/png, image/jpeg, image/webp]");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getMessage())
+                .isEqualTo("content type 'application/pdf' is not allowed; must be one of [image/png, image/jpeg, image/webp]");
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 400)
+                .containsEntry("error_code", "PROFILE_IMAGE_REJECTED")
+                .containsEntry("correlation_id", CORRELATION_ID);
+    }
+
+    @Test
+    @DisplayName("Should preserve aspect-ratio rejection message on ProfileImageRejectedException")
+    void shouldResolveProfileImageRejectedAspectRatio() {
+        ProfileImageValidator.ProfileImageRejectedException ex =
+                new ProfileImageValidator.ProfileImageRejectedException(
+                        "image aspect ratio 0.625 is not squarish (must be within ±10.0% of 1:1)");
+
+        GraphQLError error = resolver.resolveToSingleError(ex, env);
+
+        assertThat(error.getMessage()).contains("aspect");
+        assertThat(error.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        assertThat(error.getExtensions())
+                .containsEntry("http_status", 400)
+                .containsEntry("error_code", "PROFILE_IMAGE_REJECTED");
     }
 
     @Test

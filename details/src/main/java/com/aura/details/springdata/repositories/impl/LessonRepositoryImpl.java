@@ -131,10 +131,13 @@ public class LessonRepositoryImpl implements LessonRepository {
             Instant end,
             @Nullable String excludeLessonId) {
         UUID studentUuid = UUID.fromString(studentId);
-        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
-        return jpaStudentLessonLinkRepository
-                .findActiveOverlappingLessonsByStudent(tenantId, studentUuid, start, end, excludeUuid)
-                .stream()
+        List<LessonModel> overlapping = excludeLessonId == null
+                ? jpaStudentLessonLinkRepository
+                        .findActiveOverlappingLessonsByStudent(tenantId, studentUuid, start, end)
+                : jpaStudentLessonLinkRepository
+                        .findActiveOverlappingLessonsByStudent(
+                                tenantId, studentUuid, start, end, UUID.fromString(excludeLessonId));
+        return overlapping.stream()
                 .map(LessonMapper.INSTANCE::toDomainEntity)
                 .toList();
     }
@@ -147,10 +150,13 @@ public class LessonRepositoryImpl implements LessonRepository {
             Instant end,
             @Nullable String excludeLessonId) {
         UUID educatorUuid = UUID.fromString(educatorId);
-        UUID excludeUuid = excludeLessonId == null ? null : UUID.fromString(excludeLessonId);
-        return jpaEducatorLessonLinkRepository
-                .findActiveOverlappingLessonsByEducator(tenantId, educatorUuid, start, end, excludeUuid)
-                .stream()
+        List<LessonModel> overlapping = excludeLessonId == null
+                ? jpaEducatorLessonLinkRepository
+                        .findActiveOverlappingLessonsByEducator(tenantId, educatorUuid, start, end)
+                : jpaEducatorLessonLinkRepository
+                        .findActiveOverlappingLessonsByEducator(
+                                tenantId, educatorUuid, start, end, UUID.fromString(excludeLessonId));
+        return overlapping.stream()
                 .map(LessonMapper.INSTANCE::toDomainEntity)
                 .toList();
     }

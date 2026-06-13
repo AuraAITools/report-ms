@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,10 @@ import org.springframework.stereotype.Controller;
  * In that case the three fields are populated with system placeholders
  * ({@link #SYSTEM_ACCOUNT_ID} / {@link #SYSTEM_NAME} / empty url) so clients always
  * receive a non-null AccountMinimalDetail object.
+ *
+ * <p>The same placeholder fallback applies per-stub within a tenant when the auditing
+ * userId has no Account row in that tenant (e.g. rows created by the system/service
+ * account) — every Auditable type resolves consistently instead of returning nulls.
  *
  * <p>No {@code @PreAuthorize} on these methods: AccountMinimalDetail is only ever a
  * subfield of an already-authorized parent response (Auditable.createdBy /
@@ -58,10 +63,11 @@ public class AccountMinimalDetailGqlController {
         }
         Map<String, Account> byUserId = loadAccountsByUserId(stubs, user);
         return stubs.stream()
-                .filter(s -> byUserId.containsKey(s.getUserId()))
                 .collect(Collectors.toMap(
                         s -> s,
-                        s -> byUserId.get(s.getUserId()).getId(),
+                        s -> Optional.ofNullable(byUserId.get(s.getUserId()))
+                                .map(Account::getId)
+                                .orElse(SYSTEM_ACCOUNT_ID),
                         (existing, replacement) -> existing,
                         LinkedHashMap::new));
     }
@@ -78,13 +84,11 @@ public class AccountMinimalDetailGqlController {
         }
         Map<String, Account> byUserId = loadAccountsByUserId(stubs, user);
         return stubs.stream()
-                .filter(s -> byUserId.containsKey(s.getUserId()))
                 .collect(Collectors.toMap(
                         s -> s,
-                        s -> {
-                            Account a = byUserId.get(s.getUserId());
-                            return a.getFirstName() + " " + a.getLastName();
-                        },
+                        s -> Optional.ofNullable(byUserId.get(s.getUserId()))
+                                .map(a -> a.getFirstName() + " " + a.getLastName())
+                                .orElse(SYSTEM_NAME),
                         (existing, replacement) -> existing,
                         LinkedHashMap::new));
     }
@@ -103,13 +107,14 @@ public class AccountMinimalDetailGqlController {
         return stubs.stream()
                 .filter(s -> {
                     Account a = byUserId.get(s.getUserId());
-                    return a != null && a.getProfileImageKey() != null;
+                    return a == null || a.getProfileImageKey() != null;
                 })
                 .collect(Collectors.toMap(
                         s -> s,
-                        s -> assetUrlService.presignGet(
-                                byUserId.get(s.getUserId()).getProfileImageKey(),
-                                PROFILE_IMAGE_URL_TTL),
+                        s -> Optional.ofNullable(byUserId.get(s.getUserId()))
+                                .map(a -> assetUrlService.presignGet(
+                                        a.getProfileImageKey(), PROFILE_IMAGE_URL_TTL))
+                                .orElse(SYSTEM_URL),
                         (existing, replacement) -> existing,
                         LinkedHashMap::new));
     }

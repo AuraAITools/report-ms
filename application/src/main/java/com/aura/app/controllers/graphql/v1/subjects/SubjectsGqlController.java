@@ -48,7 +48,7 @@ public class SubjectsGqlController {
         return SubjectMapper.INSTANCE.toDto(createdSubject);
     }
 
-    @PreAuthorize("hasPermission(#createSubjectTopicLinksInput.institutionId, 'institution', 'manage')")
+    @PreAuthorize("hasPermission(#createSubjectTopicLinksInput.id, 'subject', 'update')")
     @MutationMapping(CreateSubjectTopicLinks)
     public SubjectResponseWithTopics createSubjectTopicLinks(@Argument(name = CreateSubjectTopicLinksInput) CreateSubjectTopicLinksInput createSubjectTopicLinksInput, @ContextValue(name = "user") User user) {
         SubjectWithTopics result = subjectService.createTopicSubjectLinks(UUID.fromString(createSubjectTopicLinksInput.getId()), createSubjectTopicLinksInput.getTopicIds().stream().map(UUID::fromString).toList(), createSubjectTopicLinksInput.getInstitutionId());

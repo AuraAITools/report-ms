@@ -31,6 +31,7 @@ public class LessonQuizStepDefs {
         input.put("institutionId", testContext.getInstitutionId());
         input.put("lessonId", testContext.getLessonId());
         input.put("lessonGroupPlanId", testContext.getLessonGroupPlanId());
+        input.put("name", "Quiz 1");
         input.put("score", score);
         input.put("maxScore", maxScore);
 

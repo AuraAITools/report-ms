@@ -1,7 +1,11 @@
 package com.aura.details.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -31,6 +35,10 @@ class EducatorServiceTest {
     private DeleteEducatorUseCase deleteUseCase;
     @Mock
     private EducatorRepository educatorRepository;
+    @Mock
+    private AssetUrlService assetUrlService;
+    @Mock
+    private ProfileImageValidator profileImageValidator;
     @InjectMocks
     private EducatorService service;
 
@@ -70,5 +78,47 @@ class EducatorServiceTest {
         order.verify(educatorRepository).deleteAllSubjectEducatorLinksByEducatorId("eid");
         order.verify(educatorRepository).deleteAllAccountEducatorLinksByEducatorId("eid");
         order.verify(deleteUseCase).deleteById("eid");
+    }
+
+    @Test
+    @DisplayName("Should return educator carrying the new profile image key even though the bulk update bypasses the persistence context")
+    void confirmProfileImageUploadReturnsEntityWithNewKey() {
+        String newKey = "institutions/inst-1/educators/edu-1/profile.png";
+        // The educator loaded at the start of confirm still has a null key; a re-fetch in the same
+        // transaction would return this same stale instance from the first-level cache.
+        Educator stored = Educator.builder().id("edu-1").tenantId("inst-1").profileImageKey(null).build();
+        when(queryUseCase.findById("edu-1")).thenReturn(stored);
+        when(assetUrlService.objectExists(newKey)).thenReturn(true);
+        when(assetUrlService.getObjectContentType(newKey)).thenReturn("image/png");
+        when(assetUrlService.getObjectSizeBytes(newKey)).thenReturn(2000L);
+        when(assetUrlService.getObjectBytes(newKey)).thenReturn(new byte[]{1, 2, 3});
+        when(profileImageValidator.validate(any(), anyString(), anyLong()))
+                .thenReturn(new ProfileImageValidator.ValidationResult(400, 400));
+
+        Educator result = service.confirmProfileImageUpload("inst-1", "edu-1", newKey);
+
+        assertThat(result.getProfileImageKey()).isEqualTo(newKey);
+        verify(educatorRepository).updateProfileImageKeyById("edu-1", newKey);
+    }
+
+    @Test
+    @DisplayName("Should delete the previous profile image object when confirming a key with a different extension")
+    void confirmProfileImageUploadDeletesPreviousKeyOnChange() {
+        String oldKey = "institutions/inst-1/educators/edu-1/profile.jpg";
+        String newKey = "institutions/inst-1/educators/edu-1/profile.png";
+        Educator stored = Educator.builder().id("edu-1").tenantId("inst-1").profileImageKey(oldKey).build();
+        when(queryUseCase.findById("edu-1")).thenReturn(stored);
+        when(assetUrlService.objectExists(newKey)).thenReturn(true);
+        when(assetUrlService.getObjectContentType(newKey)).thenReturn("image/png");
+        when(assetUrlService.getObjectSizeBytes(newKey)).thenReturn(2000L);
+        when(assetUrlService.getObjectBytes(newKey)).thenReturn(new byte[]{1, 2, 3});
+        when(profileImageValidator.validate(any(), anyString(), anyLong()))
+                .thenReturn(new ProfileImageValidator.ValidationResult(400, 400));
+
+        Educator result = service.confirmProfileImageUpload("inst-1", "edu-1", newKey);
+
+        assertThat(result.getProfileImageKey()).isEqualTo(newKey);
+        verify(assetUrlService).deleteObject(oldKey);
+        verify(educatorRepository).updateProfileImageKeyById("edu-1", newKey);
     }
 }

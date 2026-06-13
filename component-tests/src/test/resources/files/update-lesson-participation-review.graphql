@@ -1,0 +1,11 @@
+mutation UpdateLessonParticipationReview($input: UpdateLessonParticipationReviewInput!) {
+    updateLessonParticipationReview(input: $input) {
+        id
+        studentLessonReportId
+        participationType
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

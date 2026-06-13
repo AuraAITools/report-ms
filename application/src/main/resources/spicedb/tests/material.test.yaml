@@ -71,6 +71,12 @@ assertions:
     - material_user_group:1#group_add_viewer@user:mat_group_admin_user
     - material_user_group:1#group_remove_admin@user:mat_group_admin_user
     - material_user_group:1#group_remove_viewer@user:mat_group_admin_user
+    - material_user_group:1#group_add_modifier@user:mat_group_admin_user
+    - material_user_group:1#group_remove_modifier@user:mat_group_admin_user
+    - material_user_group:1#group_add_group_admin@user:mat_group_admin_user
+    - material_user_group:1#group_remove_group_admin@user:mat_group_admin_user
+    - material_user_group:1#group_add_group_viewer@user:mat_group_admin_user
+    - material_user_group:1#group_remove_group_viewer@user:mat_group_admin_user
 
     # ---- mat_group_viewer_user — only group_view ----
     - material_user_group:1#group_view@user:mat_group_viewer_user
@@ -123,6 +129,8 @@ assertions:
     - material_user_group:1#group_add_viewer@user:inst_group_admin_user
     - material_user_group:1#group_remove_admin@user:inst_group_admin_user
     - material_user_group:1#group_remove_viewer@user:inst_group_admin_user
+    - material_user_group:1#group_add_modifier@user:inst_group_admin_user
+    - material_user_group:1#group_remove_modifier@user:inst_group_admin_user
 
     # ---- inst_group_viewer_user — only group_view on material_user_group ----
     - material_user_group:1#group_view@user:inst_group_viewer_user
@@ -155,6 +163,8 @@ assertions:
     - material_user_group:1#group_add_viewer@user:sys_group_admin_user
     - material_user_group:1#group_remove_admin@user:sys_group_admin_user
     - material_user_group:1#group_remove_viewer@user:sys_group_admin_user
+    - material_user_group:1#group_add_modifier@user:sys_group_admin_user
+    - material_user_group:1#group_remove_modifier@user:sys_group_admin_user
 
     # ---- sys_group_viewer_user — only group_view on material_user_group ----
     - material_user_group:1#group_view@user:sys_group_viewer_user
@@ -184,6 +194,13 @@ assertions:
     # ---- mat_admin_user — NO group-management (decoupling) ----
     - material_user_group:1#group_view@user:mat_admin_user
     - material_user_group:1#group_add_admin@user:mat_admin_user
+    - material_user_group:1#group_add_modifier@user:mat_admin_user
+    - material_user_group:1#group_add_group_admin@user:mat_admin_user
+
+    # ---- mat_group_viewer_user — group_view only; no modifier/group-admin mutations ----
+    - material_user_group:1#group_add_modifier@user:mat_group_viewer_user
+    - material_user_group:1#group_remove_modifier@user:mat_group_viewer_user
+    - material_user_group:1#group_add_group_admin@user:mat_group_viewer_user
 
     # ---- mat_modifier_user — no delete, no group-mgmt ----
     - material_user_group:1#delete@user:mat_modifier_user

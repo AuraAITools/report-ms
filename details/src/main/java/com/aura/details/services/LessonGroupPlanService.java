@@ -4,6 +4,7 @@ import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonObjective;
 import com.aura.core.entities.topics.Topic;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonGroupPlanTopicLinkRepository;
 import com.aura.core.repositories.LessonGroupRepository;
@@ -44,7 +45,7 @@ public class LessonGroupPlanService {
                                                   List<String> materialIds,
                                                   List<NewLessonObjective> lessonObjectives) {
         LessonGroup group = ofNullable(lessonGroupRepository.findById(UUID.fromString(lessonGroupId)))
-                .orElseThrow(() -> new RuntimeException("lesson group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group", lessonGroupId));
         String lessonId = group.getLessonId();
 
         if (!topicIds.isEmpty()) {
@@ -82,7 +83,7 @@ public class LessonGroupPlanService {
     public List<com.aura.core.entities.links.LessonGroupPlanMaterialLink> addMaterialsToLessonGroupPlan(
             String lessonGroupPlanId, List<String> materialIds) {
         LessonGroupPlan plan = ofNullable(lessonGroupPlanRepository.findById(UUID.fromString(lessonGroupPlanId)))
-                .orElseThrow(() -> new RuntimeException("lesson group plan not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group plan", lessonGroupPlanId));
         return addMaterialsToLessonGroupPlanUseCase.addMaterialsToLessonGroupPlan(
                 lessonGroupPlanId, materialIds, plan.getTenantId());
     }
@@ -96,9 +97,9 @@ public class LessonGroupPlanService {
     public List<com.aura.core.entities.links.LessonGroupPlanTopicLink> addTopicsToLessonGroupPlan(
             String lessonGroupPlanId, List<String> topicIds) {
         LessonGroupPlan plan = ofNullable(lessonGroupPlanRepository.findById(UUID.fromString(lessonGroupPlanId)))
-                .orElseThrow(() -> new RuntimeException("lesson group plan not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group plan", lessonGroupPlanId));
         LessonGroup group = ofNullable(lessonGroupRepository.findById(UUID.fromString(plan.getLessonGroupId())))
-                .orElseThrow(() -> new RuntimeException("lesson group not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson group", plan.getLessonGroupId()));
         Set<String> lessonTopicIds = topicLessonLinkRepository.findTopicIdsByLessonId(group.getLessonId());
         List<String> missingTopics = topicIds.stream()
                 .filter(t -> !lessonTopicIds.contains(t))

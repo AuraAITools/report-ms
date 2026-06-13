@@ -1,0 +1,8 @@
+query GetSchoolsInInstitution($institutionId: ID!) {
+    getSchoolsInInstitution(institutionId: $institutionId) {
+        id
+        name
+        schoolCategory
+        createdBy { userId accountId name url }
+    }
+}

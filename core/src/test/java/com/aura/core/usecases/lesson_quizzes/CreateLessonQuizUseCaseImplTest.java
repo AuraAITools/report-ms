@@ -2,6 +2,7 @@ package com.aura.core.usecases.lesson_quizzes;
 
 import com.aura.core.entities.lessons.LessonGroupPlan;
 import com.aura.core.entities.lessons.LessonQuiz;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.LessonGroupPlanRepository;
 import com.aura.core.repositories.LessonQuizRepository;
 import java.util.List;
@@ -60,9 +61,9 @@ class CreateLessonQuizUseCaseImplTest {
         StubQuizRepo quizRepo = new StubQuizRepo(null);
         var useCase = new CreateLessonQuizUseCaseImpl(quizRepo, planRepo);
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> useCase.createLessonQuiz(toCreate));
-        assertEquals("lesson group plan not found", ex.getMessage());
+        assertEquals("Lesson group plan not found: " + planUuid, ex.getMessage());
     }
 
     private static class StubPlanRepo implements LessonGroupPlanRepository {
@@ -84,6 +85,11 @@ class CreateLessonQuizUseCaseImplTest {
 
         @Override
         public LessonGroupPlan findByLessonGroupId(String lessonGroupId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean existsByLessonGroupId(String lessonGroupId) {
             throw new UnsupportedOperationException();
         }
 

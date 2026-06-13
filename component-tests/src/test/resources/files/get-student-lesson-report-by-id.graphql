@@ -1,0 +1,24 @@
+query GetStudentLessonReportById($institutionId: ID!, $lessonId: ID!, $id: ID!) {
+    getStudentLessonReportById(institutionId: $institutionId, lessonId: $lessonId, id: $id) {
+        id
+        studentLessonLinkId
+        lessonHomeworkCompletion {
+            id
+            studentLessonReportId
+            completion
+        }
+        lessonParticipationReview {
+            id
+            studentLessonReportId
+            participationType
+        }
+        lessonTopicProficiencies {
+            id
+            studentLessonReportId
+            topicId
+            rating
+        }
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}

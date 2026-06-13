@@ -7,6 +7,7 @@ import com.aura.core.entities.educators.Educator;
 import com.aura.core.entities.links.AccountEducatorLink;
 import com.aura.core.entities.links.AccountStudentLink;
 import com.aura.core.entities.students.Student;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.details.springdata.mappers.accounts.AccountMapper;
 import com.aura.details.springdata.mappers.educators.EducatorMapper;
@@ -77,7 +78,8 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public List<AccountStudentLink> linkAccountToStudents(String accountId, List<String> studentIds) {
-        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId)).orElseThrow(() -> new RuntimeException("accountId not found"));
+        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId))
+                .orElseThrow(() -> new ResourceNotFoundException("account", accountId));
         List<AccountStudentLinkModel> accountStudentLinkModels = studentIds.stream().map(sid -> {
             StudentModel studentModel = jpaStudentRepository.getReferenceById(UUID.fromString(sid));
             AccountStudentLinkModel accountStudentLinkModel = AccountStudentLinkModel.builder()
@@ -92,7 +94,8 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public AccountStudentLink linkAccountToStudent(String accountId, String studentId) {
-        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId)).orElseThrow(() -> new RuntimeException("accountId not found"));
+        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId))
+                .orElseThrow(() -> new ResourceNotFoundException("account", accountId));
         StudentModel studentModel = jpaStudentRepository.getReferenceById(UUID.fromString(studentId));
         AccountStudentLinkModel accountStudentLinkModel = AccountStudentLinkModel.builder()
                 .account(accountModel)
@@ -104,8 +107,10 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public AccountEducatorLink linkAccountToEducator(String accountId, String educatorId) {
-        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId)).orElseThrow(() -> new RuntimeException("account not found"));
-        EducatorModel educatorModel = jpaEducatorRepository.findById(UUID.fromString(educatorId)).orElseThrow(() -> new RuntimeException("educator not found"));
+        AccountModel accountModel = jpaAccountRepository.findById(UUID.fromString(accountId))
+                .orElseThrow(() -> new ResourceNotFoundException("account", accountId));
+        EducatorModel educatorModel = jpaEducatorRepository.findById(UUID.fromString(educatorId))
+                .orElseThrow(() -> new ResourceNotFoundException("educator", educatorId));
         AccountEducatorLinkModel accountEducatorLinkModel = AccountEducatorLinkModel
                 .builder()
                 .account(accountModel)

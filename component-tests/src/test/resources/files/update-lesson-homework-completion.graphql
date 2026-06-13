@@ -1,0 +1,11 @@
+mutation UpdateLessonHomeworkCompletion($input: UpdateLessonHomeworkCompletionInput!) {
+    updateLessonHomeworkCompletion(input: $input) {
+        id
+        studentLessonReportId
+        completion
+        createdAt
+        createdBy { userId accountId name url }
+        updatedAt
+        updatedBy { userId accountId name url }
+    }
+}

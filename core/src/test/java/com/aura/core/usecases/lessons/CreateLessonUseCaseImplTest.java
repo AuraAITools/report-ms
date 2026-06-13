@@ -3,6 +3,7 @@ package com.aura.core.usecases.lessons;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.lessons.Lesson;
 import com.aura.core.entities.outlets.Outlet;
+import com.aura.core.exceptions.ResourceNotFoundException;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.LessonRepository;
 import com.aura.core.repositories.OutletRepository;
@@ -41,7 +42,7 @@ class CreateLessonUseCaseImplTest {
         assertEquals("course-1", stubLessonRepo.capturedLesson.getCourseId());
     }
 
-    @DisplayName("Should throw RuntimeException when course is not found")
+    @DisplayName("Should throw ResourceNotFoundException when course is not found")
     @Test
     void throwsWhenCourseNotFound() {
         Lesson inputLesson = Lesson.builder().id(UUID.randomUUID().toString()).name("Test Lesson").build();
@@ -50,9 +51,9 @@ class CreateLessonUseCaseImplTest {
         var stubCourseRepo = new StubCourseRepository(null);
         var useCase = new CreateLessonUseCaseImpl(stubLessonRepo, stubCourseRepo);
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> useCase.createLessonInCourse(inputLesson, "course-1"));
-        assertEquals("course not found", ex.getMessage());
+        assertEquals("Course not found: course-1", ex.getMessage());
     }
 
     // --- Stubs ---
@@ -160,6 +161,11 @@ class CreateLessonUseCaseImplTest {
 
         @Override
         public Outlet save(Outlet outlet) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean existsByNameAndTenantId(String name, String tenantId) {
             throw new UnsupportedOperationException();
         }
 
