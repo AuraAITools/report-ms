@@ -10,14 +10,21 @@ public final class PermissionRegistry {
 
     public static final Map<String, List<String>> RESOURCE_PERMISSIONS = Map.ofEntries(
             Map.entry("system", List.of("view", "update", "delete", "create_institution")),
-            Map.entry("institution", List.of("view", "update", "delete", "create_account", "create_outlet", "create_level", "create_subject", "create_topic", "create_material", "create_school", "delete_school")),
-            Map.entry("outlet", List.of("view", "update", "delete", "create_course")),
+            Map.entry("institution", List.of(
+                    "view", "update", "delete",
+                    "create_account", "create_outlet",
+                    "create_level", "create_subject", "create_topic", "create_material",
+                    "create_school", "delete_school",
+                    "view_level", "update_level", "delete_level",
+                    "view_subject", "update_subject", "delete_subject",
+                    "view_topic", "update_topic", "delete_topic")),
+            Map.entry("outlet", List.of(
+                    "view", "update", "delete",
+                    "create_course",
+                    "view_outlet_room", "update_outlet_room", "delete_outlet_room")),
             Map.entry("course", List.of("view", "update", "delete", "create_lesson")),
             Map.entry("lesson", List.of("view", "update", "delete", "create_lesson_plan")),
             Map.entry("account", List.of("view", "update", "delete")),
-            Map.entry("level", List.of("view", "update", "delete")),
-            Map.entry("subject", List.of("view", "update", "delete")),
-            Map.entry("topic", List.of("view", "update", "delete")),
             Map.entry("material", List.of("view", "update", "delete"))
     );
 

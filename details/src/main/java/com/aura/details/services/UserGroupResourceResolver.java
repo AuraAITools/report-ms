@@ -4,20 +4,14 @@ import com.aura.core.entities.accounts.Account;
 import com.aura.core.entities.courses.Course;
 import com.aura.core.entities.institutions.Institution;
 import com.aura.core.entities.lessons.Lesson;
-import com.aura.core.entities.levels.Level;
 import com.aura.core.entities.materials.Material;
 import com.aura.core.entities.outlets.Outlet;
-import com.aura.core.entities.subjects.Subject;
-import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.AccountRepository;
 import com.aura.core.repositories.CourseRepository;
 import com.aura.core.repositories.InstitutionRepository;
 import com.aura.core.repositories.LessonRepository;
-import com.aura.core.repositories.LevelRepository;
 import com.aura.core.repositories.MaterialRepository;
 import com.aura.core.repositories.OutletRepository;
-import com.aura.core.repositories.SubjectRepository;
-import com.aura.core.repositories.TopicRepository;
 import com.aura.core.usecases.authorization.GroupResourcePermission;
 import com.aura.core.usecases.authorization.ResourcePermission;
 import com.aura.core.usecases.authorization.ResourceRelations;
@@ -38,9 +32,6 @@ public class UserGroupResourceResolver {
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final AccountRepository accountRepository;
-    private final LevelRepository levelRepository;
-    private final SubjectRepository subjectRepository;
-    private final TopicRepository topicRepository;
     private final MaterialRepository materialRepository;
 
     public List<GroupResourcePermission> resolveAndFilter(List<ResourcePermission> permissions, String institutionId) {
@@ -84,15 +75,6 @@ public class UserGroupResourceResolver {
             case "account_user_group" -> Optional.ofNullable(accountRepository.findById(resourceId))
                     .filter(a -> institutionId.equals(a.getTenantId()))
                     .map(this::accountDisplayName);
-            case "level_user_group" -> Optional.ofNullable(levelRepository.findById(resourceId))
-                    .filter(l -> institutionId.equals(l.getTenantId()))
-                    .map(Level::getName);
-            case "subject_user_group" -> Optional.ofNullable(subjectRepository.findById(resourceId))
-                    .filter(s -> institutionId.equals(s.getTenantId()))
-                    .map(Subject::getName);
-            case "topic_user_group" -> Optional.ofNullable(topicRepository.findById(resourceId))
-                    .filter(t -> institutionId.equals(t.getTenantId()))
-                    .map(Topic::getName);
             case "material_user_group" -> Optional.ofNullable(materialRepository.findById(resourceId))
                     .filter(m -> institutionId.equals(m.getTenantId()))
                     .map(Material::getName);

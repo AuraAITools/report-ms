@@ -508,13 +508,10 @@ public class ServiceConfig {
             com.aura.core.repositories.CourseRepository courseRepository,
             com.aura.core.repositories.LessonRepository lessonRepository,
             AccountRepository accountRepository,
-            com.aura.core.repositories.LevelRepository levelRepository,
-            com.aura.core.repositories.SubjectRepository subjectRepository,
-            com.aura.core.repositories.TopicRepository topicRepository,
             com.aura.core.repositories.MaterialRepository materialRepository) {
         return new com.aura.details.services.UserGroupResourceResolver(
                 institutionRepository, outletRepository, courseRepository, lessonRepository,
-                accountRepository, levelRepository, subjectRepository, topicRepository, materialRepository);
+                accountRepository, materialRepository);
     }
 
     @Bean
