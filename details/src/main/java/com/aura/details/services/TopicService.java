@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.topics.Topic;
 import com.aura.core.repositories.TopicRepository;
@@ -21,14 +20,10 @@ public class TopicService {
     private final DeleteTopicUseCase deleteTopicUseCase;
     private final GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase;
     private final TopicRepository topicRepository;
-    private final RelationshipAuthorizationService relationshipService;
 
     @Transactional
     public Topic createTopic(Topic topic) {
-        Topic created = createTopicUseCase.createTopic(topic);
-        relationshipService.writeRelationship(
-                "topic", created.getId(), "parent", "institution", created.getTenantId());
-        return created;
+        return createTopicUseCase.createTopic(topic);
     }
 
     public @Nullable Topic findById(String id) {
@@ -51,7 +46,5 @@ public class TopicService {
         topicRepository.deleteAllTopicLessonLinksByTopicId(id);
         topicRepository.deleteAllLessonGroupPlanTopicLinksByTopicId(id);
         deleteTopicUseCase.deleteById(id);
-        relationshipService.deleteAllRelationshipsForResource("topic", id);
-        relationshipService.deleteAllRelationshipsForResource("topic_user_group", id);
     }
 }

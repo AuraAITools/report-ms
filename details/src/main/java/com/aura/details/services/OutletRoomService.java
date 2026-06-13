@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.outlets.OutletRoom;
 import com.aura.core.repositories.OutletRoomRepository;
 import com.aura.core.usecases.outlet_rooms.CreateOutletRoomUseCase;
@@ -21,14 +20,10 @@ public class OutletRoomService {
     private final DeleteOutletRoomUseCase deleteOutletRoomUseCase;
     private final OutletRoomQueryUseCase outletRoomQueryUseCase;
     private final OutletRoomRepository outletRoomRepository;
-    private final RelationshipAuthorizationService relationshipService;
 
     @Transactional
     public OutletRoom createOutletRoom(OutletRoom outletRoom) {
-        OutletRoom created = createOutletRoomUseCase.createOutletRoom(outletRoom);
-        relationshipService.writeRelationship(
-                "outlet_room", created.getId(), "parent", "outlet", created.getOutletId());
-        return created;
+        return createOutletRoomUseCase.createOutletRoom(outletRoom);
     }
 
     @Transactional
@@ -39,7 +34,6 @@ public class OutletRoomService {
     @Transactional
     public void deleteById(String id) {
         deleteOutletRoomUseCase.deleteById(id);
-        relationshipService.deleteAllRelationshipsForResource("outlet_room", id);
     }
 
     public @Nullable OutletRoom findById(String id) {

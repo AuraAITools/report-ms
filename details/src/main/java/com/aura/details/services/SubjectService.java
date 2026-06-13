@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.delete_impact.DeleteImpact;
 import com.aura.core.entities.subjects.Subject;
 import com.aura.core.entities.subjects.SubjectWithTopics;
@@ -27,14 +26,10 @@ public class SubjectService {
     private final DeleteSubjectUseCase deleteSubjectUseCase;
     private final GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase;
     private final SubjectRepository subjectRepository;
-    private final RelationshipAuthorizationService relationshipService;
 
     @Transactional
     public Subject createSubject(Subject subject) {
-        Subject created = createSubjectUseCase.createSubject(subject);
-        relationshipService.writeRelationship(
-                "subject", created.getId(), "parent", "institution", created.getTenantId());
-        return created;
+        return createSubjectUseCase.createSubject(subject);
     }
 
     @Transactional
@@ -69,7 +64,5 @@ public class SubjectService {
         subjectRepository.deleteAllSubjectLessonLinksBySubjectId(id);
         subjectRepository.nullOutSubjectOnTestResultsBySubjectId(id);
         deleteSubjectUseCase.deleteById(id);
-        relationshipService.deleteAllRelationshipsForResource("subject", id);
-        relationshipService.deleteAllRelationshipsForResource("subject_user_group", id);
     }
 }

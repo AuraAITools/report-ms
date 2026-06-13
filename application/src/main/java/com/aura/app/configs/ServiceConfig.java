@@ -286,10 +286,9 @@ public class ServiceConfig {
                                         UpdateOutletRoomUseCase updateOutletRoomUseCase,
                                         DeleteOutletRoomUseCase deleteOutletRoomUseCase,
                                         OutletRoomQueryUseCase outletRoomQueryUseCase,
-                                        OutletRoomRepository outletRoomRepository,
-                                        RelationshipAuthorizationService relationshipService) {
+                                        OutletRoomRepository outletRoomRepository) {
         return new OutletRoomService(createOutletRoomUseCase, updateOutletRoomUseCase, deleteOutletRoomUseCase,
-                outletRoomQueryUseCase, outletRoomRepository, relationshipService);
+                outletRoomQueryUseCase, outletRoomRepository);
     }
 
     @Bean
@@ -408,10 +407,9 @@ public class ServiceConfig {
                               DeleteLevelUseCase deleteLevelUseCase,
                               GetLevelDeleteImpactUseCase getLevelDeleteImpactUseCase,
                               LevelRepository levelRepository,
-                              CourseRepository courseRepository,
-                              RelationshipAuthorizationService relationshipService) {
+                              CourseRepository courseRepository) {
         return new LevelService(createLevelUseCase, deleteLevelUseCase, getLevelDeleteImpactUseCase,
-                levelRepository, courseRepository, relationshipService);
+                levelRepository, courseRepository);
     }
 
     @Bean
@@ -420,10 +418,9 @@ public class ServiceConfig {
             TopicQueryUseCase topicQueryUseCase,
             DeleteTopicUseCase deleteTopicUseCase,
             GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase,
-            TopicRepository topicRepository,
-            RelationshipAuthorizationService relationshipService) {
+            TopicRepository topicRepository) {
         return new TopicService(createTopicUseCase, topicQueryUseCase, deleteTopicUseCase,
-                getTopicDeleteImpactUseCase, topicRepository, relationshipService);
+                getTopicDeleteImpactUseCase, topicRepository);
     }
 
     @Bean
@@ -433,10 +430,9 @@ public class ServiceConfig {
             SubjectQueryUseCase subjectQueryUseCase,
             DeleteSubjectUseCase deleteSubjectUseCase,
             GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase,
-            SubjectRepository subjectRepository,
-            RelationshipAuthorizationService relationshipService) {
+            SubjectRepository subjectRepository) {
         return new SubjectService(createSubjectUseCase, createTopicSubjectLinksUseCase, subjectQueryUseCase,
-                deleteSubjectUseCase, getSubjectDeleteImpactUseCase, subjectRepository, relationshipService);
+                deleteSubjectUseCase, getSubjectDeleteImpactUseCase, subjectRepository);
     }
 
     @Bean
