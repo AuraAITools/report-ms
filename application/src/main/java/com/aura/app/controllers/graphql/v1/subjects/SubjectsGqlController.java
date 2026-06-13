@@ -48,7 +48,7 @@ public class SubjectsGqlController {
         return SubjectMapper.INSTANCE.toDto(createdSubject);
     }
 
-    @PreAuthorize("hasPermission(#createSubjectTopicLinksInput.id, 'subject', 'update')")
+    @PreAuthorize("hasPermission(#createSubjectTopicLinksInput.institutionId, 'institution', 'update_subject')")
     @MutationMapping(CreateSubjectTopicLinks)
     public SubjectResponseWithTopics createSubjectTopicLinks(@Argument(name = CreateSubjectTopicLinksInput) CreateSubjectTopicLinksInput createSubjectTopicLinksInput, @ContextValue(name = "user") User user) {
         SubjectWithTopics result = subjectService.createTopicSubjectLinks(UUID.fromString(createSubjectTopicLinksInput.getId()), createSubjectTopicLinksInput.getTopicIds().stream().map(UUID::fromString).toList(), createSubjectTopicLinksInput.getInstitutionId());
@@ -56,9 +56,10 @@ public class SubjectsGqlController {
         return SubjectMapper.INSTANCE.toDto(result.subject(), result.topics());
     }
 
-    @PreAuthorize("hasPermission(#subjectId, 'subject', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view_subject')")
     @QueryMapping
-    public SubjectResponse getSubjectById(@Argument("subjectId") String subjectId,
+    public SubjectResponse getSubjectById(@Argument("institutionId") String institutionId,
+                                          @Argument("subjectId") String subjectId,
                                           @ContextValue(name = "user") User user) {
         return Optional.ofNullable(subjectService.findById(subjectId))
                 .map(SubjectMapper.INSTANCE::toDto)
@@ -74,7 +75,7 @@ public class SubjectsGqlController {
                 .toList();
     }
 
-    @PreAuthorize("hasPermission(#id, 'subject', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view_subject')")
     @QueryMapping
     public DeleteImpactPreview getAllAffectedResourcesIfSubjectDeleted(@Argument("institutionId") String institutionId,
                                                                        @Argument("id") String id,
@@ -85,9 +86,11 @@ public class SubjectsGqlController {
         return DeleteImpactMapper.INSTANCE.toDto(subjectService.getDeleteImpact(id));
     }
 
-    @PreAuthorize("hasPermission(#id, 'subject', 'delete')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'delete_subject')")
     @MutationMapping
-    public Boolean deleteSubjectById(@Argument("id") String id, @ContextValue(name = "user") User user) {
+    public Boolean deleteSubjectById(@Argument("institutionId") String institutionId,
+                                      @Argument("id") String id,
+                                      @ContextValue(name = "user") User user) {
         if (subjectService.findById(id) == null) {
             throw new ResourceNotFoundBusinessException("Subject");
         }

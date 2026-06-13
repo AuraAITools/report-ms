@@ -36,9 +36,10 @@ public class TopicsGqlController {
         return TopicMapper.INSTANCE.toDto(createdTopic);
     }
 
-    @PreAuthorize("hasPermission(#topicId, 'topic', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view_topic')")
     @QueryMapping
-    public TopicResponse getTopicById(@Argument("topicId") String topicId,
+    public TopicResponse getTopicById(@Argument("institutionId") String institutionId,
+                                      @Argument("topicId") String topicId,
                                       @ContextValue(name = "user") User user) {
         return Optional.ofNullable(topicService.findById(topicId))
                 .map(TopicMapper.INSTANCE::toDto)
@@ -54,7 +55,7 @@ public class TopicsGqlController {
                 .toList();
     }
 
-    @PreAuthorize("hasPermission(#id, 'topic', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view_topic')")
     @QueryMapping
     public DeleteImpactPreview getAllAffectedResourcesIfTopicDeleted(@Argument("institutionId") String institutionId,
                                                                      @Argument("id") String id,
@@ -65,9 +66,11 @@ public class TopicsGqlController {
         return DeleteImpactMapper.INSTANCE.toDto(topicService.getDeleteImpact(id));
     }
 
-    @PreAuthorize("hasPermission(#id, 'topic', 'delete')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'delete_topic')")
     @MutationMapping
-    public Boolean deleteTopicById(@Argument("id") String id, @ContextValue(name = "user") User user) {
+    public Boolean deleteTopicById(@Argument("institutionId") String institutionId,
+                                    @Argument("id") String id,
+                                    @ContextValue(name = "user") User user) {
         if (topicService.findById(id) == null) {
             throw new ResourceNotFoundBusinessException("Topic");
         }

@@ -34,7 +34,7 @@ public class OutletRoomsGqlController {
         return OutletRoomMapper.INSTANCE.toDto(created);
     }
 
-    @PreAuthorize("hasPermission(#updateOutletRoomInput.id, 'outlet_room', 'update')")
+    @PreAuthorize("hasPermission(#updateOutletRoomInput.outletId, 'outlet', 'update_outlet_room')")
     @MutationMapping
     public OutletRoomResponse updateOutletRoom(@Argument("updateOutletRoomInput") UpdateOutletRoomInput updateOutletRoomInput,
                                                @ContextValue(name = "user") User user) {
@@ -43,7 +43,7 @@ public class OutletRoomsGqlController {
                 .orElseThrow(() -> new ResourceNotFoundBusinessException("OutletRoom"));
     }
 
-    @PreAuthorize("hasPermission(#deleteOutletRoomByIdInput.id, 'outlet_room', 'delete')")
+    @PreAuthorize("hasPermission(#deleteOutletRoomByIdInput.outletId, 'outlet', 'delete_outlet_room')")
     @MutationMapping
     public Boolean deleteOutletRoomById(@Argument("deleteOutletRoomByIdInput") DeleteOutletRoomByIdInput deleteOutletRoomByIdInput,
                                         @ContextValue(name = "user") User user) {

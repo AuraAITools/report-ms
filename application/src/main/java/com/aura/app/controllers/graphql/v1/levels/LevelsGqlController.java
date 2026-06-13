@@ -63,7 +63,7 @@ public class LevelsGqlController {
         return buildConnection(pagedResult, pageParametersDto.sortCriteriasList(), LevelMapper.INSTANCE::mapToDto, (keyset) -> cursorStrategy.toCursor(ScrollPosition.forward(keyset)));
     }
 
-    @PreAuthorize("hasPermission(#id, 'level', 'view')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'view_level')")
     @QueryMapping
     public DeleteImpactPreview getAllAffectedResourcesIfLevelDeleted(@Argument("institutionId") String institutionId,
                                                                      @Argument("id") String id,
@@ -74,9 +74,11 @@ public class LevelsGqlController {
         return DeleteImpactMapper.INSTANCE.toDto(levelService.getDeleteImpact(id));
     }
 
-    @PreAuthorize("hasPermission(#id, 'level', 'delete')")
+    @PreAuthorize("hasPermission(#institutionId, 'institution', 'delete_level')")
     @MutationMapping
-    public Boolean deleteLevelById(@Argument("id") String id, @ContextValue(name = "user") User user) {
+    public Boolean deleteLevelById(@Argument("institutionId") String institutionId,
+                                    @Argument("id") String id,
+                                    @ContextValue(name = "user") User user) {
         if (levelRepository.findById(id) == null) {
             throw new ResourceNotFoundBusinessException("Level");
         }
