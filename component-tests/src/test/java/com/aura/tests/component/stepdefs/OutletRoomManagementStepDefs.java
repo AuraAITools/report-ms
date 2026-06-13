@@ -89,6 +89,7 @@ public class OutletRoomManagementStepDefs {
         Map<String, Object> input = new HashMap<>();
         input.put("id", id);
         input.put("institutionId", testContext.getInstitutionId());
+        input.put("outletId", testContext.getOutletId());
         input.put("name", row.get("name"));
         input.put("size", Integer.parseInt(row.get("size")));
         input.put("type", row.get("type"));
@@ -110,7 +111,8 @@ public class OutletRoomManagementStepDefs {
         assertThat(id).as("outlet room id for '%s'", roomName).isNotNull();
         Map<String, Object> input = Map.of(
                 "id", id,
-                "institutionId", testContext.getInstitutionId());
+                "institutionId", testContext.getInstitutionId(),
+                "outletId", testContext.getOutletId());
 
         String query = findGraphqlQueryFromFiles("delete-outlet-room-by-id.graphql");
         lastDeleteOutletRoomResult = testContext.getGraphQLClient()
@@ -126,6 +128,7 @@ public class OutletRoomManagementStepDefs {
         Map<String, Object> input = new HashMap<>();
         input.put("id", UUID.randomUUID().toString());
         input.put("institutionId", testContext.getInstitutionId());
+        input.put("outletId", testContext.getOutletId());
         input.put("name", "Ghost Room");
         input.put("size", 10);
         input.put("type", "PHYSICAL");

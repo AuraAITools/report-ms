@@ -17,9 +17,6 @@ Feature: Access control
       | course      |
       | lesson      |
       | account     |
-      | level       |
-      | subject     |
-      | topic       |
 
   @ComponentTest
   Scenario: System group_admin grants institution admin role

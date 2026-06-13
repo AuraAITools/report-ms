@@ -32,25 +32,23 @@ Feature: Topic catalog management
     When user queries all topics in the institution
     Then the response should contain 0 topics
 
-  # Authorization is evaluated against the resource id before any lookup, and deletes remove the
-  # resource's SpiceDB relationships — so deleted and never-existing resources are both FORBIDDEN
-  # (no id enumeration).
+  # Authorization is now evaluated at the institution level — a non-existent or deleted topic
+  # passes the institution-level permission check and then fails with RESOURCE_NOT_FOUND at the
+  # repository.
 
   @ComponentTest
   Scenario: Aura admin deletes an existing topic
     Given a topic exists with name "Algebra"
     When user deletes the topic by id
     Then the topic should be deleted successfully
-    And querying the topic by id should fail with error code "FORBIDDEN"
+    And querying the topic by id should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Aura admin fails to retrieve a non-existent topic
     When user queries topic with non-existent id
-    # Authorization is evaluated against the resource id before any lookup, so a non-existent
-    # topic is indistinguishable from a forbidden one (no id enumeration)
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Aura admin fails to delete a non-existent topic
     When user tries to delete a topic with a random id
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"

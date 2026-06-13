@@ -48,10 +48,10 @@ Feature: Outlet room management
     Then the outlet room delete should succeed
     And listing outlet rooms in the institution should return 0 entries
 
-  # Authorization for update/delete is evaluated against the outlet_room id before any lookup —
-  # a non-existent outlet_room is indistinguishable from a forbidden one (no id enumeration).
+  # Authorization is now evaluated at the outlet level — a non-existent outlet room passes the
+  # outlet-level permission check and then fails with RESOURCE_NOT_FOUND at the repository.
 
   @ComponentTest
   Scenario: Institution admin fails to update a non-existent outlet room
     When user tries to update an outlet room with a random id
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"

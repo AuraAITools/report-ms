@@ -49,25 +49,23 @@ Feature: Subject catalog management
     When user queries all subjects in the institution
     Then the response should contain 0 subjects
 
-  # Authorization is evaluated against the resource id before any lookup, and deletes remove the
-  # resource's SpiceDB relationships — so deleted and never-existing resources are both FORBIDDEN
-  # (no id enumeration).
+  # Authorization is now evaluated at the institution level — a non-existent or deleted subject
+  # passes the institution-level permission check and then fails with RESOURCE_NOT_FOUND at the
+  # repository.
 
   @ComponentTest
   Scenario: Aura admin deletes an existing subject
     Given a subject exists with name "Mathematics"
     When user deletes the subject by id
     Then the subject should be deleted successfully
-    And querying the subject by id should fail with error code "FORBIDDEN"
+    And querying the subject by id should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Aura admin fails to retrieve a non-existent subject
     When user queries subject with non-existent id
-    # Authorization is evaluated against the resource id before any lookup, so a non-existent
-    # subject is indistinguishable from a forbidden one (no id enumeration)
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Aura admin fails to delete a non-existent subject
     When user tries to delete a subject with a random id
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"

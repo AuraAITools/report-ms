@@ -40,15 +40,15 @@ Feature: Level management
     Then the level delete impact resource type should be "Level"
     And the level delete impact total affected count should be 0
 
-  # Authorization is evaluated against the resource id before any lookup — a non-existent level is
-  # indistinguishable from a forbidden one (no id enumeration).
+  # Authorization is now evaluated at the institution level — a non-existent level passes the
+  # institution-level permission check and then fails with RESOURCE_NOT_FOUND at the repository.
 
   @ComponentTest
   Scenario: Aura admin fails to delete a non-existent level
     When user tries to delete a level with a random id
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"
 
   @ComponentTest
   Scenario: Aura admin fails to preview delete impact for a non-existent level
     When user tries to preview delete impact for a level with a random id
-    Then the request should fail with error code "FORBIDDEN"
+    Then the request should fail with error code "RESOURCE_NOT_FOUND"
