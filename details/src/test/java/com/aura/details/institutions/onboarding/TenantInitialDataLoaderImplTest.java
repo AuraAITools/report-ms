@@ -1,6 +1,5 @@
 package com.aura.details.institutions.onboarding;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.schools.SchoolCategory;
 import com.aura.details.springdata.models.levels.LevelModel;
 import com.aura.details.springdata.models.levels.LevelTemplateModel;
@@ -39,8 +38,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,66 +69,11 @@ class TenantInitialDataLoaderImplTest {
     private JpaTopicSubjectLinkTemplateRepository jpaTopicSubjectLinkTemplateRepository;
     @Mock
     private JpaTopicSubjectLinkRepository jpaTopicSubjectLinkRepository;
-    @Mock
-    private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks
     private TenantInitialDataLoaderImpl loader;
 
     private static final String SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000";
-
-    @DisplayName("Should write parent relationships for levels, subjects, and topics")
-    @Test
-    void loadInitialData_writesRelationshipsForAllResources() {
-        String tenantId = "tenant-123";
-
-        LevelTemplateModel levelTemplate = new LevelTemplateModel();
-        levelTemplate.setName("Primary 1");
-        when(jpaLevelTemplateRepository.findAll()).thenReturn(List.of(levelTemplate));
-
-        SubjectTemplateModel subjectTemplate = new SubjectTemplateModel();
-        subjectTemplate.setName("Math");
-        when(jpaSubjectTemplateRepository.findAll()).thenReturn(List.of(subjectTemplate));
-
-        TopicTemplateModel topicTemplate = new TopicTemplateModel();
-        topicTemplate.setName("Algebra");
-        when(jpaTopicTemplateRepository.findAll()).thenReturn(List.of(topicTemplate));
-
-        // Return empty lists for templates that require lookups
-        when(jpaSchoolTemplateRepository.findAll()).thenReturn(List.of());
-        when(jpaSubjectLevelLinkTemplateRepository.findAll()).thenReturn(List.of());
-        when(jpaTopicSubjectLinkTemplateRepository.findAll()).thenReturn(List.of());
-
-        // Mock saveAll to return the input with IDs set
-        when(jpaLevelRepository.saveAll(anyList())).thenAnswer(inv -> {
-            List<LevelModel> models = inv.getArgument(0);
-            models.forEach(m -> m.setId(UUID.randomUUID()));
-            return models;
-        });
-        when(jpaSubjectRepository.saveAll(anyList())).thenAnswer(inv -> {
-            List<SubjectModel> models = inv.getArgument(0);
-            models.forEach(m -> m.setId(UUID.randomUUID()));
-            return models;
-        });
-        when(jpaTopicRepository.saveAll(anyList())).thenAnswer(inv -> {
-            List<TopicModel> models = inv.getArgument(0);
-            models.forEach(m -> m.setId(UUID.randomUUID()));
-            return models;
-        });
-
-        loader.loadInitialDataForTenant(tenantId);
-
-        // Verify relationships written for each resource type
-        ArgumentCaptor<String> resourceTypeCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> resourceIdCaptor = ArgumentCaptor.forClass(String.class);
-        verify(relationshipService, atLeastOnce()).writeRelationship(
-                resourceTypeCaptor.capture(), resourceIdCaptor.capture(),
-                eq("parent"),
-                eq("institution"),
-                eq(tenantId));
-
-        assertThat(resourceTypeCaptor.getAllValues()).contains("level", "subject", "topic");
-    }
 
     @DisplayName("Should mark every seeded entity and link as authored by the system user")
     @Test
