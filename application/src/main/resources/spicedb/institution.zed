@@ -53,4 +53,16 @@ definition institution {
     permission create_material: user = is_admin_or_modifier
     permission create_school: user = is_admin_or_modifier
     permission delete_school: user = delete
+
+    // Flattened-leaf permissions: level / subject / topic no longer exist as standalone
+    // SpiceDB resources; their access is gated by these aliases on institution.
+    permission view_level: user = view
+    permission update_level: user = update
+    permission delete_level: user = delete
+    permission view_subject: user = view
+    permission update_subject: user = update
+    permission delete_subject: user = delete
+    permission view_topic: user = view
+    permission update_topic: user = update
+    permission delete_topic: user = delete
 }

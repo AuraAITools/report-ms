@@ -48,4 +48,10 @@ definition outlet {
     permission is_admin_or_modifier: user = user_group->is_admin_or_modifier + parent->is_admin_or_modifier
     permission create_course: user = is_admin_or_modifier
     permission create_outlet_room: user = is_admin_or_modifier
+
+    // Flattened-leaf permissions: outlet_room no longer exists as a standalone SpiceDB
+    // resource; its access is gated by these aliases on outlet.
+    permission view_outlet_room: user = view
+    permission update_outlet_room: user = update
+    permission delete_outlet_room: user = delete
 }
