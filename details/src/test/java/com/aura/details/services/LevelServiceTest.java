@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.delete_impact.AffectedResourceGroup;
 import com.aura.core.entities.delete_impact.CleanupAction;
 import com.aura.core.entities.delete_impact.DeleteImpact;
@@ -22,11 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Level service")
@@ -43,48 +38,32 @@ class LevelServiceTest {
     private LevelRepository levelRepository;
     @Mock
     private CourseRepository courseRepository;
-    @Mock
-    private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks
     private LevelService levelService;
 
-    @DisplayName("Should null out course/student levels, clear all link tables, delete level, and wipe spicedb")
+    @DisplayName("Should create level by delegating to the use case")
+    @Test
+    void createLevelInInstitution_delegatesToUseCase() {
+        Level input = Level.builder().name("P1").category(SchoolCategory.PRIMARY).tenantId("tenant-1").build();
+        Level created = Level.builder().id("level-1").name("P1").category(SchoolCategory.PRIMARY).tenantId("tenant-1").build();
+        when(createLevelUseCase.createLevel(input)).thenReturn(created);
+
+        assertThat(levelService.createLevelInInstitution(input)).isSameAs(created);
+    }
+
+    @DisplayName("Should null out course/student levels, clear all link tables, and delete level")
     @Test
     void deleteById_cascadeAndCleanup() {
         levelService.deleteById("level-1");
 
-        InOrder ordered = inOrder(courseRepository, levelRepository, deleteLevelUseCase, relationshipService);
+        InOrder ordered = inOrder(courseRepository, levelRepository, deleteLevelUseCase);
         ordered.verify(courseRepository).nullOutLevelForCourses("level-1");
         ordered.verify(levelRepository).nullOutLevelOnStudentsByLevelId("level-1");
         ordered.verify(levelRepository).deleteAllLevelLessonLinksByLevelId("level-1");
         ordered.verify(levelRepository).deleteAllSubjectLevelLinksByLevelId("level-1");
         ordered.verify(levelRepository).deleteAllLevelEducatorLinksByLevelId("level-1");
         ordered.verify(deleteLevelUseCase).deleteById("level-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("level", "level-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("level_user_group", "level-1");
-    }
-
-    @DisplayName("Should create level and write the three structural relationships in a single batch")
-    @Test
-    void createLevelInInstitution_writesStructuralRelationshipsAsBatch() {
-        Level input = Level.builder().name("P1").category(SchoolCategory.PRIMARY).tenantId("tenant-1").build();
-        Level created = Level.builder().id("level-1").name("P1").category(SchoolCategory.PRIMARY).tenantId("tenant-1").build();
-        when(createLevelUseCase.createLevel(any())).thenReturn(created);
-
-        Level result = levelService.createLevelInInstitution(input);
-
-        assertThat(result).isEqualTo(created);
-        verify(relationshipService).writeRelationships(argThat(list ->
-                list.containsAll(List.of(
-                        new RelationshipAuthorizationService.Relationship(
-                                "level", "level-1", "user_group", "level_user_group", "level-1"),
-                        new RelationshipAuthorizationService.Relationship(
-                                "level_user_group", "level-1", "parent", "system_user_group", "aura"),
-                        new RelationshipAuthorizationService.Relationship(
-                                "level", "level-1", "parent", "institution", "tenant-1")))
-                        && list.size() == 3));
-        verifyNoMoreInteractions(relationshipService);
     }
 
     @DisplayName("Should return delete-impact preview by delegating to the use case")

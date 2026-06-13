@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.delete_impact.AffectedResourceGroup;
 import com.aura.core.entities.delete_impact.CleanupAction;
 import com.aura.core.entities.delete_impact.DeleteImpact;
@@ -22,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Topic service")
@@ -39,40 +37,32 @@ class TopicServiceTest {
     private GetTopicDeleteImpactUseCase getTopicDeleteImpactUseCase;
     @Mock
     private TopicRepository topicRepository;
-    @Mock
-    private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks
     private TopicService topicService;
 
-    @DisplayName("Should create topic and write parent relationship to the institution")
+    @DisplayName("Should create topic by delegating to the use case")
     @Test
-    void createTopic_writesParentInstitutionRelationship() {
+    void createTopic_delegatesToUseCase() {
         Topic input = Topic.builder().name("Algebra").tenantId("tenant-1").build();
         Topic created = Topic.builder().id("topic-1").name("Algebra").tenantId("tenant-1").build();
         when(createTopicUseCase.createTopic(input)).thenReturn(created);
 
-        Topic result = topicService.createTopic(input);
-
-        assertThat(result).isEqualTo(created);
-        verify(relationshipService).writeRelationship(
-                "topic", "topic-1", "parent", "institution", "tenant-1");
+        assertThat(topicService.createTopic(input)).isEqualTo(created);
     }
 
-    @DisplayName("Should delete topic, purge all 5 link tables, then wipe spicedb relationships in order")
+    @DisplayName("Should delete topic and purge all 5 link tables in order")
     @Test
-    void deleteById_clearsAllLinksAndSpicedb() {
+    void deleteById_clearsAllLinks() {
         topicService.deleteById("topic-1");
 
-        InOrder ordered = inOrder(topicRepository, deleteTopicUseCase, relationshipService);
+        InOrder ordered = inOrder(topicRepository, deleteTopicUseCase);
         ordered.verify(topicRepository).deleteAllTopicSubjectLinksByTopicId("topic-1");
         ordered.verify(topicRepository).deleteAllLessonObjectiveTopicLinksByTopicId("topic-1");
         ordered.verify(topicRepository).deleteAllMaterialTopicLinksByTopicId("topic-1");
         ordered.verify(topicRepository).deleteAllTopicLessonLinksByTopicId("topic-1");
         ordered.verify(topicRepository).deleteAllLessonGroupPlanTopicLinksByTopicId("topic-1");
         ordered.verify(deleteTopicUseCase).deleteById("topic-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("topic", "topic-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("topic_user_group", "topic-1");
     }
 
     @DisplayName("Should return delete-impact preview by delegating to the use case")

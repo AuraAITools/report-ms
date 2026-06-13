@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.outlets.OutletRoom;
 import com.aura.core.entities.outlets.OutletRoom.OUTLET_ROOM_TYPE;
 import com.aura.core.repositories.OutletRoomRepository;
@@ -19,9 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @DisplayName("OutletRoom service")
@@ -38,30 +35,20 @@ class OutletRoomServiceTest {
     private OutletRoomQueryUseCase outletRoomQueryUseCase;
     @Mock
     private OutletRoomRepository outletRoomRepository;
-    @Mock
-    private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks
     private OutletRoomService outletRoomService;
 
-    @DisplayName("Should write the parent_outlet relationship on create")
+    @DisplayName("Should create outlet room by delegating to the use case")
     @Test
-    void createOutletRoom_writesParentOutletRelationship() {
+    void createOutletRoom_delegatesToUseCase() {
         OutletRoom input = OutletRoom.builder().name("Studio A").type(OUTLET_ROOM_TYPE.PHYSICAL).build();
         OutletRoom created = OutletRoom.builder()
-                .id("room-1")
-                .outletId("outlet-1")
-                .tenantId("tenant-1")
-                .name("Studio A")
-                .type(OUTLET_ROOM_TYPE.PHYSICAL)
-                .build();
-        when(createOutletRoomUseCase.createOutletRoom(any())).thenReturn(created);
+                .id("room-1").outletId("outlet-1").tenantId("tenant-1")
+                .name("Studio A").type(OUTLET_ROOM_TYPE.PHYSICAL).build();
+        when(createOutletRoomUseCase.createOutletRoom(input)).thenReturn(created);
 
-        OutletRoom result = outletRoomService.createOutletRoom(input);
-
-        assertThat(result).isEqualTo(created);
-        verify(relationshipService).writeRelationship("outlet_room", "room-1", "parent", "outlet", "outlet-1");
-        verifyNoMoreInteractions(relationshipService);
+        assertThat(outletRoomService.createOutletRoom(input)).isSameAs(created);
     }
 
     @DisplayName("Should delegate updateOutletRoom to the use case and return its result")
@@ -83,14 +70,11 @@ class OutletRoomServiceTest {
         assertThat(outletRoomService.updateOutletRoom(input)).isNull();
     }
 
-    @DisplayName("Should delete the room and wipe its spicedb relationships")
+    @DisplayName("Should delete the outlet room by delegating to the use case")
     @Test
-    void deleteById_deletesRoomAndCleansUpAuthorization() {
+    void deleteById_delegatesToUseCase() {
         outletRoomService.deleteById("room-1");
-
         verify(deleteOutletRoomUseCase).deleteById("room-1");
-        verify(relationshipService).deleteAllRelationshipsForResource("outlet_room", "room-1");
-        verifyNoMoreInteractions(relationshipService);
     }
 
     @DisplayName("Should delegate findById to the query use case")

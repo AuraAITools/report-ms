@@ -1,6 +1,5 @@
 package com.aura.details.services;
 
-import com.aura.core.clients.RelationshipAuthorizationService;
 import com.aura.core.entities.delete_impact.AffectedResourceGroup;
 import com.aura.core.entities.delete_impact.CleanupAction;
 import com.aura.core.entities.delete_impact.DeleteImpact;
@@ -23,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Subject service")
@@ -42,32 +40,26 @@ class SubjectServiceTest {
     private GetSubjectDeleteImpactUseCase getSubjectDeleteImpactUseCase;
     @Mock
     private SubjectRepository subjectRepository;
-    @Mock
-    private RelationshipAuthorizationService relationshipService;
 
     @InjectMocks
     private SubjectService subjectService;
 
-    @DisplayName("Should create subject and write parent relationship")
+    @DisplayName("Should create subject by delegating to the use case")
     @Test
-    void createSubject_writesParentRelationship() {
+    void createSubject_delegatesToUseCase() {
         Subject input = Subject.builder().name("Math").tenantId("tenant-1").build();
         Subject created = Subject.builder().id("sub-1").name("Math").tenantId("tenant-1").build();
         when(createSubjectUseCase.createSubject(input)).thenReturn(created);
 
-        Subject result = subjectService.createSubject(input);
-
-        assertThat(result).isEqualTo(created);
-        verify(relationshipService).writeRelationship(
-                "subject", "sub-1", "parent", "institution", "tenant-1");
+        assertThat(subjectService.createSubject(input)).isEqualTo(created);
     }
 
-    @DisplayName("Should delete subject, purge all 7 link tables, null-out TestResult.subject, then wipe spicedb in order")
+    @DisplayName("Should delete subject, purge all 7 link tables, then null-out TestResult.subject in order")
     @Test
-    void deleteById_clearsAllLinksAndSpicedb() {
+    void deleteById_clearsAllLinks() {
         subjectService.deleteById("sub-1");
 
-        InOrder ordered = inOrder(subjectRepository, deleteSubjectUseCase, relationshipService);
+        InOrder ordered = inOrder(subjectRepository, deleteSubjectUseCase);
         ordered.verify(subjectRepository).deleteAllTopicSubjectLinksBySubjectId("sub-1");
         ordered.verify(subjectRepository).deleteAllSubjectCourseLinksBySubjectId("sub-1");
         ordered.verify(subjectRepository).deleteAllSubjectStudentLinksBySubjectId("sub-1");
@@ -77,8 +69,6 @@ class SubjectServiceTest {
         ordered.verify(subjectRepository).deleteAllSubjectLessonLinksBySubjectId("sub-1");
         ordered.verify(subjectRepository).nullOutSubjectOnTestResultsBySubjectId("sub-1");
         ordered.verify(deleteSubjectUseCase).deleteById("sub-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("subject", "sub-1");
-        ordered.verify(relationshipService).deleteAllRelationshipsForResource("subject_user_group", "sub-1");
     }
 
     @DisplayName("Should return delete-impact preview by delegating to the use case")
