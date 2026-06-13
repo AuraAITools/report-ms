@@ -34,8 +34,9 @@ input CreateOutletRoomInput {
 }
 
 input UpdateOutletRoomInput {
-    id: ID!
     institutionId: ID!
+    outletId: ID!
+    id: ID!
     name: String!
     size: Int!
     details: String
@@ -47,6 +48,7 @@ input UpdateOutletRoomInput {
 }
 
 input DeleteOutletRoomByIdInput {
-    id: ID!
     institutionId: ID!
+    outletId: ID!
+    id: ID!
 }
