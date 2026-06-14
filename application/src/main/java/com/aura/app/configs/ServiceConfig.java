@@ -63,6 +63,7 @@ import com.aura.core.usecases.lesson_group_plans.RemoveTopicsFromLessonGroupPlan
 import com.aura.core.usecases.lesson_group_plans.UpdateLessonGroupPlanUseCase;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.DeleteLessonGroupUseCase;
 import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.AddEducatorsToLessonUseCase;
 import com.aura.core.usecases.lessons.AddLevelsToLessonUseCase;
@@ -338,8 +339,9 @@ public class ServiceConfig {
     @Bean
     LessonGroupService lessonGroupService(CreateLessonGroupUseCase createLessonGroupUseCase,
                                           AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase,
+                                          DeleteLessonGroupUseCase deleteLessonGroupUseCase,
                                           LessonGroupRepository lessonGroupRepository) {
-        return new LessonGroupService(createLessonGroupUseCase, addStudentsToLessonGroupUseCase, lessonGroupRepository);
+        return new LessonGroupService(createLessonGroupUseCase, addStudentsToLessonGroupUseCase, deleteLessonGroupUseCase, lessonGroupRepository);
     }
 
     @Bean

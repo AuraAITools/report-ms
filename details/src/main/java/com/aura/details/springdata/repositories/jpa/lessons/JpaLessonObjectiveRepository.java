@@ -15,6 +15,8 @@ public interface JpaLessonObjectiveRepository extends JpaRepository<LessonObject
 
     List<LessonObjectiveModel> findAllByTenantId(String tenantId);
 
+    void deleteAllByLessonGroupPlan_LessonGroup_Id(UUID lessonGroupId);
+
     @Query("SELECT lo.lessonGroupPlan.lessonGroup.lesson.id, lo FROM LessonObjectiveModel lo WHERE lo.lessonGroupPlan.lessonGroup.lesson.id IN :lessonIds")
     List<Object[]> findObjectivesByLessonIds(@Param("lessonIds") List<UUID> lessonIds);
 

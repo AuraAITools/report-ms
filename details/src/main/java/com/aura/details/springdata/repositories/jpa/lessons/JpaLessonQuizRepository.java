@@ -14,6 +14,8 @@ public interface JpaLessonQuizRepository extends JpaRepository<LessonQuizModel, 
 
     List<LessonQuizModel> findAllByLessonGroupPlanId(UUID lessonGroupPlanId);
 
+    void deleteAllByLessonGroupPlan_LessonGroup_Id(UUID lessonGroupId);
+
     @Query("SELECT q.lessonGroupPlan.id, q FROM LessonQuizModel q WHERE q.lessonGroupPlan.id IN :planIds")
     List<Object[]> findQuizzesByLessonGroupPlanIds(@Param("planIds") List<UUID> planIds);
 }

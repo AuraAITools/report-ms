@@ -31,6 +31,8 @@ public interface JpaStudentLessonLinkRepository extends JpaRepository<StudentLes
 
     void deleteAllByStudentId(UUID studentId);
 
+    List<StudentLessonLinkModel> findAllByLessonGroup_Id(UUID lessonGroupId);
+
     @Query("""
             SELECT l.lesson FROM StudentLessonLinkModel l
             WHERE l.tenantId = :tenantId

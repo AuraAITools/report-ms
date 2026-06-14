@@ -5,6 +5,7 @@ import com.aura.core.entities.links.StudentLessonLink;
 import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.DeleteLessonGroupUseCase;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,7 @@ public class LessonGroupService {
 
     private final CreateLessonGroupUseCase createLessonGroupUseCase;
     private final AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase;
+    private final DeleteLessonGroupUseCase deleteLessonGroupUseCase;
     private final LessonGroupRepository lessonGroupRepository;
 
     @Transactional
@@ -34,5 +36,11 @@ public class LessonGroupService {
 
     public List<LessonGroup> findAllByLessonId(String lessonId) {
         return lessonGroupRepository.findAllByLessonId(lessonId);
+    }
+
+    @Transactional
+    public void deleteById(String id) {
+        lessonGroupRepository.deleteAllLessonGroupChildrenByLessonGroupId(id);
+        deleteLessonGroupUseCase.deleteById(id);
     }
 }

@@ -99,6 +99,73 @@ mvn install
 mvn spring-boot:run -pl application 
 ```
 
+## Building & testing across modules
+
+### The `-pl` reactor gotcha
+
+When you edit a file in an upstream module (`core`, `details`, `application`) and then run
+
+```bash
+mvn test -pl component-tests
+```
+
+the edit can appear to have no effect. The test passes or fails exactly as it did
+before your change. This is not a stale-cache or incremental-compile bug — it is how
+Maven's reactor resolves inter-module dependencies, and it is worth understanding
+because it bites whenever you touch app code while debugging a component test.
+
+#### What `-pl X` actually does
+
+The `-pl` (project list) flag scopes the reactor to **only** module `X`. Maven does
+not look at the other modules' source trees during that invocation. To satisfy
+`component-tests`'s declared dependency on `application` (which transitively pulls
+`details` and `core`), Maven does what it would for any third-party library: it
+resolves `com.aura:application:1.0.0` from the **local Maven repository** at
+`~/.m2/repository/com/aura/application/1.0.0/application-1.0.0.jar`. That jar was
+written there by the last `mvn install` run.
+
+#### Why the change disappears
+
+1. `mvn clean test -pl component-tests` runs `clean` only on `component-tests/target/`.
+   It does **not** touch `~/.m2`.
+2. Compilation of `component-tests` links against the **old** `details-1.0.0.jar`
+   still sitting in `~/.m2`.
+3. Spring Boot's test context loads classes from that old jar at runtime. The
+   `OutletRoomModel.java` you just edited is never on the classpath. The fix
+   appears inert; the failing test keeps failing with the same stack trace.
+
+Unit tests inside `details/` don't have this problem because `mvn test -pl details`
+runs the tests against `details/target/classes/` directly — same reactor module,
+same compile output, no `~/.m2` round-trip. The pitfall is specific to a *consumer*
+module reading its upstream dependency through Maven artifact resolution.
+
+#### The fix
+
+Either rebuild the whole reactor so `~/.m2` is up to date:
+
+```bash
+mvn clean install -DskipTests   # rebuilds & installs every module's jar into ~/.m2
+mvn test -pl component-tests
+```
+
+or use `-am` ("also make") so Maven additionally builds every module that
+`component-tests` transitively depends on, in the same reactor invocation:
+
+```bash
+mvn test -pl component-tests -am
+```
+
+`-am` is faster if you don't need `database-runner` rebuilt; the full-reactor form
+is safer when several modules have changed at once. Both are correct.
+
+#### Rule of thumb
+
+| What changed | Safe command |
+| --- | --- |
+| Only files in `component-tests/` | `mvn clean test -pl component-tests` |
+| Anything in `core/`, `details/`, or `application/` | `mvn clean install -DskipTests` then `mvn test -pl component-tests` (or use `-am`) |
+| MapStruct-generated sources look corrupt | `mvn clean` first; the codegen output gets confused otherwise |
+
 ## Dependencies
 
 Java jdk 25

@@ -33,3 +33,10 @@ input CreateLessonGroupForLessonInput {
     studentIds: [ID!]!
     plan: CreateLessonGroupPlanForLessonGroupInput!
 }
+
+input AddStudentsToLessonGroupInput {
+    institutionId: ID!
+    lessonId: ID!
+    lessonGroupId: ID!
+    studentIds: [ID!]!
+}

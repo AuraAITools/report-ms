@@ -1,3 +1,5 @@
 extend type Mutation {
     createLessonGroupInLesson(input: CreateLessonGroupInLessonInput!): LessonGroupResponse!
+    addStudentsToLessonGroup(input: AddStudentsToLessonGroupInput!): LessonGroupResponse!
+    deleteLessonGroupById(institutionId: ID!, lessonId: ID!, id: ID!): Boolean!
 }

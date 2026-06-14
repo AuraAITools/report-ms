@@ -147,5 +147,15 @@ class AddStudentsToLessonGroupUseCaseImplTest {
         public Map<String, List<LessonGroup>> findAllByLessonIds(List<String> lessonIds) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void deleteById(UUID id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deleteAllLessonGroupChildrenByLessonGroupId(String lessonGroupId) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

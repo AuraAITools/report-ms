@@ -111,6 +111,8 @@ import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCaseImpl;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCaseImpl;
+import com.aura.core.usecases.lesson_groups.DeleteLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.DeleteLessonGroupUseCaseImpl;
 import com.aura.core.usecases.lesson_quizzes.CreateLessonQuizUseCase;
 import com.aura.core.usecases.lesson_quizzes.CreateLessonQuizUseCaseImpl;
 import com.aura.core.usecases.lesson_quizzes.DeleteLessonQuizUseCase;
@@ -448,6 +450,11 @@ public class UseCaseConfig {
     CreateLessonGroupUseCase createLessonGroupUseCase(LessonGroupRepository lessonGroupRepository,
                                                       LessonRepository lessonRepository) {
         return new CreateLessonGroupUseCaseImpl(lessonGroupRepository, lessonRepository);
+    }
+
+    @Bean
+    DeleteLessonGroupUseCase deleteLessonGroupUseCase(LessonGroupRepository lessonGroupRepository) {
+        return new DeleteLessonGroupUseCaseImpl(lessonGroupRepository);
     }
 
     @Bean

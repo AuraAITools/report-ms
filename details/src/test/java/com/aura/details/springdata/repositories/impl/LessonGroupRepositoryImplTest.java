@@ -3,8 +3,17 @@ package com.aura.details.springdata.repositories.impl;
 import com.aura.core.entities.lessons.LessonGroup;
 import com.aura.details.springdata.models.lessons.LessonGroupModel;
 import com.aura.details.springdata.models.lessons.LessonModel;
+import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizStudentLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanTopicLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonObjectiveTopicLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRepository;
 import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +38,20 @@ class LessonGroupRepositoryImplTest {
 
     @Mock
     private JpaLessonGroupRepository jpaLessonGroupRepository;
+    @Mock
+    private JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository;
+    @Mock
+    private JpaLessonQuizStudentLessonLinkRepository jpaLessonQuizStudentLessonLinkRepository;
+    @Mock
+    private JpaLessonObjectiveRepository jpaLessonObjectiveRepository;
+    @Mock
+    private JpaLessonQuizRepository jpaLessonQuizRepository;
+    @Mock
+    private JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository;
+    @Mock
+    private JpaLessonGroupPlanTopicLinkRepository jpaLessonGroupPlanTopicLinkRepository;
+    @Mock
+    private JpaStudentLessonLinkRepository jpaStudentLessonLinkRepository;
     @Mock
     private EntityManager entityManager;
     @InjectMocks
@@ -157,5 +180,37 @@ class LessonGroupRepositoryImplTest {
         Map<String, List<LessonGroup>> result = lessonGroupRepositoryImpl.findAllByLessonIds(List.of());
 
         assertThat(result).isEmpty();
+    }
+
+    @DisplayName("Should delegate deleteById to JPA repository with UUID")
+    @Test
+    void deleteById_delegatesToJpaRepository() {
+        UUID id = UUID.randomUUID();
+
+        lessonGroupRepositoryImpl.deleteById(id);
+
+        verify(jpaLessonGroupRepository).deleteById(id);
+    }
+
+    @DisplayName("Should clean child links and null out student lesson links")
+    @Test
+    void deleteAllLessonGroupChildrenByLessonGroupId_cleansHierarchyAndUnassignsStudents() {
+        UUID groupId = UUID.randomUUID();
+        StudentLessonLinkModel link1 = new StudentLessonLinkModel();
+        StudentLessonLinkModel link2 = new StudentLessonLinkModel();
+        List<StudentLessonLinkModel> links = new ArrayList<>(List.of(link1, link2));
+        when(jpaStudentLessonLinkRepository.findAllByLessonGroup_Id(groupId)).thenReturn(links);
+
+        lessonGroupRepositoryImpl.deleteAllLessonGroupChildrenByLessonGroupId(groupId.toString());
+
+        verify(jpaLessonObjectiveTopicLinkRepository).deleteAllByLessonObjective_LessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaLessonQuizStudentLessonLinkRepository).deleteAllByLessonQuizTable_LessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaLessonObjectiveRepository).deleteAllByLessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaLessonQuizRepository).deleteAllByLessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaLessonGroupPlanMaterialsLinkRepository).deleteAllByLessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaLessonGroupPlanTopicLinkRepository).deleteAllByLessonGroupPlan_LessonGroup_Id(groupId);
+        verify(jpaStudentLessonLinkRepository).saveAll(links);
+        assertThat(link1.getLessonGroup()).isNull();
+        assertThat(link2.getLessonGroup()).isNull();
     }
 }

@@ -5,7 +5,15 @@ import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.details.springdata.mappers.lessons.LessonGroupMapper;
 import com.aura.details.springdata.models.lessons.LessonGroupModel;
 import com.aura.details.springdata.models.lessons.LessonModel;
+import com.aura.details.springdata.models.links.StudentLessonLinkModel;
 import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonGroupRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonObjectiveRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizRepository;
+import com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizStudentLessonLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanMaterialsLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonGroupPlanTopicLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaLessonObjectiveTopicLinkRepository;
+import com.aura.details.springdata.repositories.jpa.links.JpaStudentLessonLinkRepository;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +28,13 @@ import static java.util.Collections.emptyMap;
 @RequiredArgsConstructor
 public class LessonGroupRepositoryImpl implements LessonGroupRepository {
     private final JpaLessonGroupRepository jpaLessonGroupRepository;
+    private final JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository;
+    private final JpaLessonQuizStudentLessonLinkRepository jpaLessonQuizStudentLessonLinkRepository;
+    private final JpaLessonObjectiveRepository jpaLessonObjectiveRepository;
+    private final JpaLessonQuizRepository jpaLessonQuizRepository;
+    private final JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository;
+    private final JpaLessonGroupPlanTopicLinkRepository jpaLessonGroupPlanTopicLinkRepository;
+    private final JpaStudentLessonLinkRepository jpaStudentLessonLinkRepository;
     private final EntityManager entityManager;
 
     @Override
@@ -62,5 +77,24 @@ public class LessonGroupRepositoryImpl implements LessonGroupRepository {
                     .add(LessonGroupMapper.INSTANCE.toDomainEntity(model));
         }
         return result;
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaLessonGroupRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllLessonGroupChildrenByLessonGroupId(String lessonGroupId) {
+        UUID groupUuid = UUID.fromString(lessonGroupId);
+        jpaLessonObjectiveTopicLinkRepository.deleteAllByLessonObjective_LessonGroupPlan_LessonGroup_Id(groupUuid);
+        jpaLessonQuizStudentLessonLinkRepository.deleteAllByLessonQuizTable_LessonGroupPlan_LessonGroup_Id(groupUuid);
+        jpaLessonObjectiveRepository.deleteAllByLessonGroupPlan_LessonGroup_Id(groupUuid);
+        jpaLessonQuizRepository.deleteAllByLessonGroupPlan_LessonGroup_Id(groupUuid);
+        jpaLessonGroupPlanMaterialsLinkRepository.deleteAllByLessonGroupPlan_LessonGroup_Id(groupUuid);
+        jpaLessonGroupPlanTopicLinkRepository.deleteAllByLessonGroupPlan_LessonGroup_Id(groupUuid);
+        List<StudentLessonLinkModel> links = jpaStudentLessonLinkRepository.findAllByLessonGroup_Id(groupUuid);
+        links.forEach(link -> link.setLessonGroup(null));
+        jpaStudentLessonLinkRepository.saveAll(links);
     }
 }

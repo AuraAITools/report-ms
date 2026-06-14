@@ -15,6 +15,8 @@ public interface JpaLessonObjectiveTopicLinkRepository extends JpaRepository<Les
 
     void deleteAllByTopicId(UUID topicId);
 
+    void deleteAllByLessonObjective_LessonGroupPlan_LessonGroup_Id(UUID lessonGroupId);
+
     @Query("SELECT l.lessonObjective.id FROM LessonObjectiveTopicLinkModel l WHERE l.topic.id = :topicId")
     List<UUID> findLessonObjectiveIdsByTopicId(@Param("topicId") UUID topicId);
 }

@@ -225,8 +225,24 @@ public class RepositoryConfig {
 
     @Bean
     LessonGroupRepository lessonGroupRepository(JpaLessonGroupRepository jpaLessonGroupRepository,
+                                                JpaLessonObjectiveTopicLinkRepository jpaLessonObjectiveTopicLinkRepository,
+                                                com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizStudentLessonLinkRepository jpaLessonQuizStudentLessonLinkRepository,
+                                                JpaLessonObjectiveRepository jpaLessonObjectiveRepository,
+                                                com.aura.details.springdata.repositories.jpa.lessons.JpaLessonQuizRepository jpaLessonQuizRepository,
+                                                JpaLessonGroupPlanMaterialsLinkRepository jpaLessonGroupPlanMaterialsLinkRepository,
+                                                JpaLessonGroupPlanTopicLinkRepository jpaLessonGroupPlanTopicLinkRepository,
+                                                JpaStudentLessonLinkRepository jpaStudentLessonLinkRepository,
                                                 EntityManager entityManager) {
-        return new LessonGroupRepositoryImpl(jpaLessonGroupRepository, entityManager);
+        return new LessonGroupRepositoryImpl(
+                jpaLessonGroupRepository,
+                jpaLessonObjectiveTopicLinkRepository,
+                jpaLessonQuizStudentLessonLinkRepository,
+                jpaLessonObjectiveRepository,
+                jpaLessonQuizRepository,
+                jpaLessonGroupPlanMaterialsLinkRepository,
+                jpaLessonGroupPlanTopicLinkRepository,
+                jpaStudentLessonLinkRepository,
+                entityManager);
     }
 
     @Bean

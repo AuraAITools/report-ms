@@ -24,4 +24,6 @@ public interface JpaLessonGroupPlanTopicLinkRepository extends JpaRepository<Les
     void deleteAllByLessonGroupPlanIdAndTopicIdIn(UUID lessonGroupPlanId, List<UUID> topicIds);
 
     void deleteAllByTopicId(UUID topicId);
+
+    void deleteAllByLessonGroupPlan_LessonGroup_Id(UUID lessonGroupId);
 }

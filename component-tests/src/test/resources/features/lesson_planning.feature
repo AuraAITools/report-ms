@@ -105,3 +105,56 @@ Feature: Lesson Planning
     Then the lesson group plan should have 1 linked materials in the database
     When the user removes the material from the lesson group plan
     Then the lesson group plan should have 0 linked materials in the database
+
+  @ComponentTest @LessonGroupDelete
+  Scenario: Aura admin deletes an existing lesson group
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Del LG Outlet"
+    And a course exists with name "Del LG Course"
+    And a lesson exists with name "Del LG Lesson"
+    When the user deletes the existing lesson group
+    Then the lesson group should be deleted successfully
+    And the lesson group should no longer exist in the database
+
+  @ComponentTest @LessonGroupDelete
+  Scenario: Modifier cannot delete a lesson group
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Del LG Outlet"
+    And a course exists with name "Del LG Course"
+    And a lesson exists with name "Del LG Lesson"
+    And user "lessongroupmodifier@test.com" has "modifier" role on "lesson_user_group" "{lesson_id}"
+    And user switches to "lessongroupmodifier@test.com" identity
+    When the user tries to delete the existing lesson group
+    Then the request should fail with error code "FORBIDDEN"
+
+  # Students must first be assigned to the lesson before being added to a
+  # group within that lesson — the group's roster is a subset of the lesson roster.
+
+  @ComponentTest @LessonGroupAddStudents
+  Scenario: Aura admin adds a student already in the lesson to the existing lesson group
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Add Stu Outlet"
+    And a course exists with name "Add Stu Course"
+    And the lesson "Add Stu Lesson" is created in course "Add Stu Course" with no room from "2026-03-01T09:00:00Z" to "2026-03-01T10:00:00Z"
+    And the student "Alice" exists
+    And the student "Alice" is assigned to lesson "Add Stu Lesson"
+    When the user adds student "Alice" to the existing lesson group
+    Then the lesson group response should include student "Alice"
+
+  @ComponentTest @LessonGroupAddStudents
+  Scenario: Aura admin fails to add a student that is not in the lesson to the lesson group
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Add Stu Outlet"
+    And a course exists with name "Add Stu Course"
+    And the lesson "Add Stu Lesson" is created in course "Add Stu Course" with no room from "2026-03-01T09:00:00Z" to "2026-03-01T10:00:00Z"
+    And the student "Bob" exists
+    When the user tries to add student "Bob" to the existing lesson group
+    Then the request should fail with an error

@@ -290,6 +290,31 @@ assertions:
     - lesson:1#create_lesson_quiz@user:sys_admin_user
     - lesson:1#create_lesson_quiz@user:sys_modifier_user
 
+    # ============================================================
+    # delete_lesson_group — alias of delete (admin only); granted to
+    # admin directly and via inherited parent chain
+    # ============================================================
+    - lesson:1#delete_lesson_group@user:les_admin_user
+    - lesson:1#delete_lesson_group@user:crs_admin_user
+    - lesson:1#delete_lesson_group@user:out_admin_user
+    - lesson:1#delete_lesson_group@user:inst_admin_user
+    - lesson:1#delete_lesson_group@user:sys_admin_user
+
+    # ============================================================
+    # update_lesson_group — alias of update (admin + modifier); granted to
+    # admin/modifier directly and via inherited parent chain
+    # ============================================================
+    - lesson:1#update_lesson_group@user:les_admin_user
+    - lesson:1#update_lesson_group@user:les_modifier_user
+    - lesson:1#update_lesson_group@user:crs_admin_user
+    - lesson:1#update_lesson_group@user:crs_modifier_user
+    - lesson:1#update_lesson_group@user:out_admin_user
+    - lesson:1#update_lesson_group@user:out_modifier_user
+    - lesson:1#update_lesson_group@user:inst_admin_user
+    - lesson:1#update_lesson_group@user:inst_modifier_user
+    - lesson:1#update_lesson_group@user:sys_admin_user
+    - lesson:1#update_lesson_group@user:sys_modifier_user
+
   assertFalse:
     # ============================================================
     # non_member_user (no relationships anywhere)
@@ -523,3 +548,36 @@ assertions:
     - lesson:1#create_lesson_quiz@user:sys_group_admin_user
     - lesson:1#create_lesson_quiz@user:sys_group_viewer_user
     - lesson:1#create_lesson_quiz@user:non_member_user
+
+    # ============================================================
+    # delete_lesson_group — modifiers, viewers, group-mgmt users, non-members denied
+    # ============================================================
+    - lesson:1#delete_lesson_group@user:les_modifier_user
+    - lesson:1#delete_lesson_group@user:crs_modifier_user
+    - lesson:1#delete_lesson_group@user:out_modifier_user
+    - lesson:1#delete_lesson_group@user:inst_modifier_user
+    - lesson:1#delete_lesson_group@user:sys_modifier_user
+    - lesson:1#delete_lesson_group@user:les_viewer_user
+    - lesson:1#delete_lesson_group@user:crs_viewer_user
+    - lesson:1#delete_lesson_group@user:out_viewer_user
+    - lesson:1#delete_lesson_group@user:inst_viewer_user
+    - lesson:1#delete_lesson_group@user:sys_viewer_user
+    - lesson:1#delete_lesson_group@user:les_group_admin_user
+    - lesson:1#delete_lesson_group@user:les_group_viewer_user
+    - lesson:1#delete_lesson_group@user:sys_group_admin_user
+    - lesson:1#delete_lesson_group@user:sys_group_viewer_user
+    - lesson:1#delete_lesson_group@user:non_member_user
+
+    # ============================================================
+    # update_lesson_group — viewers, group-mgmt users, non-members denied
+    # ============================================================
+    - lesson:1#update_lesson_group@user:les_viewer_user
+    - lesson:1#update_lesson_group@user:crs_viewer_user
+    - lesson:1#update_lesson_group@user:out_viewer_user
+    - lesson:1#update_lesson_group@user:inst_viewer_user
+    - lesson:1#update_lesson_group@user:sys_viewer_user
+    - lesson:1#update_lesson_group@user:les_group_admin_user
+    - lesson:1#update_lesson_group@user:les_group_viewer_user
+    - lesson:1#update_lesson_group@user:sys_group_admin_user
+    - lesson:1#update_lesson_group@user:sys_group_viewer_user
+    - lesson:1#update_lesson_group@user:non_member_user

@@ -5,6 +5,7 @@ import com.aura.core.entities.links.StudentLessonLink;
 import com.aura.core.repositories.LessonGroupRepository;
 import com.aura.core.usecases.lesson_groups.AddStudentsToLessonGroupUseCase;
 import com.aura.core.usecases.lesson_groups.CreateLessonGroupUseCase;
+import com.aura.core.usecases.lesson_groups.DeleteLessonGroupUseCase;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +29,8 @@ class LessonGroupServiceTest {
     private CreateLessonGroupUseCase createLessonGroupUseCase;
     @Mock
     private AddStudentsToLessonGroupUseCase addStudentsToLessonGroupUseCase;
+    @Mock
+    private DeleteLessonGroupUseCase deleteLessonGroupUseCase;
     @Mock
     private LessonGroupRepository lessonGroupRepository;
 
@@ -113,5 +117,17 @@ class LessonGroupServiceTest {
 
         assertThat(result).isEmpty();
         verify(lessonGroupRepository).findAllByLessonId(lessonId);
+    }
+
+    @DisplayName("Should clean up children before deleting the lesson group")
+    @Test
+    void deleteById_cleansChildrenThenDeletesGroup() {
+        String id = UUID.randomUUID().toString();
+
+        lessonGroupService.deleteById(id);
+
+        var ordered = inOrder(lessonGroupRepository, deleteLessonGroupUseCase);
+        ordered.verify(lessonGroupRepository).deleteAllLessonGroupChildrenByLessonGroupId(id);
+        ordered.verify(deleteLessonGroupUseCase).deleteById(id);
     }
 }

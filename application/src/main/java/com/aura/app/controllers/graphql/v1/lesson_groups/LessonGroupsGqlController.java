@@ -1,11 +1,13 @@
 package com.aura.app.controllers.graphql.v1.lesson_groups;
 
+import com.aura.app.codegen.types.AddStudentsToLessonGroupInput;
 import com.aura.app.codegen.types.CreateLessonGroupInLessonInput;
 import com.aura.app.codegen.types.LessonGroupPlanResponse;
 import com.aura.app.codegen.types.LessonGroupResponse;
 import com.aura.app.codegen.types.LessonResponse;
 import com.aura.app.codegen.types.LessonStudentResponse;
 import com.aura.app.codegen.types.StudentResponse;
+import com.aura.app.exceptions.ResourceNotFoundBusinessException;
 import com.aura.app.mappers.LessonGroupMapper;
 import com.aura.app.mappers.LessonGroupPlanMapper;
 import com.aura.app.mappers.LessonMapper;
@@ -74,6 +76,32 @@ public class LessonGroupsGqlController {
                 input.getPlan().getTopicIds(), input.getPlan().getMaterialIds(), newObjectives);
 
         return LessonGroupMapper.INSTANCE.toDto(created);
+    }
+
+    @PreAuthorize("hasPermission(#lessonId, 'lesson', 'delete_lesson_group')")
+    @MutationMapping
+    public Boolean deleteLessonGroupById(@Argument("institutionId") String institutionId,
+                                         @Argument("lessonId") String lessonId,
+                                         @Argument("id") String id,
+                                         @ContextValue(name = "user") User user) {
+        if (lessonGroupService.findById(UUID.fromString(id)) == null) {
+            throw new ResourceNotFoundBusinessException("LessonGroup");
+        }
+        lessonGroupService.deleteById(id);
+        return true;
+    }
+
+    @PreAuthorize("hasPermission(#input.lessonId, 'lesson', 'update_lesson_group')")
+    @MutationMapping
+    public LessonGroupResponse addStudentsToLessonGroup(
+            @Argument("input") AddStudentsToLessonGroupInput input,
+            @ContextValue(name = "user") User user) {
+        LessonGroup group = lessonGroupService.findById(UUID.fromString(input.getLessonGroupId()));
+        if (group == null) {
+            throw new ResourceNotFoundBusinessException("LessonGroup");
+        }
+        lessonGroupService.addStudentsToLessonGroup(group.getId(), input.getStudentIds(), group.getTenantId());
+        return LessonGroupMapper.INSTANCE.toDto(group);
     }
 
     @BatchMapping(typeName = "LessonGroupResponse", field = "lesson")

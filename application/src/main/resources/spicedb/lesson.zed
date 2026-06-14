@@ -48,4 +48,6 @@ definition lesson {
     permission create_lesson_plan: user = is_admin_or_modifier
     permission create_lesson_objective: user = is_admin_or_modifier
     permission create_lesson_quiz: user = is_admin_or_modifier
+    permission update_lesson_group: user = update
+    permission delete_lesson_group: user = delete
 }

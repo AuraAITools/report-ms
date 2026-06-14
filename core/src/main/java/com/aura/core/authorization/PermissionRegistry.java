@@ -23,7 +23,7 @@ public final class PermissionRegistry {
                     "create_course",
                     "view_outlet_room", "update_outlet_room", "delete_outlet_room")),
             Map.entry("course", List.of("view", "update", "delete", "create_lesson")),
-            Map.entry("lesson", List.of("view", "update", "delete", "create_lesson_plan")),
+            Map.entry("lesson", List.of("view", "update", "delete", "create_lesson_plan", "update_lesson_group", "delete_lesson_group")),
             Map.entry("account", List.of("view", "update", "delete")),
             Map.entry("material", List.of("view", "update", "delete"))
     );

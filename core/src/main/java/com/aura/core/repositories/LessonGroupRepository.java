@@ -16,4 +16,8 @@ public interface LessonGroupRepository {
     List<LessonGroup> findAllByIds(List<UUID> ids);
 
     Map<String, List<LessonGroup>> findAllByLessonIds(List<String> lessonIds);
+
+    void deleteById(UUID id);
+
+    void deleteAllLessonGroupChildrenByLessonGroupId(String lessonGroupId);
 }

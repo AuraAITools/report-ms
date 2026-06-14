@@ -1,0 +1,10 @@
+mutation AddStudentsToLessonGroup($input: AddStudentsToLessonGroupInput!) {
+    addStudentsToLessonGroup(input: $input) {
+        id
+        name
+        lesson { id }
+        lessonStudents { student { id } }
+        createdAt
+        createdBy { userId accountId name url }
+    }
+}
