@@ -154,3 +154,48 @@ Feature: Lesson Scheduling Conflict Detection
     Given the lesson "Lesson 3" is created in course "Math 101" with no room from "2026-06-10T11:00:00Z" to "2026-06-10T12:00:00Z"
     When the user assigns student "Alice" to lesson "Lesson 3"
     Then the lesson "Lesson 3" should have student "Alice" assigned
+
+  # --- CANCELLED source lessons must not block subsequent assignments ---
+
+  @ComponentTest
+  Scenario: Aura admin re-uses a room when the prior overlapping lesson is cancelled
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Main Branch"
+    And the outlet room "Room A" exists in outlet "Main Branch"
+    And a course exists with name "Math 101"
+    And the lesson "Cancelled Lesson" is created in course "Math 101" in room "Room A" from "2026-06-10T09:00:00Z" to "2026-06-10T10:00:00Z"
+    And the lesson "Cancelled Lesson" is cancelled
+    When the user creates lesson "Replacement" in course "Math 101" in room "Room A" from "2026-06-10T09:30:00Z" to "2026-06-10T10:30:00Z"
+    Then the lesson "Replacement" should be created successfully
+
+  @ComponentTest
+  Scenario: Aura admin assigns an educator over a cancelled overlapping lesson
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Main Branch"
+    And a course exists with name "Math 101"
+    And the educator "Mr. Smith" exists
+    And the lesson "Lesson 1" is created in course "Math 101" with no room from "2026-06-10T09:00:00Z" to "2026-06-10T10:00:00Z"
+    And the lesson "Lesson 2" is created in course "Math 101" with no room from "2026-06-10T09:30:00Z" to "2026-06-10T10:30:00Z"
+    And the educator "Mr. Smith" is assigned to lesson "Lesson 1"
+    And the lesson "Lesson 1" is cancelled
+    When the user assigns educator "Mr. Smith" to lesson "Lesson 2"
+    Then the lesson "Lesson 2" should have educator "Mr. Smith" assigned
+
+  @ComponentTest
+  Scenario: Aura admin assigns a student over a cancelled overlapping lesson
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Main Branch"
+    And a course exists with name "Math 101"
+    And the student "Alice" exists
+    And the lesson "Lesson 1" is created in course "Math 101" with no room from "2026-06-10T09:00:00Z" to "2026-06-10T10:00:00Z"
+    And the lesson "Lesson 2" is created in course "Math 101" with no room from "2026-06-10T09:30:00Z" to "2026-06-10T10:30:00Z"
+    And the student "Alice" is assigned to lesson "Lesson 1"
+    And the lesson "Lesson 1" is cancelled
+    When the user assigns student "Alice" to lesson "Lesson 2"
+    Then the lesson "Lesson 2" should have student "Alice" assigned
