@@ -80,7 +80,7 @@ public class LessonConflictStepDefs {
                 .as("Expected a lesson named '%s' to be recorded in TestContext", lessonName)
                 .isNotNull();
         int rows = jdbcTemplate.update(
-                "UPDATE \"Lessons\" SET state = 'CANCELLED' WHERE id = ?::uuid",
+                "UPDATE public.lessons SET state = 'CANCELLED' WHERE id = ?::uuid",
                 lessonId);
         assertThat(rows)
                 .as("Expected exactly one row to be updated when cancelling lesson '%s'", lessonName)
