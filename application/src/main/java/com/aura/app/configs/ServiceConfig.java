@@ -73,6 +73,7 @@ import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
+import com.aura.core.usecases.lessons.GetLessonsInOutletByDateRangeUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import com.aura.core.usecases.levels.CreateLevelUseCase;
 import com.aura.core.usecases.levels.DeleteLevelUseCase;
@@ -317,6 +318,7 @@ public class ServiceConfig {
                                 AddLevelsToLessonUseCase addLevelsToLessonUseCase,
                                 AddTopicsToLessonUseCase addTopicsToLessonUseCase,
                                 LessonQueryUseCase lessonQueryUseCase,
+                                GetLessonsInOutletByDateRangeUseCase getLessonsInOutletByDateRangeUseCase,
                                 DeleteLessonUseCase deleteLessonUseCase,
                                 ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase,
                                 LessonRepository lessonRepository,
@@ -330,6 +332,7 @@ public class ServiceConfig {
         return new LessonService(createLessonUseCase, detectLessonConflictsUseCase,
                 addEducatorsToLessonUseCase, addStudentsToLessonUseCase, addSubjectsToLessonUseCase,
                 addLevelsToLessonUseCase, addTopicsToLessonUseCase, lessonQueryUseCase,
+                getLessonsInOutletByDateRangeUseCase,
                 deleteLessonUseCase, changeLessonOutletRoomUseCase, lessonRepository,
                 lessonOutletRoomBookingRepository, relationshipService, educatorRepository,
                 studentRepository, lessonGroupService, lessonGroupPlanService,

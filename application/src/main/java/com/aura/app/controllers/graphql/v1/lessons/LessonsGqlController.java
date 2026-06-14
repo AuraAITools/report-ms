@@ -6,6 +6,7 @@ import com.aura.app.codegen.types.ChangeLessonOutletRoomInput;
 import com.aura.app.codegen.types.CourseResponse;
 import com.aura.app.codegen.types.CreateLessonInCourseInput;
 import com.aura.app.codegen.types.EducatorResponse;
+import com.aura.app.codegen.types.GetLessonsInOutletByDateRangeInput;
 import com.aura.app.codegen.types.LessonGroupResponse;
 import com.aura.app.codegen.types.LessonResponse;
 import com.aura.app.codegen.types.LevelResponse;
@@ -56,6 +57,7 @@ import com.aura.core.repositories.SubjectRepository;
 import com.aura.core.repositories.TopicRepository;
 import com.aura.details.services.LessonGroupPlanService;
 import com.aura.details.services.LessonService;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -144,6 +146,21 @@ public class LessonsGqlController {
     public List<LessonResponse> getAllLessonsInOutlet(@Argument("outletId") String outletId,
                                                       @ContextValue(name = "user") User user) {
         return lessonService.findAllByOutletId(outletId).stream()
+                .map(LessonMapper.INSTANCE::toResponseDto)
+                .toList();
+    }
+
+    @PreAuthorize("hasPermission(#input.outletId, 'outlet', 'view')")
+    @QueryMapping
+    public List<LessonResponse> getLessonsInOutletByDateRange(
+            @Argument("input") GetLessonsInOutletByDateRangeInput input,
+            @ContextValue(name = "user") User user) {
+        Instant start = Instant.ofEpochMilli(input.getStartTimestamp());
+        Instant end = Instant.ofEpochMilli(input.getEndTimestamp());
+        // institutionId == tenantId per DefaultInstitutionOnboardingStrategy
+        return lessonService
+                .getLessonsInOutletByDateRange(input.getInstitutionId(), input.getOutletId(), start, end)
+                .stream()
                 .map(LessonMapper.INSTANCE::toResponseDto)
                 .toList();
     }

@@ -139,6 +139,8 @@ import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCaseImpl;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCaseImpl;
+import com.aura.core.usecases.lessons.GetLessonsInOutletByDateRangeUseCase;
+import com.aura.core.usecases.lessons.GetLessonsInOutletByDateRangeUseCaseImpl;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCaseImpl;
 import com.aura.core.usecases.lessons.LinkLessonsToCourseUseCase;
@@ -352,6 +354,12 @@ public class UseCaseConfig {
     @Bean
     LessonQueryUseCase lessonQueryUseCase(LessonRepository lessonRepository) {
         return new LessonQueryUseCaseImpl(lessonRepository);
+    }
+
+    @Bean
+    public GetLessonsInOutletByDateRangeUseCase getLessonsInOutletByDateRangeUseCase(
+            LessonRepository lessonRepository) {
+        return new GetLessonsInOutletByDateRangeUseCaseImpl(lessonRepository);
     }
 
     @Bean
