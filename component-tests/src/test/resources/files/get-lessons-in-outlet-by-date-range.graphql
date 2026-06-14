@@ -1,0 +1,11 @@
+query GetLessonsInOutletByDateRange($input: GetLessonsInOutletByDateRangeInput!) {
+    getLessonsInOutletByDateRange(input: $input) {
+        id
+        name
+        lessonStartTimestamptz
+        lessonEndTimestamptz
+        state
+        createdBy { userId accountId name url }
+        updatedBy { userId accountId name url }
+    }
+}

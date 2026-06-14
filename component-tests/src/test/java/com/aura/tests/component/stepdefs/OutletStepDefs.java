@@ -197,6 +197,7 @@ public class OutletStepDefs {
         assertThat(response).isNotNull();
         assertThat(response.getId()).isNotNull();
         testContext.setOutletId(response.getId());
+        testContext.recordOutlet(input.getName(), response.getId());
         return response;
     }
 }

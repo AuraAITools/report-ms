@@ -62,6 +62,10 @@ public class TestContext {
     private final Map<String, String> courseIdsByName = new HashMap<>();
     private final Map<String, String> studentIdsByName = new HashMap<>();
     private final Map<String, String> educatorIdsByName = new HashMap<>();
+    private final Map<String, String> outletIdsByName = new HashMap<>();
+
+    // Calendar query results (outlet-by-date-range)
+    private List<String> calendarLessonIds = new ArrayList<>();
 
     public TestContext(HttpSyncGraphQlClient graphQLClient) {
         this.graphQLClient = graphQLClient;
@@ -105,5 +109,13 @@ public class TestContext {
 
     public String getEducatorIdByName(String name) {
         return educatorIdsByName.get(name);
+    }
+
+    public void recordOutlet(String name, String id) {
+        outletIdsByName.put(name, id);
+    }
+
+    public String getOutletIdByName(String name) {
+        return outletIdsByName.get(name);
     }
 }
