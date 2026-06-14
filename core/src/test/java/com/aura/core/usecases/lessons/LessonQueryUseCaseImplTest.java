@@ -172,6 +172,14 @@ class LessonQueryUseCaseImplTest {
         }
 
         @Override
+        public List<Lesson> findAllByOutletIdAndTimeRange(String tenantId,
+                                                          String outletId,
+                                                          java.time.Instant startInclusive,
+                                                          java.time.Instant endExclusive) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public List<Lesson> findAllByTenantId(String tenantId) {
             throw new UnsupportedOperationException();
         }
