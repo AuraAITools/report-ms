@@ -93,6 +93,16 @@ public class GraphQlExceptionResolver extends DataFetcherExceptionResolverAdapte
                     env);
         }
 
+        if (ex instanceof IllegalArgumentException iae) {
+            log.warn("Invalid argument [correlation_id={}]: {}", correlationId, iae.getMessage());
+            return buildError(iae.getMessage(),
+                    ErrorType.BAD_REQUEST,
+                    400,
+                    "BAD_REQUEST",
+                    correlationId,
+                    env);
+        }
+
         log.error("Unhandled exception [correlation_id={}]: {}", correlationId, ex.getMessage(), ex);
         return buildError(TECHNICAL_ERROR_MESSAGE,
                 ErrorType.INTERNAL_ERROR,

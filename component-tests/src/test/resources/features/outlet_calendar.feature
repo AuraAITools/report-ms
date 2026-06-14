@@ -50,7 +50,7 @@ Feature: Outlet Calendar View
     And the user switches to the institution tenant
     And an outlet exists with name "Main Branch"
     When the user tries to query lessons in outlet "Main Branch" from "2026-09-08T00:00:00Z" to "2026-09-01T00:00:00Z"
-    Then the request should fail with an "INTERNAL_ERROR" error code
+    Then the request should fail with an "BAD_REQUEST" error code
 
   @ComponentTest
   Scenario: Aura admin gets a validation error when the date range exceeds 92 days
@@ -59,7 +59,7 @@ Feature: Outlet Calendar View
     And the user switches to the institution tenant
     And an outlet exists with name "Main Branch"
     When the user tries to query lessons in outlet "Main Branch" from "2026-01-01T00:00:00Z" to "2026-05-15T00:00:00Z"
-    Then the request should fail with an "INTERNAL_ERROR" error code
+    Then the request should fail with an "BAD_REQUEST" error code
 
   @ComponentTest
   Scenario: Aura admin querying a calendar with no lessons gets an empty result
