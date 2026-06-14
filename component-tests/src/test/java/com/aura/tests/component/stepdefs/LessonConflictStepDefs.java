@@ -73,6 +73,21 @@ public class LessonConflictStepDefs {
         log.info("Created lesson '{}' (no room) with id={}", lessonName, response.getId());
     }
 
+    @Given("the lesson {string} is cancelled")
+    public void theLessonIsCancelled(String lessonName) {
+        String lessonId = testContext.getLessonIdByName(lessonName);
+        assertThat(lessonId)
+                .as("Expected a lesson named '%s' to be recorded in TestContext", lessonName)
+                .isNotNull();
+        int rows = jdbcTemplate.update(
+                "UPDATE \"Lessons\" SET state = 'CANCELLED' WHERE id = ?::uuid",
+                lessonId);
+        assertThat(rows)
+                .as("Expected exactly one row to be updated when cancelling lesson '%s'", lessonName)
+                .isEqualTo(1);
+        log.info("Cancelled lesson '{}' (id={}) via direct DB update", lessonName, lessonId);
+    }
+
     @When("the user tries to create lesson {string} in course {string} in room {string} from {string} to {string}")
     public void userTriesToCreateLessonInCourseInRoomFromTo(
             String lessonName, String courseName, String roomName,
