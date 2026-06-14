@@ -226,6 +226,47 @@ class LessonRepositoryImplTest {
         }
     }
 
+    @DisplayName("Should delegate findAllByOutletIdAndTimeRange to the JPA repo and map results to domain entities")
+    @Test
+    void findAllByOutletIdAndTimeRange_delegatesAndMaps() {
+        String tenantId = "tenant-1";
+        UUID outletUuid = UUID.randomUUID();
+        Instant start = Instant.parse("2026-09-01T00:00:00Z");
+        Instant end = Instant.parse("2026-09-08T00:00:00Z");
+        LessonModel model = LessonModel.builder()
+                .id(UUID.randomUUID())
+                .name("Lesson 1")
+                .lessonStartTimestamptz(Instant.parse("2026-09-02T09:00:00Z"))
+                .lessonEndTimestamptz(Instant.parse("2026-09-02T10:00:00Z"))
+                .build();
+        when(jpaLessonRepository.findAllByOutletIdAndTimeRange(tenantId, outletUuid, start, end))
+                .thenReturn(List.of(model));
+
+        List<Lesson> result = repository.findAllByOutletIdAndTimeRange(
+                tenantId, outletUuid.toString(), start, end);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(model.getId().toString());
+        assertThat(result.get(0).getName()).isEqualTo("Lesson 1");
+        verify(jpaLessonRepository).findAllByOutletIdAndTimeRange(tenantId, outletUuid, start, end);
+    }
+
+    @DisplayName("Should return empty list when JPA repo returns empty")
+    @Test
+    void findAllByOutletIdAndTimeRange_emptyResult() {
+        String tenantId = "tenant-1";
+        UUID outletUuid = UUID.randomUUID();
+        Instant start = Instant.parse("2026-09-01T00:00:00Z");
+        Instant end = Instant.parse("2026-09-08T00:00:00Z");
+        when(jpaLessonRepository.findAllByOutletIdAndTimeRange(tenantId, outletUuid, start, end))
+                .thenReturn(List.of());
+
+        List<Lesson> result = repository.findAllByOutletIdAndTimeRange(
+                tenantId, outletUuid.toString(), start, end);
+
+        assertThat(result).isEmpty();
+    }
+
     @Nested
     @DisplayName("findActiveOverlappingForStudent")
     class FindActiveOverlappingForStudent {

@@ -88,6 +88,19 @@ public class LessonRepositoryImpl implements LessonRepository {
     }
 
     @Override
+    public List<Lesson> findAllByOutletIdAndTimeRange(String tenantId,
+                                                      String outletId,
+                                                      Instant startInclusive,
+                                                      Instant endExclusive) {
+        return jpaLessonRepository
+                .findAllByOutletIdAndTimeRange(
+                        tenantId, UUID.fromString(outletId), startInclusive, endExclusive)
+                .stream()
+                .map(LessonMapper.INSTANCE::toDomainEntity)
+                .toList();
+    }
+
+    @Override
     public List<Lesson> findAllByTenantId(String tenantId) {
         return jpaLessonRepository.findByTenantId(tenantId).stream()
                 .map(LessonMapper.INSTANCE::toDomainEntity)
