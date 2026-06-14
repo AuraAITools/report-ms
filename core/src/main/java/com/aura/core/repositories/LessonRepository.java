@@ -24,6 +24,20 @@ public interface LessonRepository {
 
     List<Lesson> findAllByOutletId(String outletId);
 
+    /**
+     * Returns lessons in the given tenant + outlet whose time window overlaps the
+     * half-open interval [startInclusive, endExclusive). Excludes lessons in
+     * CANCELLED state. Results are ordered by lessonStartTimestamptz ascending.
+     *
+     * tenantId is required explicitly because the existing JPA `@Query`
+     * convention in this codebase (see `findActiveOverlappingLessonsByStudent`)
+     * passes it as a parameter rather than relying on a Hibernate filter.
+     */
+    List<Lesson> findAllByOutletIdAndTimeRange(String tenantId,
+                                               String outletId,
+                                               Instant startInclusive,
+                                               Instant endExclusive);
+
     List<Lesson> findAllByTenantId(String tenantId);
 
     List<Lesson> findAllByEducatorId(String educatorId);
