@@ -20,6 +20,7 @@ import com.aura.core.usecases.lessons.ChangeLessonOutletRoomUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
+import com.aura.core.usecases.lessons.GetLessonsInOutletByDateRangeUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -40,6 +41,7 @@ public class LessonService {
     private final AddLevelsToLessonUseCase addLevelsToLessonUseCase;
     private final AddTopicsToLessonUseCase addTopicsToLessonUseCase;
     private final LessonQueryUseCase lessonQueryUseCase;
+    private final GetLessonsInOutletByDateRangeUseCase getLessonsInOutletByDateRangeUseCase;
     private final DeleteLessonUseCase deleteLessonUseCase;
     private final ChangeLessonOutletRoomUseCase changeLessonOutletRoomUseCase;
     private final LessonRepository lessonRepository;
@@ -61,6 +63,15 @@ public class LessonService {
 
     public List<Lesson> findAllByOutletId(String outletId) {
         return lessonQueryUseCase.findAllByOutletId(outletId);
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<Lesson> getLessonsInOutletByDateRange(String tenantId,
+                                                     String outletId,
+                                                     Instant startInclusive,
+                                                     Instant endExclusive) {
+        return getLessonsInOutletByDateRangeUseCase.getLessonsInOutletByDateRange(
+                tenantId, outletId, startInclusive, endExclusive);
     }
 
     public List<Lesson> findAllByEducatorId(String educatorId) {

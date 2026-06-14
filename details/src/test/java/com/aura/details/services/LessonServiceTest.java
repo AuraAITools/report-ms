@@ -18,6 +18,7 @@ import com.aura.core.usecases.lessons.AddTopicsToLessonUseCase;
 import com.aura.core.usecases.lessons.CreateLessonUseCase;
 import com.aura.core.usecases.lessons.DeleteLessonUseCase;
 import com.aura.core.usecases.lessons.DetectLessonConflictsUseCase;
+import com.aura.core.usecases.lessons.GetLessonsInOutletByDateRangeUseCase;
 import com.aura.core.usecases.lessons.LessonQueryUseCase;
 import java.time.Instant;
 import java.util.List;
@@ -75,6 +76,8 @@ class LessonServiceTest {
     private RelationshipAuthorizationService relationshipService;
     @Mock
     private LessonQueryUseCase lessonQueryUseCase;
+    @Mock
+    private GetLessonsInOutletByDateRangeUseCase getLessonsInOutletByDateRangeUseCase;
     @Mock
     private EducatorRepository educatorRepository;
     @Mock
@@ -228,6 +231,26 @@ class LessonServiceTest {
         when(lessonQueryUseCase.findAllByStudentId("s-1")).thenReturn(List.of(l1));
 
         org.assertj.core.api.Assertions.assertThat(lessonService.findAllByStudentId("s-1")).containsExactly(l1);
+    }
+
+    @DisplayName("Should delegate getLessonsInOutletByDateRange to the use case and return its result")
+    @Test
+    void shouldDelegateGetLessonsInOutletByDateRange() {
+        String tenantId = "tenant-1";
+        String outletId = "outlet-1";
+        Instant start = Instant.parse("2026-09-01T00:00:00Z");
+        Instant end = Instant.parse("2026-09-08T00:00:00Z");
+        Lesson lesson = Lesson.builder().id(UUID.randomUUID().toString()).outletId(outletId).build();
+        when(getLessonsInOutletByDateRangeUseCase
+                .getLessonsInOutletByDateRange(tenantId, outletId, start, end))
+                .thenReturn(List.of(lesson));
+
+        List<Lesson> result = lessonService.getLessonsInOutletByDateRange(
+                tenantId, outletId, start, end);
+
+        assertThat(result).containsExactly(lesson);
+        verify(getLessonsInOutletByDateRangeUseCase)
+                .getLessonsInOutletByDateRange(tenantId, outletId, start, end);
     }
 
     @Nested
