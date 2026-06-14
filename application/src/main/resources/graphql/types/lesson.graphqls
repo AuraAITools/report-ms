@@ -60,3 +60,10 @@ input AssignEducatorsToLessonInput {
     lessonId: ID!
     educatorIds: [ID!]!
 }
+
+input GetLessonsInOutletByDateRangeInput {
+    institutionId: ID!
+    outletId: ID!
+    startTimestamp: Long!
+    endTimestamp: Long!
+}

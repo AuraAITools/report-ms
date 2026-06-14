@@ -2,6 +2,7 @@ extend type Query {
     getLessonById(institutionId: ID!, lessonId: ID!): LessonResponse!
     getAllLessonsInCourse(institutionId: ID!, courseId: ID!): [LessonResponse!]!
     getAllLessonsInOutlet(institutionId: ID!, outletId: ID!): [LessonResponse!]!
+    getLessonsInOutletByDateRange(input: GetLessonsInOutletByDateRangeInput!): [LessonResponse!]!
     getLessonsByEducatorId(institutionId: ID!, educatorId: ID!): [LessonResponse!]!
     getLessonsByStudentId(institutionId: ID!, studentId: ID!): [LessonResponse!]!
 }
