@@ -55,7 +55,12 @@ public class StudentLessonLinkModel extends TenantBaseModel {
     @JoinColumn(name = "lesson_id", nullable = false)
     private LessonModel lesson;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // Child-to-parent ManyToOne intentionally has no cascade. Earlier this field carried
+    // cascade = CascadeType.ALL, which caused em.remove(studentLessonLink) to cascade up
+    // and queue the LessonGroup (and its LessonGroupPlan) for delete — orphaning rows in
+    // lesson_objectives etc. Lesson-group lifecycle is now driven explicitly via
+    // LessonService.deleteById -> LessonGroupService.deleteById.
+    @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private LessonGroupModel lessonGroup;
 

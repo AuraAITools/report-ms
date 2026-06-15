@@ -109,6 +109,19 @@ Feature: Lesson Management
     And querying the lesson by id should fail with error code "FORBIDDEN"
 
   @ComponentTest
+  Scenario: Aura admin deletes a lesson whose group plan has an objective
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Plan Outlet"
+    And a course exists with name "Plan Course"
+    And a topic exists with name "Geometry"
+    And a lesson exists with name "Planned Lesson" linked to the existing topics
+    And the user creates a lesson objective with name "Learn shapes" and objective "Identify common shapes" with 1 topics
+    When user deletes the lesson by id
+    Then the lesson should be deleted successfully
+
+  @ComponentTest
   Scenario: Aura admin fails to delete a non-existent lesson
     Given user has "aura-admin" role
     And an institution is onboarded

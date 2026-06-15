@@ -203,13 +203,25 @@ class LessonServiceTest {
                 plan2, "group-2", List.of(), List.of(), List.of());
     }
 
-    @DisplayName("Should delete lesson and wipe spicedb relationships in order")
+    @DisplayName("Should delete lesson groups, links, booking, lesson and spicedb relationships in order")
     @Test
     void deleteById_clearsLinksAndSpicedb() {
+        com.aura.core.entities.lessons.LessonGroup g1 =
+                com.aura.core.entities.lessons.LessonGroup.builder().id("group-1").lessonId("lesson-1").build();
+        com.aura.core.entities.lessons.LessonGroup g2 =
+                com.aura.core.entities.lessons.LessonGroup.builder().id("group-2").lessonId("lesson-1").build();
+        when(lessonGroupService.findAllByLessonId("lesson-1")).thenReturn(java.util.List.of(g1, g2));
+
         lessonService.deleteById("lesson-1");
 
-        InOrder ordered = inOrder(lessonRepository, lessonOutletRoomBookingRepository,
-                deleteLessonUseCase, relationshipService);
+        InOrder ordered = inOrder(lessonGroupService, lessonRepository,
+                lessonOutletRoomBookingRepository, deleteLessonUseCase, relationshipService);
+        // Lesson groups first — LessonGroupService.deleteById fans out to objectives,
+        // quizzes, plan link tables, and detaches studentLessonLink.lessonGroup so the
+        // subsequent link delete doesn't leave dangling FK references.
+        ordered.verify(lessonGroupService).findAllByLessonId("lesson-1");
+        ordered.verify(lessonGroupService).deleteById("group-1");
+        ordered.verify(lessonGroupService).deleteById("group-2");
         ordered.verify(lessonRepository).deleteAllLessonLinksByLessonId("lesson-1");
         // Booking must be deleted BEFORE the lesson row — see LessonService.deleteById for the
         // CHECK_ON_FLUSH explanation. Reordering or skipping this step reproduces the bug where

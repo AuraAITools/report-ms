@@ -275,6 +275,15 @@ public class LessonService {
 
     @Transactional
     public void deleteById(String id) {
+        // Tear down lesson groups (and their plans + plan children: objectives, quizzes,
+        // and the plan link tables) explicitly. LessonGroupPlan's child collections are
+        // not covered by JPA cascade, so deleting the plan with rows still referencing it
+        // in lesson_objectives / lesson_quizzes / *_links fails with a FK violation.
+        // LessonGroupService.deleteById invokes deleteAllLessonGroupChildrenByLessonGroupId
+        // which handles all of that and also null-detaches studentLessonLink.lessonGroup.
+        for (LessonGroup group : lessonGroupService.findAllByLessonId(id)) {
+            lessonGroupService.deleteById(group.getId());
+        }
         lessonRepository.deleteAllLessonLinksByLessonId(id);
         // Must delete the booking before the lesson row. LessonModel.lessonOutletRoomBooking is
         // @OneToOne(mappedBy = "lesson") with EAGER default, so the booking is loaded into the
