@@ -276,6 +276,14 @@ public class LessonService {
     @Transactional
     public void deleteById(String id) {
         lessonRepository.deleteAllLessonLinksByLessonId(id);
+        // Must delete the booking before the lesson row. LessonModel.lessonOutletRoomBooking is
+        // @OneToOne(mappedBy = "lesson") with EAGER default, so the booking is loaded into the
+        // session whenever the lesson is. If the lesson is removed first, the still-managed
+        // booking holds a reference to a removed instance and CHECK_ON_FLUSH (run on the next
+        // auto-flush, e.g. CourseService.deleteById iterating multiple lessons) throws
+        // TransientPropertyValueException. The booking repo's deleteByLessonId clears the
+        // inverse-side reference before delete to keep the session consistent.
+        lessonOutletRoomBookingRepository.deleteByLessonId(id);
         deleteLessonUseCase.deleteById(id);
         relationshipService.deleteAllRelationshipsForResource("lesson", id);
         relationshipService.deleteAllRelationshipsForResource("lesson_user_group", id);

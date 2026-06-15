@@ -105,6 +105,20 @@ Feature: Course management
     And querying the lesson by id should fail with error code "FORBIDDEN"
 
   @ComponentTest
+  Scenario: Aura admin deletes a course containing multiple roomed lessons
+    Given user has "aura-admin" role
+    And an institution is onboarded
+    And the user switches to the institution tenant
+    And an outlet exists with name "Main Branch"
+    And the outlet room "Room A" exists in outlet "Main Branch"
+    And the outlet room "Room B" exists in outlet "Main Branch"
+    And a course exists with name "Math 101"
+    And the lesson "Morning" is created in course "Math 101" in room "Room A" from "2026-07-01T09:00:00Z" to "2026-07-01T10:00:00Z"
+    And the lesson "Midday" is created in course "Math 101" in room "Room B" from "2026-07-01T11:00:00Z" to "2026-07-01T12:00:00Z"
+    When user deletes the course by id
+    Then the course should be deleted successfully
+
+  @ComponentTest
   Scenario: Aura admin fails to delete a non-existent course
     Given user has "aura-admin" role
     And an institution is onboarded

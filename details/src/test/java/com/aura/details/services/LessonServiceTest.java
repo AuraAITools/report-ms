@@ -208,8 +208,13 @@ class LessonServiceTest {
     void deleteById_clearsLinksAndSpicedb() {
         lessonService.deleteById("lesson-1");
 
-        InOrder ordered = inOrder(lessonRepository, deleteLessonUseCase, relationshipService);
+        InOrder ordered = inOrder(lessonRepository, lessonOutletRoomBookingRepository,
+                deleteLessonUseCase, relationshipService);
         ordered.verify(lessonRepository).deleteAllLessonLinksByLessonId("lesson-1");
+        // Booking must be deleted BEFORE the lesson row — see LessonService.deleteById for the
+        // CHECK_ON_FLUSH explanation. Reordering or skipping this step reproduces the bug where
+        // CourseService.deleteById crashes on the second lesson with TransientPropertyValueException.
+        ordered.verify(lessonOutletRoomBookingRepository).deleteByLessonId("lesson-1");
         ordered.verify(deleteLessonUseCase).deleteById("lesson-1");
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("lesson", "lesson-1");
         ordered.verify(relationshipService).deleteAllRelationshipsForResource("lesson_user_group", "lesson-1");
