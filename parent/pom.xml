@@ -53,7 +53,7 @@
         <authzed.version>1.5.4</authzed.version>
         <grpc.version>1.72.0</grpc.version>
         <shedlock.version>5.16.0</shedlock.version>
-        <jsoup.version>1.18.3</jsoup.version>
+        <jsoup.version>1.23.2</jsoup.version>
         <aws.sdk.version>2.30.0</aws.sdk.version>
     </properties>
     <!-- dependency management does not actually add dependencies, it just standardises version in child pom   -->
